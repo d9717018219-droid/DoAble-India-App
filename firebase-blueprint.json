@@ -1,0 +1,62 @@
+{
+  "entities": {
+    "Job": {
+      "title": "Job Posting",
+      "description": "A job lead posted by an admin.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "orderId": { "type": "string" },
+        "city": { "type": "string" },
+        "subject": { "type": "string" },
+        "area": { "type": "string" },
+        "classBoard": { "type": "string" },
+        "fee": { "type": "string" },
+        "gender": { "type": "string" },
+        "notes": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "postedAt": { "type": "string", "format": "date-time" },
+        "authorId": { "type": "string" }
+      },
+      "required": ["orderId", "city", "postedAt", "authorId"]
+    },
+    "Admin": {
+      "title": "Administrator",
+      "description": "Allows a user to add jobs and manage the app.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Alert": {
+      "title": "Broadcast Alert",
+      "description": "A real-time notification broadcast to specific cities or globally.",
+      "type": "object",
+      "properties": {
+        "message": { "type": "string" },
+        "city": { "type": "string", "description": "City name or 'All'" },
+        "type": { "type": "string", "enum": ["urgent", "info", "success", "broadcast"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "sender": { "type": "string" },
+        "link": { "type": "string" }
+      },
+      "required": ["message", "city", "type", "timestamp", "sender"]
+    }
+  },
+  "firestore": {
+    "/jobs/{jobId}": {
+      "schema": "Job",
+      "description": "Collection of all job postings."
+    },
+    "/alerts/{alertId}": {
+      "schema": "Alert",
+      "description": "Real-time notifications collection."
+    },
+    "/admins/{adminUid}": {
+      "schema": "Admin",
+      "description": "List of administrative users."
+    }
+  }
+}

@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Deployment
+deployment-package/
+.cloudflare-pages-build-cache/
+.vercel/
+
+# Logs
+logs/
+*.log
+
+# Temp
+tmp/
+temp/
+.cache/

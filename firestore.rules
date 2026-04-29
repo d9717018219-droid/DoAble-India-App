@@ -1,0 +1,89 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Hardened ID Validation
+    function isValidId(id) { 
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+    
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // JOBS COLLECTION
+    match /jobs/{jobId} {
+      function isValidJob(data) {
+        return data.keys().hasAll(['orderId', 'city', 'postedAt', 'authorId']) &&
+               data.orderId is string && data.orderId.size() <= 50 &&
+               data.city is string && data.city.size() <= 100 &&
+               data.postedAt is timestamp &&
+               data.authorId == request.auth.uid;
+      }
+
+      allow read: if true; // Publicly readable for now so users can see jobs
+      
+      allow create: if isSignedIn() && isAdmin() && isValidId(jobId) && isValidJob(incoming()) && 
+                    incoming().postedAt == request.time;
+                    
+      allow update: if isSignedIn() && isAdmin() && isValidJob(incoming()) &&
+                    incoming().diff(existing()).affectedKeys().hasOnly(['subject', 'area', 'classBoard', 'fee', 'gender', 'notes', 'phoneNumber']) &&
+                    incoming().postedAt == existing().postedAt &&
+                    incoming().authorId == existing().authorId;
+                    
+      allow delete: if isSignedIn() && isAdmin();
+    }
+
+    // ALERTS COLLECTION
+    match /alerts/{alertId} {
+      function isValidAlert(data) {
+        return data.keys().hasAll(['message', 'city', 'type', 'timestamp', 'sender']) &&
+               data.message is string && data.message.size() <= 1000 &&
+               data.city is string && data.city.size() <= 100 &&
+               data.type in ['urgent', 'info', 'success', 'broadcast'] &&
+               data.timestamp is timestamp &&
+               data.sender is string && data.sender.size() <= 100;
+      }
+
+      allow read: if true; // Alerts are broadcast to all visitors
+      
+      allow create: if isSignedIn() && isAdmin() && isValidId(alertId) && 
+                    isValidAlert(incoming()) && incoming().timestamp == request.time;
+                    
+      allow update, delete: if isSignedIn() && isAdmin();
+    }
+
+    // ADMINS COLLECTION (System-generated or manually seeded)
+    match /admins/{adminUid} {
+      allow read: if isSignedIn(); // Users can check if they are admin
+      allow write: if false; // Only manageable via console for safety
+    }
+
+    // USERS COLLECTION
+    match /users/{userId} {
+      allow read: if isSignedIn(); // Allow users to read profiles for role checks
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // CONNECTION TEST
+    match /test/connection {
+      allow read: if isSignedIn();
+    }
+  }
+}
