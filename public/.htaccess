@@ -1,0 +1,15 @@
+RewriteEngine On
+RewriteBase /
+
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+<Files "tutors">
+    SetHandler application/x-httpd-php
+</Files>
+<Files "leads">
+    SetHandler application/x-httpd-php
+</Files>
+
+RewriteRule . /index.html [L]
