@@ -18,9 +18,12 @@ jobs:
         with:
           node-version: '18'
       
-      - name: Install dependencies
-        run: npm install
-      
+      - name: Clean npm cache and install dependencies
+        run: |
+          rm -rf package-lock.json node_modules
+          npm cache clean --force
+          npm install
+
       - name: Build application
         run: npm run build
       
