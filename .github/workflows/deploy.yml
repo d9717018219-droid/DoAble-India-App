@@ -9,21 +9,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      
-      - name: Install dependencies with npm ci
-        run: npm ci --legacy-peer-deps
 
-      - name: Build application
-        run: npm run build
-      
       - name: Deploy to Hostinger via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -32,11 +21,14 @@ jobs:
           password: ${{ secrets.HOSTINGER_PASSWORD }}
           script: |
             cd ${{ secrets.HOSTINGER_APP_PATH }}
+            echo "📦 Deploying code to Hostinger..."
             git pull origin main
-            npm install --production
+            echo "📥 Installing dependencies..."
+            npm install --legacy-peer-deps
+            echo "🔨 Building application..."
             npm run build
-            # Restart the application in Application Manager (manual step)
-            echo "✅ Deployment complete! Restart app in Hostinger Application Manager"
+            echo "✅ Deployment complete! Your app is updated."
+            echo "⚠️  Remember to restart the app in Hostinger Application Manager"
 
       - name: Deployment Status
-        run: echo "✅ Code deployed to Hostinger. New build ready!"
+        run: echo "✅ Deployment triggered on Hostinger. Check your server!"
