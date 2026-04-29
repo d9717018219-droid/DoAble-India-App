@@ -53,8 +53,11 @@ export interface Alert {
   city: string;
   gender?: string;
   targetClass?: string;
+  targetUserType?: UserType | 'all';
   type: 'urgent' | 'info' | 'success' | 'broadcast';
   timestamp: any;
   sender: string;
   link?: string;
 }
+
+export type UserType = 'parent' | 'teacher';

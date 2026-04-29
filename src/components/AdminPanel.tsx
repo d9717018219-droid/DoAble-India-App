@@ -13,6 +13,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
   const [targetCity, setTargetCity] = useState(currentCity || 'All');
   const [targetGender, setTargetGender] = useState('Any');
   const [targetClass, setTargetClass] = useState('All');
+  const [targetUserType, setTargetUserType] = useState<'parent' | 'teacher' | 'all'>('all');
   const [type, setType] = useState<'urgent' | 'info' | 'success' | 'broadcast'>('info');
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
@@ -40,6 +41,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
         city: targetCity,
         gender: targetGender,
         targetClass: targetClass,
+        targetUserType: targetUserType,
         type,
         sender: 'DoAble Admin',
         timestamp: serverTimestamp(),
@@ -94,6 +96,18 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-primary"
                 >
                     {CLASSES_LIST.map(c => <option key={c} value={c} className="bg-slate-900">{c}</option>)}
+                </select>
+            </div>
+            <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Target User Role</label>
+                <select 
+                    value={targetUserType}
+                    onChange={(e) => setTargetUserType(e.target.value as any)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-primary"
+                >
+                    <option value="all" className="bg-slate-900">All (Parents & Teachers)</option>
+                    <option value="parent" className="bg-slate-900">Parents Only</option>
+                    <option value="teacher" className="bg-slate-900">Teachers Only</option>
                 </select>
             </div>
             <div className="space-y-2">

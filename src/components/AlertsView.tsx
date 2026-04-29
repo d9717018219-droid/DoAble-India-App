@@ -2,18 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { collection, query, where, orderBy, onSnapshot, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
-import { Alert } from '../types';
+import { Alert, UserType } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, Play, Volume2, Upload } from 'lucide-react';
+import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, Play, Volume2 } from 'lucide-react';
 import { getCityTheme } from '../utils';
 
 interface AlertsViewProps {
   city: string;
   userGender?: string | null;
   userClasses?: string[];
+  userType?: UserType | null;
 }
 
-const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses }) => {
+const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, userType }) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTone, setSelectedTone] = useState('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
@@ -26,7 +27,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses }
 
   const celestialTone = { name: 'Celestial Goal', url: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3' };
 
-  const playSound = (url: string, volume = 0.8, duration?: number) => {
+  const playSound = (url: string, volume = 0.8) => {
     if (!domAudioRef.current) return;
 
     domAudioRef.current.pause();
@@ -39,15 +40,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses }
       playPromise
         .then(() => {
           setIsPlaying(url);
-          // Auto-stop if duration specified
-          if (duration) {
-            setTimeout(() => {
-              if (domAudioRef.current?.src === url) {
-                domAudioRef.current.pause();
-                setIsPlaying(null);
-              }
-            }, duration);
-          }
         })
         .catch(err => {
           console.error('Audio playback failed:', err);
@@ -91,7 +83,10 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses }
     // 2. Class check
     const matchesClass = !alert.targetClass || alert.targetClass === 'All' || (userClasses && userClasses.includes(alert.targetClass));
     
-    return matchesGender && matchesClass;
+    // 3. User Type check
+    const matchesUserType = !alert.targetUserType || alert.targetUserType === 'all' || alert.targetUserType === userType;
+
+    return matchesGender && matchesClass && matchesUserType;
   });
 
   // Sound and Notification function
@@ -99,8 +94,9 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses }
     // Check if this specific alert matches user preferences before notifying
     const matchesGender = !alert.gender || alert.gender === 'Any' || alert.gender === userGender;
     const matchesClass = !alert.targetClass || alert.targetClass === 'All' || (userClasses && userClasses.includes(alert.targetClass));
+    const matchesUserType = !alert.targetUserType || alert.targetUserType === 'all' || alert.targetUserType === userType;
     
-    if (!matchesGender || !matchesClass) return;
+    if (!matchesGender || !matchesClass || !matchesUserType) return;
 
     // 1. Play Sound
     playSound(selectedTone, 0.8);
@@ -146,7 +142,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses }
   const playTestSound = () => {
     playSound(selectedTone, 0.5);
     setTimeout(() => {
-      alert("Sound Unlocked! You will now hear the chosen tone for new alerts even in background.");
+      alert("Sound Unlocked! You will now hear the alert tone for new broadcasts.");
     }, 500);
   };
 
@@ -186,7 +182,8 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses }
         const fCount = alertsData.filter(alert => {
           const matchesGender = !alert.gender || alert.gender === 'Any' || alert.gender === userGender;
           const matchesClass = !alert.targetClass || alert.targetClass === 'All' || (userClasses && userClasses.includes(alert.targetClass));
-          return matchesGender && matchesClass;
+          const matchesUserType = !alert.targetUserType || alert.targetUserType === 'all' || alert.targetUserType === userType;
+          return matchesGender && matchesClass && matchesUserType;
         }).length;
 
         if (fCount > 0) {

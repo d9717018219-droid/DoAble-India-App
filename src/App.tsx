@@ -4,30 +4,37 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
-import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap } from 'lucide-react';
+import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check } from 'lucide-react';
 import { collection, onSnapshot, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, auth, auth as firebaseAuth } from './firebase';
 import { handleFirestoreError, OperationType } from './lib/firestore-errors';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'firebase/auth';
 import { motion, AnimatePresence } from 'motion/react';
-import { JobLead, ApiResponse, TutorProfile, Alert } from './types';
+import { JobLead, ApiResponse, TutorProfile, Alert, UserType } from './types';
 import { JobCard } from './components/JobCard';
 import { TutorCard } from './components/TutorCard';
 import AlertsView from './components/AlertsView';
 import AdminPanel from './components/AdminPanel';
-import { TutorFilterModal } from './components/TutorFilterModal';
-import { TutorFilterButton } from './components/TutorFilterButton';
 import { cn, getCityTheme } from './utils';
-import { TutorFilters, DEFAULT_FILTERS } from './types/filters';
-import { applyTutorFilters, countActiveFilters } from './utils/tutorFilters';
+import { 
+  CITIES_LIST, 
+  CLASSES_LIST, 
+  CLASS_SUBJECTS_DATA, 
+  STATE_DISTRICT_LOCATIONS_DATA, 
+  TIME_PERIODS_DATA, 
+  DAY_GROUPS_DATA 
+} from './constants';
 
 export default function App() {
   const [leads, setLeads] = useState<JobLead[]>([]);
   const [firestoreLeads, setFirestoreLeads] = useState<JobLead[]>([]);
   const [tutors, setTutors] = useState<TutorProfile[]>([]);
-  const [userCity, setUserCity] = useState<string | null>(localStorage.getItem('userCity'));
+  const [userCity, setUserCity] = useState<string>(localStorage.getItem('userCity') || 'Ghaziabad');
   const [userName, setUserName] = useState<string | null>(localStorage.getItem('userName'));
   const [userGender, setUserGender] = useState<string | null>(localStorage.getItem('userGender'));
+  const [userType, setUserType] = useState<UserType | null>(localStorage.getItem('userType') as UserType);
+  const [userTutorGenderPref, setUserTutorGenderPref] = useState<string>(localStorage.getItem('userTutorGenderPref') || 'Any');
+  const [userTutorArea, setUserTutorArea] = useState<string>(localStorage.getItem('userTutorArea') || '');
   const [userClasses, setUserClasses] = useState<string[]>(JSON.parse(localStorage.getItem('userClasses') || '[]'));
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -35,13 +42,12 @@ export default function App() {
   const [cityFilter, setCityFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts'>('home');
+  const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [showAdminSettings, setShowAdminSettings] = useState(false);
   const [adminStatus, setAdminStatus] = useState<string>('Checking...');
   const [jobLimit, setJobLimit] = useState(15);
   const [tutorLimit, setTutorLimit] = useState(15);
-  const [tutorFilters, setTutorFilters] = useState<TutorFilters>(DEFAULT_FILTERS);
-  const [showFilterModal, setShowFilterModal] = useState(false);
 
   // Admin Check
   useEffect(() => {
@@ -63,17 +69,229 @@ export default function App() {
   const [isEditingProfile, setIsEditingProfile] = useState(!localStorage.getItem('userName'));
   const [editName, setEditName] = useState(localStorage.getItem('userName') || '');
   const [editGender, setEditGender] = useState(localStorage.getItem('userGender') || '');
+  const [editUserType, setEditUserType] = useState<UserType | null>(localStorage.getItem('userType') as UserType);
+  const [editTutorGenderPref, setEditTutorGenderPref] = useState(localStorage.getItem('userTutorGenderPref') || 'Any');
+  const [editTutorArea, setEditTutorArea] = useState(localStorage.getItem('userTutorArea') || '');
+  const [editTutorSubjects, setEditTutorSubjects] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorSubjects') || '[]'));
+  const [editTutorLocations, setEditTutorLocations] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorLocations') || '[]'));
+  const [areaSearch, setAreaSearch] = useState('');
+  const [editTutorTimes, setEditTutorTimes] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorTimes') || '[]'));
+  const [editTutorDays, setEditTutorDays] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorDays') || '[]'));
+  const [editTutorFee, setEditTutorFee] = useState<string>(localStorage.getItem('userTutorFee') || '');
+  const [editTutorSchoolExp, setEditTutorSchoolExp] = useState<string>(localStorage.getItem('userTutorSchoolExp') || '');
+  const [editTutorVehicle, setEditTutorVehicle] = useState<string>(localStorage.getItem('userTutorVehicle') || '');
+  const [editTutorLastUpdated, setEditTutorLastUpdated] = useState<string>(localStorage.getItem('userTutorLastUpdated') || '');
+  const [editTutorStatus, setEditTutorStatus] = useState<string>(localStorage.getItem('userTutorStatus') || '');
   const [editClasses, setEditClasses] = useState<string[]>(JSON.parse(localStorage.getItem('userClasses') || '[]'));
+  const [editCity, setEditCity] = useState<string>(localStorage.getItem('userCity') || 'Ghaziabad');
 
-  const CITIES_LIST = [
-    'Ahmedabad', 'Allahabad', 'Amrawati', 'Amritsar', 'Bangalore', 'Bhopal', 'Bhubaneswar', 
-    'Chandigarh', 'Chennai', 'Cochin', 'Coimbatore', 'Dehradun', 'Delhi', 'Dispur', 
-    'Faridabad', 'Gandhinagar', 'Ghaziabad', 'Greater Noida', 'Gurgaon', 'Guwahati', 
-    'Hyderabad', 'Indore', 'Itanagar', 'Jaipur', 'Kanpur', 'Kolkata', 'Kota', 'Leh', 
-    'Lucknow', 'Mangalore', 'Meerut', 'Mohali', 'Mumbai', 'Nagpur', 'Noida', 'Panchkula', 
-    'Patna', 'Pondicherry', 'Pune', 'Raipur', 'Ranchi', 'Shimla', 'Srinagar', 'Surat', 
-    'Thane', 'Trivandrum', 'Vadodara', 'Vellore', 'Zirakpur'
-  ].sort();
+  const [userTutorSubjects, setUserTutorSubjects] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorSubjects') || '[]'));
+  const [userTutorLocations, setUserTutorLocations] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorLocations') || '[]'));
+  const [userTutorTimes, setUserTutorTimes] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorTimes') || '[]'));
+  const [userTutorDays, setUserTutorDays] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorDays') || '[]'));
+  const [userTutorFee, setUserTutorFee] = useState<string>(localStorage.getItem('userTutorFee') || '');
+  const [userTutorSchoolExp, setUserTutorSchoolExp] = useState<string>(localStorage.getItem('userTutorSchoolExp') || '');
+  const [userTutorVehicle, setUserTutorVehicle] = useState<string>(localStorage.getItem('userTutorVehicle') || '');
+  const [userTutorLastUpdated, setUserTutorLastUpdated] = useState<string>(localStorage.getItem('userTutorLastUpdated') || '');
+  const [userTutorStatus, setUserTutorStatus] = useState<string>(localStorage.getItem('userTutorStatus') || '');
+
+  // Data Parsing Helpers (Matching User's Working Code)
+  const getSubjects = (t: TutorProfile) => {
+    const subjects = t['Preferred Subject(s)'] || '';
+    if (!subjects || subjects === 'null') return [];
+    return subjects.split(';').map(s => s.trim()).filter(s => s);
+  };
+
+  const getLocations = (t: TutorProfile) => {
+    const locations = t['Preferred Location(s)'] || '';
+    if (!locations || locations === 'null') return [t['Preferred City'] || 'India'];
+    let locArray: string[] = [];
+    try {
+      if (locations.startsWith('[')) {
+        const parsed = JSON.parse(locations);
+        if (Array.isArray(parsed)) locArray = parsed;
+      }
+    } catch (e) {}
+    if (locArray.length === 0 && locations.includes(',')) locArray = locations.split(',');
+    if (locArray.length === 0 && locations.includes(';')) locArray = locations.split(';');
+    if (locArray.length === 0) locArray = [locations];
+    
+    return locArray.map(l => {
+      const clean = l.trim();
+      const lastDash = clean.lastIndexOf('-');
+      // If we have a dash, we assume it's "Area - City" and extract "Area"
+      return lastDash > 0 ? clean.substring(0, lastDash).trim() : clean;
+    });
+  };
+
+  const getCityValue = (t: TutorProfile) => {
+    return (t['Preferred City'] || 'India').trim();
+  };
+
+  const getTimes = (t: TutorProfile) => {
+    const times = t['Preferred Time'] || '';
+    if (!times || times === 'null') return [];
+    let timeArray: string[] = [];
+    if (times.includes(',')) timeArray = times.split(',');
+    else if (times.includes(';')) timeArray = times.split(';');
+    else timeArray = [times];
+    return timeArray.map(t => t.trim()).filter(t => t);
+  };
+
+  const getGenderValue = (t: TutorProfile) => {
+    const gender = (t.Gender || '').trim();
+    return gender && gender !== 'null' ? gender : '–';
+  };
+
+  const isCityMatch = (c1: string, c2: string) => {
+    if (!c1 || !c2) return false;
+    const s1 = c1.toLowerCase().trim();
+    const s2 = c2.toLowerCase().trim();
+    if (s1 === s2) return true;
+    
+    // Handle "Ghaziabad" vs "Ghaziabad City", "Panchkula" vs "Panchkula City" etc.
+    if (s1 === s2 + ' city' || s2 === s1 + ' city') return true;
+
+    // Flexible matching with contains
+    if (s1.includes(s2) || s2.includes(s1)) {
+       // CRITICAL: Explicitly separate Noida and Greater Noida
+       // If one contains "greater" and the other doesn't, but both are "noida", it's NOT a match
+       const isOneGreater = s1.includes('greater');
+       const isTwoGreater = s2.includes('greater');
+       if (isOneGreater !== isTwoGreater) {
+         if (s1.includes('noida') && s2.includes('noida')) {
+           return false;
+         }
+       }
+       return true;
+    }
+    
+    // NCR mapping
+    if ((s1 === 'delhi' && s2.includes('ncr')) || (s2 === 'delhi' && s1.includes('ncr'))) return true;
+
+    return false;
+  };
+
+  const isLocationMatch = (leadLocations: string | undefined, selectedLocations: string[], leadCity: string | undefined) => {
+    if (!selectedLocations || selectedLocations.length === 0) return true;
+    
+    // Support both Locations and Location fields
+    const rawLocs = (leadLocations || (leadLocations as any)?.Location || '').toString().toLowerCase();
+    const city = (leadCity || '').toLowerCase().trim();
+    
+    // If the lead has no specific location, or location is just the city name, we consider it a match for the city
+    if (!rawLocs || rawLocs === 'null' || rawLocs.trim() === '' || rawLocs.trim() === city) {
+      return true;
+    }
+    
+    const leadLocsLower = rawLocs.toLowerCase();
+    const leadClean = leadLocsLower.replace(/[^a-z0-9]/g, '');
+    
+    return selectedLocations.some(selectedLoc => {
+      const slLower = selectedLoc.toLowerCase();
+      const slClean = slLower.replace(/[^a-z0-9]/g, '');
+      
+      // Simple substring match on cleaned strings
+      if (leadClean.includes(slClean) || slClean.includes(leadClean)) return true;
+      
+      // Smart numeric matching for sectors
+      const slNumbers = slLower.match(/\d+/g);
+      if (slNumbers && slNumbers.length > 0) {
+        const num = slNumbers[0];
+        // Check if the number exists as a word or with common abbreviations in leadLocsLower
+        const sectorRegex = new RegExp(`(^|\\b|\\s|sec|s|-)${num}(\\b|\\s|th|st|nd|rd|std|$)`, 'i');
+        if (sectorRegex.test(leadLocsLower)) return true;
+      }
+      
+      return false;
+    });
+  };
+
+  const getNumbers = (str: string) => {
+    const romanMap: Record<string, number> = {
+      'xii': 12, 'xi': 11, 'x': 10, 'ix': 9, 'viii': 8, 'vii': 7, 'vi': 6, 'v': 5, 'iv': 4, 'iii': 3, 'ii': 2, 'i': 1
+    };
+    
+    const results: number[] = [];
+    const lowerStr = str.toLowerCase();
+    
+    // Pattern for ranges like "1 to 5", "I to V", "1-5"
+    const rangePattern = /(\d+|[ivxl]+)\s*to\s*(\d+|[ivxl]+)|(\d+|[ivxl]+)\s*-\s*(\d+|[ivxl]+)/i;
+    const rangeMatch = lowerStr.match(rangePattern);
+    
+    if (rangeMatch) {
+      let startStr = rangeMatch[1] || rangeMatch[3];
+      let endStr = rangeMatch[2] || rangeMatch[4];
+      
+      let start = parseInt(startStr);
+      if (isNaN(start)) start = romanMap[startStr] || 0;
+      
+      let end = parseInt(endStr);
+      if (isNaN(end)) end = romanMap[endStr] || 0;
+      
+      if (start > 0 && end >= start) {
+        for (let i = start; i <= end; i++) results.push(i);
+        return results;
+      }
+    }
+
+    // Individual numbers
+    const numMatches = lowerStr.match(/\d+/g);
+    if (numMatches) {
+      numMatches.forEach(n => results.push(parseInt(n)));
+    }
+    
+    // Individual Roman numerals (only if standing alone to avoid false positives)
+    Object.entries(romanMap).forEach(([roman, val]) => {
+      const regex = new RegExp(`(^|\\b|\\s)${roman}($|\\b|\\s|std)`, 'i');
+      if (regex.test(lowerStr)) {
+        results.push(val);
+      }
+    });
+    
+    return Array.from(new Set(results));
+  };
+
+  const handleAdminAccess = async () => {
+    let user = currentUser;
+    
+    if (!user) {
+      try {
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        user = result.user;
+      } catch (error) {
+        console.error("Sign-in failed:", error);
+        return;
+      }
+    }
+
+    if (user?.email === 'd9717018219@gmail.com') {
+      setShowAdminSettings(true);
+    } else {
+      alert("Access Denied: You do not have permission to access System Settings.");
+    }
+  };
+
+  // Onboarding state
+  const [onboardingStep, setOnboardingStep] = useState<number>(0);
+  const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('userCity'));
+  const [isSelectingCityOnly, setIsSelectingCityOnly] = useState(false);
+
+  useEffect(() => {
+    if (showOnboarding && onboardingStep === 0) {
+      const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
+      audio.volume = 0.3;
+      audio.play().catch(e => console.log('Audio blocked', e));
+    }
+  }, [showOnboarding]);
+
+  useEffect(() => {
+     // If user changes city, we should reset selected locations if city changed
+     if (editCity) {
+        // We could reset editTutorLocations here if wanted
+     }
+  }, [editCity]);
 
   useEffect(() => {
     // Ensure dark mode is removed from body explicitly
@@ -229,13 +447,193 @@ export default function App() {
       localStorage.setItem('userCity', city);
     } else {
       localStorage.removeItem('userCity');
+      localStorage.removeItem('userType');
+      setUserType(null);
     }
   };
 
-  const handleSaveProfile = (name: string, gender: string, classes: string[]) => {
+  const selectUserType = (type: UserType) => {
+    setUserType(type);
+    setEditUserType(type);
+    
+    // Play sound when starting onboarding
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
+    audio.volume = 0.5;
+    audio.play().catch(e => console.log('Audio blocked', e));
+    
+    setOnboardingStep(1);
+    // Reset fields when switching type to avoid data carryover
+    setEditName('');
+    setEditGender('');
+    setEditTutorGenderPref('Any');
+    setEditClasses([]);
+  };
+
+  const getMatchingJobsCount = (gender: string, targetClasses: string[], city: string, locations: string[]) => {
+    return allLeads.filter(l => {
+      // 1. Gender Filter
+      const leadGender = (l.Gender || '').toLowerCase().trim();
+      let matchesGender = true;
+      if (gender && leadGender && leadGender !== 'any') {
+        const userG = gender.toLowerCase();
+        if (leadGender.includes('female')) matchesGender = userG === 'female';
+        else if (leadGender.includes('male')) matchesGender = userG === 'male';
+      }
+      if (!matchesGender) return false;
+
+      // 2. Class Filter
+      let matchesClass = true;
+      if (targetClasses.length > 0) {
+        const leadClass = ((l['Class / Board'] || '') + ' ' + (l.Class || '')).toString().toLowerCase();
+        const leadNums = getNumbers(leadClass);
+        matchesClass = targetClasses.some(pref => {
+          const prefNums = getNumbers(pref);
+          if (leadNums.length > 0 && prefNums.length > 0) {
+            if (prefNums.some(n => leadNums.includes(n))) return true;
+          }
+          const keywords = [pref.toLowerCase().replace(' std', '')];
+          return keywords.some(k => {
+            const pattern = k.toLowerCase().trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(^|\\b|\\s)${pattern}($|\\b|\\s|th|st|nd|rd|std)`, 'i');
+            return regex.test(leadClass);
+          });
+        });
+      }
+      if (!matchesClass) return false;
+
+      // 3. City Filter
+      if (city && city !== 'all' && city !== '') {
+        if (!isCityMatch(l.City, city)) return false;
+      }
+
+      // 4. Area Filter
+      if (city && city !== 'all' && locations.length > 0) {
+        if (!isLocationMatch(l.Locations, locations, l.City)) return false;
+      }
+
+      return true;
+    }).length;
+  };
+
+  const handleCompleteOnboarding = () => {
+    if (!editName || (editUserType === 'teacher' && !editGender) || !editUserType || editClasses.length === 0 || !editCity) {
+      alert("Please complete all required fields (Name, Gender/Pref, City, Classes)!");
+      return;
+    }
+    
+    localStorage.setItem('userCity', editCity);
+    localStorage.setItem('userType', editUserType);
+    localStorage.setItem('userName', editName);
+    localStorage.setItem('userGender', editGender);
+    localStorage.setItem('userClasses', JSON.stringify(editClasses));
+    localStorage.setItem('userTutorGenderPref', editTutorGenderPref);
+    localStorage.setItem('userTutorArea', editTutorArea);
+    localStorage.setItem('userTutorSubjects', JSON.stringify(editTutorSubjects));
+    localStorage.setItem('userTutorLocations', JSON.stringify(editTutorLocations));
+    localStorage.setItem('userTutorTimes', JSON.stringify(editTutorTimes));
+    localStorage.setItem('userTutorDays', JSON.stringify(editTutorDays));
+    localStorage.setItem('userTutorFee', editTutorFee);
+    localStorage.setItem('userTutorSchoolExp', editTutorSchoolExp);
+    localStorage.setItem('userTutorVehicle', editTutorVehicle);
+    localStorage.setItem('userTutorLastUpdated', editTutorLastUpdated);
+    localStorage.setItem('userTutorStatus', editTutorStatus);
+    
+    setUserCity(editCity);
+    setUserType(editUserType);
+    setUserName(editName);
+    setUserGender(editGender);
+    setUserClasses(editClasses);
+    setUserTutorGenderPref(editTutorGenderPref);
+    setUserTutorArea(editTutorArea);
+    setUserTutorSubjects(editTutorSubjects);
+    setUserTutorLocations(editTutorLocations);
+    setUserTutorTimes(editTutorTimes);
+    setUserTutorDays(editTutorDays);
+    setUserTutorFee(editTutorFee);
+    setUserTutorSchoolExp(editTutorSchoolExp);
+    setUserTutorVehicle(editTutorVehicle);
+    setUserTutorLastUpdated(editTutorLastUpdated);
+    setUserTutorStatus(editTutorStatus);
+    setCityFilter(editCity);
+    
+    setShowOnboarding(false);
+    setIsSelectingCityOnly(false);
+    // Auto-navigate to correct tab
+    if (editUserType === 'parent') setActiveTab('tutors');
+    else setActiveTab('jobs');
+  };
+
+  const handleSaveProfile = (
+    name: string, 
+    gender: string, 
+    classes: string[], 
+    type?: UserType | null, 
+    tutorGender?: string, 
+    tutorArea?: string,
+    subjects?: string[],
+    locations?: string[],
+    times?: string[],
+    days?: string[],
+    fee?: string,
+    schoolExp?: string,
+    vehicle?: string,
+    lastUpdated?: string,
+    status?: string
+  ) => {
     localStorage.setItem('userName', name);
     localStorage.setItem('userGender', gender);
     localStorage.setItem('userClasses', JSON.stringify(classes));
+    if (tutorGender) {
+      localStorage.setItem('userTutorGenderPref', tutorGender);
+      setUserTutorGenderPref(tutorGender);
+    }
+    if (tutorArea !== undefined) {
+      localStorage.setItem('userTutorArea', tutorArea);
+      setUserTutorArea(tutorArea);
+    }
+    if (subjects) {
+      localStorage.setItem('userTutorSubjects', JSON.stringify(subjects));
+      setUserTutorSubjects(subjects);
+    }
+    if (locations) {
+      localStorage.setItem('userTutorLocations', JSON.stringify(locations));
+      setUserTutorLocations(locations);
+    }
+    if (times) {
+      localStorage.setItem('userTutorTimes', JSON.stringify(times));
+      setUserTutorTimes(times);
+    }
+    if (days) {
+      localStorage.setItem('userTutorDays', JSON.stringify(days));
+      setUserTutorDays(days);
+    }
+    if (fee !== undefined) {
+      localStorage.setItem('userTutorFee', fee);
+      setUserTutorFee(fee);
+    }
+    if (schoolExp !== undefined) {
+      localStorage.setItem('userTutorSchoolExp', schoolExp);
+      setUserTutorSchoolExp(schoolExp);
+    }
+    if (vehicle !== undefined) {
+      localStorage.setItem('userTutorVehicle', vehicle);
+      setUserTutorVehicle(vehicle);
+    }
+    if (lastUpdated !== undefined) {
+      localStorage.setItem('userTutorLastUpdated', lastUpdated);
+      setUserTutorLastUpdated(lastUpdated);
+    }
+    if (status !== undefined) {
+      localStorage.setItem('userTutorStatus', status);
+      setUserTutorStatus(status);
+    }
+    if (type) {
+      localStorage.setItem('userType', type);
+      setUserType(type);
+      // Switch tab if current one is now hidden
+      if (type === 'parent' && activeTab === 'jobs') setActiveTab('tutors');
+      if (type === 'teacher' && activeTab === 'tutors') setActiveTab('jobs');
+    }
     setUserName(name);
     setUserGender(gender);
     setUserClasses(classes);
@@ -273,24 +671,60 @@ export default function App() {
     );
   }, [leads, firestoreLeads]);
 
+  const availableLocationsForCity = useMemo(() => {
+    const city = (activeTab === 'home' || activeTab === 'alerts') ? editCity : cityFilter;
+    if (!city || city === 'all') return [];
+    
+    const cityLower = city.toLowerCase().trim();
+    let locations: string[] = [];
+    
+    // ONLY use data from constants.ts as per user request to avoid "random picking"
+    for (const state in STATE_DISTRICT_LOCATIONS_DATA) {
+        for (const c in STATE_DISTRICT_LOCATIONS_DATA[state]) {
+            if (isCityMatch(c, city)) {
+                locations = [...locations, ...STATE_DISTRICT_LOCATIONS_DATA[state][c]];
+            }
+        }
+    }
+
+    return Array.from(new Set(locations)).sort();
+  }, [editCity, cityFilter, activeTab]);
+
   const filteredLeads = useMemo(() => {
     return allLeads.filter(l => {
-      const matchesCity = cityFilter === 'all' || l.City === cityFilter;
+      const matchesCity = cityFilter === 'all' || isCityMatch(l.City, cityFilter);
+      
       const searchLower = searchQuery.toLowerCase();
       const matchesSearch = searchQuery === '' || 
         (l.Name?.toLowerCase().includes(searchLower)) ||
         (l.subjects?.toLowerCase().includes(searchLower)) ||
         (l['Order ID']?.toLowerCase().includes(searchLower)) ||
         (l.City?.toLowerCase().includes(searchLower));
+
+      // Area filter for Jobs
+      let matchesArea = true;
+      if (matchesCity && userTutorLocations.length > 0) {
+        matchesArea = isLocationMatch(l.Locations, userTutorLocations, l.City);
+      }
+      
+      // Subject filter for Jobs
+      let matchesSubjects = true;
+      if (userTutorSubjects.length > 0) {
+        const leadSubjs = (l.subjects || '').toLowerCase();
+        matchesSubjects = userTutorSubjects.some(s => {
+          const lowerS = s.toLowerCase();
+          return leadSubjs.includes(lowerS) || lowerS.includes(leadSubjs);
+        });
+      }
       
       // Gender preference (if job specifies a gender, it must match user's gender)
       let matchesGender = true;
-      if (userGender && l.Gender && l.Gender !== 'Any') {
-        const jobGenderPref = l.Gender.toLowerCase();
+      const leadGender = (l.Gender || '').toLowerCase().trim();
+      if (userGender && leadGender && leadGender !== 'any') {
         const userGenderLow = userGender.toLowerCase();
-        if (jobGenderPref.includes('female')) {
+        if (leadGender.includes('female')) {
           matchesGender = userGenderLow === 'female';
-        } else if (jobGenderPref.includes('male')) {
+        } else if (leadGender.includes('male')) {
           matchesGender = userGenderLow === 'male';
         }
       }
@@ -299,59 +733,532 @@ export default function App() {
       let matchesPreference = true;
       if (userClasses && userClasses.length > 0) {
         const leadClass = ((l['Class / Board'] || '') + ' ' + (l.Class || '')).toString().toLowerCase();
-        
-        matchesPreference = userClasses.some(pref => {
-          const numMatch = pref.match(/\d+/);
-          const num = numMatch ? numMatch[0] : '';
-          
-          // Map of class names to possible variants in the data
-          const variants: Record<string, string[]> = {
-            '1st Std': ['1st', 'std 1', 'class 1', 'class i', 'i std', ' 1 ', ' i '],
-            '2nd Std': ['2nd', 'std 2', 'class 2', 'class ii', 'ii std', ' 2 ', ' ii '],
-            '3rd Std': ['3rd', 'std 3', 'class 3', 'class iii', 'iii std', ' 3 ', ' iii '],
-            '4th Std': ['4th', 'std 4', 'class 4', 'class iv', 'iv std', ' 4 ', ' iv '],
-            '5th Std': ['5th', 'std 5', 'class 5', 'class v', 'v std', ' 5 ', ' v '],
-            '6th Std': ['6th', 'std 6', 'class 6', 'class vi', 'vi std', ' 6 ', ' vi '],
-            '7th Std': ['7th', 'std 7', 'class 7', 'class vii', 'vii std', ' 7 ', ' vii '],
-            '8th Std': ['8th', 'std 8', 'class 8', 'class viii', 'viii std', ' 8 ', ' viii '],
-            '9th Std': ['9th', 'std 9', 'class 9', 'class ix', 'ix std', ' 9 ', ' ix '],
-            '10th Std': ['10th', 'std 10', 'class 10', 'class x', 'x std', ' 10 ', ' x '],
-            '11th Std': ['11th', 'std 11', 'class 11', 'class xi', 'xi std', ' 11 ', ' xi '],
-            '12th Std': ['12th', 'std 12', 'class 12', 'class xii', 'xii std', ' 12 ', ' xii '],
-          };
+        const leadNums = getNumbers(leadClass);
 
-          const keywords = variants[pref] || [pref.toLowerCase().replace(' std', '')];
+        matchesPreference = userClasses.some(pref => {
+          const prefNums = getNumbers(pref);
+          
+          // Intersection check
+          if (leadNums.length > 0 && prefNums.length > 0) {
+            if (prefNums.some(n => leadNums.includes(n))) return true;
+          }
+
+          // Fallback to keyword matching for specific text
+          const keywords = [pref.toLowerCase().replace(' std', '')];
           
           return keywords.some(k => {
             const cleanK = k.toLowerCase().trim();
             if (!cleanK) return false;
-            
-            // Build a regex that matches the keyword as a whole word or with suffixes like 8th
-            const pattern = cleanK.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // escape regex
+            const pattern = cleanK.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             const regex = new RegExp(`(^|\\b|\\s)${pattern}($|\\b|\\s|th|st|nd|rd|std)`, 'i');
             return regex.test(leadClass);
           });
         });
       }
       
-      return matchesCity && matchesSearch && matchesPreference && matchesGender;
+      return matchesCity && matchesArea && matchesSearch && matchesPreference && matchesGender && matchesSubjects;
     });
-  }, [allLeads, cityFilter, searchQuery, userClasses, userGender]);
+  }, [allLeads, cityFilter, searchQuery, userClasses, userGender, userTutorLocations, userTutorSubjects]);
 
   const filteredTutors = useMemo(() => {
-    // Create a filter object that includes city filter and search query if they're set
-    const combinedFilters = { ...tutorFilters };
-    if (cityFilter !== 'all' && cityFilter) {
-      combinedFilters.cities = [cityFilter];
-    }
-    if (searchQuery) {
-      combinedFilters.searchQuery = searchQuery;
-    }
-    return applyTutorFilters(tutors, combinedFilters);
-  }, [tutors, tutorFilters, cityFilter, searchQuery]);
+    return tutors.filter(t => {
+      // 1. Search Filter (Name or ID)
+      const searchLower = searchQuery.toLowerCase();
+      const matchesSearch = searchQuery === '' || 
+        (t.Name?.toLowerCase().includes(searchLower)) ||
+        (t['Tutor ID']?.toString().toLowerCase().includes(searchLower)) ||
+        (t['Preferred Subject(s)']?.toLowerCase().includes(searchLower));
+
+      // 2. City & Location (Hierarchical)
+      let matchesCityAndLoc = true;
+      if (cityFilter !== 'all') {
+        const tutorCity = getCityValue(t);
+        // Flexible match for city
+        const isCityMatchResult = isCityMatch(tutorCity, cityFilter);
+        
+        if (!isCityMatchResult) {
+          matchesCityAndLoc = false;
+        } else if (userTutorLocations.length > 0) {
+          // If city matches, check specific locations
+          const tutorLocs = getLocations(t).map(loc => loc.toLowerCase());
+          matchesCityAndLoc = userTutorLocations.some(loc => {
+            const l = loc.toLowerCase();
+            return tutorLocs.some(tl => tl.includes(l) || l.includes(tl));
+          });
+        }
+      }
+
+      // 3. Gender Filter
+      let matchesGender = true;
+      if (userTutorGenderPref && userTutorGenderPref !== 'Any') {
+        const tutorGender = getGenderValue(t).toLowerCase();
+        const prefGender = userTutorGenderPref.toLowerCase();
+        matchesGender = tutorGender === prefGender || tutorGender.includes(prefGender);
+      }
+
+      // 4. Class & Subject Filter (Hierarchical)
+      let matchesClassAndSubj = true;
+      if (userClasses.length > 0) {
+        const tutorClassString = (t['Preferred Class Group'] || '').toLowerCase();
+        const tutorNums = getNumbers(tutorClassString);
+        
+        const isClassMatch = userClasses.some(cls => {
+          const prefNums = getNumbers(cls);
+          if (tutorNums.length > 0 && prefNums.length > 0) {
+            if (prefNums.some(n => tutorNums.includes(n))) return true;
+          }
+          
+          const c = cls.toLowerCase();
+          return tutorClassString.includes(c) || c.includes(tutorClassString);
+        });
+        
+        if (!isClassMatch) {
+          matchesClassAndSubj = false;
+        } else if (userTutorSubjects.length > 0) {
+          // If class matches, check subjects
+          const tutorSubjs = getSubjects(t).map(s => s.toLowerCase());
+          matchesClassAndSubj = userTutorSubjects.some(subj => {
+            const s = subj.toLowerCase();
+            return tutorSubjs.some(ts => ts.includes(s) || s.includes(ts));
+          });
+        }
+      }
+
+      // 5. Time Filter
+      let matchesTimes = true;
+      if (userTutorTimes.length > 0) {
+        const tutorTimesArr = getTimes(t).map(v => v.toLowerCase());
+        // For matching "Morning", "Afternoon", etc, check if any tutor time falls in that period
+        matchesTimes = userTutorTimes.some(period => {
+          const validTimes = TIME_PERIODS_DATA[period]?.map(v => v.toLowerCase()) || [];
+          return tutorTimesArr.some(tt => validTimes.includes(tt));
+        });
+      }
+
+      // 6. Day Filter
+      let matchesDays = true;
+      if (userTutorDays.length > 0) {
+        const mode = (t['Mode of Teaching'] || '').toLowerCase();
+        matchesDays = userTutorDays.some(group => {
+          const groupDays = DAY_GROUPS_DATA[group as keyof typeof DAY_GROUPS_DATA]?.map(d => d.toLowerCase()) || [];
+          return groupDays.some(d => mode.includes(d));
+        });
+      }
+
+      // 7. Fee Filter
+      let matchesFee = true;
+      if (userTutorFee) {
+        const fee = t['Fee/Month'] || '0';
+        const feeNum = parseInt(fee.replace(/\D/g, '')) || 0;
+        switch(userTutorFee) {
+          case '0-300': matchesFee = feeNum >= 0 && feeNum < 300; break;
+          case '300-600': matchesFee = feeNum >= 300 && feeNum < 600; break;
+          case '600-1000': matchesFee = feeNum >= 600 && feeNum < 1000; break;
+          case '1000+': matchesFee = feeNum >= 1000; break;
+        }
+      }
+
+      // 8. School Experience Filter
+      const matchesSchoolExp = !userTutorSchoolExp || t['School Exp.'] === userTutorSchoolExp;
+
+      // 9. Own Vehicle Filter
+      const matchesVehicle = !userTutorVehicle || t['Have own Vehicle'] === userTutorVehicle;
+
+      // 10. Last Updated Filter
+      let matchesLastUpdated = true;
+      if (userTutorLastUpdated) {
+        const lastUpdatedStr = t['Last Updated'] || t['Record Added'];
+        if (lastUpdatedStr) {
+          const lastUpdatedDate = new Date(lastUpdatedStr);
+          const daysAgo = Math.floor((new Date().getTime() - lastUpdatedDate.getTime()) / (1000 * 60 * 60 * 24));
+          matchesLastUpdated = daysAgo <= parseInt(userTutorLastUpdated);
+        }
+      }
+
+      // 11. Status Filter
+      const matchesStatus = !userTutorStatus || t['Status'] === userTutorStatus;
+
+      return matchesSearch && matchesCityAndLoc && matchesGender && matchesClassAndSubj && matchesTimes && matchesDays && matchesFee && matchesSchoolExp && matchesVehicle && matchesLastUpdated && matchesStatus;
+    });
+  }, [tutors, cityFilter, searchQuery, userTutorGenderPref, userClasses, userTutorSubjects, userTutorLocations, userTutorTimes, userTutorDays, userTutorFee, userTutorSchoolExp, userTutorVehicle, userTutorLastUpdated, userTutorStatus]);
 
   return (
     <div className="min-h-screen bg-white transition-colors duration-300 relative overflow-x-hidden font-sans pb-24">
+      {/* Onboarding Overlay */}
+      {showOnboarding && (
+        <div className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center p-6 overflow-y-auto">
+          <div className="w-full max-w-md space-y-8 py-10">
+            <AnimatePresence mode="wait">
+              {onboardingStep === 0 && (
+                <motion.div 
+                  key="step0"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 1.05 }}
+                  className="space-y-8 text-center"
+                >
+                  <div className="space-y-4">
+                    <div className="w-24 h-24 bg-primary/10 rounded-[32px] flex items-center justify-center mx-auto text-primary">
+                      <Zap size={48} className="animate-pulse" />
+                    </div>
+                    <div className="space-y-2">
+                      <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none font-display">Welcome to<br/>DoAbLe India</h1>
+                      <p className="text-slate-400 text-xs font-black uppercase tracking-widest leading-relaxed">The Premium Tuition Connection Hub</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-primary">Who Am I?</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button 
+                         onClick={() => selectUserType('parent')}
+                         className="bg-slate-50 p-6 rounded-[32px] border-2 border-transparent hover:border-primary/30 transition-all flex flex-col items-center gap-3 active:scale-95 group"
+                      >
+                         <User size={32} className="text-primary/60 group-hover:scale-110 transition-transform" />
+                         <span className="text-xs font-black uppercase tracking-tight">I'm Parent</span>
+                      </button>
+                      <button 
+                         onClick={() => selectUserType('teacher')}
+                         className="bg-slate-900 text-white p-6 rounded-[32px] border-2 border-transparent hover:border-primary/50 transition-all flex flex-col items-center gap-3 active:scale-95 group"
+                      >
+                         <GraduationCap size={32} className="text-primary group-hover:scale-110 transition-transform" />
+                         <span className="text-xs font-black uppercase tracking-tight">I'm Tutor</span>
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {onboardingStep === 1 && (
+                <motion.div 
+                  key="step1"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="bg-white p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 space-y-8"
+                >
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                      <User size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Your Identity</h3>
+                      <p className="text-[10px] font-black text-primary uppercase tracking-widest">Update Your Details</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Full Name</label>
+                      <input 
+                        className="w-full bg-slate-50 border-none p-5 rounded-2xl text-sm font-black shadow-inner focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-300"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        placeholder="Enter your name"
+                      />
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">
+                        {editUserType === 'parent' ? 'Preffered Tutor Gender' : 'I am (Gender)'}
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {editUserType === 'parent' ? (
+                          ['Any', 'Female', 'Male'].map(g => (
+                            <button
+                              key={g}
+                              onClick={() => setEditTutorGenderPref(g)}
+                              className={cn(
+                                "p-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                editTutorGenderPref === g ? "bg-slate-900 text-white shadow-xl" : "bg-slate-100 text-slate-400"
+                              )}
+                            >
+                              {g}
+                            </button>
+                          ))
+                        ) : (
+                          ['Male', 'Female'].map(g => (
+                            <button
+                              key={g}
+                              onClick={() => setEditGender(g)}
+                              className={cn(
+                                "p-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                                editGender === g ? "bg-slate-900 text-white shadow-xl" : "bg-slate-100 text-slate-400"
+                              )}
+                            >
+                              {g}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                      {editUserType === 'teacher' && editGender && (
+                        <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse mt-4">
+                          {getMatchingJobsCount(editGender, [], 'all', [])} Matching Jobs Available
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="pt-4 flex gap-3">
+                    <button 
+                      onClick={() => setOnboardingStep(0)}
+                      className="flex-1 bg-slate-50 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
+                    >
+                      Back
+                    </button>
+                    <button 
+                      onClick={() => {
+                        if (!editName || (editUserType === 'teacher' && !editGender)) {
+                          alert("Please complete your identity details!");
+                          return;
+                        }
+                        setOnboardingStep(2);
+                      }}
+                      className="flex-[2] bg-primary text-white p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-primary/20"
+                    >
+                      Continue <ArrowRight size={18} />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {onboardingStep === 2 && (
+                <motion.div 
+                  key="step2"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="bg-white p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 space-y-8"
+                >
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                      <GraduationCap size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Classes</h3>
+                      <p className="text-[10px] font-black text-primary uppercase tracking-widest">Academic Target</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select classes you are interested in:</p>
+                    <div className="grid grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto p-2 scroll-smooth custom-scrollbar">
+                       {CLASSES_LIST.map(cls => (
+                         <button
+                           key={cls}
+                           onClick={() => setEditClasses(prev => prev.includes(cls) ? prev.filter(c => c !== cls) : [...prev, cls])}
+                           className={cn(
+                             "p-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all text-center",
+                             editClasses.includes(cls) ? "bg-slate-900 text-white shadow-xl scale-105" : "bg-slate-50 text-slate-400 border border-transparent"
+                           )}
+                         >
+                           {cls}
+                         </button>
+                       ))}
+                    </div>
+                    {editUserType === 'teacher' && editClasses.length > 0 && (
+                        <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">
+                          {getMatchingJobsCount(editGender, editClasses, 'all', [])} Matching Jobs Available
+                        </p>
+                      )}
+                  </div>
+
+                  <div className="pt-4 flex gap-3">
+                    <button 
+                      onClick={() => setOnboardingStep(1)}
+                      className="flex-1 bg-slate-100 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
+                    >
+                      Back
+                    </button>
+                    <button 
+                      onClick={() => {
+                        if (editClasses.length === 0) {
+                          alert("Please select at least one class!");
+                          return;
+                        }
+                        setOnboardingStep(3);
+                      }}
+                      className="flex-[2] bg-primary text-white p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-primary/20"
+                    >
+                      Choose City <ArrowRight size={18} />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {onboardingStep === 3 && (
+                <motion.div 
+                  key="step3"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="bg-white p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 space-y-8"
+                >
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                      <MapPin size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Select City</h3>
+                      <p className="text-[10px] font-black text-primary uppercase tracking-widest">Base Location</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 max-h-[45vh] overflow-y-auto p-2 custom-scrollbar">
+                    {CITIES_LIST.map(city => (
+                      <button
+                        key={city}
+                        onClick={() => {
+                          setEditCity(city);
+                          setEditTutorLocations([]);
+                          if (isSelectingCityOnly) {
+                             localStorage.setItem('userCity', city);
+                             setUserCity(city);
+                             setCityFilter(city);
+                             setShowOnboarding(false);
+                             setIsSelectingCityOnly(false);
+                          }
+                        }}
+                        className={cn(
+                          "p-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all text-center",
+                          editCity === city ? "bg-slate-900 text-white shadow-2xl scale-105" : "bg-slate-100 text-slate-400"
+                        )}
+                      >
+                        {city}
+                      </button>
+                    ))}
+                  </div>
+
+                    {editUserType === 'teacher' && editCity && (
+                        <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse mt-4">
+                          {getMatchingJobsCount(editGender, editClasses, editCity, [])} Matching Jobs in {editCity}
+                        </p>
+                      )}
+
+                  <div className="pt-4 flex gap-3">
+                    <button 
+                      onClick={() => setOnboardingStep(2)}
+                      className="flex-1 bg-slate-50 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
+                    >
+                      Back
+                    </button>
+                    {!isSelectingCityOnly && (
+                      <button 
+                        onClick={() => {
+                          if (!editCity) {
+                            alert("Please select your city!");
+                            return;
+                          }
+                          setOnboardingStep(4);
+                        }}
+                        className="flex-[2] bg-primary text-white p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-primary/20"
+                      >
+                        Next: Areas <ArrowRight size={18} />
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* System Settings Link - Restyled and restricted as requested */}
+                  <div className="flex justify-center -mb-4">
+                    <button 
+                      onClick={handleAdminAccess}
+                      className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-300 py-2 cursor-default select-none transition-none pointer-events-auto"
+                    >
+                      System Setting
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {onboardingStep === 4 && (
+                <motion.div 
+                  key="step4"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="bg-white p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 space-y-8"
+                >
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                      <Navigation size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Pick Areas</h3>
+                      <p className="text-[10px] font-black text-primary uppercase tracking-widest">Neighborhood Reach</p>
+                    </div>
+                  </div>
+
+                    <div className="space-y-4">
+                      <div className="relative group">
+                        <input 
+                          type="text"
+                          placeholder="Search for area (e.g. Indiranagar)"
+                          value={areaSearch}
+                          onChange={(e) => setAreaSearch(e.target.value)}
+                          className="w-full bg-slate-50 border-none p-4 pl-12 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-300"
+                        />
+                        <Search size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" />
+                      </div>
+
+                      <div className="flex justify-between items-end ml-1 pt-2">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Select your reach:</p>
+                        <p className="text-[8px] font-black text-primary/40 uppercase tracking-widest animate-pulse">Scroll to see all ↓</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2 max-h-[35vh] overflow-y-auto p-4 bg-slate-50 rounded-[32px] border border-slate-100 scrollbar-thin scrollbar-thumb-slate-200">
+                         {(() => {
+                            let locations = [...availableLocationsForCity];
+                            
+                            // Apply search filter
+                            if (areaSearch) {
+                              locations = locations.filter(l => l.toLowerCase().includes(areaSearch.toLowerCase()));
+                            }
+
+                            if (locations.length === 0) return (
+                            <div className="w-full text-center py-8">
+                               <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-relaxed">No precise area data found for this city.<br/>You can select areas from results later.</p>
+                            </div>
+                          );
+                          return locations.map(loc => (
+                            <button
+                              key={loc}
+                              onClick={() => setEditTutorLocations(prev => prev.includes(loc) ? prev.filter(l => l !== loc) : [...prev, loc])}
+                              className={cn(
+                                "px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
+                                editTutorLocations.includes(loc) ? "bg-slate-900 text-white shadow-lg shadow-slate-200" : "bg-white text-slate-400 border border-slate-100"
+                              )}
+                            >
+                              {loc}
+                            </button>
+                          ));
+                       })()}
+                          {editUserType === 'teacher' && (
+                            <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse mt-4">
+                              {getMatchingJobsCount(editGender, editClasses, editCity, editTutorLocations)} Final Matching Jobs
+                            </p>
+                          )}
+                    </div>
+                  </div>
+
+                  <div className="pt-4 flex gap-3">
+                    <button 
+                      onClick={() => setOnboardingStep(3)}
+                      className="flex-1 bg-slate-50 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
+                    >
+                      Back
+                    </button>
+                    <button 
+                      onClick={handleCompleteOnboarding}
+                      className="flex-[2] bg-primary text-white p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-primary/20"
+                    >
+                      Finish Setup <Check size={18} />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      )}
       {/* Install Banner */}
       {showInstallBanner && (
         <div className="fixed top-0 w-full bg-primary text-white p-[10px_15px] flex justify-between items-center z-[9999] text-[12px] font-[600] shadow-lg">
@@ -365,7 +1272,326 @@ export default function App() {
         </div>
       )}
 
-      {/* Header */}
+      {/* Filter Drawer Portal (only for Tutors tab) */}
+      <AnimatePresence>
+        {showFilterDrawer && (
+          <div className="fixed inset-0 z-[10000] overflow-hidden">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFilterDrawer(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white shadow-2xl flex flex-col"
+            >
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/10 p-2.5 rounded-xl text-primary">
+                    <Filter size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-tighter">Smart Filter</h3>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tutor Discovery</p>
+                  </div>
+                </div>
+                <button onClick={() => setShowFilterDrawer(false)} className="p-3 bg-slate-50 rounded-2xl text-slate-400 hover:text-slate-900 shadow-sm">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+                {/* City Selection */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Current City</label>
+                  <select 
+                    value={cityFilter}
+                    onChange={(e) => { setCityFilter(e.target.value); setUserTutorLocations([]); }}
+                    className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold focus:ring-2 focus:ring-primary/20 outline-none appearance-none"
+                  >
+                    <option value="all">Everywhere</option>
+                    {CITIES_LIST.map(city => <option key={city} value={city}>{city}</option>)}
+                  </select>
+                </div>
+
+                {/* Sub Locations */}
+                {cityFilter !== 'all' && (
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-end ml-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Local Areas in {cityFilter}</label>
+                    </div>
+                    
+                    <div className="relative group mb-2">
+                       <input 
+                         type="text"
+                         placeholder={`Search areas in ${cityFilter}...`}
+                         value={areaSearch}
+                         onChange={(e) => setAreaSearch(e.target.value)}
+                         className="w-full bg-slate-50 border-none p-3 pl-10 rounded-xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                       />
+                       <Search size={12} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" />
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-4 bg-slate-50 rounded-[32px] border border-slate-100/50 scrollbar-thin">
+                       {(() => {
+                          let locations = [...availableLocationsForCity];
+
+                          // Filter by area search
+                          if (areaSearch) {
+                            locations = locations.filter(l => l.toLowerCase().includes(areaSearch.toLowerCase()));
+                          }
+
+                          if (locations.length === 0) return <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest py-4 w-full text-center">No matching areas</p>;
+                          return locations.map(loc => (
+                            <button
+                              key={loc}
+                              onClick={() => {
+                                const next = userTutorLocations.includes(loc) ? userTutorLocations.filter(l => l !== loc) : [...userTutorLocations, loc];
+                                setUserTutorLocations(next);
+                                localStorage.setItem('userTutorLocations', JSON.stringify(next));
+                              }}
+                              className={cn(
+                                "px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
+                                userTutorLocations.includes(loc) ? "bg-primary text-white shadow-md shadow-primary/20" : "bg-white text-slate-400 border border-slate-100"
+                              )}
+                            >
+                              {loc}
+                            </button>
+                          ));
+                       })()}
+                    </div>
+                  </div>
+                )}
+
+                {/* Gender Preference */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tutor Gender</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['Any', 'Male', 'Female'].map(g => (
+                      <button 
+                        key={g}
+                        onClick={() => {
+                          setUserTutorGenderPref(g);
+                          localStorage.setItem('userTutorGenderPref', g);
+                        }}
+                        className={cn(
+                          "p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                          userTutorGenderPref === g ? "bg-slate-900 text-white shadow-xl" : "bg-slate-50 text-slate-400"
+                        )}
+                      >
+                        {g === 'Any' ? 'All' : g}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Class & Subject matching */}
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Classes & Subjects</label>
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                       {CLASSES_LIST.map(cls => (
+                         <button
+                           key={cls}
+                           onClick={() => {
+                             const next = userClasses.includes(cls) ? userClasses.filter(c => c !== cls) : [...userClasses, cls];
+                             setUserClasses(next);
+                             localStorage.setItem('userClasses', JSON.stringify(next));
+                           }}
+                           className={cn(
+                             "px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border",
+                             userClasses.includes(cls) ? "bg-primary text-white border-primary shadow-md" : "bg-white text-slate-300 border-slate-100"
+                           )}
+                         >
+                           {cls}
+                         </button>
+                       ))}
+                    </div>
+                    {userClasses.length > 0 && (
+                      <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-4 bg-slate-50 rounded-[32px] border border-slate-100/50">
+                         {userClasses.flatMap(cls => CLASS_SUBJECTS_DATA[cls] || []).map((subj, idx) => (
+                           <button
+                             key={`${subj}-${idx}`}
+                             onClick={() => {
+                               const next = userTutorSubjects.includes(subj) ? userTutorSubjects.filter(s => s !== subj) : [...userTutorSubjects, subj];
+                               setUserTutorSubjects(next);
+                               localStorage.setItem('userTutorSubjects', JSON.stringify(next));
+                             }}
+                             className={cn(
+                               "px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
+                               userTutorSubjects.includes(subj) ? "bg-slate-900 text-white shadow-md shadow-slate-900/20" : "bg-white text-slate-400 border border-slate-100"
+                             )}
+                           >
+                             {subj}
+                           </button>
+                         ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Availability */}
+                <div className="space-y-6">
+                   <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Availability (Days)</label>
+                      <div className="grid grid-cols-2 gap-2">
+                         {Object.keys(DAY_GROUPS_DATA).map(group => (
+                           <button 
+                             key={group}
+                             onClick={() => {
+                               const next = userTutorDays.includes(group) ? userTutorDays.filter(g => g !== group) : [...userTutorDays, group];
+                               setUserTutorDays(next);
+                               localStorage.setItem('userTutorDays', JSON.stringify(next));
+                             }}
+                             className={cn("p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all", userTutorDays.includes(group) ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 text-slate-400")}
+                           >
+                             {group}
+                           </button>
+                         ))}
+                      </div>
+                   </div>
+                   <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Availability (Time)</label>
+                      <div className="grid grid-cols-3 gap-2">
+                         {Object.keys(TIME_PERIODS_DATA).map(period => (
+                           <button 
+                             key={period}
+                             onClick={() => {
+                               const next = userTutorTimes.includes(period) ? userTutorTimes.filter(p => p !== period) : [...userTutorTimes, period];
+                               setUserTutorTimes(next);
+                               localStorage.setItem('userTutorTimes', JSON.stringify(next));
+                             }}
+                             className={cn("p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all", userTutorTimes.includes(period) ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 text-slate-400")}
+                           >
+                             {period}
+                           </button>
+                         ))}
+                      </div>
+                   </div>
+
+                   {/* Add New Detailed Filters */}
+                   <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Fee Range</label>
+                      <select 
+                        value={userTutorFee}
+                        onChange={(e) => { setUserTutorFee(e.target.value); localStorage.setItem('userTutorFee', e.target.value); }}
+                        className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
+                      >
+                         <option value="">All Fees</option>
+                         <option value="0-300">₹0 - ₹300</option>
+                         <option value="300-600">₹300 - ₹600</option>
+                         <option value="600-1000">₹600 - ₹1000</option>
+                         <option value="1000+">₹1000+</option>
+                      </select>
+                   </div>
+
+                   <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">School Exp.</label>
+                        <select 
+                          value={userTutorSchoolExp}
+                          onChange={(e) => { setUserTutorSchoolExp(e.target.value); localStorage.setItem('userTutorSchoolExp', e.target.value); }}
+                          className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
+                        >
+                           <option value="">All</option>
+                           <option value="Yes">Yes</option>
+                           <option value="No">No</option>
+                        </select>
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Own Vehicle</label>
+                        <select 
+                          value={userTutorVehicle}
+                          onChange={(e) => { setUserTutorVehicle(e.target.value); localStorage.setItem('userTutorVehicle', e.target.value); }}
+                          className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
+                        >
+                           <option value="">All</option>
+                           <option value="Yes">Yes</option>
+                           <option value="No">No</option>
+                        </select>
+                      </div>
+                   </div>
+
+                   <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Last Updated</label>
+                      <select 
+                        value={userTutorLastUpdated}
+                        onChange={(e) => { setUserTutorLastUpdated(e.target.value); localStorage.setItem('userTutorLastUpdated', e.target.value); }}
+                        className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
+                      >
+                         <option value="">All</option>
+                         <option value="7">Last 7 days</option>
+                         <option value="30">Last 30 days</option>
+                         <option value="90">Last 90 days</option>
+                         <option value="180">Last 180 days</option>
+                      </select>
+                   </div>
+
+                   <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tutor Status</label>
+                      <select 
+                        value={userTutorStatus}
+                        onChange={(e) => { setUserTutorStatus(e.target.value); localStorage.setItem('userTutorStatus', e.target.value); }}
+                        className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
+                      >
+                         <option value="">All Status</option>
+                         <option value="Active">Active</option>
+                         <option value="Not Available">Not Available</option>
+                         <option value="Suspended">Suspended</option>
+                      </select>
+                   </div>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-slate-100 bg-slate-50">
+                 <div className="flex gap-4">
+                   <button 
+                     onClick={() => {
+                        setUserTutorLocations([]);
+                        setUserTutorSubjects([]);
+                        setUserTutorTimes([]);
+                        setUserTutorDays([]);
+                        setUserTutorGenderPref('Any');
+                        setUserTutorFee('');
+                        setUserTutorSchoolExp('');
+                        setUserTutorVehicle('');
+                        setUserTutorLastUpdated('');
+                        setUserTutorStatus('');
+                        setUserClasses([]);
+                        setCityFilter('all');
+                        localStorage.removeItem('userTutorLocations');
+                        localStorage.removeItem('userTutorSubjects');
+                        localStorage.removeItem('userTutorTimes');
+                        localStorage.removeItem('userTutorDays');
+                        localStorage.removeItem('userTutorFee');
+                        localStorage.removeItem('userTutorSchoolExp');
+                        localStorage.removeItem('userTutorVehicle');
+                        localStorage.removeItem('userTutorLastUpdated');
+                        localStorage.removeItem('userTutorStatus');
+                        localStorage.removeItem('userClasses');
+                        localStorage.setItem('userTutorGenderPref', 'Any');
+                     }}
+                     className="flex-1 border-2 border-slate-200 text-slate-400 py-4 rounded-[20px] font-extrabold text-[10px] uppercase tracking-widest hover:bg-white hover:text-slate-900 transition-all active:scale-95"
+                   >
+                     Reset All
+                   </button>
+                   <button 
+                     onClick={() => setShowFilterDrawer(false)}
+                     className="flex-[2] bg-slate-900 text-white py-4 rounded-[20px] font-extrabold text-[10px] uppercase tracking-widest shadow-xl shadow-slate-900/20 active:scale-95 transition-all"
+                   >
+                     View {filteredTutors.length} Results
+                   </button>
+                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
       <header 
         className={cn(
           "p-[30px_20px] text-center border-b relative transition-all duration-500",
@@ -386,7 +1612,19 @@ export default function App() {
           {activeTab === 'jobs' && 'Tuition Jobs'}
           {activeTab === 'tutors' && 'Expert Tutors'}
         </h1>
-        <p className={cn("text-[13px] font-bold uppercase tracking-widest mt-1", userCity ? "text-white/70" : "text-slate-400")}>
+        
+        <div className="flex items-center justify-center gap-3 mt-3">
+          <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 shadow-sm transition-transform hover:scale-105">
+            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.5)]" />
+            <span className="text-[10px] font-black uppercase tracking-tight text-white">{allLeads.filter(l => isCityMatch(l.City, userCity)).length} Jobs in {userCity}</span>
+          </div>
+          <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 shadow-sm transition-transform hover:scale-105">
+            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
+            <span className="text-[10px] font-black uppercase tracking-tight text-white">{tutors.filter(t => isCityMatch(getCityValue(t), userCity)).length} Tutors</span>
+          </div>
+        </div>
+
+        <p className={cn("text-[13px] font-bold uppercase tracking-widest mt-2", userCity ? "text-white/70" : "text-slate-400")}>
           {activeTab === 'home' && (userName ? `PERFECT MATCHES FOR YOUR PROFILE` : 'Premium Teaching Portal')}
           {activeTab === 'jobs' && 'Live Teaching Feed'}
           {activeTab === 'tutors' && 'Professional Educators'}
@@ -424,236 +1662,80 @@ export default function App() {
           <>
             {activeTab === 'home' && (
           <div className="space-y-8 py-8 px-4">
-            {!userCity ? (
-              <section className="text-center space-y-10 animate-in zoom-in duration-700 max-w-xl mx-auto py-12">
-                <div className="w-24 h-24 bg-primary text-white rounded-[40px] flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-primary/30">
-                  <MapPin size={48} />
-                </div>
-                <div className="space-y-4">
-                  <h2 className="text-4xl font-[1000] text-slate-900 leading-none">Where do you <br/> want to <span className="text-primary">Teach?</span></h2>
-                  <p className="text-slate-500 font-bold text-sm tracking-wide">SELECT YOUR CITY TO GET STARTED</p>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 px-2">
-                  {CITIES_LIST.map(city => {
-                    const theme = getCityTheme(city);
-                    return (
-                      <button 
-                        key={city}
-                        onClick={() => selectCity(city)}
-                        className="group relative bg-white hover:scale-[1.03] p-3 rounded-2xl font-black text-[9px] uppercase tracking-widest border transition-all shadow-sm active:scale-95 text-slate-700 hover:text-white flex items-center justify-center text-center leading-tight min-h-[54px] overflow-hidden"
-                        style={{ borderLeft: `4px solid ${theme.solid}`, background: theme.solid + '08' }}
-                      >
-                        <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: theme.grad }} />
-                        <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full z-10 bg-slate-200 group-hover:bg-white/40" style={{ background: !city ? undefined : theme.solid }} />
-                        <span className="relative z-10">{city}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                
-                <div className="pt-10 flex flex-col items-center gap-4">
-                  <p className="text-slate-300 text-[10px] font-black uppercase tracking-[0.3em]">Serving {CITIES_LIST.length} Cities Nationwide</p>
-                  <button 
-                    onClick={() => setShowAdminSettings(true)}
-                    className="flex items-center gap-2 bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl group hover:bg-primary/5 transition-all"
-                  >
-                    <Settings size={12} className="text-slate-400 group-hover:text-primary transition-colors" />
-                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-primary transition-colors">Settings Only for Admin Use</span>
-                  </button>
-                </div>
-              </section>
-            ) : (
               <div className="space-y-10">
-                  <section 
-                    className="text-white p-10 rounded-[48px] overflow-hidden relative shadow-2xl shadow-primary/20"
-                    style={{ background: getCityTheme(userCity).grad }}
-                  >
-                    <div className="relative z-10 space-y-6">
-                       <div className="flex items-center gap-3">
-                         <MapPin size={20} className="opacity-80" />
-                         <span className="text-xs font-black uppercase tracking-[0.2em] opacity-80">{userCity} Edition</span>
-                       </div>
-                       <h2 className="text-4xl font-[1000] leading-none">Perfect Match for<br/> {userCity}</h2>
-                       <p className="text-white/80 font-bold max-w-sm">We've found {allLeads.filter(l => l.City === userCity).length} active jobs and {tutors.filter(t => t['Preferred City'] === userCity).length} tutors in your area today.</p>
-                       <div className="flex gap-3">
-                         <button onClick={() => setActiveTab('jobs')} className="bg-white text-primary px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-slate-50 transition-colors">View Jobs</button>
-                         <button onClick={() => selectCity(null)} className="bg-white/20 backdrop-blur-md text-white px-8 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest border border-white/20 hover:bg-white/30 transition-colors">Change City</button>
-                       </div>
-                    </div>
-                    <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white/10 rounded-full blur-[80px]" />
-                  </section>
-
-                  {/* Profile Setup / About Me Section */}
-                  <section className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm space-y-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                          <div className="bg-primary/10 p-4 rounded-2xl text-primary">
-                            <User size={24} />
-                          </div>
-                        <div>
-                          <h3 className="text-xl font-black text-slate-900 leading-tight">My Profile</h3>
-                          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
-                            {userName ? 'Personalized results active' : 'Set preferences to see relevant leads'}
-                          </p>
+                {/* 2. Perfect Match for [City] Section */}
+                <div 
+                  className="p-10 rounded-[48px] relative overflow-hidden shadow-2xl shadow-primary/20 border border-primary/5 animate-in fade-in zoom-in duration-1000 delay-200"
+                  style={{ background: getCityTheme(userCity).grad }}
+                >
+                  <div className="relative z-10 space-y-8">
+                     <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
+                           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70">Sync With Local Demand</span>
                         </div>
-                      </div>
+                        <h3 className="text-3xl font-black leading-none text-white tracking-tighter">Perfect Match for<br/> {userCity}</h3>
+                     </div>
+                     
+                     <div className="flex flex-col sm:flex-row gap-3">
+                        <button 
+                          onClick={() => {
+                            setIsSelectingCityOnly(true);
+                            setShowOnboarding(true);
+                            setOnboardingStep(3); // City Selection
+                          }}
+                          className="bg-white text-slate-900 px-8 py-5 rounded-[28px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl active:scale-95"
+                        >
+                          <MapPin size={18} className="text-primary" />
+                          Change City
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setShowOnboarding(true);
+                            setOnboardingStep(0); // Identity/Preference Reset
+                          }}
+                          className="bg-primary text-white p-5 rounded-[28px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all active:scale-95"
+                        >
+                          <Settings size={18} />
+                          Update Preference
+                        </button>
+                     </div>
+                  </div>
+                  <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white/10 rounded-full blur-[80px]" />
+                </div>
+
+                {/* Role-Based Actions Corner */}
+                <div className="bg-slate-900 p-8 rounded-[48px] text-white space-y-6 shadow-2xl shadow-slate-900/40 relative overflow-hidden group border border-white/5 animate-in slide-in-from-bottom duration-700 delay-300">
+                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                    <GraduationCap size={120} />
+                  </div>
+                  <div className="space-y-2 relative z-10">
+                    <p className="text-primary text-[10px] font-black uppercase tracking-[0.4em]">{userType === 'teacher' ? 'Official Liaison' : 'Parent Priority'}</p>
+                    <h3 className="text-3xl font-black uppercase tracking-tighter">{userType === 'teacher' ? 'Tutor Corner' : 'Requirement'}</h3>
+                  </div>
+                  <div className="p-1 bg-white/5 rounded-[32px] border border-white/10 backdrop-blur-sm">
                       <button 
-                        onClick={() => setIsEditingProfile(!isEditingProfile)}
-                        className="bg-primary/5 text-primary px-4 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary/10 transition-colors flex items-center gap-2"
+                        onClick={() => setShowTutorForm(true)}
+                        className="w-full bg-white text-slate-900 p-6 rounded-[28px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 shadow-2xl"
                       >
-                        {isEditingProfile ? 'Cancel' : (
-                          <>
-                            <Edit3 size={14} />
-                            {userName ? 'Edit Profile' : 'Setup Profile'}
-                          </>
-                        )}
+                        <span className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                          <Edit3 size={16} />
+                        </span>
+                        {userType === 'teacher' ? 'Tell details to city coordinator' : 'Update My Preferences'}
                       </button>
-                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 justify-center opacity-40">
+                      <CheckCircle size={12} className="text-primary" />
+                      <p className="text-[8px] font-black uppercase tracking-widest leading-none">Update your profile on DoAble server</p>
+                  </div>
+                </div>
 
-                    {isEditingProfile ? (
-                      <div className="space-y-6 animate-in fade-in duration-300">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Your Name</label>
-                            <input 
-                              type="text" 
-                              placeholder="e.g. Deepak" 
-                              value={editName}
-                              onChange={(e) => setEditName(e.target.value)}
-                              className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Gender</label>
-                            <select 
-                              value={editGender} 
-                              onChange={(e) => setEditGender(e.target.value)}
-                              className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary/20 outline-none appearance-none"
-                            >
-                              <option value="">Select Gender</option>
-                              <option value="Male">Male</option>
-                              <option value="Female">Female</option>
-                            </select>
-                          </div>
-                        </div>
 
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Preferred Classes (Select Multiple)</label>
-                          <div className="flex flex-wrap gap-2">
-                            {['1st Std', '2nd Std', '3rd Std', '4th Std', '5th Std', '6th Std', '7th Std', '8th Std', '9th Std', '10th Std', '11th Std', '12th Std'].map((cls) => (
-                              <button
-                                key={cls}
-                                onClick={() => {
-                                  setEditClasses(prev => 
-                                    prev.includes(cls) ? prev.filter(c => c !== cls) : [...prev, cls]
-                                  );
-                                }}
-                                className={cn(
-                                  "px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all border",
-                                  editClasses.includes(cls) 
-                                    ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" 
-                                    : "bg-slate-50 text-slate-400 border-slate-100 hover:bg-slate-100"
-                                )}
-                              >
-                                {cls}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="pt-2">
-                          <button 
-                            onClick={() => {
-                              handleSaveProfile(editName, editGender, editClasses);
-                            }}
-                            className="w-full bg-slate-900 text-white p-5 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-xl"
-                          >
-                            <Save size={18} /> Submit Preferences
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex flex-wrap gap-3 animate-in slide-in-from-top-4 duration-300">
-                        {userName && (
-                          <div className="bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100/50 flex items-center gap-3">
-                            <User size={14} className="text-primary" />
-                            <span className="text-xs font-bold text-slate-700">{userName}</span>
-                          </div>
-                        )}
-                        {userGender && (
-                          <div className="bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100/50 flex items-center gap-3">
-                            <span className="text-xs font-black text-primary/40 uppercase tracking-widest">Gender:</span>
-                            <span className="text-xs font-bold text-slate-700">{userGender}</span>
-                          </div>
-                        )}
-                        {userClasses.length > 0 && (
-                          <div className="bg-slate-50 px-4 py-3 rounded-2xl border border-slate-100/50 flex items-center gap-3">
-                            <span className="text-xs font-black text-primary/40 uppercase tracking-widest">Matching:</span>
-                            <div className="flex gap-1">
-                              {userClasses.slice(0, 3).map(c => (
-                                <span key={c} className="text-[10px] font-bold text-slate-500">{c.split(' ')[0]}</span>
-                              ))}
-                              {userClasses.length > 3 && <span className="text-[10px] font-bold text-slate-400">+{userClasses.length - 3}</span>}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </section>
-
-                 <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div onClick={() => setActiveTab('jobs')} className="bg-slate-900 text-white p-8 rounded-[40px] cursor-pointer group hover:scale-[1.02] transition-transform">
-                      <FileText size={32} className="text-primary mb-6" />
-                      <h3 className="text-2xl font-black mb-2">Live Job Feed</h3>
-                      <p className="opacity-60 text-sm">Real-time tuition requirements from parents in {userCity}.</p>
-                    </div>
-                    <div onClick={() => setActiveTab('tutors')} className="bg-slate-50 text-slate-900 p-8 rounded-[40px] border border-slate-100 cursor-pointer group hover:scale-[1.02] transition-transform">
-                      <User size={32} className="text-primary mb-6" />
-                      <h3 className="text-2xl font-black mb-2">Expert Tutors</h3>
-                      <p className="text-slate-400 text-sm">Top rated educators available for home tuition projects.</p>
-                    </div>
-                 </section>
-
-                 <section className="bg-gradient-to-br from-[#FFE66D] to-[#F59E0B] p-8 rounded-[40px] text-slate-900 shadow-xl shadow-amber-500/10 transition-transform active:scale-[0.99]">
-                   <div className="flex flex-col md:flex-row items-center gap-6">
-                     <div className="bg-white/20 p-5 rounded-[32px] backdrop-blur-md shadow-sm">
-                       <Settings size={32} className="text-slate-900" />
-                     </div>
-                     <div className="flex-1 text-center md:text-left space-y-1">
-                       <h3 className="text-2xl font-[1000] tracking-tight">Tutor Corner</h3>
-                       <p className="font-bold opacity-80 text-sm leading-snug">Want to update your subjects, localities or fees? Simply fill the form below.</p>
-                     </div>
-                     <button 
-                       onClick={() => {
-                         setShowTutorForm(true);
-                         window.scrollTo({ top: 0, behavior: 'smooth' });
-                       }}
-                       className="bg-slate-900 text-white px-8 py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:scale-105 transition-transform shadow-2xl active:scale-95 whitespace-nowrap"
-                     >
-                       Update Preference
-                     </button>
-                   </div>
-                 </section>
-
-                 <section className="bg-slate-50 border border-slate-100 p-8 rounded-[40px] transition-transform active:scale-[0.99] cursor-pointer" onClick={() => setActiveTab('alerts')}>
-                   <div className="flex items-center gap-6">
-                     <div className="w-16 h-16 rounded-[24px] bg-white shadow-sm border border-slate-100 flex items-center justify-center">
-                        <Bell className="text-primary" />
-                     </div>
-                     <div className="flex-1">
-                        <h4 className="text-xl font-black text-slate-900 leading-none">Broadcast Alerts</h4>
-                        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mt-2">Latest teaching news for {userCity}</p>
-                     </div>
-                     <ChevronRight className="text-slate-300" />
-                   </div>
-                 </section>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
 
-        {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} />}
+        {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} />}
         
         {showAdminSettings && (
           <div className="fixed inset-0 z-[5000] bg-white flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
@@ -712,12 +1794,12 @@ export default function App() {
         )}
 
         {(activeTab === 'jobs' || activeTab === 'tutors') && !showTutorForm && (
-          <div className="space-y-6 animate-in fade-in duration-500">
+          <div className="space-y-6 animate-in fade-in duration-500 relative">
             {/* Search */}
-            <div className="px-2 pt-4">
-              <div className="relative group">
+            <div className="px-2 pt-4 flex gap-3">
+              <div className="relative group flex-1">
                 <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={20} />
-                <input
+                <input 
                   type="text"
                   placeholder={activeTab === 'jobs' ? "Search city, subject, order ID..." : "Search name, subject, tutor ID..."}
                   value={searchQuery}
@@ -725,15 +1807,44 @@ export default function App() {
                   className="w-full bg-slate-50 border-2 border-slate-50 rounded-[28px] py-5 pl-14 pr-7 text-sm font-bold focus:ring-4 focus:ring-primary/5 focus:border-primary/20 focus:bg-white transition-all outline-none placeholder:text-slate-300 shadow-sm"
                 />
               </div>
+              {(activeTab === 'tutors' || activeTab === 'jobs') && (
+                <button 
+                  onClick={() => setShowFilterDrawer(true)}
+                  className="bg-primary text-white p-5 rounded-[28px] shadow-lg shadow-primary/20 active:scale-95 transition-transform flex items-center justify-center"
+                >
+                  <Filter size={24} />
+                </button>
+              )}
             </div>
 
-            {/* Filter Button - Only for Tutors tab */}
-            {activeTab === 'tutors' && (
-              <div className="px-2">
-                <TutorFilterButton
-                  activeFilterCount={countActiveFilters(tutorFilters)}
-                  onOpen={() => setShowFilterModal(true)}
-                />
+            {/* Filter Summary Tags */}
+            {(activeTab === 'tutors' || activeTab === 'jobs') && (
+              <div className="flex flex-wrap gap-2 px-4">
+                 {userTutorLocations.length > 0 && (
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase flex items-center gap-1">
+                     <MapPin size={10} /> {userTutorLocations.length} Areas
+                   </span>
+                 )}
+                 {userTutorSubjects.length > 0 && (
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase flex items-center gap-1">
+                     <BookOpen size={10} /> {userTutorSubjects.length} Subjects
+                   </span>
+                 )}
+                 {userTutorGenderPref !== 'Any' && (
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase">
+                     {userTutorGenderPref} Only
+                   </span>
+                 )}
+                 {userTutorFee && (
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase">
+                     ₹ {userTutorFee}
+                   </span>
+                 )}
+                 {userTutorStatus && (
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase">
+                     Status: {userTutorStatus}
+                   </span>
+                 )}
               </div>
             )}
 
@@ -766,15 +1877,19 @@ export default function App() {
                 {/* Load More */}
                 {((activeTab === 'jobs' && filteredLeads.length > jobLimit) || 
                   (activeTab === 'tutors' && filteredTutors.length > tutorLimit)) && (
-                  <div className="flex justify-center p-10">
+                  <div className="flex justify-center p-10 pb-20">
                     <button 
                       onClick={() => {
-                        if (activeTab === 'jobs') setJobLimit(prev => prev + 15);
-                        else setTutorLimit(prev => prev + 15);
+                        const increment = 15;
+                        if (activeTab === 'jobs') {
+                          setJobLimit(prev => Math.min(prev + increment, filteredLeads.length));
+                        } else {
+                          setTutorLimit(prev => Math.min(prev + increment, filteredTutors.length));
+                        }
                       }}
-                      className="bg-white border-2 border-slate-100 text-slate-900 px-10 py-4 rounded-[20px] font-black text-xs uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-sm"
+                      className="bg-slate-900 text-white px-10 py-5 rounded-[24px] font-black text-xs uppercase tracking-widest hover:bg-primary transition-all shadow-xl shadow-slate-200 active:scale-95"
                     >
-                      Load More Results
+                      Load {activeTab === 'jobs' ? (filteredLeads.length - jobLimit) : (filteredTutors.length - tutorLimit)} More {activeTab === 'jobs' ? 'Jobs' : 'Tutors'}
                     </button>
                   </div>
                 )}
@@ -789,45 +1904,50 @@ export default function App() {
             )}
           </div>
         )}
-          </>
-        )}
-      </main>
-
-      {/* Tutor Filter Modal */}
-      <TutorFilterModal
-        isOpen={showFilterModal}
-        onClose={() => setShowFilterModal(false)}
-        filters={tutorFilters}
-        onFiltersChange={setTutorFilters}
-        tutors={tutors}
-      />
+      </>
+    )}
+  </main>
 
       {/* Bottom Navigation */}
-      <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-[32px] border border-slate-100 px-4 py-3 flex justify-around items-center z-[3000] safe-area-bottom">
-        <NavButton 
-          active={activeTab === 'home' && !showTutorForm} 
-          onClick={() => { setActiveTab('home'); setShowTutorForm(false); if(userCity) setCityFilter(userCity); window.scrollTo({top: 0, behavior: 'smooth'}); }}
-          icon={<HomeIcon size={24} />}
-          label="Home"
-        />
-        <NavButton 
-          active={activeTab === 'jobs'} 
-          onClick={() => { setActiveTab('jobs'); setShowTutorForm(false); if(userCity) setCityFilter(userCity); window.scrollTo({top: 0, behavior: 'smooth'}); }}
-          icon={<FileText size={24} />}
-          label="Jobs"
-        />
-        <NavButton 
-          active={activeTab === 'tutors'} 
-          onClick={() => { setActiveTab('tutors'); setShowTutorForm(false); if(userCity) setCityFilter(userCity); window.scrollTo({top: 0, behavior: 'smooth'}); }}
-          icon={<User size={24} />}
-          label="Tutors"
-        />
-        <NavButton 
-          active={activeTab === 'alerts'} 
-          onClick={() => { setActiveTab('alerts'); setShowTutorForm(false); window.scrollTo({top: 0, behavior: 'smooth'}); }}
-          icon={<Bell size={24} />}
-          label="Alerts"
-        />
+      <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-md flex flex-col items-center gap-3 z-[3000]">
+        <div className="w-full bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-[32px] border border-slate-100 px-4 py-3 flex justify-around items-center safe-area-bottom">
+          <NavButton 
+            active={activeTab === 'home' && !showTutorForm} 
+            onClick={() => { setActiveTab('home'); setShowTutorForm(false); window.scrollTo({top: 0, behavior: 'smooth'}); }}
+            icon={<HomeIcon size={24} />}
+            label="Home"
+          />
+          {userType !== 'parent' && (
+            <NavButton 
+              active={activeTab === 'jobs'} 
+              onClick={() => { setActiveTab('jobs'); setShowTutorForm(false); window.scrollTo({top: 0, behavior: 'smooth'}); }}
+              icon={<FileText size={24} />}
+              label="Jobs"
+            />
+          )}
+          {userType !== 'teacher' && (
+            <NavButton 
+              active={activeTab === 'tutors'} 
+              onClick={() => { setActiveTab('tutors'); setShowTutorForm(false); window.scrollTo({top: 0, behavior: 'smooth'}); }}
+              icon={<User size={24} />}
+              label="Tutors"
+            />
+          )}
+          <NavButton 
+            active={activeTab === 'alerts'} 
+            onClick={() => { setActiveTab('alerts'); setShowTutorForm(false); window.scrollTo({top: 0, behavior: 'smooth'}); }}
+            icon={<Bell size={24} />}
+            label="Alerts"
+          />
+          {currentUser?.email === 'd9717018219@gmail.com' && (
+            <NavButton 
+              active={showAdminSettings} 
+              onClick={() => handleAdminAccess()}
+              icon={<Settings size={22} />}
+              label="Admin"
+            />
+          )}
+        </div>
       </footer>
 
       {/* Admin Verification Modal (Settings) */}
@@ -924,7 +2044,7 @@ export default function App() {
                       </div>
 
                       {!isAdminUser && (
-                        <p className="text-[9px] font-bold text-slate-400 leading-relaxed text-center px-4 italic">
+                        <p className="text-[9px] font-bold text-slate-400 leading-relaxed text-center px-4">
                           To gain admin access, your UID must be added to the authorization list in Firebase console.
                         </p>
                       )}
