@@ -1,0 +1,27 @@
+<?php
+ob_start();
+ob_clean();
+header("Content-Type: application/json; charset=UTF-8");
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Access-Control-Allow-Origin: *");
+$url = "https://doableindia.com/api_data.php";
+$ch = curl_init($url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+$data = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+curl_close($ch);
+ob_end_clean();
+if ($data === false || $httpCode !== 200) {
+    echo json_encode(["status" => "error", "message" => "Source Offline"]);
+    exit;
+}
+$cleanData = trim($data);
+$decoded = json_decode($cleanData, true);
+if (json_last_error() !== JSON_ERROR_NONE) {
+    echo json_encode(["status" => "error", "message" => "Invalid JSON"]);
+    exit;
+}
+echo $cleanData;
+exit;
