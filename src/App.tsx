@@ -1594,57 +1594,68 @@ export default function App() {
       </AnimatePresence>
       <header 
         className={cn(
-          "p-[16px_16px] text-center relative transition-all duration-500 rounded-b-[28px] shadow-lg pb-5",
+          "p-6 text-center relative transition-all duration-500 rounded-b-[40px] shadow-2xl pb-8 z-20",
           userCity ? "text-white border-transparent" : "bg-white border-slate-50"
         )}
         style={userCity ? { background: getCityTheme(userCity).grad } : {}}
       >
-        <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-3">
+        <div className="absolute right-6 top-6 flex items-center gap-3">
           {currentUser && (
-            <button onClick={() => firebaseAuth.signOut()} className={cn(userCity ? "text-white/70 hover:text-white" : "text-slate-400 hover:text-red-500", "transition-colors")}>
+            <button onClick={() => firebaseAuth.signOut()} className={cn(userCity ? "text-white/70 hover:text-white" : "text-slate-400 hover:text-red-500", "transition-colors p-2 bg-white/10 backdrop-blur-md rounded-xl")}>
               <LogOut size={20} />
             </button>
           )}
         </div>
 
-        <h1 className={cn("text-[26px] font-[900] tracking-tight", userCity ? "text-white" : "text-primary")}>
-          {activeTab === 'home' && (userName ? `Welcome, ${userName}` : 'DoAble India')}
-          {activeTab === 'jobs' && 'Tuition Jobs'}
-          {activeTab === 'tutors' && 'Expert Tutors'}
-        </h1>
-        
-        <div className="flex items-center justify-center gap-2 mt-2">
-          <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 shadow-sm transition-transform hover:scale-105">
-            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.5)]" />
-            <span className="text-[10px] font-black uppercase tracking-tight text-white">{allLeads.filter(l => isCityMatch(l.City, userCity)).length} Jobs in {userCity}</span>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h1 className={cn("text-3xl font-black tracking-tighter font-display", userCity ? "text-white" : "text-primary")}>
+            {activeTab === 'home' && (userName ? `Hello, ${userName}` : 'DoAble India')}
+            {activeTab === 'jobs' && 'Tuition Jobs'}
+            {activeTab === 'tutors' && 'Expert Tutors'}
+          </h1>
+          
+          <div className="flex items-center justify-center gap-2 mt-4">
+            <div className="bg-white/10 backdrop-blur-xl px-4 py-2 rounded-2xl flex items-center gap-2 border border-white/20 shadow-xl transition-all hover:scale-105 hover:bg-white/20">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_12px_rgba(74,222,128,0.6)]" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-white">{allLeads.filter(l => isCityMatch(l.City, userCity)).length} Active Leads</span>
+            </div>
+            <div className="bg-white/10 backdrop-blur-xl px-4 py-2 rounded-2xl flex items-center gap-2 border border-white/20 shadow-xl transition-all hover:scale-105 hover:bg-white/20">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse shadow-[0_0_12px_rgba(96,165,250,0.6)]" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-white">{tutors.filter(t => isCityMatch(getCityValue(t), userCity)).length} Tutors</span>
+            </div>
           </div>
-          <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 shadow-sm transition-transform hover:scale-105">
-            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
-            <span className="text-[10px] font-black uppercase tracking-tight text-white">{tutors.filter(t => isCityMatch(getCityValue(t), userCity)).length} Tutors</span>
-          </div>
-        </div>
 
-        <p className={cn("text-[11px] font-semibold uppercase tracking-[0.15em] mt-1 opacity-80", userCity ? "text-white/70" : "text-slate-400")}>
-          {activeTab === 'home' && (userName ? `PERFECT MATCHES FOR YOUR PROFILE` : 'Premium Teaching Portal')}
-          {activeTab === 'jobs' && 'Live Teaching Feed'}
-          {activeTab === 'tutors' && 'Professional Educators'}
-        </p>
+          <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] mt-4 opacity-70", userCity ? "text-white/80" : "text-slate-400")}>
+            {activeTab === 'home' && (userName ? `Curated Matches in ${userCity}` : 'Premium Teaching Portal')}
+            {activeTab === 'jobs' && 'Live Teaching Feed'}
+            {activeTab === 'tutors' && 'Professional Educators'}
+          </p>
+        </motion.div>
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto p-[10px] max-w-[1200px]">
+      <main className="container mx-auto p-4 max-w-[1200px] -mt-4 relative z-30">
         {showTutorForm ? (
-          <div className="animate-in slide-in-from-bottom duration-500 bg-white min-h-[85vh] rounded-[40px] overflow-hidden border border-slate-100 shadow-2xl relative">
+          <div className="animate-in slide-in-from-bottom duration-500 bg-white min-h-[85vh] rounded-[48px] overflow-hidden border border-slate-100 shadow-2xl relative">
             <div className="bg-slate-50 p-6 flex items-center justify-between border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <Settings className="text-primary animate-spin-slow" size={20} />
-                <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Update Profile</h3>
+                <div className="p-3 bg-primary/10 rounded-2xl text-primary">
+                  <Settings className="animate-spin-slow" size={20} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Update Profile</h3>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Secure Sync</p>
+                </div>
               </div>
               <button 
                 onClick={() => setShowTutorForm(false)}
-                className="bg-primary/10 text-primary p-3 rounded-2xl font-black text-[10px] uppercase tracking-tighter hover:bg-primary/20 transition-colors"
+                className="bg-white text-slate-900 p-4 px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-sm border border-slate-100"
               >
-                Close & Go Home
+                Return Home
               </button>
             </div>
             <iframe 
@@ -1652,88 +1663,158 @@ export default function App() {
               className="w-full h-[75vh] border-none"
               title="Tutor Update Form"
             />
-            <div className="p-6 bg-slate-50 text-center">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">
-                Form processed by DoAble India official Portal.<br/>Changes may take 24-48 hours to reflect on live profiles.
+            <div className="p-6 bg-slate-50 text-center border-t border-slate-100">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed max-w-xs mx-auto">
+                Securely encrypted on DoAble servers. Changes reflect within 24-48 hours.
               </p>
             </div>
           </div>
         ) : (
           <>
             {activeTab === 'home' && (
-          <div className="space-y-3 py-2 px-3">
-              <div className="space-y-3">
-                {/* 2. Perfect Match for [City] Section */}
-                <div 
-                  className="p-5 rounded-[32px] relative overflow-hidden shadow-xl shadow-primary/20 border border-primary/5 animate-in fade-in zoom-in duration-1000 delay-200"
+              <div className="space-y-6 py-4">
+                {/* 1. Hero Card - Perfect Match */}
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                  className="p-8 rounded-[40px] relative overflow-hidden shadow-2xl shadow-primary/20 border border-white/10 group"
                   style={{ background: getCityTheme(userCity).grad }}
                 >
-                  <div className="relative z-10 space-y-3">
-                     <div className="space-y-2">
-                        <div className="flex items-center gap-3">
-                           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
-                           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70">Sync With Local Demand</span>
+                  {/* Decorative Elements */}
+                  <div className="absolute top-[-20%] right-[-10%] w-80 h-80 bg-white/10 rounded-full blur-[100px] group-hover:scale-110 transition-transform duration-1000" />
+                  <div className="absolute bottom-[-20%] left-[-10%] w-64 h-64 bg-black/10 rounded-full blur-[80px]" />
+                  
+                  <div className="relative z-10 space-y-6">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.5)]" />
+                          <span className="text-[9px] font-black uppercase tracking-widest text-white">Live in {userCity}</span>
                         </div>
-                        <h3 className="text-xl font-black leading-tight text-white tracking-tight">Perfect Match for<br/> {userCity}</h3>
-                     </div>
-                     
-                     <div className="flex flex-col sm:flex-row gap-3">
-                        <button 
-                          onClick={() => {
-                            setIsSelectingCityOnly(true);
-                            setShowOnboarding(true);
-                            setOnboardingStep(3); // City Selection
-                          }}
-                          className="bg-white text-slate-900 px-5 py-3 rounded-[20px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl active:scale-95"
-                        >
-                          <MapPin size={18} className="text-primary" />
-                          Change City
-                        </button>
-                        <button 
-                          onClick={() => {
-                            setShowOnboarding(true);
-                            setOnboardingStep(0); // Identity/Preference Reset
-                          }}
-                          className="bg-primary text-white p-3 rounded-[20px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all active:scale-95"
-                        >
-                          <Settings size={18} />
-                          Update Preference
-                        </button>
-                     </div>
+                        <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Matching Profile</span>
+                      </div>
+                      <h3 className="text-4xl font-black leading-none text-white tracking-tighter font-display">
+                        Perfect Tuition<br/>Matches for {userCity}
+                      </h3>
+                      <p className="text-white/70 text-xs font-medium max-w-[280px] leading-relaxed">
+                        We've found the best teaching opportunities and expert tutors specifically for your profile in {userCity}.
+                      </p>
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                      <button 
+                        onClick={() => {
+                          setIsSelectingCityOnly(true);
+                          setShowOnboarding(true);
+                          setOnboardingStep(3);
+                        }}
+                        className="bg-white text-slate-900 px-8 py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl active:scale-95 group/btn"
+                      >
+                        <MapPin size={20} className="text-primary group-hover/btn:scale-110 transition-transform" />
+                        Switch City
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setShowOnboarding(true);
+                          setOnboardingStep(0);
+                        }}
+                        className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-white/20 transition-all active:scale-95"
+                      >
+                        <Settings size={20} />
+                        Preferences
+                      </button>
+                    </div>
                   </div>
-                  <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white/10 rounded-full blur-[80px]" />
-                </div>
+                </motion.div>
 
-                {/* Role-Based Actions Corner */}
-                <div className="p-5 rounded-[28px] text-white space-y-3 shadow-xl shadow-primary/30 relative overflow-hidden group border border-white/5 animate-in slide-in-from-bottom duration-700 delay-300">
-                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
-                    <GraduationCap size={60} />
-                  </div>
-                  <div className="space-y-2 relative z-10">
-                    <p className="text-primary text-[10px] font-black uppercase tracking-[0.4em]">{userType === 'teacher' ? 'BECOME A TUTOR · FREE' : 'Parent Priority'}</p>
-                    <h3 className="text-3xl font-black uppercase tracking-tighter">{userType === 'teacher' ? 'Have Skills? Find Students' : 'Requirement'}</h3>
-                  </div>
-                  <div className="p-1 bg-white/5 rounded-[32px] border border-white/10 backdrop-blur-sm">
+                {/* 2. Feature Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Become a Tutor / Update Card */}
+                  <motion.div 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                    className="bg-slate-900 rounded-[40px] p-8 text-white relative overflow-hidden group border border-white/5 shadow-2xl"
+                  >
+                    <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:scale-110 transition-transform duration-700">
+                      <GraduationCap size={120} />
+                    </div>
+                    
+                    <div className="relative z-10 h-full flex flex-col justify-between space-y-8">
+                      <div className="space-y-3">
+                        <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center text-primary border border-primary/20">
+                          {userType === 'teacher' ? <Zap size={24} /> : <User size={24} />}
+                        </div>
+                        <h4 className="text-2xl font-black tracking-tight font-display">
+                          {userType === 'teacher' ? 'Want More Students?' : 'Need a Home Tutor?'}
+                        </h4>
+                        <p className="text-slate-400 text-xs font-medium leading-relaxed max-w-[240px]">
+                          {userType === 'teacher' 
+                            ? 'Update your professional details to get prioritized for high-budget home tuitions.' 
+                            : 'Post your requirement and get connected with verified expert tutors in your area.'}
+                        </p>
+                      </div>
+                      
                       <button 
                         onClick={() => setShowTutorForm(true)}
-                        className="w-full bg-white text-slate-900 p-6 rounded-[28px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 shadow-2xl"
+                        className="w-full bg-white text-slate-900 p-6 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 shadow-2xl"
                       >
-                        <span className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                          <Edit3 size={16} />
-                        </span>
-                        {userType === 'teacher' ? 'Tell details to city coordinator' : 'Update My Preferences'}
+                        <Edit3 size={18} className="text-primary" />
+                        {userType === 'teacher' ? 'Update Teacher Profile' : 'Submit Requirement'}
                       </button>
-                  </div>
-                  <div className="flex items-center gap-3 justify-center opacity-40">
-                      <CheckCircle size={12} className="text-primary" />
-                      <p className="text-[8px] font-black uppercase tracking-widest leading-none">Update your profile on DoAble server</p>
-                  </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Highlights Card */}
+                  <motion.div 
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.6, delay: 0.5 }}
+                    className="bg-white rounded-[40px] p-8 border border-slate-100 shadow-xl flex flex-col justify-between group"
+                  >
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div className="bg-primary/5 p-3 rounded-2xl text-primary">
+                          <Sparkles size={24} />
+                        </div>
+                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Verified Hub</span>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <h4 className="text-xl font-black tracking-tight text-slate-900 font-display">Why DoAble India?</h4>
+                        <div className="space-y-3">
+                          {[
+                            { icon: <CheckCircle size={14} />, text: 'Verified Expert Educators' },
+                            { icon: <CheckCircle size={14} />, text: 'Direct Parent Connections' },
+                            { icon: <CheckCircle size={14} />, text: 'Profile Matching AI' }
+                          ].map((item, i) => (
+                            <div key={i} className="flex items-center gap-3 text-slate-500">
+                              <span className="text-primary">{item.icon}</span>
+                              <span className="text-[11px] font-bold uppercase tracking-tight">{item.text}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-8 border-t border-slate-50 mt-8 flex items-center justify-between">
+                       <div className="flex -space-x-3">
+                          {[1,2,3,4].map(i => (
+                            <div key={i} className="w-10 h-10 rounded-full border-4 border-white bg-slate-100 flex items-center justify-center overflow-hidden">
+                               <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i + 10}`} alt="avatar" />
+                            </div>
+                          ))}
+                          <div className="w-10 h-10 rounded-full border-4 border-white bg-primary text-white flex items-center justify-center text-[10px] font-black">
+                            +5k
+                          </div>
+                       </div>
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Joined Today</p>
+                    </div>
+                  </motion.div>
                 </div>
-
-
               </div>
-            </div>
-          )}
+            )}
 
         {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} />}
         
