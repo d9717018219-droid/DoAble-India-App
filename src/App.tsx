@@ -1661,7 +1661,7 @@ export default function App() {
         ) : (
           <>
             {activeTab === 'home' && (
-          <div className="space-y-8 py-8 px-4">
+          <div className="space-y-6 py-4 px-4">
               <div className="space-y-10">
                 {/* 2. Perfect Match for [City] Section */}
                 <div 
