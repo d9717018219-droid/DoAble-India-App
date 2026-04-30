@@ -39,7 +39,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [cityFilter, setCityFilter] = useState('all');
+  const [cityFilter, setCityFilter] = useState(localStorage.getItem('userCity') || 'all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts'>('home');
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
@@ -428,7 +428,7 @@ export default function App() {
         const filtered = normalized
           .filter(x => {
             const remark = (x['Internal Remark'] || '').trim().toLowerCase();
-            return remark === 'searching';
+            return remark.includes('searching') || remark.includes('search');
           })
           .sort((a, b) => {
             const dateA = new Date(a['Updated Time']).getTime();
