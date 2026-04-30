@@ -12,35 +12,35 @@
 }
 
 .tag {
-  @apply px-4 py-2 rounded-[15px] bg-slate-50 text-[11px] font-[800] text-slate-600 border border-slate-100 transition-all hover:bg-slate-100 hover:scale-105 inline-flex items-center gap-2;
+  @apply px-4 py-2 rounded-[15px] bg-slate-50 dark:bg-slate-800 text-[11px] font-[800] text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700 transition-all hover:bg-slate-100 dark:hover:bg-slate-700 hover:scale-105 inline-flex items-center gap-2;
 }
 
 @utility tag-time {
-  @apply bg-[#FFF3E0] text-[#FF9800] px-3 py-1.5 rounded-xl text-[10px] font-bold border border-[#FF9800]/20 transition-all hover:bg-[#FF9800] hover:text-white hover:scale-105 inline-block;
+  @apply bg-[#FFF3E0] dark:bg-amber-950/20 text-[#FF9800] px-3 py-1.5 rounded-xl text-[10px] font-bold border border-[#FF9800]/20 transition-all hover:bg-[#FF9800] hover:text-white hover:scale-105 inline-block;
 }
 
 @utility tag-qualification {
-  @apply bg-[#E7F5FF] text-[#1971C2] px-3 py-1.5 rounded-xl text-[10px] font-bold border border-[#1971C2]/20 transition-all hover:bg-[#1971C2] hover:text-white hover:scale-105 inline-block;
+  @apply bg-[#E7F5FF] dark:bg-blue-950/20 text-[#1971C2] px-3 py-1.5 rounded-xl text-[10px] font-bold border border-[#1971C2]/20 transition-all hover:bg-[#1971C2] hover:text-white hover:scale-105 inline-block;
 }
 
 @utility tag-experience {
-  @apply bg-[#F0F9FF] text-[#9C36B5] px-3 py-1.5 rounded-xl text-[10px] font-bold border border-[#9C36B5]/20 transition-all hover:bg-[#9C36B5] hover:text-white hover:scale-105 inline-block;
+  @apply bg-[#F0F9FF] dark:bg-purple-950/20 text-[#9C36B5] px-3 py-1.5 rounded-xl text-[10px] font-bold border border-[#9C36B5]/20 transition-all hover:bg-[#9C36B5] hover:text-white hover:scale-105 inline-block;
 }
 
 @utility tag-days {
-  @apply bg-[#F3E5F5] text-[#D6336C] px-3 py-1.5 rounded-xl text-[10px] font-bold border border-[#D6336C]/20 transition-all hover:bg-[#D6336C] hover:text-white hover:scale-105 inline-block;
+  @apply bg-[#F3E5F5] dark:bg-pink-950/20 text-[#D6336C] px-3 py-1.5 rounded-xl text-[10px] font-bold border border-[#D6336C]/20 transition-all hover:bg-[#D6336C] hover:text-white hover:scale-105 inline-block;
 }
 
 @utility tag-class {
-  @apply bg-[#E0F2FE] text-[#0284C7] px-3 py-1.5 rounded-xl text-[10px] font-bold border border-[#0284C7]/20 transition-all hover:bg-[#0284C7] hover:text-white hover:scale-105 inline-block;
+  @apply bg-[#E0F2FE] dark:bg-sky-950/20 text-[#0284C7] px-3 py-1.5 rounded-xl text-[10px] font-bold border border-[#0284C7]/20 transition-all hover:bg-[#0284C7] hover:text-white hover:scale-105 inline-block;
 }
 
 @utility tag-school {
-  @apply bg-[#FEF3C7] text-[#B45309] px-3 py-1.5 rounded-xl text-[10px] font-bold border border-[#B45309]/20 transition-all hover:bg-[#B45309] hover:text-white hover:scale-105 inline-block;
+  @apply bg-[#FEF3C7] dark:bg-amber-950/20 text-[#B45309] px-3 py-1.5 rounded-xl text-[10px] font-bold border border-[#B45309]/20 transition-all hover:bg-[#B45309] hover:text-white hover:scale-105 inline-block;
 }
 
 @utility stat-item {
-  @apply p-2.5 bg-white rounded-xl text-center border border-[#E8E8E8] transition-all;
+  @apply p-2.5 bg-white dark:bg-slate-800 rounded-xl text-center border border-[#E8E8E8] dark:border-slate-700 transition-all;
 }
 
 @utility animate-spin-slow {
@@ -95,11 +95,11 @@
 }
 
 .native-header-gradient {
-  @apply bg-white border-b border-slate-100;
+  @apply bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800;
 }
 
 .glass-nav {
-  @apply bg-white backdrop-blur-xl border border-slate-100/80;
+  @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-100/80 dark:border-slate-800/80;
 }
 
 .job-card-shadow {
@@ -107,14 +107,14 @@
 }
 
 .residency-box {
-  @apply bg-slate-50 p-3 rounded-xl border-l-4 font-medium text-[11px] text-slate-700 cursor-pointer transition-colors hover:bg-slate-100;
+  @apply bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border-l-4 font-medium text-[11px] text-slate-700 dark:text-slate-300 cursor-pointer transition-colors hover:bg-slate-100 dark:hover:bg-slate-700;
 }
 
 .stat-item {
-  @apply bg-white p-2.5 rounded-xl border border-slate-100 text-center flex flex-col items-center justify-center;
+  @apply bg-white dark:bg-slate-800 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700 text-center flex flex-col items-center justify-center;
 }
 
 .screenshot-btn {
-  @apply absolute top-3 right-3 w-9 h-9 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center text-white border-none cursor-pointer z-10 transition-transform active:scale-95;
+  @apply absolute top-3 right-3 w-9 h-9 rounded-full bg-white/25 dark:bg-slate-900/25 backdrop-blur-md flex items-center justify-center text-white border-none cursor-pointer z-10 transition-transform active:scale-95;
 }
 

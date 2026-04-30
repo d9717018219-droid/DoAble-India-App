@@ -357,11 +357,22 @@ export default function App() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const fsJobs = snapshot.docs.map(doc => {
         const data = doc.data();
+        const postedAt = data.postedAt;
+        let updatedTime = new Date().toISOString();
+        if (postedAt) {
+          if (typeof postedAt.toDate === 'function') {
+            updatedTime = postedAt.toDate().toISOString();
+          } else if (postedAt instanceof Date) {
+            updatedTime = postedAt.toISOString();
+          } else if (typeof postedAt === 'string') {
+            updatedTime = new Date(postedAt).toISOString();
+          }
+        }
         return {
           'Order ID': data.orderId,
           City: data.city,
           subjects: data.subject,
-          'Updated Time': data.postedAt?.toDate()?.toISOString() || new Date().toISOString(),
+          'Updated Time': updatedTime,
           Name: 'New Requirement',
           'Internal Remark': 'searching',
           'Preferred Job Type': 'Home Tuition',
@@ -405,9 +416,25 @@ export default function App() {
       const json: ApiResponse<JobLead> = await response.json();
       
       if (json.status === 'success') {
-        const filtered = json.data
-          .filter(x => x['Internal Remark']?.trim().toLowerCase() === 'searching')
-          .sort((a, b) => new Date(b['Updated Time']).getTime() - new Date(a['Updated Time']).getTime());
+        const normalized = json.data.map(lead => {
+          // Normalize dates: Updated Time > Created Time > Record Added > Now
+          let dateStr = lead['Updated Time'] || (lead as any)['Created Time'] || (lead as any)['Record Added'];
+          if (!dateStr || dateStr === '0000-00-00 00:00:00') {
+            dateStr = new Date().toISOString();
+          }
+          return { ...lead, 'Updated Time': dateStr };
+        });
+
+        const filtered = normalized
+          .filter(x => {
+            const remark = (x['Internal Remark'] || '').trim().toLowerCase();
+            return remark === 'searching' || remark === 'new lead' || remark === '';
+          })
+          .sort((a, b) => {
+            const dateA = new Date(a['Updated Time']).getTime();
+            const dateB = new Date(b['Updated Time']).getTime();
+            return (isNaN(dateB) ? 0 : dateB) - (isNaN(dateA) ? 0 : dateA);
+          });
         setLeads(filtered);
       } else {
         throw new Error(json.message || 'API returned failure status');
@@ -693,10 +720,11 @@ export default function App() {
         uniqueMap.set(l['Order ID'], l);
       }
     });
-    return Array.from(uniqueMap.values()).sort((a, b) => 
-      new Date(b['Updated Time']).getTime() - new Date(a['Updated Time']).getTime()
-    );
-  }, [leads, firestoreLeads]);
+    return Array.from(uniqueMap.values()).sort((a, b) => {
+      const dateA = new Date(a['Updated Time']).getTime();
+      const dateB = new Date(b['Updated Time']).getTime();
+      return (isNaN(dateB) ? 0 : dateB) - (isNaN(dateA) ? 0 : dateA);
+    });  }, [leads, firestoreLeads]);
 
   const availableLocationsForCity = useMemo(() => {
     const city = (activeTab === 'home' || activeTab === 'alerts') ? editCity : cityFilter;
@@ -1284,71 +1312,6 @@ export default function App() {
                       Back
                     </button>
                     <button 
-                      onClick={() => setOnboardingStep(5)}
-                      className="flex-[2] bg-primary text-white p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-primary/20"
-                    >
-                      Next: Appearance <ArrowRight size={18} />
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-
-              {onboardingStep === 5 && (
-                <motion.div 
-                  key="step5"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 space-y-8"
-                >
-                  <div className="flex items-center gap-4 mb-2">
-                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
-                      <Sparkles size={24} />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Appearance</h3>
-                      <p className="text-[10px] font-black text-primary uppercase tracking-widest">Theme Preference</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Choose your preferred style:</p>
-                    <div className="grid grid-cols-2 gap-4">
-                      <button
-                        onClick={() => setThemeMode('light')}
-                        className={cn(
-                          "p-6 rounded-[32px] border-2 transition-all flex flex-col items-center gap-3 active:scale-95 group",
-                          themeMode === 'light' ? "bg-white border-primary shadow-lg" : "bg-slate-50 border-transparent text-slate-400"
-                        )}
-                      >
-                        <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600">
-                          <Zap size={24} />
-                        </div>
-                        <span className="text-xs font-black uppercase tracking-tight">Light Mode</span>
-                      </button>
-                      <button
-                        onClick={() => setThemeMode('dark')}
-                        className={cn(
-                          "p-6 rounded-[32px] border-2 transition-all flex flex-col items-center gap-3 active:scale-95 group",
-                          themeMode === 'dark' ? "bg-slate-800 border-primary shadow-lg text-white" : "bg-slate-900 border-transparent text-slate-500"
-                        )}
-                      >
-                        <div className="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-blue-400">
-                          <Sparkles size={24} />
-                        </div>
-                        <span className="text-xs font-black uppercase tracking-tight">Dark Mode</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 flex gap-3">
-                    <button 
-                      onClick={() => setOnboardingStep(4)}
-                      className="flex-1 bg-slate-50 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
-                    >
-                      Back
-                    </button>
-                    <button 
                       onClick={handleCompleteOnboarding}
                       className="flex-[2] bg-primary text-white p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-primary/20"
                     >
@@ -1880,6 +1843,8 @@ export default function App() {
                 userClasses={userClasses} 
                 userType={userType} 
                 setShowTutorForm={setShowTutorForm} 
+                themeMode={themeMode}
+                setThemeMode={setThemeMode}
               />
             )}
         
@@ -2227,12 +2192,12 @@ function NavButton({ active, onClick, icon, label }: { active: boolean, onClick:
       onClick={onClick}
       className={cn(
         "flex flex-col items-center gap-1.5 py-1 px-3 sm:px-5 rounded-2xl transition-all active:scale-95",
-        active ? "text-primary scale-110" : "text-slate-300"
+        active ? "text-primary dark:text-blue-400 scale-110" : "text-slate-300 dark:text-slate-700"
       )}
     >
       <div className={cn(
         "p-2 rounded-xl transition-all",
-        active ? "bg-primary/5 shadow-inner" : ""
+        active ? "bg-primary/5 dark:bg-blue-400/5 shadow-inner" : ""
       )}>
         {icon}
       </div>
@@ -2246,10 +2211,10 @@ function NavButton({ active, onClick, icon, label }: { active: boolean, onClick:
 
 function FeatureCard({ icon, title, desc }: { icon: any, title: string, desc: string }) {
   return (
-    <div className="bg-white p-7 rounded-[32px] border border-slate-100 shadow-sm space-y-3">
-      <div className="p-3 bg-slate-50 w-fit rounded-2xl">{icon}</div>
-      <h4 className="font-extrabold text-slate-900">{title}</h4>
-      <p className="text-xs text-slate-500 leading-relaxed">{desc}</p>
+    <div className="bg-white dark:bg-slate-900 p-7 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm space-y-3">
+      <div className="p-3 bg-slate-50 dark:bg-slate-800 w-fit rounded-2xl">{icon}</div>
+      <h4 className="font-extrabold text-slate-900 dark:text-white">{title}</h4>
+      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{desc}</p>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { db } from '../firebase';
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 import { Alert, UserType } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, Play, Volume2 } from 'lucide-react';
+import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, Play, Volume2, Moon, Sun } from 'lucide-react';
 import { getCityTheme } from '../utils';
 
 interface AlertsViewProps {
@@ -13,9 +13,11 @@ interface AlertsViewProps {
   userClasses?: string[];
   userType?: UserType | null;
   setShowTutorForm: (show: boolean) => void;
+  themeMode: 'light' | 'dark';
+  setThemeMode: (mode: 'light' | 'dark') => void;
 }
 
-const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, userType, setShowTutorForm }) => {
+const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, userType, setShowTutorForm, themeMode, setThemeMode }) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTone, setSelectedTone] = useState('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
@@ -214,10 +216,10 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
 
   const getBg = (type: string) => {
     switch (type) {
-      case 'urgent': return 'bg-rose-50 border-rose-100';
-      case 'success': return 'bg-emerald-50 border-emerald-100';
-      case 'broadcast': return 'bg-amber-50 border-amber-100';
-      default: return 'bg-blue-50 border-blue-100';
+      case 'urgent': return 'bg-rose-50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/30';
+      case 'success': return 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30';
+      case 'broadcast': return 'bg-amber-50 dark:bg-amber-950/20 border-amber-100 dark:border-amber-900/30';
+      default: return 'bg-blue-50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-900/30';
     }
   };
 
@@ -231,19 +233,19 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
   }
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-6 pb-24 dark:bg-slate-950 min-h-screen">
       <header className="px-6 py-4 flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
             City Broadcasts <span className="bg-primary/10 text-primary text-[10px] px-2 py-1 rounded-full uppercase tracking-widest font-black">{city}</span>
           </h2>
-          <p className="text-slate-500 text-xs font-bold mt-1 uppercase tracking-wider">Stay updated with real-time teaching news</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs font-bold mt-1 uppercase tracking-wider">Stay updated with real-time teaching news</p>
         </div>
         <div className="flex items-center gap-3">
           {permission === 'granted' && (
             <button 
               onClick={playTestSound}
-              className="w-10 h-10 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center hover:bg-emerald-100 transition-colors"
+              className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800 flex items-center justify-center hover:bg-emerald-100 dark:hover:bg-emerald-800/30 transition-colors"
               title="Test & Unlock Sound"
             >
               <Zap size={16} className="text-emerald-500 fill-emerald-500" />
@@ -258,7 +260,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
               Enable Alerts
             </button>
           )}
-          <div className="w-10 h-10 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center animate-pulse">
+          <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-center animate-pulse">
               <Bell className="w-5 h-5 text-primary" />
           </div>
         </div>
@@ -274,47 +276,76 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
           crossOrigin="anonymous"
         />
         
-        {/* Sound Selection Menu */}
-        <div className="bg-slate-50 p-6 rounded-[32px] border-2 border-slate-100/50">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100">
-                <Volume2 className="w-4 h-4 text-primary" />
+        {/* Appearance & Sound Selection */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Theme Toggle Menu */}
+          <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-[32px] border-2 border-slate-100/50 dark:border-slate-800/50">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                  {themeMode === 'light' ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-blue-400" />}
+                </div>
+                <div>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic block">Appearance</span>
+                  <span className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{themeMode === 'light' ? 'Light Mode' : 'Dark Mode'}</span>
+                </div>
               </div>
-              <div>
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic block">Active Alert Tone</span>
-                <span className="text-sm font-black text-slate-900 uppercase tracking-tight">{celestialTone.name}</span>
-              </div>
+              
+              <button
+                onClick={() => setThemeMode(themeMode === 'light' ? 'dark' : 'light')}
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 relative group cursor-pointer active:scale-95 ${
+                  themeMode === 'dark' 
+                    ? 'bg-slate-800 text-blue-400 shadow-lg border-2 border-blue-400/30' 
+                    : 'bg-white border-2 border-slate-100 text-amber-500 hover:border-amber-500/30'
+                }`}
+              >
+                {themeMode === 'dark' ? <Moon size={18} fill="currentColor" /> : <Sun size={18} fill="currentColor" />}
+              </button>
             </div>
-            
-            <button
-              onClick={() => playPreview(celestialTone.url)}
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 relative group cursor-pointer active:scale-95 ${
-                isPlaying === celestialTone.url 
-                  ? 'bg-primary text-white shadow-lg' 
-                  : 'bg-white border-2 border-slate-100 text-slate-400 hover:border-primary/30 hover:text-primary'
-              }`}
-            >
-              {isPlaying === celestialTone.url && (
-                <motion.div 
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1.8, opacity: 0 }}
-                  transition={{ repeat: Infinity, duration: 1.2 }}
-                  className="absolute inset-0 bg-primary/20 rounded-full z-0 pointer-events-none"
-                />
-              )}
-              <div className="z-10">
-                {isPlaying === celestialTone.url ? (
-                  <div className="flex gap-0.5 items-end h-3">
-                    <div className="w-1 bg-white animate-[bounce_0.6s_ease-in-out_infinite]" />
-                    <div className="w-1 bg-white animate-[bounce_0.6s_ease-in-out_0.2s_infinite]" />
-                    <div className="w-1 bg-white animate-[bounce_0.6s_ease-in-out_0.4s_infinite]" />
-                  </div>
-                ) : (
-                  <Play size={16} fill="currentColor" />
-                )}
+          </div>
+
+          {/* Sound Selection Menu */}
+          <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-[32px] border-2 border-slate-100/50 dark:border-slate-800/50">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+                  <Volume2 className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic block">Active Alert Tone</span>
+                  <span className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{celestialTone.name}</span>
+                </div>
               </div>
-            </button>
+              
+              <button
+                onClick={() => playPreview(celestialTone.url)}
+                className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 relative group cursor-pointer active:scale-95 ${
+                  isPlaying === celestialTone.url 
+                    ? 'bg-primary text-white shadow-lg' 
+                    : 'bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 text-slate-400 hover:border-primary/30 hover:text-primary'
+                }`}
+              >
+                {isPlaying === celestialTone.url && (
+                  <motion.div 
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1.8, opacity: 0 }}
+                    transition={{ repeat: Infinity, duration: 1.2 }}
+                    className="absolute inset-0 bg-primary/20 rounded-full z-0 pointer-events-none"
+                  />
+                )}
+                <div className="z-10">
+                  {isPlaying === celestialTone.url ? (
+                    <div className="flex gap-0.5 items-end h-3">
+                      <div className="w-1 bg-white animate-[bounce_0.6s_ease-in-out_infinite]" />
+                      <div className="w-1 bg-white animate-[bounce_0.6s_ease-in-out_0.2s_infinite]" />
+                      <div className="w-1 bg-white animate-[bounce_0.6s_ease-in-out_0.4s_infinite]" />
+                    </div>
+                  ) : (
+                    <Play size={16} fill="currentColor" />
+                  )}
+                </div>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -322,14 +353,14 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl flex items-start gap-3"
+            className="p-4 bg-emerald-50/50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl flex items-start gap-3"
           >
-            <div className="p-2 bg-emerald-100 rounded-xl">
-              <CheckCircle size={14} className="text-emerald-600" />
+            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl">
+              <CheckCircle size={14} className="text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <p className="text-[10px] font-black text-emerald-800 uppercase tracking-tight">Real-Time Monitoring Active</p>
-              <p className="text-[9px] text-emerald-700/70 font-medium leading-tight mt-1">
+              <p className="text-[10px] font-black text-emerald-800 dark:text-emerald-400 uppercase tracking-tight">Real-Time Monitoring Active</p>
+              <p className="text-[9px] text-emerald-700/70 dark:text-emerald-500/70 font-medium leading-tight mt-1">
                 For the chosen alert tone to play when you are not using the app, keep this tab open in your browser or <b>Add to Home Screen</b>.
               </p>
             </div>
@@ -341,13 +372,13 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="py-20 text-center bg-slate-50 rounded-[32px] border-2 border-dashed border-slate-200"
+              className="py-20 text-center bg-slate-50 dark:bg-slate-900 rounded-[32px] border-2 border-dashed border-slate-200 dark:border-slate-800"
             >
-              <div className="w-16 h-16 bg-white rounded-3xl shadow-sm border border-slate-100 flex items-center justify-center mx-auto mb-4">
-                <Bell className="w-8 h-8 text-slate-300" />
+              <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center mx-auto mb-4">
+                <Bell className="w-8 h-8 text-slate-300 dark:text-slate-600" />
               </div>
-              <h3 className="text-slate-900 font-black text-sm uppercase tracking-wider">Signals Clear</h3>
-              <p className="text-slate-500 text-[10px] font-bold mt-2 uppercase tracking-[0.2em]">No targeted alerts for your profile in {city}</p>
+              <h3 className="text-slate-900 dark:text-white font-black text-sm uppercase tracking-wider">Signals Clear</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-[10px] font-bold mt-2 uppercase tracking-[0.2em]">No targeted alerts for your profile in {city}</p>
             </motion.div>
           ) : (
               filteredAlerts.map((alert, index) => (
@@ -357,15 +388,15 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
                 key={alert.id}
-                className={`p-4 rounded-[20px] border shadow-sm relative overflow-hidden group ${getBg(alert.type)}`}
+                className={`p-4 rounded-[20px] border shadow-sm relative overflow-hidden group ${getBg(alert.type)} dark:bg-slate-900/40 dark:border-slate-800`}
               >
                 <div className="flex gap-3">
-                  <div className="shrink-0 w-10 h-10 bg-white rounded-xl shadow-sm border border-slate-50 flex items-center justify-center">
+                  <div className="shrink-0 w-10 h-10 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-50 dark:border-slate-700 flex items-center justify-center">
                     {getIcon(alert.type)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] font-black text-slate-800 uppercase tracking-tight">
+                      <span className="text-[10px] font-black text-slate-800 dark:text-slate-200 uppercase tracking-tight">
                         {alert.sender}
                       </span>
                       <span className="text-[9px] font-bold text-slate-400 flex items-center gap-1">
@@ -373,7 +404,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
                         {alert.timestamp?.toDate ? new Date(alert.timestamp.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'}
                       </span>
                     </div>
-                    <p className="text-slate-700 font-medium text-[13px] leading-snug">
+                    <p className="text-slate-700 dark:text-slate-300 font-medium text-[13px] leading-snug">
                       {alert.message}
                     </p>
                     <div className="flex items-center justify-between mt-2">
@@ -387,7 +418,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
                            View Details <ExternalLink className="w-2.5 h-2.5" />
                          </a>
                        ) : <div />}
-                       <span className="text-[8px] font-black text-slate-300 uppercase tracking-tighter">
+                       <span className="text-[8px] font-black text-slate-300 dark:text-slate-600 uppercase tracking-tighter">
                          {alert.timestamp?.toDate ? new Date(alert.timestamp.toDate()).toLocaleDateString() : ''}
                        </span>
                     </div>
@@ -413,7 +444,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
             <Zap size={18} fill="currentColor" />
             Become a Tutor / Update Profile
           </button>
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center mt-3 opacity-60">
+          <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center mt-3 opacity-60">
             Join 5,000+ Verified Educators Today
           </p>
         </motion.div>
