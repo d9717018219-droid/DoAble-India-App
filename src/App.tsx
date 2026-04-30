@@ -675,7 +675,14 @@ export default function App() {
   }, [leads, tutors, activeTab]);
 
   const allLeads = useMemo(() => {
-    return [...firestoreLeads, ...leads].sort((a, b) => 
+    const combined = [...firestoreLeads, ...leads];
+    const uniqueMap = new Map();
+    combined.forEach(l => {
+      if (l && l['Order ID'] && !uniqueMap.has(l['Order ID'])) {
+        uniqueMap.set(l['Order ID'], l);
+      }
+    });
+    return Array.from(uniqueMap.values()).sort((a, b) => 
       new Date(b['Updated Time']).getTime() - new Date(a['Updated Time']).getTime()
     );
   }, [leads, firestoreLeads]);
@@ -881,7 +888,7 @@ export default function App() {
   }, [tutors, cityFilter, searchQuery, userTutorGenderPref, userClasses, userTutorSubjects, userTutorLocations, userTutorTimes, userTutorDays, userTutorFee, userTutorSchoolExp, userTutorVehicle, userTutorLastUpdated, userTutorStatus]);
 
   return (
-    <div className="min-h-screen bg-white transition-colors duration-300 relative overflow-x-hidden font-sans pb-24">
+    <div className="h-screen bg-white transition-colors duration-300 relative overflow-hidden font-sans flex flex-col">
       {/* Onboarding Overlay */}
       {showOnboarding && (
         <div className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center p-6 overflow-y-auto">
@@ -1621,16 +1628,12 @@ export default function App() {
           <div className="space-y-1">
             {activeTab === 'home' ? (
               <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
                 transition={{ type: "spring", damping: 15 }}
-                className="space-y-1"
               >
-                <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest leading-none">
-                  {timeGreeting}
-                </h2>
-                <h1 className="text-4xl font-black text-slate-900 tracking-tighter leading-none font-display">
-                  Hello, {userName?.split(' ')[0] || 'Friend'}
+                <h1 className="text-4xl font-black tracking-tighter leading-tight font-display bg-clip-text text-transparent bg-gradient-to-r from-primary via-blue-400 to-primary bg-[length:200%_auto] animate-gradient-x">
+                  {timeGreeting}, {userName?.split(' ')[0] || 'Friend'}
                 </h1>
               </motion.div>
             ) : (
@@ -1669,7 +1672,7 @@ export default function App() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto p-4 max-w-[1200px] relative z-30">
+      <main className="flex-1 overflow-y-auto scrollbar-none container mx-auto p-4 max-w-[1200px] relative z-30 pb-32">
         {showTutorForm ? (
           <div className="animate-in slide-in-from-bottom duration-500 bg-white min-h-[85vh] rounded-[48px] overflow-hidden border border-slate-100 shadow-2xl relative">
             <div className="bg-slate-50 p-6 flex items-center justify-between border-b border-slate-100">
@@ -1703,7 +1706,7 @@ export default function App() {
         ) : (
           <>
             {activeTab === 'home' && (
-              <div className="h-[calc(100vh-240px)] overflow-y-auto scrollbar-none flex flex-col space-y-6 px-2 pb-10">
+              <div className="flex-1 flex flex-col space-y-6 px-2">
                 {/* 1. Uber-style Sub-Greeting */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
@@ -1753,7 +1756,7 @@ export default function App() {
                       <div className="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/20">
                         <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-1">Active Tutors</p>
                         <p className="text-2xl font-black text-white leading-none">
-                          {tutors.filter(t => isCityMatch(getCityValue(t), userCity) && t.Status === 'Active').length}
+                          {tutors.filter(t => (isCityMatch(getCityValue(t), userCity) || (t['Preferred Location(s)'] || '').toLowerCase().includes(userCity.toLowerCase())) && t.Status === 'Active').length}
                         </p>
                       </div>
                     </div>
