@@ -128,19 +128,28 @@ export const CLASS_SUBJECTS_DATA: Record<string, string[]> = {
         "Robotics"
     ],
     '9th Std': [
+        "Maths",
         "Maths (Standard/Basic)",
+        "Science (Physics, Chemistry, Biology)",
         "Physics",
         "Chemistry",
         "Biology",
+        "Social Science (SST)",
         "History",
         "Civics",
         "Geography",
         "Economics",
+        "English",
         "English (Language & Literature)",
+        "Hindi",
         "Hindi (A/B)",
+        "Sanskrit",
         "French",
         "German",
+        "Spanish",
+        "Computer/ICT",
         "Information Technology (IT)",
+        "Robotics",
         "Artificial Intelligence (AI)"
     ],
     '10th Std': [
