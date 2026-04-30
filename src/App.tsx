@@ -1713,29 +1713,28 @@ export default function App() {
                     </div>
                     
                     <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                      <button 
-                        onClick={() => {
-                          setIsSelectingCityOnly(true);
-                          setShowOnboarding(true);
-                          setOnboardingStep(3);
-                        }}
-                        className="bg-white text-slate-900 px-8 py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl active:scale-95 group/btn"
-                      >
-                        <MapPin size={20} className="text-primary group-hover/btn:scale-110 transition-transform" />
-                        Switch City
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setShowOnboarding(true);
-                          setOnboardingStep(0);
-                        }}
-                        className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-8 py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-white/20 transition-all active:scale-95"
-                      >
-                        <Settings size={20} />
-                        Preferences
-                      </button>
-                    </div>
-                  </div>
+                     <button 
+                       onClick={() => {
+                         setIsSelectingCityOnly(true);
+                         setShowOnboarding(true);
+                         setOnboardingStep(3);
+                       }}
+                       className="bg-white text-slate-900 px-8 py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl active:scale-95 group/btn"
+                     >
+                       <MapPin size={20} className="text-primary group-hover/btn:scale-110 transition-transform" />
+                       Change City
+                     </button>
+                     <button 
+                       onClick={() => {
+                         setShowOnboarding(true);
+                         setOnboardingStep(0);
+                       }}
+                       className="bg-[#FFE66D] text-slate-900 px-8 py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-[#FFD93D] transition-all shadow-xl shadow-yellow-500/10 active:scale-95"
+                     >
+                       <Settings size={20} />
+                       Change My Preference
+                     </button>
+                    </div>                  </div>
                 </motion.div>
 
                 {/* Compact Tutor Action Button */}
