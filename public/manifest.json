@@ -1,17 +1,36 @@
 {
   "name": "DoAble India",
-  "short_name": "DoAble India",
-  "description": "Premium Tuition Jobs Portal",
+  "short_name": "DoAble",
+  "id": "/",
+  "description": "Premium Tuition Jobs Portal — Find expert tutors and teaching jobs across India.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#2563EB",
+  "orientation": "portrait",
+  "background_color": "#f8f4f1",
+  "theme_color": "#f8f4f1",
+  "lang": "en",
+  "categories": ["education"],
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3233/3233483.png",
-      "sizes": "512x512",
+      "src": "/icons/logo.png",
+      "sizes": "400x400",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/logo.png",
+      "sizes": "400x400",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icons/screenshot.png",
+      "sizes": "542x720",
+      "type": "image/png",
+      "form_factor": "narrow"
     }
   ]
 }
