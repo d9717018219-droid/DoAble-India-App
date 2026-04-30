@@ -428,7 +428,7 @@ export default function App() {
         const filtered = normalized
           .filter(x => {
             const remark = (x['Internal Remark'] || '').trim().toLowerCase();
-            return remark === 'searching' || remark === 'new lead' || remark === '';
+            return remark === 'searching';
           })
           .sort((a, b) => {
             const dateA = new Date(a['Updated Time']).getTime();
