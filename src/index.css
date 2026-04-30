@@ -67,7 +67,7 @@
 @layer base {
   body {
     @apply font-sans text-slate-900 transition-colors duration-300;
-    background: #f0f4f8 !important;
+    background: #eef2f7 !important;
   }
 }
 
