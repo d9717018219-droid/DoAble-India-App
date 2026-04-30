@@ -1904,61 +1904,55 @@ export default function App() {
         )}
 
         {(activeTab === 'jobs' || activeTab === 'tutors') && !showTutorForm && (
-          <div className="space-y-6 animate-in fade-in duration-500 relative">
-            {/* Search */}
-            <div className="px-2 pt-4 flex gap-3">
-              <div className="relative group flex-1">
-                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={20} />
-                <input 
-                  type="text"
-                  placeholder={activeTab === 'jobs' ? "Search city, subject, order ID..." : "Search name, subject, tutor ID..."}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-slate-50 border-2 border-slate-50 rounded-[28px] py-5 pl-14 pr-7 text-sm font-bold focus:ring-4 focus:ring-primary/5 focus:border-primary/20 focus:bg-white transition-all outline-none placeholder:text-slate-300 shadow-sm"
-                />
-              </div>
-              {(activeTab === 'tutors' || activeTab === 'jobs') && (
+          <div className="animate-in fade-in duration-500 relative">
+            {/* Fixed Search Header */}
+            <div className="sticky top-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl -mx-4 px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-col gap-4 mb-4">
+              <div className="flex gap-3">
+                <div className="relative group flex-1">
+                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={20} />
+                  <input 
+                    type="text"
+                    placeholder={activeTab === 'jobs' ? "Search city, subject, order ID..." : "Search name, subject, tutor ID..."}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-slate-50 dark:border-slate-800 rounded-[24px] py-4 pl-14 pr-7 text-sm font-bold focus:ring-4 focus:ring-primary/5 focus:border-primary/20 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none placeholder:text-slate-300 dark:text-slate-600 shadow-sm dark:text-white"
+                  />
+                </div>
                 <button 
                   onClick={() => setShowFilterDrawer(true)}
-                  className="bg-primary text-white p-3 rounded-[20px] shadow-lg shadow-primary/20 active:scale-95 transition-transform flex items-center justify-center"
+                  className="bg-primary text-white p-3.5 rounded-[20px] shadow-lg shadow-primary/20 active:scale-95 transition-transform flex items-center justify-center shrink-0"
                 >
                   <Filter size={24} />
                 </button>
-              )}
-            </div>
+              </div>
 
-            {/* Filter Summary Tags */}
-            {(activeTab === 'tutors' || activeTab === 'jobs') && (
-              <div className="flex flex-wrap gap-2 px-4">
+              {/* Quick Filter Tags in Sticky Header */}
+              <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 scrollbar-none">
                  {userTutorLocations.length > 0 && (
-                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase flex items-center gap-1">
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1 whitespace-nowrap">
                      <MapPin size={10} /> {userTutorLocations.length} Areas
                    </span>
                  )}
                  {userTutorSubjects.length > 0 && (
-                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase flex items-center gap-1">
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1 whitespace-nowrap">
                      <BookOpen size={10} /> {userTutorSubjects.length} Subjects
                    </span>
                  )}
                  {userTutorGenderPref !== 'Any' && (
-                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase">
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap">
                      {userTutorGenderPref} Only
                    </span>
                  )}
                  {userTutorFee && (
-                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase">
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap">
                      ₹ {userTutorFee}
                    </span>
                  )}
-                 {userTutorStatus && (
-                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase">
-                     Status: {userTutorStatus}
-                   </span>
-                 )}
               </div>
-            )}
+            </div>
 
-            {loading && (leads.length === 0 && tutors.length === 0) ? (
+            <div className="space-y-6">
+              {loading && (leads.length === 0 && tutors.length === 0) ? (
               <div className="text-center p-32 text-primary font-black flex flex-col items-center gap-5">
                 <Loader2 className="animate-spin" size={40} />
                 <div className="uppercase tracking-[0.3em] text-[10px] opacity-40">Syncing Data</div>
