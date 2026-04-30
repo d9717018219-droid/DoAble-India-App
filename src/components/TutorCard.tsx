@@ -157,7 +157,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
         </div>
         {tutor['Preferred Class Group'] && (
           <div className="space-y-2">
-            <div className="text-[10px] uppercase font-black text-slate-400 tracking-wider">📖 Class Group</div>
+            <div className="text-[10px] uppercase font-black text-slate-400 tracking-wider">📖 Subject List</div>
             <div className="flex flex-wrap gap-1.5">
               {tutor['Preferred Class Group'].split(',').map((cls, i) => (
                 <span key={i} className="px-3 py-1.5 rounded-xl bg-orange-50 text-[11px] font-bold text-orange-600 border border-orange-100">{cls.trim()}</span>

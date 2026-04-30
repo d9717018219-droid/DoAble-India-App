@@ -517,7 +517,7 @@ export default function App() {
 
   const handleCompleteOnboarding = () => {
     if (!editName || (editUserType === 'teacher' && !editGender) || !editUserType || editClasses.length === 0 || !editCity) {
-      alert("Please complete all required fields (Name, Gender/Pref, City, Classes)!");
+      alert("Please complete all required fields (Name, Gender/Pref, City, Subject List)!");
       return;
     }
     
@@ -1024,14 +1024,14 @@ export default function App() {
                       <GraduationCap size={24} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Classes</h3>
+                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Subject List</h3>
                       <p className="text-[10px] font-black text-primary uppercase tracking-widest">Academic Target</p>
                     </div>
                   </div>
 
                   <div className="space-y-4">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select classes you are interested in:</p>
-                    <div className="grid grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto p-2 scroll-smooth custom-scrollbar">
+                    <div className="grid grid-cols-2 gap-3 max-h-[30vh] overflow-y-auto p-2 scroll-smooth custom-scrollbar">
                        {CLASSES_LIST.map(cls => (
                          <button
                            key={cls}
@@ -1045,6 +1045,27 @@ export default function App() {
                          </button>
                        ))}
                     </div>
+
+                    {editClasses.length > 0 && (
+                      <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Now select subjects:</p>
+                        <div className="flex flex-wrap gap-2 max-h-[30vh] overflow-y-auto p-4 bg-slate-50 rounded-[32px] border border-slate-100">
+                          {editClasses.flatMap(cls => CLASS_SUBJECTS_DATA[cls] || []).map((subj, idx) => (
+                            <button
+                              key={`${subj}-${idx}`}
+                              onClick={() => setEditTutorSubjects(prev => prev.includes(subj) ? prev.filter(s => s !== subj) : [...prev, subj])}
+                              className={cn(
+                                "px-3 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
+                                editTutorSubjects.includes(subj) ? "bg-primary text-white shadow-md" : "bg-white text-slate-400 border border-slate-100"
+                              )}
+                            >
+                              {subj}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {editUserType === 'teacher' && editClasses.length > 0 && (
                         <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">
                           {getMatchingJobsCount(editGender, editClasses, 'all', [])} Matching Jobs Available
@@ -1062,7 +1083,7 @@ export default function App() {
                     <button 
                       onClick={() => {
                         if (editClasses.length === 0) {
-                          alert("Please select at least one class!");
+                          alert("Please select at least one item from the Subject List!");
                           return;
                         }
                         setOnboardingStep(3);
@@ -1381,7 +1402,7 @@ export default function App() {
 
                 {/* Class & Subject matching */}
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Classes & Subjects</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Subject List</label>
                   <div className="space-y-3">
                     <div className="flex flex-wrap gap-2">
                        {CLASSES_LIST.map(cls => (

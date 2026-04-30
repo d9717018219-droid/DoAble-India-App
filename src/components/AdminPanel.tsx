@@ -89,7 +89,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
                 </select>
             </div>
             <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Target Class</label>
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Subject List</label>
                 <select 
                     value={targetClass}
                     onChange={(e) => setTargetClass(e.target.value)}
