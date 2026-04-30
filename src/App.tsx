@@ -1594,7 +1594,7 @@ export default function App() {
       </AnimatePresence>
       <header 
         className={cn(
-          "p-[30px_20px] text-center border-b relative transition-all duration-500",
+          "p-[30px_20px] text-center relative transition-all duration-500 rounded-b-[36px] shadow-xl pb-10",
           userCity ? "text-white border-transparent" : "bg-white border-slate-50"
         )}
         style={userCity ? { background: getCityTheme(userCity).grad } : {}}
