@@ -1072,14 +1072,14 @@ export default function App() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="bg-white p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 space-y-8"
+                  className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 space-y-8"
                 >
                   <div className="flex items-center gap-4 mb-2">
                     <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
                       <GraduationCap size={24} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Subject List</h3>
+                      <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Subject List</h3>
                       <p className="text-[10px] font-black text-primary uppercase tracking-widest">Academic Target</p>
                     </div>
                   </div>
@@ -1093,7 +1093,7 @@ export default function App() {
                            onClick={() => setEditClasses(prev => prev.includes(cls) ? prev.filter(c => c !== cls) : [...prev, cls])}
                            className={cn(
                              "p-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all text-center",
-                             editClasses.includes(cls) ? "bg-slate-900 text-white shadow-xl scale-105" : "bg-slate-50 text-slate-400 border border-transparent"
+                             editClasses.includes(cls) ? "bg-slate-900 dark:bg-primary text-white shadow-xl scale-105" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border border-transparent"
                            )}
                          >
                            {cls}
@@ -1104,14 +1104,14 @@ export default function App() {
                     {editClasses.length > 0 && (
                       <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Now select subjects:</p>
-                        <div className="flex flex-wrap gap-2 max-h-[30vh] overflow-y-auto p-4 bg-slate-50 rounded-[32px] border border-slate-100">
+                        <div className="flex flex-wrap gap-2 max-h-[30vh] overflow-y-auto p-4 bg-slate-50 dark:bg-slate-950 rounded-[32px] border border-slate-100 dark:border-slate-800">
                           {Array.from(new Set(editClasses.flatMap(cls => CLASS_SUBJECTS_DATA[cls] || []))).map((subj, idx) => (
                             <button
                               key={`${subj}-${idx}`}
                               onClick={() => setEditTutorSubjects(prev => prev.includes(subj) ? prev.filter(s => s !== subj) : [...prev, subj])}
                               className={cn(
                                 "px-3 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
-                                editTutorSubjects.includes(subj) ? "bg-primary text-white shadow-md" : "bg-white text-slate-400 border border-slate-100"
+                                editTutorSubjects.includes(subj) ? "bg-primary text-white shadow-md" : "bg-white dark:bg-slate-800 text-slate-400 border border-slate-100 dark:border-slate-700"
                               )}
                             >
                               {subj}
@@ -1131,7 +1131,7 @@ export default function App() {
                   <div className="pt-4 flex gap-3">
                     <button 
                       onClick={() => setOnboardingStep(1)}
-                      className="flex-1 bg-slate-100 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
+                      className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
                     >
                       Back
                     </button>
@@ -1157,14 +1157,14 @@ export default function App() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="bg-white p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 space-y-8"
+                  className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 space-y-8"
                 >
                   <div className="flex items-center gap-4 mb-2">
                     <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
                       <MapPin size={24} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Select City</h3>
+                      <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Select City</h3>
                       <p className="text-[10px] font-black text-primary uppercase tracking-widest">Base Location</p>
                     </div>
                   </div>
@@ -1186,7 +1186,7 @@ export default function App() {
                         }}
                         className={cn(
                           "min-h-[70px] p-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center text-center leading-tight break-words",
-                          editCity === city ? "bg-slate-900 text-white shadow-2xl scale-105" : "bg-slate-100 text-slate-400"
+                          editCity === city ? "bg-slate-900 dark:bg-primary text-white shadow-2xl scale-105" : "bg-slate-100 dark:bg-slate-800 text-slate-400"
                         )}
                       >
                         {city}
@@ -1203,7 +1203,7 @@ export default function App() {
                   <div className="pt-4 flex gap-3">
                     <button 
                       onClick={() => setOnboardingStep(2)}
-                      className="flex-1 bg-slate-50 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
+                      className="flex-1 bg-slate-50 dark:bg-slate-800 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
                     >
                       Back
                     </button>
@@ -1241,14 +1241,14 @@ export default function App() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="bg-white p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 space-y-8"
+                  className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 space-y-8"
                 >
                   <div className="flex items-center gap-4 mb-2">
                     <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
                       <Navigation size={24} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Pick Areas</h3>
+                      <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Pick Areas</h3>
                       <p className="text-[10px] font-black text-primary uppercase tracking-widest">Neighborhood Reach</p>
                     </div>
                   </div>
@@ -1260,7 +1260,7 @@ export default function App() {
                           placeholder="Search for area (e.g. Indiranagar)"
                           value={areaSearch}
                           onChange={(e) => setAreaSearch(e.target.value)}
-                          className="w-full bg-slate-50 border-none p-4 pl-12 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-300"
+                          className="w-full bg-slate-50 dark:bg-slate-800 border-none p-4 pl-12 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-300 dark:text-white"
                         />
                         <Search size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" />
                       </div>
@@ -1269,7 +1269,7 @@ export default function App() {
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Select your reach:</p>
                         <p className="text-[8px] font-black text-primary/40 uppercase tracking-widest animate-pulse">Scroll to see all ↓</p>
                       </div>
-                      <div className="flex flex-wrap gap-2 max-h-[35vh] overflow-y-auto p-4 bg-slate-50 rounded-[32px] border border-slate-100 scrollbar-thin scrollbar-thumb-slate-200">
+                      <div className="flex flex-wrap gap-2 max-h-[35vh] overflow-y-auto p-4 bg-slate-50 dark:bg-slate-950 rounded-[32px] border border-slate-100 dark:border-slate-800 scrollbar-thin scrollbar-thumb-slate-200">
                          {(() => {
                             let locations = [...availableLocationsForCity];
                             
@@ -1289,7 +1289,7 @@ export default function App() {
                               onClick={() => setEditTutorLocations(prev => prev.includes(loc) ? prev.filter(l => l !== loc) : [...prev, loc])}
                               className={cn(
                                 "px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
-                                editTutorLocations.includes(loc) ? "bg-slate-900 text-white shadow-lg shadow-slate-200" : "bg-white text-slate-400 border border-slate-100"
+                                editTutorLocations.includes(loc) ? "bg-slate-900 dark:bg-primary text-white shadow-lg shadow-slate-200" : "bg-white dark:bg-slate-800 text-slate-400 border border-slate-100 dark:border-slate-700"
                               )}
                             >
                               {loc}
@@ -1660,7 +1660,7 @@ export default function App() {
       <header 
         className={cn(
           "p-6 relative transition-all duration-500 z-20",
-          activeTab === 'home' ? "bg-white" : "bg-white rounded-b-[40px] shadow-xl pb-8"
+          activeTab === 'home' ? "bg-white dark:bg-slate-950" : "bg-white dark:bg-slate-900 rounded-b-[40px] shadow-xl pb-8 border-b border-transparent dark:border-slate-800"
         )}
       >
         <div className="flex items-center justify-between">

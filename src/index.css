@@ -68,23 +68,14 @@
 }
 
 .dark {
-  --app-bg: #0f172a;
+  --app-bg: #020617;
   --app-text: #f8fafc;
-}
-
-/* Force Light/Dark based on class */
-:root:not(.dark) {
-  background-color: #FFFFFF !important;
-}
-
-.dark {
-  background-color: #0f172a !important;
 }
 
 @layer base {
   body {
     @apply font-sans transition-colors duration-300;
-    background: var(--app-bg) !important;
+    background: var(--app-bg);
     color: var(--app-text);
     overflow: hidden !important;
     position: fixed;

@@ -233,7 +233,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
   }
 
   return (
-    <div className="space-y-6 pb-24 dark:bg-slate-950 min-h-screen">
+    <div className="space-y-6 pb-24 bg-white dark:bg-slate-950 min-h-screen">
       <header className="px-6 py-4 flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
