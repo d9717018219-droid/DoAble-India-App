@@ -927,10 +927,10 @@ export default function App() {
   }, [tutors, cityFilter, searchQuery, userTutorGenderPref, userClasses, userTutorSubjects, userTutorLocations, userTutorTimes, userTutorDays, userTutorFee, userTutorSchoolExp, userTutorVehicle, userTutorLastUpdated, userTutorStatus]);
 
   return (
-    <div className="fixed inset-0 bg-white transition-colors duration-300 overflow-hidden font-sans flex flex-col">
+    <div className="fixed inset-0 bg-white dark:bg-slate-950 transition-colors duration-300 overflow-hidden font-sans flex flex-col">
       {/* Onboarding Overlay */}
       {showOnboarding && (
-        <div className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center p-6 overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] bg-white dark:bg-slate-950 flex flex-col items-center justify-center p-6 overflow-y-auto">
           <div className="w-full max-w-md space-y-8 py-10">
             <AnimatePresence mode="wait">
               {onboardingStep === 0 && (
@@ -946,7 +946,7 @@ export default function App() {
                       <Zap size={48} className="animate-pulse" />
                     </div>
                     <div className="space-y-2">
-                      <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none font-display">Welcome to<br/>DoAbLe India</h1>
+                      <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none font-display">Welcome to<br/>DoAbLe India</h1>
                       <p className="text-slate-400 text-xs font-black uppercase tracking-widest leading-relaxed">The Premium Tuition Connection Hub</p>
                     </div>
                   </div>
@@ -956,16 +956,16 @@ export default function App() {
                     <div className="grid grid-cols-2 gap-4">
                       <button 
                          onClick={() => selectUserType('parent')}
-                         className="bg-slate-50 p-6 rounded-[32px] border-2 border-transparent hover:border-primary/30 transition-all flex flex-col items-center gap-3 active:scale-95 group"
+                         className="bg-slate-50 dark:bg-slate-900 p-6 rounded-[32px] border-2 border-transparent hover:border-primary/30 transition-all flex flex-col items-center gap-3 active:scale-95 group"
                       >
                          <User size={32} className="text-primary/60 group-hover:scale-110 transition-transform" />
-                         <span className="text-xs font-black uppercase tracking-tight">I'm Parent</span>
+                         <span className="text-xs font-black uppercase tracking-tight dark:text-slate-300">I'm Parent</span>
                       </button>
                       <button 
                          onClick={() => selectUserType('teacher')}
-                         className="bg-slate-900 text-white p-6 rounded-[32px] border-2 border-transparent hover:border-primary/50 transition-all flex flex-col items-center gap-3 active:scale-95 group"
+                         className="bg-slate-900 dark:bg-primary text-white p-6 rounded-[32px] border-2 border-transparent hover:border-primary/50 transition-all flex flex-col items-center gap-3 active:scale-95 group"
                       >
-                         <GraduationCap size={32} className="text-primary group-hover:scale-110 transition-transform" />
+                         <GraduationCap size={32} className="text-primary dark:text-white group-hover:scale-110 transition-transform" />
                          <span className="text-xs font-black uppercase tracking-tight">I'm Tutor</span>
                       </button>
                     </div>
@@ -979,14 +979,14 @@ export default function App() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="bg-white p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 space-y-8"
+                  className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 space-y-8"
                 >
                   <div className="flex items-center gap-4 mb-2">
                     <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
                       <User size={24} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Your Identity</h3>
+                      <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Your Identity</h3>
                       <p className="text-[10px] font-black text-primary uppercase tracking-widest">Update Your Details</p>
                     </div>
                   </div>
@@ -995,7 +995,7 @@ export default function App() {
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Full Name</label>
                       <input 
-                        className="w-full bg-slate-50 border-none p-5 rounded-2xl text-sm font-black shadow-inner focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-300"
+                        className="w-full bg-slate-50 dark:bg-slate-800 border-none p-5 rounded-2xl text-sm font-black shadow-inner focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-300 dark:text-white"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
                         placeholder="Enter your name"
@@ -1720,37 +1720,36 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto scrollbar-none container mx-auto p-4 max-w-[1200px] relative z-30 pb-32 overscroll-y-contain touch-pan-y">
         {showTutorForm ? (
-          <div className="animate-in slide-in-from-bottom duration-500 bg-white min-h-[85vh] rounded-[48px] overflow-hidden border border-slate-100 shadow-2xl relative">
-            <div className="bg-slate-50 p-6 flex items-center justify-between border-b border-slate-100">
+          <div className="animate-in slide-in-from-bottom duration-500 bg-white dark:bg-slate-900 min-h-[85vh] rounded-[48px] overflow-hidden border border-slate-100 dark:border-slate-800 shadow-2xl relative">
+            <div className="bg-slate-50 dark:bg-slate-950 p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-primary/10 rounded-2xl text-primary">
                   <Settings className="animate-spin-slow" size={20} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Update Profile</h3>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white">Update Profile</h3>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Secure Sync</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowTutorForm(false)}
-                className="bg-white text-slate-900 p-4 px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-sm border border-slate-100"
+                className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white p-4 px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm border border-slate-100 dark:border-slate-700"
               >
                 Return Home
               </button>
             </div>
             <iframe
               src="https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8"
-              className="w-full h-[75vh] border-none"
+              className="w-full h-[75vh] border-none dark:invert dark:hue-rotate-180 dark:brightness-90"
               title="Tutor Update Form"
             />
-            <div className="p-6 bg-slate-50 text-center border-t border-slate-100">
+            <div className="p-6 bg-slate-50 dark:bg-slate-950 text-center border-t border-slate-100 dark:border-slate-800">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed max-w-xs mx-auto">
                 Securely encrypted on DoAble servers. Changes reflect within 24-48 hours.
               </p>
             </div>
           </div>
-        ) : (
-          <>
+        ) : (          <>
             {activeTab === 'home' && (
               <div className="flex-1 flex flex-col justify-start py-4 space-y-6 overflow-hidden">
                 {/* 2. Hero Action Card - Dynamic & Full Width */}
@@ -2021,7 +2020,7 @@ export default function App() {
 
       {/* Bottom Navigation */}
       <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-md flex flex-col items-center gap-3 z-[3000]">
-        <div className="w-full bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-[28px] border border-slate-200 px-4 py-2 flex justify-around items-center safe-area-bottom">
+        <div className="w-full bg-white dark:bg-slate-900 shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-[28px] border border-slate-200 dark:border-slate-800 px-4 py-2 flex justify-around items-center safe-area-bottom">
           <NavButton 
             active={activeTab === 'home' && !showTutorForm} 
             onClick={() => { setActiveTab('home'); setShowTutorForm(false); window.scrollTo({top: 0, behavior: 'smooth'}); }}
