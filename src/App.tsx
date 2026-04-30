@@ -743,7 +743,10 @@ export default function App() {
         (l.Name?.toLowerCase().includes(searchLower)) ||
         (l.subjects?.toLowerCase().includes(searchLower)) ||
         (l['Order ID']?.toLowerCase().includes(searchLower)) ||
-        (l.City?.toLowerCase().includes(searchLower));
+        (l.City?.toLowerCase().includes(searchLower)) ||
+        (l.Locations?.toLowerCase().includes(searchLower)) ||
+        (l.Notes?.toLowerCase().includes(searchLower)) ||
+        (((l['Class / Board'] || '') + ' ' + (l.Class || '')).toLowerCase().includes(searchLower));
 
       // Area filter for Jobs
       let matchesArea = true;
@@ -1362,7 +1365,7 @@ export default function App() {
                   </div>
                   <div>
                     <h3 className="text-lg font-black text-slate-900 uppercase tracking-tighter">Smart Filter</h3>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tutor Discovery</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{activeTab === 'jobs' ? 'Job Discovery' : 'Tutor Discovery'}</p>
                   </div>
                 </div>
                 <button onClick={() => setShowFilterDrawer(false)} className="p-3 bg-slate-50 rounded-2xl text-slate-400 hover:text-slate-900 shadow-sm">
@@ -1434,26 +1437,28 @@ export default function App() {
                 )}
 
                 {/* Gender Preference */}
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tutor Gender</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {['Any', 'Male', 'Female'].map(g => (
-                      <button 
-                        key={g}
-                        onClick={() => {
-                          setUserTutorGenderPref(g);
-                          localStorage.setItem('userTutorGenderPref', g);
-                        }}
-                        className={cn(
-                          "p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
-                          userTutorGenderPref === g ? "bg-slate-900 text-white shadow-xl" : "bg-slate-50 text-slate-400"
-                        )}
-                      >
-                        {g === 'Any' ? 'All' : g}
-                      </button>
-                    ))}
+                {activeTab === 'tutors' && (
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tutor Gender</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['Any', 'Male', 'Female'].map(g => (
+                        <button 
+                          key={g}
+                          onClick={() => {
+                            setUserTutorGenderPref(g);
+                            localStorage.setItem('userTutorGenderPref', g);
+                          }}
+                          className={cn(
+                            "p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                            userTutorGenderPref === g ? "bg-slate-900 text-white shadow-xl" : "bg-slate-50 text-slate-400"
+                          )}
+                        >
+                          {g === 'Any' ? 'All' : g}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Class & Subject matching */}
                 <div className="space-y-4">
@@ -1501,116 +1506,118 @@ export default function App() {
                 </div>
 
                 {/* Availability */}
-                <div className="space-y-6">
-                   <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Availability (Days)</label>
-                      <div className="grid grid-cols-2 gap-2">
-                         {Object.keys(DAY_GROUPS_DATA).map(group => (
-                           <button 
-                             key={group}
-                             onClick={() => {
-                               const next = userTutorDays.includes(group) ? userTutorDays.filter(g => g !== group) : [...userTutorDays, group];
-                               setUserTutorDays(next);
-                               localStorage.setItem('userTutorDays', JSON.stringify(next));
-                             }}
-                             className={cn("p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all", userTutorDays.includes(group) ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 text-slate-400")}
-                           >
-                             {group}
-                           </button>
-                         ))}
-                      </div>
-                   </div>
-                   <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Availability (Time)</label>
-                      <div className="grid grid-cols-3 gap-2">
-                         {Object.keys(TIME_PERIODS_DATA).map(period => (
-                           <button 
-                             key={period}
-                             onClick={() => {
-                               const next = userTutorTimes.includes(period) ? userTutorTimes.filter(p => p !== period) : [...userTutorTimes, period];
-                               setUserTutorTimes(next);
-                               localStorage.setItem('userTutorTimes', JSON.stringify(next));
-                             }}
-                             className={cn("p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all", userTutorTimes.includes(period) ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 text-slate-400")}
-                           >
-                             {period}
-                           </button>
-                         ))}
-                      </div>
-                   </div>
+                {activeTab === 'tutors' && (
+                  <div className="space-y-6">
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Availability (Days)</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.keys(DAY_GROUPS_DATA).map(group => (
+                            <button 
+                              key={group}
+                              onClick={() => {
+                                const next = userTutorDays.includes(group) ? userTutorDays.filter(g => g !== group) : [...userTutorDays, group];
+                                setUserTutorDays(next);
+                                localStorage.setItem('userTutorDays', JSON.stringify(next));
+                              }}
+                              className={cn("p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all", userTutorDays.includes(group) ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 text-slate-400")}
+                            >
+                              {group}
+                            </button>
+                          ))}
+                        </div>
+                    </div>
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Availability (Time)</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {Object.keys(TIME_PERIODS_DATA).map(period => (
+                            <button 
+                              key={period}
+                              onClick={() => {
+                                const next = userTutorTimes.includes(period) ? userTutorTimes.filter(p => p !== period) : [...userTutorTimes, period];
+                                setUserTutorTimes(next);
+                                localStorage.setItem('userTutorTimes', JSON.stringify(next));
+                              }}
+                              className={cn("p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all", userTutorTimes.includes(period) ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 text-slate-400")}
+                            >
+                              {period}
+                            </button>
+                          ))}
+                        </div>
+                    </div>
 
-                   {/* Add New Detailed Filters */}
-                   <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Fee Range</label>
-                      <select 
-                        value={userTutorFee}
-                        onChange={(e) => { setUserTutorFee(e.target.value); localStorage.setItem('userTutorFee', e.target.value); }}
-                        className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
-                      >
-                         <option value="">All Fees</option>
-                         <option value="0-300">₹0 - ₹300</option>
-                         <option value="300-600">₹300 - ₹600</option>
-                         <option value="600-1000">₹600 - ₹1000</option>
-                         <option value="1000+">₹1000+</option>
-                      </select>
-                   </div>
-
-                   <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">School Exp.</label>
+                    {/* Add New Detailed Filters */}
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Fee Range</label>
                         <select 
-                          value={userTutorSchoolExp}
-                          onChange={(e) => { setUserTutorSchoolExp(e.target.value); localStorage.setItem('userTutorSchoolExp', e.target.value); }}
+                          value={userTutorFee}
+                          onChange={(e) => { setUserTutorFee(e.target.value); localStorage.setItem('userTutorFee', e.target.value); }}
                           className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
                         >
-                           <option value="">All</option>
-                           <option value="Yes">Yes</option>
-                           <option value="No">No</option>
+                          <option value="">All Fees</option>
+                          <option value="0-300">₹0 - ₹300</option>
+                          <option value="300-600">₹300 - ₹600</option>
+                          <option value="600-1000">₹600 - ₹1000</option>
+                          <option value="1000+">₹1000+</option>
                         </select>
-                      </div>
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Own Vehicle</label>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">School Exp.</label>
+                          <select 
+                            value={userTutorSchoolExp}
+                            onChange={(e) => { setUserTutorSchoolExp(e.target.value); localStorage.setItem('userTutorSchoolExp', e.target.value); }}
+                            className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
+                          >
+                            <option value="">All</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                          </select>
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Own Vehicle</label>
+                          <select 
+                            value={userTutorVehicle}
+                            onChange={(e) => { setUserTutorVehicle(e.target.value); localStorage.setItem('userTutorVehicle', e.target.value); }}
+                            className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
+                          >
+                            <option value="">All</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                          </select>
+                        </div>
+                    </div>
+
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Last Updated</label>
                         <select 
-                          value={userTutorVehicle}
-                          onChange={(e) => { setUserTutorVehicle(e.target.value); localStorage.setItem('userTutorVehicle', e.target.value); }}
+                          value={userTutorLastUpdated}
+                          onChange={(e) => { setUserTutorLastUpdated(e.target.value); localStorage.setItem('userTutorLastUpdated', e.target.value); }}
                           className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
                         >
-                           <option value="">All</option>
-                           <option value="Yes">Yes</option>
-                           <option value="No">No</option>
+                          <option value="">All</option>
+                          <option value="7">Last 7 days</option>
+                          <option value="30">Last 30 days</option>
+                          <option value="90">Last 90 days</option>
+                          <option value="180">Last 180 days</option>
                         </select>
-                      </div>
-                   </div>
+                    </div>
 
-                   <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Last Updated</label>
-                      <select 
-                        value={userTutorLastUpdated}
-                        onChange={(e) => { setUserTutorLastUpdated(e.target.value); localStorage.setItem('userTutorLastUpdated', e.target.value); }}
-                        className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
-                      >
-                         <option value="">All</option>
-                         <option value="7">Last 7 days</option>
-                         <option value="30">Last 30 days</option>
-                         <option value="90">Last 90 days</option>
-                         <option value="180">Last 180 days</option>
-                      </select>
-                   </div>
-
-                   <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tutor Status</label>
-                      <select 
-                        value={userTutorStatus}
-                        onChange={(e) => { setUserTutorStatus(e.target.value); localStorage.setItem('userTutorStatus', e.target.value); }}
-                        className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
-                      >
-                         <option value="">All Status</option>
-                         <option value="Active">Active</option>
-                         <option value="Not Available">Not Available</option>
-                         <option value="Suspended">Suspended</option>
-                      </select>
-                   </div>
-                </div>
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tutor Status</label>
+                        <select 
+                          value={userTutorStatus}
+                          onChange={(e) => { setUserTutorStatus(e.target.value); localStorage.setItem('userTutorStatus', e.target.value); }}
+                          className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
+                        >
+                          <option value="">All Status</option>
+                          <option value="Active">Active</option>
+                          <option value="Not Available">Not Available</option>
+                          <option value="Suspended">Suspended</option>
+                        </select>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="p-6 border-t border-slate-100 bg-slate-50">
@@ -1649,7 +1656,7 @@ export default function App() {
                      onClick={() => setShowFilterDrawer(false)}
                      className="flex-[2] bg-slate-900 text-white py-4 rounded-[20px] font-extrabold text-[10px] uppercase tracking-widest shadow-xl shadow-slate-900/20 active:scale-95 transition-all"
                    >
-                     View {filteredTutors.length} Results
+                     View {activeTab === 'jobs' ? filteredLeads.length : filteredTutors.length} Results
                    </button>
                  </div>
               </div>
@@ -1915,14 +1922,27 @@ export default function App() {
                     placeholder={activeTab === 'jobs' ? "Search city, subject, order ID..." : "Search name, subject, tutor ID..."}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-slate-50 dark:border-slate-800 rounded-[24px] py-4 pl-14 pr-7 text-sm font-bold focus:ring-4 focus:ring-primary/5 focus:border-primary/20 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none placeholder:text-slate-300 dark:text-slate-600 shadow-sm dark:text-white"
+                    className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-slate-50 dark:border-slate-800 rounded-[24px] py-4 pl-14 pr-12 text-sm font-bold focus:ring-4 focus:ring-primary/5 focus:border-primary/20 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none placeholder:text-slate-300 dark:text-slate-600 shadow-sm dark:text-white"
                   />
+                  {searchQuery && (
+                    <button 
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 p-1"
+                    >
+                      <X size={18} strokeWidth={3} />
+                    </button>
+                  )}
                 </div>
                 <button 
                   onClick={() => setShowFilterDrawer(true)}
-                  className="bg-primary text-white p-3.5 rounded-[20px] shadow-lg shadow-primary/20 active:scale-95 transition-transform flex items-center justify-center shrink-0"
+                  className={cn(
+                    "p-4 rounded-[24px] shadow-lg transition-all active:scale-95 flex items-center justify-center shrink-0 border-2",
+                    (userTutorLocations.length > 0 || userTutorSubjects.length > 0 || cityFilter !== 'all' || userTutorGenderPref !== 'Any' || userTutorFee || userClasses.length > 0) 
+                      ? "bg-primary text-white border-primary shadow-primary/20" 
+                      : "bg-white dark:bg-slate-900 text-slate-400 border-slate-50 dark:border-slate-800 shadow-slate-200/50"
+                  )}
                 >
-                  <Filter size={24} />
+                  <Filter size={22} strokeWidth={2.5} />
                 </button>
               </div>
 
