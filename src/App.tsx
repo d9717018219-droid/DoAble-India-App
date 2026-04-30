@@ -1728,89 +1728,24 @@ export default function App() {
                   </div>
                 </motion.div>
 
-                {/* 2. Feature Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Become a Tutor Card */}
-                  <motion.div 
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
-                    className="bg-slate-900 rounded-[40px] p-8 text-white relative overflow-hidden group border border-white/5 shadow-2xl"
+                {/* Compact Tutor Action Button */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                  className="px-2"
+                >
+                  <button 
+                    onClick={() => setShowTutorForm(true)}
+                    className="w-full bg-primary text-white p-5 rounded-[24px] font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all"
                   >
-                    <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:scale-110 transition-transform duration-700">
-                      <GraduationCap size={120} />
-                    </div>
-                    
-                    <div className="relative z-10 h-full flex flex-col justify-between space-y-8">
-                      <div className="space-y-3">
-                        <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center text-primary border border-primary/20">
-                          <Zap size={24} />
-                        </div>
-                        <h4 className="text-2xl font-black tracking-tight font-display">
-                          Want More Students?
-                        </h4>
-                        <p className="text-slate-400 text-xs font-medium leading-relaxed max-w-[240px]">
-                          Join our elite network of educators. Update your professional details to get prioritized for high-budget home tuitions in your area.
-                        </p>
-                      </div>
-                      
-                      <button 
-                        onClick={() => setShowTutorForm(true)}
-                        className="w-full bg-white text-slate-900 p-6 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 shadow-2xl"
-                      >
-                        <Edit3 size={18} className="text-primary" />
-                        Become a Tutor / Update
-                      </button>
-                    </div>
-                  </motion.div>
-
-                  {/* Highlights Card */}
-                  <motion.div 
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.6, delay: 0.5 }}
-                    className="bg-white rounded-[40px] p-8 border border-slate-100 shadow-xl flex flex-col justify-between group"
-                  >
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <div className="bg-primary/5 p-3 rounded-2xl text-primary">
-                          <Sparkles size={24} />
-                        </div>
-                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Verified Hub</span>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <h4 className="text-xl font-black tracking-tight text-slate-900 font-display">Why DoAble India?</h4>
-                        <div className="space-y-3">
-                          {[
-                            { icon: <CheckCircle size={14} />, text: 'Verified Expert Educators' },
-                            { icon: <CheckCircle size={14} />, text: 'Direct Parent Connections' },
-                            { icon: <CheckCircle size={14} />, text: 'Profile Matching AI' }
-                          ].map((item, i) => (
-                            <div key={i} className="flex items-center gap-3 text-slate-500">
-                              <span className="text-primary">{item.icon}</span>
-                              <span className="text-[11px] font-bold uppercase tracking-tight">{item.text}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="pt-8 border-t border-slate-50 mt-8 flex items-center justify-between">
-                       <div className="flex -space-x-3">
-                          {[1,2,3,4].map(i => (
-                            <div key={i} className="w-10 h-10 rounded-full border-4 border-white bg-slate-100 flex items-center justify-center overflow-hidden">
-                               <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i + 10}`} alt="avatar" />
-                            </div>
-                          ))}
-                          <div className="w-10 h-10 rounded-full border-4 border-white bg-primary text-white flex items-center justify-center text-[10px] font-black">
-                            +5k
-                          </div>
-                       </div>
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Joined Today</p>
-                    </div>
-                  </motion.div>
-                </div>
+                    <Zap size={18} fill="currentColor" />
+                    Become a Tutor / Update Profile
+                  </button>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center mt-3 opacity-60">
+                    Join 5,000+ Verified Educators Today
+                  </p>
+                </motion.div>
               </div>
             )}
 
