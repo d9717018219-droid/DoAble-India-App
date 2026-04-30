@@ -1611,51 +1611,58 @@ export default function App() {
       </AnimatePresence>
       <header 
         className={cn(
-          "p-6 text-center relative transition-all duration-500 rounded-b-[40px] shadow-2xl pb-8 z-20",
-          userCity ? "text-white border-transparent" : "bg-white border-slate-50"
+          "p-6 relative transition-all duration-500 z-20",
+          activeTab === 'home' ? "bg-white" : "bg-white rounded-b-[40px] shadow-xl pb-8"
         )}
-        style={userCity ? { background: getCityTheme(userCity).grad } : {}}
       >
-        <div className="absolute right-6 top-6 flex items-center gap-3">
-          {currentUser && (
-            <button onClick={() => firebaseAuth.signOut()} className={cn(userCity ? "text-white/70 hover:text-white" : "text-slate-400 hover:text-red-500", "transition-colors p-2 bg-white/10 backdrop-blur-md rounded-xl")}>
-              <LogOut size={20} />
-            </button>
-          )}
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <h1 className={cn("text-3xl font-black tracking-tighter font-display", userCity ? "text-white" : "text-primary")}>
-            {activeTab === 'home' && (userName ? `Hello, ${userName}` : 'DoAble India')}
-            {activeTab === 'jobs' && 'Tuition Jobs'}
-            {activeTab === 'tutors' && 'Expert Tutors'}
-          </h1>
-          
-          <div className="flex items-center justify-center gap-2 mt-4">
-            <div className="bg-white/10 backdrop-blur-xl px-4 py-2 rounded-2xl flex items-center gap-2 border border-white/20 shadow-xl transition-all hover:scale-105 hover:bg-white/20">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_12px_rgba(74,222,128,0.6)]" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-white">{allLeads.filter(l => isCityMatch(l.City, userCity)).length} Active Leads</span>
-            </div>
-            <div className="bg-white/10 backdrop-blur-xl px-4 py-2 rounded-2xl flex items-center gap-2 border border-white/20 shadow-xl transition-all hover:scale-105 hover:bg-white/20">
-              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse shadow-[0_0_12px_rgba(96,165,250,0.6)]" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-white">{tutors.filter(t => isCityMatch(getCityValue(t), userCity)).length} Tutors</span>
-            </div>
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            {activeTab === 'home' ? (
+              <>
+                <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest leading-none">
+                  {timeGreeting}
+                </h2>
+                <h1 className="text-4xl font-black text-slate-900 tracking-tighter leading-none font-display">
+                  Hello, {userName?.split(' ')[0] || 'Friend'}
+                </h1>
+              </>
+            ) : (
+              <h1 className="text-3xl font-black text-primary tracking-tighter font-display">
+                {activeTab === 'jobs' && 'Tuition Jobs'}
+                {activeTab === 'tutors' && 'Expert Tutors'}
+                {activeTab === 'alerts' && 'Broadcasts'}
+              </h1>
+            )}
           </div>
 
-          <p className={cn("text-[11px] font-black uppercase tracking-[0.3em] mt-4 opacity-70", userCity ? "text-white/80" : "text-slate-400")}>
-            {activeTab === 'home' && (userName ? `Curated Matches in ${userCity}` : 'Premium Teaching Portal')}
-            {activeTab === 'jobs' && 'Live Teaching Feed'}
-            {activeTab === 'tutors' && 'Professional Educators'}
-          </p>
-        </motion.div>
+          <div className="flex items-center gap-3">
+            {currentUser && (
+              <button 
+                onClick={() => firebaseAuth.signOut()} 
+                className="p-3 bg-slate-50 text-slate-400 hover:text-red-500 transition-all rounded-2xl border border-slate-100 shadow-sm active:scale-95"
+              >
+                <LogOut size={20} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {activeTab !== 'home' && (
+          <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-2 scrollbar-none">
+            <div className="bg-primary/5 px-4 py-2 rounded-2xl flex items-center gap-2 border border-primary/10 shrink-0">
+              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-primary">{allLeads.filter(l => isCityMatch(l.City, userCity)).length} Active Leads</span>
+            </div>
+            <div className="bg-blue-50 px-4 py-2 rounded-2xl flex items-center gap-2 border border-blue-100 shrink-0">
+              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">{tutors.filter(t => isCityMatch(getCityValue(t), userCity)).length} Tutors</span>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto p-4 max-w-[1200px] -mt-4 relative z-30">
+      <main className="container mx-auto p-4 max-w-[1200px] relative z-30">
         {showTutorForm ? (
           <div className="animate-in slide-in-from-bottom duration-500 bg-white min-h-[85vh] rounded-[48px] overflow-hidden border border-slate-100 shadow-2xl relative">
             <div className="bg-slate-50 p-6 flex items-center justify-between border-b border-slate-100">
@@ -1668,15 +1675,15 @@ export default function App() {
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Secure Sync</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setShowTutorForm(false)}
                 className="bg-white text-slate-900 p-4 px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-sm border border-slate-100"
               >
                 Return Home
               </button>
             </div>
-            <iframe 
-              src="https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8" 
+            <iframe
+              src="https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8"
               className="w-full h-[75vh] border-none"
               title="Tutor Update Form"
             />
@@ -1689,85 +1696,88 @@ export default function App() {
         ) : (
           <>
             {activeTab === 'home' && (
-              <div className="h-[calc(100vh-180px)] overflow-hidden flex flex-col justify-center px-6 space-y-8">
-                {/* 1. Personalized Greeting Card */}
+              <div className="h-[calc(100vh-220px)] overflow-hidden flex flex-col space-y-6 px-2">
+                {/* 1. Uber-style Sub-Greeting */}
                 <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="space-y-2"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="px-2"
                 >
-                  <h2 className="text-3xl font-black text-slate-900 tracking-tighter leading-none">
-                    Hello! {userName || 'Friend'},<br/>
-                    <span className="text-primary">{timeGreeting}!</span>
-                  </h2>
-                  <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
-                    Thanks for being a {userType === 'teacher' ? 'Tutor' : 'Parent'} with us
+                  <p className="text-slate-500 text-xs font-medium leading-relaxed">
+                    Thanks for being a <span className="text-slate-900 font-bold">{userType === 'teacher' ? 'Professional Tutor' : 'Parent Member'}</span> with us.
                   </p>
                 </motion.div>
 
-                {/* 2. Hero Card - Stats & Actions */}
+                {/* 2. Hero Action Card - Dynamic & Full Width */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
+                  initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                  className="p-8 rounded-[40px] relative overflow-hidden shadow-2xl shadow-primary/20 border border-white/10 group w-full"
-                  style={{ background: getCityTheme(userCity).grad }}
+                  transition={{ duration: 0.6 }}
+                  className="p-8 rounded-[32px] relative overflow-hidden shadow-2xl shadow-slate-200 border border-slate-100 group w-full bg-slate-900"
                 >
                   {/* Decorative Elements */}
-                  <div className="absolute top-[-20%] right-[-10%] w-80 h-80 bg-white/10 rounded-full blur-[100px] group-hover:scale-110 transition-transform duration-1000" />
-                  <div className="absolute bottom-[-20%] left-[-10%] w-64 h-64 bg-black/10 rounded-full blur-[80px]" />
+                  <div className="absolute top-[-10%] right-[-5%] w-64 h-64 bg-primary/20 rounded-full blur-[80px]" />
 
                   <div className="relative z-10 space-y-8">
-                    <div className="space-y-4">
-                      <h3 className="text-4xl font-black leading-tight text-white tracking-tighter font-display">
-                        {userType === 'parent' ? (
-                          <>Perfect Expert<br/>Tutors for {userCity}</>
-                        ) : (
-                          <>Perfect Tuition<br/>Jobs in {userCity}</>
-                        )}
+                    <div className="space-y-2">
+                      <h3 className="text-3xl font-black leading-tight text-white tracking-tighter">
+                        {userType === 'parent' ? 'Find Expert Tutors' : 'Find Tuition Jobs'}
                       </h3>
-
-                      {/* Live Stats Row */}
-                      <div className="flex gap-4 pt-2">
-                        <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10">
-                          <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-0.5">Active Jobs</p>
-                          <p className="text-lg font-black text-white leading-none">{allLeads.length}</p>
-                        </div>
-                        <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10">
-                          <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-0.5">Active Tutors</p>
-                          <p className="text-lg font-black text-white leading-none">{tutors.filter(t => t.Status === 'Active').length}</p>
-                        </div>
-                      </div>
+                      <p className="text-white/60 text-[11px] font-bold uppercase tracking-widest">
+                        Available in {userCity}
+                      </p>
                     </div>
 
-                    <div className="flex flex-col gap-4">
-                      <button 
-                        onClick={() => {
-                          setIsSelectingCityOnly(true);
-                          setShowOnboarding(true);
-                          setOnboardingStep(3);
-                        }}
-                        className="w-full bg-white text-slate-900 p-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl active:scale-95 group/btn"
-                      >
-                        <MapPin size={20} className="text-primary group-hover/btn:scale-110 transition-transform" />
-                        Change City
-                      </button>
-                      <button 
-                        onClick={() => {
-                          setShowOnboarding(true);
-                          setOnboardingStep(0);
-                        }}
-                        className="w-full bg-[#FFE66D] text-slate-900 p-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-[#FFD93D] transition-all shadow-xl shadow-yellow-500/10 active:scale-95"
-                      >
-                        <Settings size={20} />
-                        Change My Preference
-                      </button>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10">
+                        <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1">Active Jobs</p>
+                        <p className="text-2xl font-black text-white leading-none">{allLeads.length}</p>
+                      </div>
+                      <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10">
+                        <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1">Active Tutors</p>
+                        <p className="text-2xl font-black text-white leading-none">{tutors.filter(t => t.Status === 'Active').length}</p>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
+
+                {/* 3. Primary Action Buttons - Uber Style (Clean & Full Width) */}
+                <div className="space-y-4 pt-2">
+                  <button 
+                    onClick={() => {
+                      setIsSelectingCityOnly(true);
+                      setShowOnboarding(true);
+                      setOnboardingStep(3);
+                    }}
+                    className="w-full bg-white text-slate-900 p-6 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] flex items-center justify-between border-2 border-slate-100 shadow-sm active:scale-98 transition-all group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-slate-50 rounded-xl group-hover:bg-primary/10 transition-colors">
+                        <MapPin size={20} className="text-primary" />
+                      </div>
+                      <span>Change City</span>
+                    </div>
+                    <ChevronRight size={18} className="text-slate-300" />
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      setShowOnboarding(true);
+                      setOnboardingStep(0);
+                    }}
+                    className="w-full bg-[#FFE66D] text-slate-900 p-6 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] flex items-center justify-between shadow-xl shadow-yellow-500/10 active:scale-98 transition-all group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-black/5 rounded-xl">
+                        <Settings size={20} className="text-slate-900" />
+                      </div>
+                      <span>Change My Preference</span>
+                    </div>
+                    <ChevronRight size={18} className="text-slate-900/30" />
+                  </button>
+                </div>
               </div>
-            )}
-            {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} setShowTutorForm={setShowTutorForm} />}        
+            )}            {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} setShowTutorForm={setShowTutorForm} />}        
         {showAdminSettings && (
           <div className="fixed inset-0 z-[5000] bg-white flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
             {isAdminUser ? (
