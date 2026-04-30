@@ -1730,7 +1730,7 @@ export default function App() {
 
                 {/* 2. Feature Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Become a Tutor / Update Card */}
+                  {/* Become a Tutor Card */}
                   <motion.div 
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -1744,15 +1744,13 @@ export default function App() {
                     <div className="relative z-10 h-full flex flex-col justify-between space-y-8">
                       <div className="space-y-3">
                         <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center text-primary border border-primary/20">
-                          {userType === 'teacher' ? <Zap size={24} /> : <User size={24} />}
+                          <Zap size={24} />
                         </div>
                         <h4 className="text-2xl font-black tracking-tight font-display">
-                          {userType === 'teacher' ? 'Want More Students?' : 'Need a Home Tutor?'}
+                          Want More Students?
                         </h4>
                         <p className="text-slate-400 text-xs font-medium leading-relaxed max-w-[240px]">
-                          {userType === 'teacher' 
-                            ? 'Update your professional details to get prioritized for high-budget home tuitions.' 
-                            : 'Post your requirement and get connected with verified expert tutors in your area.'}
+                          Join our elite network of educators. Update your professional details to get prioritized for high-budget home tuitions in your area.
                         </p>
                       </div>
                       
@@ -1761,7 +1759,7 @@ export default function App() {
                         className="w-full bg-white text-slate-900 p-6 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 shadow-2xl"
                       >
                         <Edit3 size={18} className="text-primary" />
-                        {userType === 'teacher' ? 'Update Teacher Profile' : 'Submit Requirement'}
+                        Become a Tutor / Update
                       </button>
                     </div>
                   </motion.div>
