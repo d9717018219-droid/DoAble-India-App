@@ -888,7 +888,7 @@ export default function App() {
   }, [tutors, cityFilter, searchQuery, userTutorGenderPref, userClasses, userTutorSubjects, userTutorLocations, userTutorTimes, userTutorDays, userTutorFee, userTutorSchoolExp, userTutorVehicle, userTutorLastUpdated, userTutorStatus]);
 
   return (
-    <div className="h-screen bg-white transition-colors duration-300 relative overflow-hidden font-sans flex flex-col">
+    <div className="fixed inset-0 bg-white transition-colors duration-300 overflow-hidden font-sans flex flex-col">
       {/* Onboarding Overlay */}
       {showOnboarding && (
         <div className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center p-6 overflow-y-auto">
@@ -1628,13 +1628,21 @@ export default function App() {
           <div className="space-y-1">
             {activeTab === 'home' ? (
               <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ type: "spring", damping: 15 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-4"
               >
-                <h1 className="text-4xl font-black tracking-tighter leading-tight font-display bg-clip-text text-transparent bg-gradient-to-r from-primary via-blue-400 to-primary bg-[length:200%_auto] animate-gradient-x">
-                  {timeGreeting}, {userName?.split(' ')[0] || 'Friend'}
-                </h1>
+                <div className="w-14 h-14 bg-slate-900 rounded-[22px] flex items-center justify-center shadow-lg shadow-slate-200">
+                  <Sparkles size={28} className="text-amber-400" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-black tracking-tight text-slate-900 leading-none">
+                    {timeGreeting},
+                  </h1>
+                  <h2 className="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-500 leading-none mt-1">
+                    {userName?.split(' ')[0] || 'Friend'}
+                  </h2>
+                </div>
               </motion.div>
             ) : (
               <h1 className="text-3xl font-black text-primary tracking-tighter font-display">
@@ -1672,7 +1680,7 @@ export default function App() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto scrollbar-none container mx-auto p-4 max-w-[1200px] relative z-30 pb-32">
+      <main className="flex-1 overflow-y-auto scrollbar-none container mx-auto p-4 max-w-[1200px] relative z-30 pb-32 overscroll-y-contain touch-pan-y">
         {showTutorForm ? (
           <div className="animate-in slide-in-from-bottom duration-500 bg-white min-h-[85vh] rounded-[48px] overflow-hidden border border-slate-100 shadow-2xl relative">
             <div className="bg-slate-50 p-6 flex items-center justify-between border-b border-slate-100">
