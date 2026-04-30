@@ -1130,7 +1130,7 @@ export default function App() {
                           }
                         }}
                         className={cn(
-                          "p-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all text-center",
+                          "min-h-[70px] p-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center text-center leading-tight break-words",
                           editCity === city ? "bg-slate-900 text-white shadow-2xl scale-105" : "bg-slate-100 text-slate-400"
                         )}
                       >
