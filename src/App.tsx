@@ -85,6 +85,13 @@ export default function App() {
   const [editClasses, setEditClasses] = useState<string[]>(JSON.parse(localStorage.getItem('userClasses') || '[]'));
   const [editCity, setEditCity] = useState<string>(localStorage.getItem('userCity') || 'Ghaziabad');
 
+  const timeGreeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  }, []);
+
   const [userTutorSubjects, setUserTutorSubjects] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorSubjects') || '[]'));
   const [userTutorLocations, setUserTutorLocations] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorLocations') || '[]'));
   const [userTutorTimes, setUserTutorTimes] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorTimes') || '[]'));
@@ -1682,70 +1689,84 @@ export default function App() {
         ) : (
           <>
             {activeTab === 'home' && (
-              <div className="h-[calc(100vh-180px)] overflow-hidden flex flex-col justify-center px-4">
-                {/* 1. Hero Card - Perfect Match */}
+              <div className="h-[calc(100vh-180px)] overflow-hidden flex flex-col justify-center px-6 space-y-8">
+                {/* 1. Personalized Greeting Card */}
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-2"
+                >
+                  <h2 className="text-3xl font-black text-slate-900 tracking-tighter leading-none">
+                    Hello! {userName || 'Friend'},<br/>
+                    <span className="text-primary">{timeGreeting}!</span>
+                  </h2>
+                  <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                    Thanks for being a {userType === 'teacher' ? 'Tutor' : 'Parent'} with us
+                  </p>
+                </motion.div>
+
+                {/* 2. Hero Card - Stats & Actions */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.8, delay: 0.2 }}
-                  className="p-8 rounded-[40px] relative overflow-hidden shadow-2xl shadow-primary/20 border border-white/10 group"
+                  className="p-8 rounded-[40px] relative overflow-hidden shadow-2xl shadow-primary/20 border border-white/10 group w-full"
                   style={{ background: getCityTheme(userCity).grad }}
                 >
                   {/* Decorative Elements */}
                   <div className="absolute top-[-20%] right-[-10%] w-80 h-80 bg-white/10 rounded-full blur-[100px] group-hover:scale-110 transition-transform duration-1000" />
                   <div className="absolute bottom-[-20%] left-[-10%] w-64 h-64 bg-black/10 rounded-full blur-[80px]" />
 
-                  <div className="relative z-10 space-y-6">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-white/20 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20 flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.5)]" />
-                          <span className="text-[9px] font-black uppercase tracking-widest text-white">Live in {userCity}</span>
+                  <div className="relative z-10 space-y-8">
+                    <div className="space-y-4">
+                      <h3 className="text-4xl font-black leading-tight text-white tracking-tighter font-display">
+                        {userType === 'parent' ? (
+                          <>Perfect Expert<br/>Tutors for {userCity}</>
+                        ) : (
+                          <>Perfect Tuition<br/>Jobs in {userCity}</>
+                        )}
+                      </h3>
+
+                      {/* Live Stats Row */}
+                      <div className="flex gap-4 pt-2">
+                        <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10">
+                          <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-0.5">Active Jobs</p>
+                          <p className="text-lg font-black text-white leading-none">{allLeads.length}</p>
                         </div>
-                        <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Matching Profile</span>
+                        <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10">
+                          <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-0.5">Active Tutors</p>
+                          <p className="text-lg font-black text-white leading-none">{tutors.filter(t => t.Status === 'Active').length}</p>
+                        </div>
                       </div>
-                      <h3 className="text-4xl font-black leading-none text-white tracking-tighter font-display">
-                       {userType === 'parent' ? (
-                         <>Perfect Expert<br/>Tutors for {userCity}</>
-                       ) : (
-                         <>Perfect Tuition<br/>Jobs in {userCity}</>
-                       )}
-                     </h3>
-                     <p className="text-white/70 text-xs font-medium max-w-[280px] leading-relaxed">
-                       {userType === 'parent' 
-                         ? `We've found the best expert tutors specifically matched for your child's profile in ${userCity}.`
-                         : `We've found the best teaching opportunities specifically matched for your profile in ${userCity}.`
-                       }
-                     </p>
                     </div>
 
-                   <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                    <button 
-                      onClick={() => {
-                        setIsSelectingCityOnly(true);
-                        setShowOnboarding(true);
-                        setOnboardingStep(3);
-                      }}
-                      className="bg-white text-slate-900 px-8 py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl active:scale-95 group/btn"
-                    >
-                      <MapPin size={20} className="text-primary group-hover/btn:scale-110 transition-transform" />
-                      Change City
-                    </button>
-                    <button 
-                      onClick={() => {
-                        setShowOnboarding(true);
-                        setOnboardingStep(0);
-                      }}
-                      className="bg-[#FFE66D] text-slate-900 px-8 py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-[#FFD93D] transition-all shadow-xl shadow-yellow-500/10 active:scale-95"
-                    >
-                      <Settings size={20} />
-                      Change My Preference
-                    </button>
-                   </div>                  </div>
-               </motion.div>
-             </div>
+                    <div className="flex flex-col gap-4">
+                      <button 
+                        onClick={() => {
+                          setIsSelectingCityOnly(true);
+                          setShowOnboarding(true);
+                          setOnboardingStep(3);
+                        }}
+                        className="w-full bg-white text-slate-900 p-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl active:scale-95 group/btn"
+                      >
+                        <MapPin size={20} className="text-primary group-hover/btn:scale-110 transition-transform" />
+                        Change City
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setShowOnboarding(true);
+                          setOnboardingStep(0);
+                        }}
+                        className="w-full bg-[#FFE66D] text-slate-900 p-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-[#FFD93D] transition-all shadow-xl shadow-yellow-500/10 active:scale-95"
+                      >
+                        <Settings size={20} />
+                        Change My Preference
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
             )}
-
             {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} setShowTutorForm={setShowTutorForm} />}        
         {showAdminSettings && (
           <div className="fixed inset-0 z-[5000] bg-white flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
