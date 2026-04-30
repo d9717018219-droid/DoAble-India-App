@@ -1671,8 +1671,8 @@ export default function App() {
         )}
       >
         <div className={cn(activeTab === 'home' ? "" : "p-4 space-y-4 max-w-[1200px] mx-auto")}>
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <div className="flex-1 space-y-1">
               {activeTab === 'home' ? (
                 <motion.div 
                   initial={{ opacity: 0, x: -20 }}
@@ -1687,7 +1687,7 @@ export default function App() {
                   </p>
                 </motion.div>
               ) : (
-                <div className="flex flex-col gap-0.5">
+                <div className="flex flex-col gap-2">
                    <button 
                      onClick={() => {
                         setIsSelectingCityOnly(true);
@@ -1696,108 +1696,96 @@ export default function App() {
                      }}
                      className="flex items-center gap-1.5 group"
                    >
-                     <MapPin size={18} className="text-primary fill-primary/10" />
+                     <MapPin size={16} className="text-primary fill-primary/10" />
                      <span className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter border-b-2 border-primary/20 group-hover:border-primary transition-all">
                        {userCity}
                      </span>
                      <ChevronRight size={14} className="text-slate-400 rotate-90" />
                    </button>
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-6">
-                      {activeTab === 'jobs' && 'Tuition Jobs Near You'}
-                      {activeTab === 'tutors' && 'Expert Tutors Near You'}
-                      {activeTab === 'alerts' && 'Recent Broadcasts'}
-                   </p>
+                   
+                   {!showTutorForm && (activeTab === 'jobs' || activeTab === 'tutors') && (
+                     <div className="flex gap-2">
+                        <div className="relative group flex-1">
+                          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={16} />
+                          <input 
+                            type="text"
+                            placeholder={activeTab === 'jobs' ? "Search city, subject..." : "Search tutors..."}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-[16px] py-2.5 pl-10 pr-8 text-xs font-bold focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none placeholder:text-slate-400 dark:text-slate-500 shadow-sm dark:text-white"
+                          />
+                          {searchQuery && (
+                            <button 
+                              onClick={() => setSearchQuery('')}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                            >
+                              <X size={14} strokeWidth={3} />
+                            </button>
+                          )}
+                        </div>
+                        <button 
+                          onClick={() => setShowFilterDrawer(true)}
+                          className={cn(
+                            "p-2.5 rounded-[16px] shadow-sm transition-all active:scale-95 flex items-center justify-center border-2",
+                            (userTutorLocations.length > 0 || userTutorSubjects.length > 0 || cityFilter !== 'all' || userTutorGenderPref !== 'Any' || userTutorFee || userClasses.length > 0) 
+                              ? "bg-primary text-white border-primary" 
+                              : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-100 dark:border-slate-700"
+                          )}
+                        >
+                          <Filter size={18} strokeWidth={2.5} />
+                        </button>
+                     </div>
+                   )}
                 </div>
               )}
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 self-start pt-1">
               {currentUser && (
                 <button 
                   onClick={() => firebaseAuth.signOut()} 
-                  className="p-3 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-500 transition-all rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm active:scale-95"
+                  className="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-500 transition-all rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm active:scale-95"
                 >
-                  <LogOut size={20} />
+                  <LogOut size={18} />
                 </button>
               )}
             </div>
           </div>
 
           {activeTab !== 'home' && !showTutorForm && (activeTab === 'jobs' || activeTab === 'tutors') && (
-            <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
-              <div className="flex gap-2">
-                <div className="relative group flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
-                  <input 
-                    type="text"
-                    placeholder={activeTab === 'jobs' ? "Search city, subject, order ID..." : "Search name, subject, tutor ID..."}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-[20px] py-3.5 pl-11 pr-10 text-sm font-bold focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none placeholder:text-slate-400 dark:text-slate-500 shadow-sm dark:text-white"
-                  />
-                  {searchQuery && (
-                    <button 
-                      onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
-                    >
-                      <X size={16} strokeWidth={3} />
-                    </button>
-                  )}
-                </div>
-                <button 
-                  onClick={() => setShowFilterDrawer(true)}
-                  className={cn(
-                    "px-4 rounded-[20px] shadow-sm transition-all active:scale-95 flex items-center gap-2 border-2",
-                    (userTutorLocations.length > 0 || userTutorSubjects.length > 0 || cityFilter !== 'all' || userTutorGenderPref !== 'Any' || userTutorFee || userClasses.length > 0) 
-                      ? "bg-primary text-white border-primary" 
-                      : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-100 dark:border-slate-700"
-                  )}
-                >
-                  <Filter size={18} strokeWidth={2.5} />
-                  <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Filters</span>
-                  {(userTutorLocations.length + userTutorSubjects.length + (cityFilter !== 'all' ? 1 : 0)) > 0 && (
-                    <div className="w-4 h-4 bg-white text-primary rounded-full flex items-center justify-center text-[8px] font-black">
-                      {userTutorLocations.length + userTutorSubjects.length + (cityFilter !== 'all' ? 1 : 0)}
-                    </div>
-                  )}
-                </button>
-              </div>
-
-              {/* Swiggy-style Chips */}
-              <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 scrollbar-none">
-                 {userTutorLocations.length > 0 && (
-                   <button 
-                     onClick={() => setShowFilterDrawer(true)}
-                     className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1.5 whitespace-nowrap active:scale-95 transition-all"
-                   >
-                     <MapPin size={10} /> {userTutorLocations.length} Areas
-                   </button>
-                 )}
-                 {userTutorSubjects.length > 0 && (
-                   <button 
-                     onClick={() => setShowFilterDrawer(true)}
-                     className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1.5 whitespace-nowrap active:scale-95 transition-all"
-                   >
-                     <BookOpen size={10} /> {userTutorSubjects.length} Subjects
-                   </button>
-                 )}
-                 {userTutorGenderPref !== 'Any' && (
-                   <button 
-                     onClick={() => setShowFilterDrawer(true)}
-                     className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap active:scale-95 transition-all"
-                   >
-                     {userTutorGenderPref} Only
-                   </button>
-                 )}
-                 {userTutorFee && (
-                   <button 
-                     onClick={() => setShowFilterDrawer(true)}
-                     className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap active:scale-95 transition-all"
-                   >
-                     ₹ {userTutorFee}
-                   </button>
-                 )}
-              </div>
+            <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 scrollbar-none">
+               {userTutorLocations.length > 0 && (
+                 <button 
+                   onClick={() => setShowFilterDrawer(true)}
+                   className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1.5 whitespace-nowrap active:scale-95 transition-all"
+                 >
+                   <MapPin size={10} /> {userTutorLocations.length} Areas
+                 </button>
+               )}
+               {userTutorSubjects.length > 0 && (
+                 <button 
+                   onClick={() => setShowFilterDrawer(true)}
+                   className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1.5 whitespace-nowrap active:scale-95 transition-all"
+                 >
+                   <BookOpen size={10} /> {userTutorSubjects.length} Subjects
+                 </button>
+               )}
+               {userTutorGenderPref !== 'Any' && (
+                 <button 
+                   onClick={() => setShowFilterDrawer(true)}
+                   className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap active:scale-95 transition-all"
+                 >
+                   {userTutorGenderPref} Only
+                 </button>
+               )}
+               {userTutorFee && (
+                 <button 
+                   onClick={() => setShowFilterDrawer(true)}
+                   className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap active:scale-95 transition-all"
+                 >
+                   ₹ {userTutorFee}
+                 </button>
+               )}
             </div>
           )}
 
