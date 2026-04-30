@@ -1705,13 +1705,13 @@ export default function App() {
                 </div>
 
                 {/* Role-Based Actions Corner */}
-                <div className="bg-slate-900 p-5 rounded-[28px] text-white space-y-3 shadow-xl shadow-slate-900/40 relative overflow-hidden group border border-white/5 animate-in slide-in-from-bottom duration-700 delay-300">
+                <div className="p-5 rounded-[28px] text-white space-y-3 shadow-xl shadow-primary/30 relative overflow-hidden group border border-white/5 animate-in slide-in-from-bottom duration-700 delay-300">
                   <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
                     <GraduationCap size={60} />
                   </div>
                   <div className="space-y-2 relative z-10">
-                    <p className="text-primary text-[10px] font-black uppercase tracking-[0.4em]">{userType === 'teacher' ? 'Official Liaison' : 'Parent Priority'}</p>
-                    <h3 className="text-3xl font-black uppercase tracking-tighter">{userType === 'teacher' ? 'Tutor Corner' : 'Requirement'}</h3>
+                    <p className="text-primary text-[10px] font-black uppercase tracking-[0.4em]">{userType === 'teacher' ? 'BECOME A TUTOR · FREE' : 'Parent Priority'}</p>
+                    <h3 className="text-3xl font-black uppercase tracking-tighter">{userType === 'teacher' ? 'Have Skills? Find Students' : 'Requirement'}</h3>
                   </div>
                   <div className="p-1 bg-white/5 rounded-[32px] border border-white/10 backdrop-blur-sm">
                       <button 
