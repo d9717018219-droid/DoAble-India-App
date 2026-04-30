@@ -1628,21 +1628,14 @@ export default function App() {
           <div className="space-y-1">
             {activeTab === 'home' ? (
               <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-4"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="space-y-0"
               >
-                <div className="w-14 h-14 bg-slate-900 rounded-[22px] flex items-center justify-center shadow-lg shadow-slate-200">
-                  <Sparkles size={28} className="text-amber-400" />
-                </div>
-                <div>
-                  <h1 className="text-3xl font-black tracking-tight text-slate-900 leading-none">
-                    {timeGreeting},
-                  </h1>
-                  <h2 className="text-3xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-500 leading-none mt-1">
-                    {userName?.split(' ')[0] || 'Friend'}
-                  </h2>
-                </div>
+                <h1 className="text-4xl font-black tracking-tighter leading-tight font-display bg-clip-text text-transparent bg-gradient-to-r from-primary via-blue-400 to-primary bg-[length:200%_auto] animate-gradient-x">
+                  {timeGreeting}, {userName?.split(' ')[0] || 'Friend'}
+                </h1>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Personal Dashboard</p>
               </motion.div>
             ) : (
               <h1 className="text-3xl font-black text-primary tracking-tighter font-display">
@@ -1669,7 +1662,9 @@ export default function App() {
           <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-2 scrollbar-none">
             <div className="bg-primary/5 px-4 py-2 rounded-2xl flex items-center gap-2 border border-primary/10 shrink-0">
               <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-primary">{allLeads.filter(l => isCityMatch(l.City, userCity)).length} Active Leads</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                {userType === 'teacher' ? filteredLeads.length : allLeads.filter(l => isCityMatch(l.City, userCity)).length} Active Leads
+              </span>
             </div>
             <div className="bg-blue-50 px-4 py-2 rounded-2xl flex items-center gap-2 border border-blue-100 shrink-0">
               <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
@@ -1714,7 +1709,7 @@ export default function App() {
         ) : (
           <>
             {activeTab === 'home' && (
-              <div className="flex-1 flex flex-col space-y-6 px-2">
+              <div className="flex-1 flex flex-col justify-between py-2 overflow-hidden">
                 {/* 1. Uber-style Sub-Greeting */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
@@ -1758,13 +1753,13 @@ export default function App() {
                       <div className="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/20">
                         <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-1">Active Jobs</p>
                         <p className="text-2xl font-black text-white leading-none">
-                          {allLeads.filter(l => isCityMatch(l.City, userCity)).length}
+                          {userType === 'teacher' ? filteredLeads.length : allLeads.filter(l => isCityMatch(l.City, userCity)).length}
                         </p>
                       </div>
                       <div className="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/20">
                         <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-1">Active Tutors</p>
                         <p className="text-2xl font-black text-white leading-none">
-                          {tutors.filter(t => (isCityMatch(getCityValue(t), userCity) || (t['Preferred Location(s)'] || '').toLowerCase().includes(userCity.toLowerCase())) && t.Status === 'Active').length}
+                          {tutors.filter(t => isCityMatch(getCityValue(t), userCity) && t.Status === 'Active').length}
                         </p>
                       </div>
                     </div>
@@ -1772,22 +1767,22 @@ export default function App() {
                 </motion.div>
 
                 {/* 3. Primary Action Buttons - Uber Style (Clean & Full Width) */}
-                <div className="space-y-4 pt-2">
+                <div className="space-y-3 pt-1">
                   <button 
                     onClick={() => {
                       setIsSelectingCityOnly(true);
                       setShowOnboarding(true);
                       setOnboardingStep(3);
                     }}
-                    className="w-full bg-white text-slate-900 p-6 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] flex items-center justify-between border-2 border-slate-100 shadow-sm active:scale-98 transition-all group"
+                    className="w-full bg-white text-slate-900 p-4 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] flex items-center justify-between border-2 border-slate-100 shadow-sm active:scale-98 transition-all group"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="p-3 bg-slate-50 rounded-xl group-hover:bg-primary/10 transition-colors">
-                        <MapPin size={20} className="text-primary" />
+                      <div className="p-2.5 bg-slate-50 rounded-xl group-hover:bg-primary/10 transition-colors">
+                        <MapPin size={18} className="text-primary" />
                       </div>
                       <span>Change City</span>
                     </div>
-                    <ChevronRight size={18} className="text-slate-300" />
+                    <ChevronRight size={16} className="text-slate-300" />
                   </button>
 
                   <button 
@@ -1795,15 +1790,15 @@ export default function App() {
                       setShowOnboarding(true);
                       setOnboardingStep(0);
                     }}
-                    className="w-full bg-[#FFE66D] text-slate-900 p-6 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] flex items-center justify-between shadow-xl shadow-yellow-500/10 active:scale-98 transition-all group"
+                    className="w-full bg-[#FFE66D] text-slate-900 p-4 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] flex items-center justify-between shadow-xl shadow-yellow-500/10 active:scale-98 transition-all group"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="p-3 bg-black/5 rounded-xl">
-                        <Settings size={20} className="text-slate-900" />
+                      <div className="p-2.5 bg-black/5 rounded-xl">
+                        <Settings size={18} className="text-slate-900" />
                       </div>
                       <span>Change My Preference</span>
                     </div>
-                    <ChevronRight size={18} className="text-slate-900/30" />
+                    <ChevronRight size={16} className="text-slate-900/30" />
                   </button>
                 </div>
               </div>
