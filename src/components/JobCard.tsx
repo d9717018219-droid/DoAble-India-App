@@ -89,7 +89,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
         <div className="stat-item">
           <div className="text-2xl mb-1">📖</div>
           <div className="text-[14px] font-bold text-primary">{classBoard}</div>
-          <div className="text-[10px] text-slate-400 uppercase font-bold">Class/Board</div>
+          <div className="text-[10px] text-slate-400 uppercase font-bold">Subject List</div>
         </div>
         <div className="stat-item">
           <div className="text-2xl mb-1">💰</div>

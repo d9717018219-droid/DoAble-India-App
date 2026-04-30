@@ -1030,7 +1030,7 @@ export default function App() {
                   </div>
 
                   <div className="space-y-4">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select classes you are interested in:</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select from Subject List you are interested in:</p>
                     <div className="grid grid-cols-2 gap-3 max-h-[30vh] overflow-y-auto p-2 scroll-smooth custom-scrollbar">
                        {CLASSES_LIST.map(cls => (
                          <button
