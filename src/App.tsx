@@ -1705,10 +1705,17 @@ export default function App() {
                         <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Matching Profile</span>
                       </div>
                       <h3 className="text-4xl font-black leading-none text-white tracking-tighter font-display">
-                        Perfect Tuition<br/>Matches for {userCity}
+                        {userType === 'parent' ? (
+                          <>Perfect Expert<br/>Tutors for {userCity}</>
+                        ) : (
+                          <>Perfect Tuition<br/>Jobs in {userCity}</>
+                        )}
                       </h3>
                       <p className="text-white/70 text-xs font-medium max-w-[280px] leading-relaxed">
-                        We've found the best teaching opportunities and expert tutors specifically for your profile in {userCity}.
+                        {userType === 'parent' 
+                          ? `We've found the best expert tutors specifically matched for your child's profile in ${userCity}.`
+                          : `We've found the best teaching opportunities specifically matched for your profile in ${userCity}.`
+                        }
                       </p>
                     </div>
                     
