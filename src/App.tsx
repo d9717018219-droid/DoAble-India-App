@@ -1050,7 +1050,7 @@ export default function App() {
                       <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Now select subjects:</p>
                         <div className="flex flex-wrap gap-2 max-h-[30vh] overflow-y-auto p-4 bg-slate-50 rounded-[32px] border border-slate-100">
-                          {editClasses.flatMap(cls => CLASS_SUBJECTS_DATA[cls] || []).map((subj, idx) => (
+                          {Array.from(new Set(editClasses.flatMap(cls => CLASS_SUBJECTS_DATA[cls] || []))).map((subj, idx) => (
                             <button
                               key={`${subj}-${idx}`}
                               onClick={() => setEditTutorSubjects(prev => prev.includes(subj) ? prev.filter(s => s !== subj) : [...prev, subj])}
@@ -1424,7 +1424,7 @@ export default function App() {
                     </div>
                     {userClasses.length > 0 && (
                       <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-4 bg-slate-50 rounded-[32px] border border-slate-100/50">
-                         {userClasses.flatMap(cls => CLASS_SUBJECTS_DATA[cls] || []).map((subj, idx) => (
+                         {Array.from(new Set(userClasses.flatMap(cls => CLASS_SUBJECTS_DATA[cls] || []))).map((subj, idx) => (
                            <button
                              key={`${subj}-${idx}`}
                              onClick={() => {
