@@ -61,22 +61,31 @@
   to { transform: rotate(360deg); }
 }
 
-/* Force Light Mode as Default Everywhere */
+/* Theme Variables */
 :root {
+  --app-bg: #FFFFFF;
+  --app-text: #0f172a;
+}
+
+.dark {
+  --app-bg: #0f172a;
+  --app-text: #f8fafc;
+}
+
+/* Force Light/Dark based on class */
+:root:not(.dark) {
   background-color: #FFFFFF !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-light-bg: #FFFFFF;
-    --color-dark-bg: #FFFFFF;
-  }
+.dark {
+  background-color: #0f172a !important;
 }
 
 @layer base {
   body {
-    @apply font-sans text-slate-900 transition-colors duration-300;
-    background: #eef2f7 !important;
+    @apply font-sans transition-colors duration-300;
+    background: var(--app-bg) !important;
+    color: var(--app-text);
     overflow: hidden !important;
     position: fixed;
     width: 100%;

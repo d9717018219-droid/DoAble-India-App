@@ -48,6 +48,17 @@ export default function App() {
   const [adminStatus, setAdminStatus] = useState<string>('Checking...');
   const [jobLimit, setJobLimit] = useState(15);
   const [tutorLimit, setTutorLimit] = useState(15);
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(localStorage.getItem('themeMode') as 'light' | 'dark' || 'light');
+
+  // Theme effect
+  useEffect(() => {
+    if (themeMode === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('themeMode', themeMode);
+  }, [themeMode]);
 
   // Admin Check
   useEffect(() => {
@@ -1273,6 +1284,71 @@ export default function App() {
                       Back
                     </button>
                     <button 
+                      onClick={() => setOnboardingStep(5)}
+                      className="flex-[2] bg-primary text-white p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-primary/20"
+                    >
+                      Next: Appearance <ArrowRight size={18} />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
+              {onboardingStep === 5 && (
+                <motion.div 
+                  key="step5"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 space-y-8"
+                >
+                  <div className="flex items-center gap-4 mb-2">
+                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                      <Sparkles size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Appearance</h3>
+                      <p className="text-[10px] font-black text-primary uppercase tracking-widest">Theme Preference</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Choose your preferred style:</p>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        onClick={() => setThemeMode('light')}
+                        className={cn(
+                          "p-6 rounded-[32px] border-2 transition-all flex flex-col items-center gap-3 active:scale-95 group",
+                          themeMode === 'light' ? "bg-white border-primary shadow-lg" : "bg-slate-50 border-transparent text-slate-400"
+                        )}
+                      >
+                        <div className="w-12 h-12 bg-amber-100 rounded-2xl flex items-center justify-center text-amber-600">
+                          <Zap size={24} />
+                        </div>
+                        <span className="text-xs font-black uppercase tracking-tight">Light Mode</span>
+                      </button>
+                      <button
+                        onClick={() => setThemeMode('dark')}
+                        className={cn(
+                          "p-6 rounded-[32px] border-2 transition-all flex flex-col items-center gap-3 active:scale-95 group",
+                          themeMode === 'dark' ? "bg-slate-800 border-primary shadow-lg text-white" : "bg-slate-900 border-transparent text-slate-500"
+                        )}
+                      >
+                        <div className="w-12 h-12 bg-slate-700 rounded-2xl flex items-center justify-center text-blue-400">
+                          <Sparkles size={24} />
+                        </div>
+                        <span className="text-xs font-black uppercase tracking-tight">Dark Mode</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 flex gap-3">
+                    <button 
+                      onClick={() => setOnboardingStep(4)}
+                      className="flex-1 bg-slate-50 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
+                    >
+                      Back
+                    </button>
+                    <button 
                       onClick={handleCompleteOnboarding}
                       className="flex-[2] bg-primary text-white p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-primary/20"
                     >
@@ -1635,8 +1711,8 @@ export default function App() {
                 <h1 className="text-4xl font-black tracking-tighter leading-none font-display bg-clip-text text-transparent bg-gradient-to-r from-primary via-blue-400 to-primary bg-[length:200%_auto] animate-gradient-x">
                   {timeGreeting}, {userName?.split(' ')[0] || 'Friend'}
                 </h1>
-                <p className="text-[11px] font-bold text-slate-500 leading-tight">
-                  Thanks for being a <span style={{ color: theme.solid }} className="font-extrabold">{userType === 'teacher' ? 'Professional Tutor' : 'Parent Member'}</span> with DoAble India
+                <p className="text-[11px] font-medium text-slate-500 leading-tight">
+                  Thanks for being a <span style={{ color: theme.solid }} className="font-bold">{userType === 'teacher' ? 'professional tutor' : 'parent member'}</span> with DoAble India
                 </p>
               </motion.div>
             ) : (
@@ -1664,13 +1740,15 @@ export default function App() {
           <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-2 scrollbar-none">
             <div className="bg-primary/5 px-4 py-2 rounded-2xl flex items-center gap-2 border border-primary/10 shrink-0">
               <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+              <span className="text-[10px] font-bold text-primary">
                 {userType === 'teacher' ? filteredLeads.length : allLeads.filter(l => isCityMatch(l.City, userCity)).length} Active Leads
               </span>
             </div>
             <div className="bg-blue-50 px-4 py-2 rounded-2xl flex items-center gap-2 border border-blue-100 shrink-0">
               <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-blue-600">{tutors.filter(t => isCityMatch(getCityValue(t), userCity)).length} Tutors</span>
+              <span className="text-[10px] font-bold text-blue-600">
+                {tutors.filter(t => isCityMatch(getCityValue(t), userCity) || (t['Preferred Location(s)'] || '').toLowerCase().includes(userCity.toLowerCase())).length} Tutors
+              </span>
             </div>
           </div>
         )}
@@ -1742,15 +1820,15 @@ export default function App() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/20">
-                        <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-1">Active Jobs</p>
+                        <p className="text-[8px] font-bold text-white/60 mb-1">Active Jobs</p>
                         <p className="text-2xl font-black text-white leading-none">
                           {userType === 'teacher' ? filteredLeads.length : allLeads.filter(l => isCityMatch(l.City, userCity)).length}
                         </p>
                       </div>
                       <div className="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/20">
-                        <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-1">Active Tutors</p>
+                        <p className="text-[8px] font-bold text-white/60 mb-1">Active Tutors</p>
                         <p className="text-2xl font-black text-white leading-none">
-                          {userType === 'parent' ? filteredTutors.length : tutors.filter(t => isCityMatch(getCityValue(t), userCity) && t.Status === 'Active').length}
+                          {tutors.filter(t => isCityMatch(getCityValue(t), userCity) || (t['Preferred Location(s)'] || '').toLowerCase().includes(userCity.toLowerCase())).length}
                         </p>
                       </div>
                     </div>
