@@ -1,8 +1,0 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.doabletutors.twa",
-        "sha256_cert_fingerprints": ["B0:AC:51:F6:BD:19:32:37:67:5C:58:4B:B5:62:10:C7:95:0E:85:A4:F8:1D:F9:C3:5B:06:96:52:9E:E0:6A:80"]
-      }
-    }]
