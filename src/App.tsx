@@ -1666,62 +1666,158 @@ export default function App() {
       </AnimatePresence>
       <header 
         className={cn(
-          "p-6 relative transition-all duration-500 z-20",
-          activeTab === 'home' ? "bg-white dark:bg-slate-950" : "bg-white dark:bg-slate-900 rounded-b-[40px] shadow-xl pb-8 border-b border-transparent dark:border-slate-800"
+          "sticky top-0 transition-all duration-500 z-50",
+          activeTab === 'home' ? "p-6 bg-white dark:bg-slate-950" : "bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 shadow-sm"
         )}
       >
-        <div className="flex items-center justify-between">
-          <div className="space-y-1">
-            {activeTab === 'home' ? (
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="space-y-1"
-              >
-                <h1 className="text-4xl font-black tracking-tighter leading-none font-display bg-clip-text text-transparent bg-gradient-to-r from-primary via-blue-400 to-primary bg-[length:200%_auto] animate-gradient-x">
-                  {timeGreeting}, {userName?.split(' ')[0] || 'Friend'}
-                </h1>
-                <p className="text-[11px] font-medium text-slate-500 leading-tight">
-                  Thanks for being a <span style={{ color: theme.solid }} className="font-bold">{userType === 'teacher' ? 'professional tutor' : 'parent member'}</span> with DoAble India
-                </p>
-              </motion.div>
-            ) : (
-              <h1 className="text-3xl font-black text-primary tracking-tighter font-display">
-                {activeTab === 'jobs' && 'Tuition Jobs'}
-                {activeTab === 'tutors' && 'Expert Tutors'}
-                {activeTab === 'alerts' && 'Broadcasts'}
-              </h1>
-            )}
+        <div className={cn(activeTab === 'home' ? "" : "p-4 space-y-4 max-w-[1200px] mx-auto")}>
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              {activeTab === 'home' ? (
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="space-y-1"
+                >
+                  <h1 className="text-4xl font-black tracking-tighter leading-none font-display bg-clip-text text-transparent bg-gradient-to-r from-primary via-blue-400 to-primary bg-[length:200%_auto] animate-gradient-x">
+                    {timeGreeting}, {userName?.split(' ')[0] || 'Friend'}
+                  </h1>
+                  <p className="text-[11px] font-medium text-slate-500 leading-tight">
+                    Thanks for being a <span style={{ color: theme.solid }} className="font-bold">{userType === 'teacher' ? 'professional tutor' : 'parent member'}</span> with DoAble India
+                  </p>
+                </motion.div>
+              ) : (
+                <div className="flex flex-col gap-0.5">
+                   <button 
+                     onClick={() => {
+                        setIsSelectingCityOnly(true);
+                        setShowOnboarding(true);
+                        setOnboardingStep(3);
+                     }}
+                     className="flex items-center gap-1.5 group"
+                   >
+                     <MapPin size={18} className="text-primary fill-primary/10" />
+                     <span className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter border-b-2 border-primary/20 group-hover:border-primary transition-all">
+                       {userCity}
+                     </span>
+                     <ChevronRight size={14} className="text-slate-400 rotate-90" />
+                   </button>
+                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest pl-6">
+                      {activeTab === 'jobs' && 'Tuition Jobs Near You'}
+                      {activeTab === 'tutors' && 'Expert Tutors Near You'}
+                      {activeTab === 'alerts' && 'Recent Broadcasts'}
+                   </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              {currentUser && (
+                <button 
+                  onClick={() => firebaseAuth.signOut()} 
+                  className="p-3 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-500 transition-all rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm active:scale-95"
+                >
+                  <LogOut size={20} />
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {currentUser && (
-              <button 
-                onClick={() => firebaseAuth.signOut()} 
-                className="p-3 bg-slate-50 text-slate-400 hover:text-red-500 transition-all rounded-2xl border border-slate-100 shadow-sm active:scale-95"
-              >
-                <LogOut size={20} />
-              </button>
-            )}
-          </div>
+          {activeTab !== 'home' && !showTutorForm && (activeTab === 'jobs' || activeTab === 'tutors') && (
+            <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="flex gap-2">
+                <div className="relative group flex-1">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={18} />
+                  <input 
+                    type="text"
+                    placeholder={activeTab === 'jobs' ? "Search city, subject, order ID..." : "Search name, subject, tutor ID..."}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-[20px] py-3.5 pl-11 pr-10 text-sm font-bold focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none placeholder:text-slate-400 dark:text-slate-500 shadow-sm dark:text-white"
+                  />
+                  {searchQuery && (
+                    <button 
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                    >
+                      <X size={16} strokeWidth={3} />
+                    </button>
+                  )}
+                </div>
+                <button 
+                  onClick={() => setShowFilterDrawer(true)}
+                  className={cn(
+                    "px-4 rounded-[20px] shadow-sm transition-all active:scale-95 flex items-center gap-2 border-2",
+                    (userTutorLocations.length > 0 || userTutorSubjects.length > 0 || cityFilter !== 'all' || userTutorGenderPref !== 'Any' || userTutorFee || userClasses.length > 0) 
+                      ? "bg-primary text-white border-primary" 
+                      : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-100 dark:border-slate-700"
+                  )}
+                >
+                  <Filter size={18} strokeWidth={2.5} />
+                  <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Filters</span>
+                  {(userTutorLocations.length + userTutorSubjects.length + (cityFilter !== 'all' ? 1 : 0)) > 0 && (
+                    <div className="w-4 h-4 bg-white text-primary rounded-full flex items-center justify-center text-[8px] font-black">
+                      {userTutorLocations.length + userTutorSubjects.length + (cityFilter !== 'all' ? 1 : 0)}
+                    </div>
+                  )}
+                </button>
+              </div>
+
+              {/* Swiggy-style Chips */}
+              <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 scrollbar-none">
+                 {userTutorLocations.length > 0 && (
+                   <button 
+                     onClick={() => setShowFilterDrawer(true)}
+                     className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1.5 whitespace-nowrap active:scale-95 transition-all"
+                   >
+                     <MapPin size={10} /> {userTutorLocations.length} Areas
+                   </button>
+                 )}
+                 {userTutorSubjects.length > 0 && (
+                   <button 
+                     onClick={() => setShowFilterDrawer(true)}
+                     className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1.5 whitespace-nowrap active:scale-95 transition-all"
+                   >
+                     <BookOpen size={10} /> {userTutorSubjects.length} Subjects
+                   </button>
+                 )}
+                 {userTutorGenderPref !== 'Any' && (
+                   <button 
+                     onClick={() => setShowFilterDrawer(true)}
+                     className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap active:scale-95 transition-all"
+                   >
+                     {userTutorGenderPref} Only
+                   </button>
+                 )}
+                 {userTutorFee && (
+                   <button 
+                     onClick={() => setShowFilterDrawer(true)}
+                     className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap active:scale-95 transition-all"
+                   >
+                     ₹ {userTutorFee}
+                   </button>
+                 )}
+              </div>
+            </div>
+          )}
+
+          {activeTab !== 'home' && (activeTab === 'alerts' || !showTutorForm && activeTab !== 'jobs' && activeTab !== 'tutors') && (
+            <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-2 scrollbar-none">
+              <div className="bg-primary/5 px-4 py-2 rounded-2xl flex items-center gap-2 border border-primary/10 shrink-0">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+                <span className="text-[10px] font-bold text-primary">
+                  {userType === 'teacher' ? filteredLeads.length : allLeads.filter(l => isCityMatch(l.City, userCity)).length} Active Leads
+                </span>
+              </div>
+              <div className="bg-blue-50 px-4 py-2 rounded-2xl flex items-center gap-2 border border-blue-100 shrink-0">
+                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+                <span className="text-[10px] font-bold text-blue-600">
+                  {tutors.filter(t => isCityMatch(getCityValue(t), userCity) || (t['Preferred Location(s)'] || '').toLowerCase().includes(userCity.toLowerCase())).length} Tutors
+                </span>
+              </div>
+            </div>
+          )}
         </div>
-
-        {activeTab !== 'home' && (
-          <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-2 scrollbar-none">
-            <div className="bg-primary/5 px-4 py-2 rounded-2xl flex items-center gap-2 border border-primary/10 shrink-0">
-              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-              <span className="text-[10px] font-bold text-primary">
-                {userType === 'teacher' ? filteredLeads.length : allLeads.filter(l => isCityMatch(l.City, userCity)).length} Active Leads
-              </span>
-            </div>
-            <div className="bg-blue-50 px-4 py-2 rounded-2xl flex items-center gap-2 border border-blue-100 shrink-0">
-              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-              <span className="text-[10px] font-bold text-blue-600">
-                {tutors.filter(t => isCityMatch(getCityValue(t), userCity) || (t['Preferred Location(s)'] || '').toLowerCase().includes(userCity.toLowerCase())).length} Tutors
-              </span>
-            </div>
-          </div>
-        )}
       </header>
 
       {/* Main Content */}
@@ -1912,65 +2008,6 @@ export default function App() {
 
         {(activeTab === 'jobs' || activeTab === 'tutors') && !showTutorForm && (
           <div className="animate-in fade-in duration-500 relative">
-            {/* Fixed Search Header */}
-            <div className="sticky top-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl -mx-4 px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex flex-col gap-4 mb-4">
-              <div className="flex gap-3">
-                <div className="relative group flex-1">
-                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={20} />
-                  <input 
-                    type="text"
-                    placeholder={activeTab === 'jobs' ? "Search city, subject, order ID..." : "Search name, subject, tutor ID..."}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-900 border-2 border-slate-50 dark:border-slate-800 rounded-[24px] py-4 pl-14 pr-12 text-sm font-bold focus:ring-4 focus:ring-primary/5 focus:border-primary/20 focus:bg-white dark:focus:bg-slate-800 transition-all outline-none placeholder:text-slate-300 dark:text-slate-600 shadow-sm dark:text-white"
-                  />
-                  {searchQuery && (
-                    <button 
-                      onClick={() => setSearchQuery('')}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 p-1"
-                    >
-                      <X size={18} strokeWidth={3} />
-                    </button>
-                  )}
-                </div>
-                <button 
-                  onClick={() => setShowFilterDrawer(true)}
-                  className={cn(
-                    "p-4 rounded-[24px] shadow-lg transition-all active:scale-95 flex items-center justify-center shrink-0 border-2",
-                    (userTutorLocations.length > 0 || userTutorSubjects.length > 0 || cityFilter !== 'all' || userTutorGenderPref !== 'Any' || userTutorFee || userClasses.length > 0) 
-                      ? "bg-primary text-white border-primary shadow-primary/20" 
-                      : "bg-white dark:bg-slate-900 text-slate-400 border-slate-50 dark:border-slate-800 shadow-slate-200/50"
-                  )}
-                >
-                  <Filter size={22} strokeWidth={2.5} />
-                </button>
-              </div>
-
-              {/* Quick Filter Tags in Sticky Header */}
-              <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 scrollbar-none">
-                 {userTutorLocations.length > 0 && (
-                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1 whitespace-nowrap">
-                     <MapPin size={10} /> {userTutorLocations.length} Areas
-                   </span>
-                 )}
-                 {userTutorSubjects.length > 0 && (
-                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1 whitespace-nowrap">
-                     <BookOpen size={10} /> {userTutorSubjects.length} Subjects
-                   </span>
-                 )}
-                 {userTutorGenderPref !== 'Any' && (
-                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap">
-                     {userTutorGenderPref} Only
-                   </span>
-                 )}
-                 {userTutorFee && (
-                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap">
-                     ₹ {userTutorFee}
-                   </span>
-                 )}
-              </div>
-            </div>
-
             <div className="space-y-6">
               {loading && (leads.length === 0 && tutors.length === 0) ? (
               <div className="text-center p-32 text-primary font-black flex flex-col items-center gap-5">
