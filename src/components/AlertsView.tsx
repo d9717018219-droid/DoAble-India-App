@@ -12,9 +12,10 @@ interface AlertsViewProps {
   userGender?: string | null;
   userClasses?: string[];
   userType?: UserType | null;
+  setShowTutorForm: (show: boolean) => void;
 }
 
-const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, userType }) => {
+const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, userType, setShowTutorForm }) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTone, setSelectedTone] = useState('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
@@ -396,6 +397,26 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
             ))
           )}
         </AnimatePresence>
+      </div>
+
+      {/* Become a Tutor Action Button */}
+      <div className="px-6 pb-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-1"
+        >
+          <button 
+            onClick={() => setShowTutorForm(true)}
+            className="w-full bg-primary text-white p-5 rounded-[24px] font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all"
+          >
+            <Zap size={18} fill="currentColor" />
+            Become a Tutor / Update Profile
+          </button>
+          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center mt-3 opacity-60">
+            Join 5,000+ Verified Educators Today
+          </p>
+        </motion.div>
       </div>
 
       {/* Removed Connection Section */}

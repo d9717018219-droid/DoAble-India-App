@@ -1682,9 +1682,9 @@ export default function App() {
         ) : (
           <>
             {activeTab === 'home' && (
-              <div className="space-y-6 py-4">
+              <div className="h-[calc(100vh-180px)] overflow-hidden flex flex-col justify-center px-4">
                 {/* 1. Hero Card - Perfect Match */}
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.8, delay: 0.2 }}
@@ -1694,7 +1694,7 @@ export default function App() {
                   {/* Decorative Elements */}
                   <div className="absolute top-[-20%] right-[-10%] w-80 h-80 bg-white/10 rounded-full blur-[100px] group-hover:scale-110 transition-transform duration-1000" />
                   <div className="absolute bottom-[-20%] left-[-10%] w-64 h-64 bg-black/10 rounded-full blur-[80px]" />
-                  
+
                   <div className="relative z-10 space-y-6">
                     <div className="space-y-3">
                       <div className="flex items-center gap-3">
@@ -1705,68 +1705,48 @@ export default function App() {
                         <span className="text-[9px] font-black uppercase tracking-widest text-white/60">Matching Profile</span>
                       </div>
                       <h3 className="text-4xl font-black leading-none text-white tracking-tighter font-display">
-                        {userType === 'parent' ? (
-                          <>Perfect Expert<br/>Tutors for {userCity}</>
-                        ) : (
-                          <>Perfect Tuition<br/>Jobs in {userCity}</>
-                        )}
-                      </h3>
-                      <p className="text-white/70 text-xs font-medium max-w-[280px] leading-relaxed">
-                        {userType === 'parent' 
-                          ? `We've found the best expert tutors specifically matched for your child's profile in ${userCity}.`
-                          : `We've found the best teaching opportunities specifically matched for your profile in ${userCity}.`
-                        }
-                      </p>
+                       {userType === 'parent' ? (
+                         <>Perfect Expert<br/>Tutors for {userCity}</>
+                       ) : (
+                         <>Perfect Tuition<br/>Jobs in {userCity}</>
+                       )}
+                     </h3>
+                     <p className="text-white/70 text-xs font-medium max-w-[280px] leading-relaxed">
+                       {userType === 'parent' 
+                         ? `We've found the best expert tutors specifically matched for your child's profile in ${userCity}.`
+                         : `We've found the best teaching opportunities specifically matched for your profile in ${userCity}.`
+                       }
+                     </p>
                     </div>
-                    
-                    <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                     <button 
-                       onClick={() => {
-                         setIsSelectingCityOnly(true);
-                         setShowOnboarding(true);
-                         setOnboardingStep(3);
-                       }}
-                       className="bg-white text-slate-900 px-8 py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl active:scale-95 group/btn"
-                     >
-                       <MapPin size={20} className="text-primary group-hover/btn:scale-110 transition-transform" />
-                       Change City
-                     </button>
-                     <button 
-                       onClick={() => {
-                         setShowOnboarding(true);
-                         setOnboardingStep(0);
-                       }}
-                       className="bg-[#FFE66D] text-slate-900 px-8 py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-[#FFD93D] transition-all shadow-xl shadow-yellow-500/10 active:scale-95"
-                     >
-                       <Settings size={20} />
-                       Change My Preference
-                     </button>
-                    </div>                  </div>
-                </motion.div>
 
-                {/* Compact Tutor Action Button */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.4 }}
-                  className="px-2"
-                >
-                  <button 
-                    onClick={() => setShowTutorForm(true)}
-                    className="w-full bg-primary text-white p-5 rounded-[24px] font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl shadow-primary/20 hover:scale-[1.01] active:scale-95 transition-all"
-                  >
-                    <Zap size={18} fill="currentColor" />
-                    Become a Tutor / Update Profile
-                  </button>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center mt-3 opacity-60">
-                    Join 5,000+ Verified Educators Today
-                  </p>
-                </motion.div>
-              </div>
+                   <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                    <button 
+                      onClick={() => {
+                        setIsSelectingCityOnly(true);
+                        setShowOnboarding(true);
+                        setOnboardingStep(3);
+                      }}
+                      className="bg-white text-slate-900 px-8 py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl active:scale-95 group/btn"
+                    >
+                      <MapPin size={20} className="text-primary group-hover/btn:scale-110 transition-transform" />
+                      Change City
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setShowOnboarding(true);
+                        setOnboardingStep(0);
+                      }}
+                      className="bg-[#FFE66D] text-slate-900 px-8 py-5 rounded-3xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-[#FFD93D] transition-all shadow-xl shadow-yellow-500/10 active:scale-95"
+                    >
+                      <Settings size={20} />
+                      Change My Preference
+                    </button>
+                   </div>                  </div>
+               </motion.div>
+             </div>
             )}
 
-        {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} />}
-        
+            {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} setShowTutorForm={setShowTutorForm} />}        
         {showAdminSettings && (
           <div className="fixed inset-0 z-[5000] bg-white flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
             {isAdminUser ? (
