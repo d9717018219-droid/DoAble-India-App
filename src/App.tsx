@@ -1594,7 +1594,7 @@ export default function App() {
       </AnimatePresence>
       <header 
         className={cn(
-          "p-[30px_20px] text-center relative transition-all duration-500 rounded-b-[36px] shadow-xl pb-10",
+          "p-[16px_16px] text-center relative transition-all duration-500 rounded-b-[28px] shadow-lg pb-5",
           userCity ? "text-white border-transparent" : "bg-white border-slate-50"
         )}
         style={userCity ? { background: getCityTheme(userCity).grad } : {}}
@@ -1607,13 +1607,13 @@ export default function App() {
           )}
         </div>
 
-        <h1 className={cn("text-[32px] font-[900] tracking-tighter", userCity ? "text-white" : "text-primary")}>
+        <h1 className={cn("text-[26px] font-[900] tracking-tight", userCity ? "text-white" : "text-primary")}>
           {activeTab === 'home' && (userName ? `Welcome, ${userName}` : 'DoAble India')}
           {activeTab === 'jobs' && 'Tuition Jobs'}
           {activeTab === 'tutors' && 'Expert Tutors'}
         </h1>
         
-        <div className="flex items-center justify-center gap-3 mt-3">
+        <div className="flex items-center justify-center gap-2 mt-2">
           <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 shadow-sm transition-transform hover:scale-105">
             <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.5)]" />
             <span className="text-[10px] font-black uppercase tracking-tight text-white">{allLeads.filter(l => isCityMatch(l.City, userCity)).length} Jobs in {userCity}</span>
@@ -1624,7 +1624,7 @@ export default function App() {
           </div>
         </div>
 
-        <p className={cn("text-[13px] font-bold uppercase tracking-widest mt-2", userCity ? "text-white/70" : "text-slate-400")}>
+        <p className={cn("text-[11px] font-semibold uppercase tracking-[0.15em] mt-1 opacity-80", userCity ? "text-white/70" : "text-slate-400")}>
           {activeTab === 'home' && (userName ? `PERFECT MATCHES FOR YOUR PROFILE` : 'Premium Teaching Portal')}
           {activeTab === 'jobs' && 'Live Teaching Feed'}
           {activeTab === 'tutors' && 'Professional Educators'}
@@ -1661,20 +1661,20 @@ export default function App() {
         ) : (
           <>
             {activeTab === 'home' && (
-          <div className="space-y-6 py-4 px-4">
-              <div className="space-y-10">
+          <div className="space-y-3 py-2 px-3">
+              <div className="space-y-3">
                 {/* 2. Perfect Match for [City] Section */}
                 <div 
-                  className="p-10 rounded-[48px] relative overflow-hidden shadow-2xl shadow-primary/20 border border-primary/5 animate-in fade-in zoom-in duration-1000 delay-200"
+                  className="p-5 rounded-[32px] relative overflow-hidden shadow-xl shadow-primary/20 border border-primary/5 animate-in fade-in zoom-in duration-1000 delay-200"
                   style={{ background: getCityTheme(userCity).grad }}
                 >
-                  <div className="relative z-10 space-y-8">
+                  <div className="relative z-10 space-y-3">
                      <div className="space-y-2">
                         <div className="flex items-center gap-3">
                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70">Sync With Local Demand</span>
                         </div>
-                        <h3 className="text-3xl font-black leading-none text-white tracking-tighter">Perfect Match for<br/> {userCity}</h3>
+                        <h3 className="text-xl font-black leading-tight text-white tracking-tight">Perfect Match for<br/> {userCity}</h3>
                      </div>
                      
                      <div className="flex flex-col sm:flex-row gap-3">
@@ -1684,7 +1684,7 @@ export default function App() {
                             setShowOnboarding(true);
                             setOnboardingStep(3); // City Selection
                           }}
-                          className="bg-white text-slate-900 px-8 py-5 rounded-[28px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl active:scale-95"
+                          className="bg-white text-slate-900 px-5 py-3 rounded-[20px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl active:scale-95"
                         >
                           <MapPin size={18} className="text-primary" />
                           Change City
@@ -1694,7 +1694,7 @@ export default function App() {
                             setShowOnboarding(true);
                             setOnboardingStep(0); // Identity/Preference Reset
                           }}
-                          className="bg-primary text-white p-5 rounded-[28px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all active:scale-95"
+                          className="bg-primary text-white p-3 rounded-[20px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all active:scale-95"
                         >
                           <Settings size={18} />
                           Update Preference
@@ -1705,9 +1705,9 @@ export default function App() {
                 </div>
 
                 {/* Role-Based Actions Corner */}
-                <div className="bg-slate-900 p-8 rounded-[48px] text-white space-y-6 shadow-2xl shadow-slate-900/40 relative overflow-hidden group border border-white/5 animate-in slide-in-from-bottom duration-700 delay-300">
+                <div className="bg-slate-900 p-5 rounded-[28px] text-white space-y-3 shadow-xl shadow-slate-900/40 relative overflow-hidden group border border-white/5 animate-in slide-in-from-bottom duration-700 delay-300">
                   <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
-                    <GraduationCap size={120} />
+                    <GraduationCap size={60} />
                   </div>
                   <div className="space-y-2 relative z-10">
                     <p className="text-primary text-[10px] font-black uppercase tracking-[0.4em]">{userType === 'teacher' ? 'Official Liaison' : 'Parent Priority'}</p>
@@ -1810,7 +1810,7 @@ export default function App() {
               {(activeTab === 'tutors' || activeTab === 'jobs') && (
                 <button 
                   onClick={() => setShowFilterDrawer(true)}
-                  className="bg-primary text-white p-5 rounded-[28px] shadow-lg shadow-primary/20 active:scale-95 transition-transform flex items-center justify-center"
+                  className="bg-primary text-white p-3 rounded-[20px] shadow-lg shadow-primary/20 active:scale-95 transition-transform flex items-center justify-center"
                 >
                   <Filter size={24} />
                 </button>
@@ -1910,7 +1910,7 @@ export default function App() {
 
       {/* Bottom Navigation */}
       <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-md flex flex-col items-center gap-3 z-[3000]">
-        <div className="w-full bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-[32px] border border-slate-100 px-4 py-3 flex justify-around items-center safe-area-bottom">
+        <div className="w-full bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-[28px] border border-slate-200 px-4 py-2 flex justify-around items-center safe-area-bottom">
           <NavButton 
             active={activeTab === 'home' && !showTutorForm} 
             onClick={() => { setActiveTab('home'); setShowTutorForm(false); window.scrollTo({top: 0, behavior: 'smooth'}); }}
