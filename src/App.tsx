@@ -285,6 +285,8 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('userCity'));
   const [isSelectingCityOnly, setIsSelectingCityOnly] = useState(false);
 
+  const theme = useMemo(() => getCityTheme(userCity), [userCity]);
+
   useEffect(() => {
     if (showOnboarding && onboardingStep === 0) {
       const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
@@ -1618,14 +1620,19 @@ export default function App() {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             {activeTab === 'home' ? (
-              <>
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: "spring", damping: 15 }}
+                className="space-y-1"
+              >
                 <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest leading-none">
                   {timeGreeting}
                 </h2>
                 <h1 className="text-4xl font-black text-slate-900 tracking-tighter leading-none font-display">
                   Hello, {userName?.split(' ')[0] || 'Friend'}
                 </h1>
-              </>
+              </motion.div>
             ) : (
               <h1 className="text-3xl font-black text-primary tracking-tighter font-display">
                 {activeTab === 'jobs' && 'Tuition Jobs'}
@@ -1696,7 +1703,7 @@ export default function App() {
         ) : (
           <>
             {activeTab === 'home' && (
-              <div className="h-[calc(100vh-220px)] overflow-hidden flex flex-col space-y-6 px-2">
+              <div className="h-[calc(100vh-240px)] overflow-y-auto scrollbar-none flex flex-col space-y-6 px-2 pb-10">
                 {/* 1. Uber-style Sub-Greeting */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
@@ -1704,38 +1711,50 @@ export default function App() {
                   className="px-2"
                 >
                   <p className="text-slate-500 text-xs font-medium leading-relaxed">
-                    Thanks for being a <span className="text-slate-900 font-bold">{userType === 'teacher' ? 'Professional Tutor' : 'Parent Member'}</span> with us.
+                    Thanks for being a <span style={{ color: theme.solid }} className="font-bold">{userType === 'teacher' ? 'Professional Tutor' : 'Parent Member'}</span> with us.
                   </p>
                 </motion.div>
 
                 {/* 2. Hero Action Card - Dynamic & Full Width */}
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.98 }}
+                  initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6 }}
-                  className="p-8 rounded-[32px] relative overflow-hidden shadow-2xl shadow-slate-200 border border-slate-100 group w-full bg-slate-900"
+                  transition={{ type: "spring", damping: 20, stiffness: 100 }}
+                  onClick={() => {
+                    setActiveTab(userType === 'parent' ? 'tutors' : 'jobs');
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                  }}
+                  style={{ background: theme.grad }}
+                  className="p-8 rounded-[40px] relative overflow-hidden shadow-2xl shadow-slate-200 border border-white/10 group w-full cursor-pointer active:scale-[0.98] transition-all"
                 >
                   {/* Decorative Elements */}
-                  <div className="absolute top-[-10%] right-[-5%] w-64 h-64 bg-primary/20 rounded-full blur-[80px]" />
+                  <div className="absolute top-[-10%] right-[-5%] w-64 h-64 bg-white/10 rounded-full blur-[80px]" />
+                  <div className="absolute bottom-8 right-8 text-white/40 group-hover:text-white/60 transition-colors">
+                    <ArrowRight size={48} strokeWidth={3} />
+                  </div>
 
                   <div className="relative z-10 space-y-8">
                     <div className="space-y-2">
                       <h3 className="text-3xl font-black leading-tight text-white tracking-tighter">
                         {userType === 'parent' ? 'Find Expert Tutors' : 'Find Tuition Jobs'}
                       </h3>
-                      <p className="text-white/60 text-[11px] font-bold uppercase tracking-widest">
+                      <p className="text-white/80 text-[11px] font-bold uppercase tracking-widest">
                         Available in {userCity}
                       </p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10">
-                        <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1">Active Jobs</p>
-                        <p className="text-2xl font-black text-white leading-none">{allLeads.length}</p>
+                      <div className="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/20">
+                        <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-1">Active Jobs</p>
+                        <p className="text-2xl font-black text-white leading-none">
+                          {allLeads.filter(l => isCityMatch(l.City, userCity)).length}
+                        </p>
                       </div>
-                      <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl border border-white/10">
-                        <p className="text-[8px] font-black text-white/40 uppercase tracking-widest mb-1">Active Tutors</p>
-                        <p className="text-2xl font-black text-white leading-none">{tutors.filter(t => t.Status === 'Active').length}</p>
+                      <div className="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/20">
+                        <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-1">Active Tutors</p>
+                        <p className="text-2xl font-black text-white leading-none">
+                          {tutors.filter(t => isCityMatch(getCityValue(t), userCity) && t.Status === 'Active').length}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -1777,7 +1796,18 @@ export default function App() {
                   </button>
                 </div>
               </div>
-            )}            {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} setShowTutorForm={setShowTutorForm} />}        
+            )}
+
+            {activeTab === 'alerts' && (
+              <AlertsView 
+                city={userCity || 'All'} 
+                userGender={userGender} 
+                userClasses={userClasses} 
+                userType={userType} 
+                setShowTutorForm={setShowTutorForm} 
+              />
+            )}
+        
         {showAdminSettings && (
           <div className="fixed inset-0 z-[5000] bg-white flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
             {isAdminUser ? (
