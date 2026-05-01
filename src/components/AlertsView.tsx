@@ -33,8 +33,21 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
   const parentFormIframe = `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>`;
 
   const openChat = () => {
-    const chatButton = document.querySelector('n8n-chat')?.shadowRoot?.querySelector('.n8n-chat-button');
-    if (chatButton) (chatButton as HTMLElement).click();
+    const chatElement = document.querySelector('n8n-chat');
+    if (chatElement && chatElement.shadowRoot) {
+      const chatButton = chatElement.shadowRoot.querySelector('.n8n-chat-button') as HTMLElement;
+      if (chatButton) {
+        // Temporarily remove the display none to allow the click to register
+        const originalDisplay = chatButton.style.getPropertyValue('display');
+        chatButton.style.setProperty('display', 'block', 'important');
+        chatButton.click();
+        
+        // Hide it again after a tiny delay
+        setTimeout(() => {
+          chatButton.style.setProperty('display', 'none', 'important');
+        }, 100);
+      }
+    }
   };
 
   const playSound = (url: string, volume = 0.8) => {
