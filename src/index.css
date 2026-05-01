@@ -94,14 +94,28 @@
   @apply absolute top-3 right-3 w-9 h-9 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center text-white border-none cursor-pointer z-10 transition-transform active:scale-95;
 }
 
-/* Hide n8n floating chat bubble to prevent overlapping footer menu */
-n8n-chat::part(button) {
+/* Aggressively hide the n8n floating chat bubble */
+n8n-chat::part(button),
+.n8n-chat-button,
+#n8n-chat-button,
+[class*="n8n-chat-button"],
+n8n-chat > div:last-child {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
-/* Ensure chat window still displays correctly when triggered manually */
-n8n-chat::part(window) {
-  z-index: 9999;
+/* Ensure the chat window itself is NOT hidden when it eventually opens */
+n8n-chat::part(window),
+.n8n-chat-window,
+[class*="n8n-chat-window"] {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 
