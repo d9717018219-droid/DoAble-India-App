@@ -305,26 +305,10 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
         {activeTab === 'support' ? (
            <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
               <div className="bg-white dark:bg-slate-900 rounded-[40px] border-2 border-rose-100 dark:border-rose-900/30 overflow-hidden shadow-2xl shadow-rose-500/10 flex flex-col">
-                 <div className="bg-rose-500 p-6 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                       <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white">
-                          <MessageSquare size={20} />
-                       </div>
-                       <div>
-                          <h3 className="text-lg font-black text-white uppercase tracking-tight">Support Desk</h3>
-                          <p className="text-[10px] font-bold text-rose-100 uppercase tracking-widest">Active & Secure</p>
-                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                       <span className="text-[10px] font-black text-white uppercase tracking-widest">Online</span>
-                    </div>
-                 </div>
-                 
-                 <div className="p-2 bg-white">
+                 <div className="p-1 bg-white">
                     <div 
                       id="n8n-chat-container"
-                      className="w-full h-[500px] rounded-[24px] overflow-hidden bg-slate-50"
+                      className="w-full h-[600px] rounded-[32px] overflow-hidden bg-slate-50"
                     />
                  </div>
 
