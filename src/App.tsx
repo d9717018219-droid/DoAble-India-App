@@ -3,19 +3,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { MapPin, Loader2, Home as HomeIcon, FileText, User, Sparkles, GraduationCap, LogOut, Settings, Bell, Filter, X, Zap } from 'lucide-react';
-import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
-import { db, auth as firebaseAuth } from './firebase';
+import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check, Sun, Cloud, Moon } from 'lucide-react';
+import { collection, onSnapshot, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, getDocs } from 'firebase/firestore';
+import { db, auth, auth as firebaseAuth } from './firebase';
 import { handleFirestoreError, OperationType } from './lib/firestore-errors';
 import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
 import { motion, AnimatePresence } from 'motion/react';
-import { JobLead, TutorProfile, UserType } from './types';
+import { JobLead, TutorProfile, Alert, UserType } from './types';
 import { JobCard } from './components/JobCard';
 import { TutorCard } from './components/TutorCard';
 import AlertsView from './components/AlertsView';
 import AdminPanel from './components/AdminPanel';
 import { cn, getCityTheme } from './utils';
-import { CITIES_LIST, CLASSES_LIST, CLASS_SUBJECTS_DATA, CITY_TO_LOCATIONS_DATA } from './constants';
+import { 
+  CITIES_LIST, 
+  CLASSES_LIST, 
+  CLASS_SUBJECTS_DATA, 
+  CITY_TO_LOCATIONS_DATA 
+} from './constants';
 
 // ─── Typewriter hook ────────────────────────────────────────────────
 function useTypewriter(text: string, speed = 80) {
@@ -77,8 +82,7 @@ export default function App() {
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [themeMode] = useState<'light' | 'dark'>(localStorage.getItem('themeMode') as 'light' | 'dark' || 'light');
-  const [locationBypass, setLocationBypass] = useState<string | null>(null); // Feature 5: bypass filter
-  const [greeting] = useState(getDynamicGreeting());
+  const [locationBypass, setLocationBypass] = useState<string | null>(null);
   const mainScrollRef = useRef<HTMLDivElement>(null);
 
   // ─── Onboarding ──────────────────────────────────────────────────
@@ -101,7 +105,13 @@ export default function App() {
   // ─── Typewriter for city ─────────────────────────────────────────
   const typewriterCity = useTypewriter(userCity, 70);
 
-  // ─── Effects ─────────────────────────────────────────────────────
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   useEffect(() => {
     document.documentElement.classList.toggle('dark', themeMode === 'dark');
     localStorage.setItem('themeMode', themeMode);
@@ -149,7 +159,8 @@ export default function App() {
       } else {
         setLeads(leadsJson.data || []);
       }
-      // Sort tutors by Record_Updated_Time descending (Feature 1)
+      
+      // Tutor sorting: Record_Updated_Time DESC
       const rawTutors: TutorProfile[] = tutorsJson.data || [];
       rawTutors.sort((a, b) => {
         const ta = new Date((a as any)['Record_Updated_Time'] || (a as any)['Record Added'] || 0).getTime();
@@ -157,6 +168,7 @@ export default function App() {
         return tb - ta;
       });
       setTutors(rawTutors);
+
       setError(null);
     } catch (err: any) {
       setError(`Failed to load data: ${err.message || 'Unknown Error'}`);
@@ -165,9 +177,8 @@ export default function App() {
     }
   };
 
-  // ─── Role-based onboarding ────────────────────────────────────────
   const selectUserType = (type: UserType) => {
-    playNotificationTone(); // Feature 3: audio on role select
+    playNotificationTone();
     setEditUserType(type);
     setUserType(type);
     localStorage.setItem('userType', type);
@@ -196,7 +207,6 @@ export default function App() {
     else if (resolved === 'teacher') setActiveTab('jobs');
   };
 
-  // ─── Helper callbacks ─────────────────────────────────────────────
   const getSubjects = useCallback((t: TutorProfile) => {
     return (t['Preferred Subject(s)'] || '').split(';').join(',').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
   }, []);
@@ -217,7 +227,6 @@ export default function App() {
     return uClasses.some(c => lc.includes(c.toLowerCase()));
   }, []);
 
-  // ─── Derived data ─────────────────────────────────────────────────
   const allLeads = useMemo(() => {
     const combined = [...firestoreLeads, ...leads];
     const unique = new Map<string, JobLead>();
@@ -225,7 +234,6 @@ export default function App() {
     return Array.from(unique.values());
   }, [leads, firestoreLeads]);
 
-  // Feature 5a: location breakdown for jobs header
   const cityJobLocationBreakdown = useMemo(() => {
     const cityJobs = allLeads.filter(l => {
       const remark = (l['Internal Remark'] || '').trim().toLowerCase();
@@ -239,14 +247,13 @@ export default function App() {
     });
     return Array.from(counts.entries())
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 5); // top 5 locations
+      .slice(0, 5);
   }, [allLeads, cityFilter, isCityMatch]);
 
   const filteredJobs = useMemo(() => {
     return allLeads.filter(l => {
       const remark = (l['Internal Remark'] || '').trim().toLowerCase();
       if (remark !== 'searching') return false;
-      // Feature 5a: location bypass
       if (locationBypass) {
         return isCityMatch(l.City, cityFilter) && (l.Locations || '').toLowerCase().includes(locationBypass.toLowerCase());
       }
@@ -264,7 +271,6 @@ export default function App() {
     });
   }, [allLeads, cityFilter, searchQuery, userTutorLocations, userTutorSubjects, isCityMatch, isLocationMatch, locationBypass]);
 
-  // Feature 5b: fallback tutors (city-level) when strict filter yields zero
   const filteredTutors = useMemo(() => {
     const strictFilter = (t: TutorProfile) => {
       const tutorCity = getCityValue(t);
@@ -289,7 +295,6 @@ export default function App() {
     const strict = tutors.filter(strictFilter);
     if (strict.length > 0) return strict;
 
-    // Fallback: city-level tutors matching gender + class group only
     return tutors.filter(t => {
       const tutorCity = getCityValue(t);
       const fc = cityFilter.toLowerCase().trim();
@@ -323,7 +328,6 @@ export default function App() {
 
   const activeTutorsCount = useMemo(() => tutors.filter(t => isCityMatch(getCityValue(t), userCity)).length, [tutors, userCity, isCityMatch, getCityValue]);
 
-  // Subjects for currently selected classes (Feature 1: Parent flow subject step)
   const subjectsForSelectedClasses = useMemo(() => {
     const subjectSet = new Set<string>();
     editClasses.forEach(cls => {
@@ -337,13 +341,12 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans" ref={mainScrollRef}>
 
-      {/* ─── Onboarding Overlay ─────────────────────────────────────── */}
+      {/* Onboarding Overlay */}
       <AnimatePresence>
         {showOnboarding && (
           <div className="fixed inset-0 z-[10000] bg-white flex flex-col items-center justify-center p-6 sm:p-10 overflow-y-auto">
             <div className="w-full max-w-lg space-y-10">
 
-              {/* Step 0: Role selection */}
               {onboardingStep === 0 && (
                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center space-y-8">
                   <div className="flex flex-col items-center gap-6">
@@ -368,7 +371,6 @@ export default function App() {
                 </motion.div>
               )}
 
-              {/* Step 1: Name & Gender */}
               {onboardingStep === 1 && (
                 <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-8 rounded-[40px] shadow-2xl border border-slate-100 space-y-8">
                   <div className="flex items-center gap-4">
@@ -387,7 +389,6 @@ export default function App() {
                 </motion.div>
               )}
 
-              {/* Step 2: Classes */}
               {onboardingStep === 2 && (
                 <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-8 rounded-[40px] shadow-2xl border border-slate-100 space-y-8">
                   <div className="flex items-center gap-4">
@@ -401,7 +402,6 @@ export default function App() {
                       ))}
                     </div>
                     <button onClick={() => {
-                      // Feature 1: Parent sees subject step 2.5; Teacher skips straight to city
                       if ((editUserType || userType) === 'parent' && editClasses.length > 0) setOnboardingStep(25);
                       else setOnboardingStep(3);
                     }} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[10px] uppercase shadow-xl">Continue</button>
@@ -409,7 +409,6 @@ export default function App() {
                 </motion.div>
               )}
 
-              {/* Step 2.5: Subject selection (Parent only, after classes picked) */}
               {onboardingStep === 25 && (
                 <motion.div key="s25" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-8 rounded-[40px] shadow-2xl border border-slate-100 space-y-8">
                   <div className="flex items-center gap-4">
@@ -437,7 +436,6 @@ export default function App() {
                 </motion.div>
               )}
 
-              {/* Step 3: City */}
               {onboardingStep === 3 && (
                 <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-8 rounded-[40px] shadow-2xl border border-slate-100 space-y-8">
                   <div className="flex items-center gap-4">
@@ -459,7 +457,6 @@ export default function App() {
                 </motion.div>
               )}
 
-              {/* Step 4: Locations */}
               {onboardingStep === 4 && !isSelectingCityOnly && (
                 <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-8 rounded-[40px] shadow-2xl border border-slate-100 space-y-8">
                   <div className="flex items-center gap-4">
@@ -486,7 +483,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* ─── PWA Install Banner ─────────────────────────────────────── */}
+      {/* PWA Install Banner */}
       <AnimatePresence>
         {showInstallBanner && deferredPrompt && (
           <motion.div initial={{ y: -80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -80, opacity: 0 }} className="fixed top-0 left-0 right-0 z-[9999] bg-primary text-white px-4 py-3 flex items-center justify-between shadow-xl">
@@ -499,7 +496,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* ─── Filter / Switch City Drawer ────────────────────────────── */}
+      {/* Filter Drawer */}
       <AnimatePresence>
         {showFilterDrawer && (
           <div className="fixed inset-0 z-[9000] flex items-end justify-center">
@@ -520,33 +517,31 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* ─── Header ──────────────────────────────────────────────────── */}
       <header className={cn("p-[30px_20px] text-center border-b relative transition-all duration-500 overflow-hidden", userCity ? "text-white border-transparent" : "bg-white border-slate-50")} style={userCity ? { background: getCityTheme(userCity).grad } : {}}>
-        {/* Feature 4: Animated atmospheric background overlay */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.08) 100%)', animation: 'heroShift 8s ease-in-out infinite alternate' }} />
-        <style>{`
-          @keyframes heroShift {
-            0% { opacity: 0.4; transform: scale(1) translateX(0); }
-            100% { opacity: 1; transform: scale(1.05) translateX(3%); }
-          }
-          @keyframes typewriterBlink {
-            0%, 100% { border-color: rgba(255,255,255,0.8); }
-            50% { border-color: transparent; }
-          }
-        `}</style>
-        <div className="absolute right-6 top-1/2 -translate-y-1/2">
-          {currentUser && <button onClick={() => firebaseAuth.signOut()} className="text-white/70 hover:text-white"><LogOut size={20} /></button>}
+        {/* Weather Animations */}
+        {userCity && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+             <motion.div animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="absolute top-4 left-[10%]"><Sun size={40} strokeWidth={1} /></motion.div>
+             <motion.div animate={{ x: [0, 20, 0], y: [0, 10, 0] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }} className="absolute bottom-4 right-[15%]"><Cloud size={56} strokeWidth={1} /></motion.div>
+             <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute top-10 right-[25%]"><Moon size={28} strokeWidth={1} /></motion.div>
+          </div>
+        )}
+
+        <div className="absolute right-6 top-1/2 -translate-y-1/2 z-10">
+          {currentUser && <button onClick={() => firebaseAuth.signOut()} className="text-white/70 hover:text-white transition-colors"><LogOut size={20} /></button>}
         </div>
+        
         <h1 className="text-[32px] font-[900] tracking-tighter relative z-10">
-          {activeTab === 'home' && (userName ? `Welcome, ${userName}` : (userType === 'teacher' ? 'Welcome, Educator' : (userType === 'parent' ? 'Welcome, Parent' : 'DoAble India')))}
+          {activeTab === 'home' && (
+            <div className="flex flex-col items-center">
+               <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-80 mb-1 animate-pulse">{getGreeting()}</span>
+               <span>{userName ? `Welcome, ${userName}` : (userType === 'teacher' ? 'Welcome, Educator' : (userType === 'parent' ? 'Welcome, Parent' : 'DoAble India'))}</span>
+            </div>
+          )}
           {activeTab === 'jobs' && 'Jobs Portal'}
           {activeTab === 'tutors' && 'Expert Tutors'}
           {activeTab === 'alerts' && 'Broadcasts'}
         </h1>
-        {/* Feature 4: Dynamic greeting */}
-        {activeTab === 'home' && userName && (
-          <p className="text-white/80 text-[11px] font-bold uppercase tracking-widest mt-1 relative z-10">{greeting}</p>
-        )}
         <div className="flex items-center justify-center gap-3 mt-3 relative z-10">
           <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 max-w-[45%]">
             <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
@@ -558,45 +553,45 @@ export default function App() {
           </div>
         </div>
         <p className="text-[13px] font-bold uppercase tracking-widest mt-2 text-white/70 relative z-10">
-          {activeTab === 'home' && (userName ? 'PERFECT MATCHES FOR YOUR PROFILE' : 'Premium Teaching Portal')}
+          {activeTab === 'home' && (userName ? `PERFECT MATCHES FOR YOUR PROFILE` : 'Premium Teaching Portal')}
           {activeTab === 'jobs' && 'Active Tuition Openings'}
           {activeTab === 'tutors' && 'Professional Educators'}
         </p>
       </header>
 
-      {/* ─── Main Content ────────────────────────────────────────────── */}
       <main className="container mx-auto p-[10px] max-w-[1200px] pb-32">
-
-        {/* Home Tab */}
         {activeTab === 'home' && (
           <div className="space-y-10 py-8">
-            {/* Feature 4: Hero with typewriter + animated background */}
-            <div className="p-10 rounded-[48px] relative overflow-hidden shadow-2xl" style={{ background: getCityTheme(userCity).grad }}>
-              {/* Animated background layer */}
-              <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 20% 50%, rgba(255,255,255,0.12) 0%, transparent 60%)', animation: 'heroShift 10s ease-in-out infinite alternate' }} />
+            <div className="p-10 rounded-[48px] relative overflow-hidden shadow-2xl border border-primary/5" style={{ background: getCityTheme(userCity).grad }}>
+              {/* Weather Animations for Hero Card */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute -top-10 -right-10 text-white"><Sun size={120} strokeWidth={1} /></motion.div>
+                 <motion.div animate={{ x: [-20, 20, -20] }} transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }} className="absolute -bottom-10 left-20 text-white"><Cloud size={100} strokeWidth={1} /></motion.div>
+              </div>
+
               <div className="relative z-10 space-y-8">
-                <div className="space-y-2">
-                  <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tighter">
-                    Inspiring Success in<br/>
-                    {/* Feature 4: Typewriter effect on city name */}
-                    <span className="inline-block border-r-2 border-white/80 pr-1" style={{ animation: 'typewriterBlink 1s step-end infinite' }}>
-                      {typewriterCity}
-                    </span>
-                  </h3>
-                  <p className="text-white/80 text-[13px] font-bold leading-relaxed max-w-md">
-                    {userType === 'teacher'
-                      ? <>Your knowledge has the power to ignite minds. Discover elite opportunities in <span className="text-yellow-300 font-black">{userCity}</span>.</>
-                      : <>Your child deserves the best education. Find verified tutors in <span className="text-yellow-300 font-black">{userCity}</span>.</>}
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button onClick={() => { setIsSelectingCityOnly(true); setShowOnboarding(true); setOnboardingStep(3); }} className="bg-white text-slate-900 px-8 py-5 rounded-[28px] font-black text-[10px] uppercase flex items-center justify-center gap-2 shadow-lg active:scale-95">
-                    <MapPin size={18} className="text-primary" /> Change City
-                  </button>
-                  <button onClick={() => { setIsSelectingCityOnly(false); setShowOnboarding(true); setOnboardingStep(0); }} className="bg-primary text-white p-5 rounded-[28px] font-black text-[10px] uppercase flex items-center justify-center gap-2 shadow-lg active:scale-95">
-                    <Settings size={18} /> Update Preference
-                  </button>
-                </div>
+                 <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-2">
+                       <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white">{getGreeting()}</span>
+                    </div>
+                    <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tighter">
+                      Inspiring Success in<br/>
+                      <span className="inline-block border-r-2 border-white/80 pr-1" style={{ animation: 'typewriterBlink 1s step-end infinite' }}>
+                        {typewriterCity}
+                      </span>
+                    </h3>
+                    <p className="text-white/80 text-[13px] font-bold leading-relaxed max-w-md">
+                      {userType === 'teacher' ? <>Your knowledge has the power to ignite minds. Discover elite opportunities in <span className="text-secondary font-black">{userCity}</span>.</> : <>Your child's potential is limitless. We've curated the most inspiring mentors in <span className="text-secondary font-black">{userCity}</span>.</>}
+                    </p>
+                 </div>
+                 <div className="flex flex-col sm:flex-row gap-3">
+                    <button onClick={() => { setIsSelectingCityOnly(true); setShowOnboarding(true); setOnboardingStep(3); }} className="bg-white text-slate-900 px-8 py-5 rounded-[28px] font-black text-[10px] uppercase flex items-center gap-3 shadow-lg active:scale-95">
+                      <MapPin size={18} className="text-primary" /> Change City
+                    </button>
+                    <button onClick={() => { setShowOnboarding(true); setOnboardingStep(0); }} className="bg-primary text-white p-5 rounded-[28px] font-black text-[10px] uppercase flex items-center gap-2 shadow-lg active:scale-95">
+                      <Settings size={18} /> Update Preference
+                    </button>
+                 </div>
               </div>
             </div>
           </div>
@@ -608,7 +603,6 @@ export default function App() {
         {(activeTab === 'jobs' || activeTab === 'tutors') && (
           <div className="space-y-6">
 
-            {/* Jobs tab toolbar with Feature 5a: location breakdown */}
             {activeTab === 'jobs' && (
               <div className="sticky top-0 z-40 py-4 bg-slate-50/90 backdrop-blur-md space-y-3">
                 <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between">
@@ -622,7 +616,6 @@ export default function App() {
                     <button onClick={() => setShowFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary"><Filter size={14} strokeWidth={3} /></button>
                   </div>
                 </div>
-                {/* Feature 5a: Location breakdown sub-header */}
                 {cityJobLocationBreakdown.length > 0 && !locationBypass && (
                   <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                     {cityJobLocationBreakdown.map(([loc, count]) => (
@@ -635,7 +628,6 @@ export default function App() {
               </div>
             )}
 
-            {/* Feature 5b: fallback notice for tutors */}
             {activeTab === 'tutors' && isFallbackTutors && (
               <div className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-3 text-[11px] font-bold text-amber-700">
                 ⚠️ No exact matches found. Showing all available tutors in {cityFilter} matching your class group.
@@ -654,7 +646,6 @@ export default function App() {
         )}
       </main>
 
-      {/* ─── Bottom Navigation ────────────────────────────────────── */}
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[8000] w-[92%] max-w-[400px]">
         <div className="bg-slate-900/95 backdrop-blur-2xl rounded-[32px] p-2 flex items-center justify-between shadow-2xl border border-white/10 relative">
           <NavButton active={activeTab === 'home'} onClick={() => { setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={20} />} label="Home" />
@@ -674,13 +665,19 @@ export default function App() {
           )}
         </div>
       </nav>
+      <style>{`
+        @keyframes typewriterBlink {
+          0%, 100% { border-color: rgba(255,255,255,0.8); }
+          50% { border-color: transparent; }
+        }
+      `}</style>
     </div>
   );
 }
 
 function NavButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
   return (
-    <button onClick={onClick} className={cn("flex flex-col items-center gap-1 py-3 px-5 rounded-2xl transition-all duration-300", active ? "bg-white text-slate-900 scale-105 shadow-lg" : "text-white")}>
+    <button onClick={onClick} className={cn("flex flex-col items-center gap-1 py-3 px-5 rounded-2xl transition-all duration-300", active ? "bg-white text-slate-900 scale-105 shadow-lg" : "text-white/40 hover:text-white")}>
       {icon}<span className="text-[9px] font-black uppercase tracking-widest">{label}</span>
     </button>
   );
