@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check } from 'lucide-react';
+import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, Zap } from 'lucide-react';
 import { collection, onSnapshot, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, auth, auth as firebaseAuth } from './firebase';
 import { handleFirestoreError, OperationType } from './lib/firestore-errors';
@@ -107,7 +107,7 @@ export default function App() {
   }, []);
 
   const getCityValue = useCallback((t: TutorProfile) => {
-    return (t['Preferred City'] || 'Ghaziabad').trim();
+    return (t['Preferred City'] || 'Ghaziabad').trim().toLowerCase();
   }, []);
 
   const getGenderValue = useCallback((t: TutorProfile) => {
@@ -130,8 +130,9 @@ export default function App() {
 
   const isCityMatch = useCallback((leadCity: string | undefined, filterCity: string) => {
     if (!leadCity) return false;
-    if (filterCity === 'all') return true;
-    return leadCity.toLowerCase().trim() === filterCity.toLowerCase().trim();
+    const filterCityLower = filterCity.toLowerCase().trim();
+    if (filterCityLower === 'all') return true;
+    return leadCity.toLowerCase().trim() === filterCityLower;
   }, []);
 
   const isLocationMatch = useCallback((leadLocs: string | undefined, userLocs: string[]) => {
@@ -241,7 +242,10 @@ export default function App() {
 
   const filteredTutors = useMemo(() => {
     return tutors.filter(t => {
-      if (!isCityMatch(getCityValue(t), cityFilter)) return false;
+      // City filter - Fixed: normalize both sides and handle 'all'
+      const tutorCityLower = getCityValue(t);
+      const filterCityLower = cityFilter.toLowerCase().trim();
+      if (filterCityLower !== 'all' && tutorCityLower !== filterCityLower) return false;
 
       const searchLower = searchQuery.toLowerCase();
       if (searchQuery && !(
@@ -250,17 +254,26 @@ export default function App() {
         t['Preferred Subject(s)']?.toLowerCase().includes(searchLower)
       )) return false;
 
+      // Class and Subject filter - Fixed: proper matching logic
       const hasPrefs = userClasses.length > 0 || userTutorSubjects.length > 0;
       if (hasPrefs) {
+        // Filter by class
         if (userClasses.length > 0 && !isClassMatch(t['Preferred Class Group'], userClasses)) return false;
+        
+        // Filter by subject - Fixed: use normalized comparison
         if (userTutorSubjects.length > 0) {
-          const tSubjs = getSubjects(t);
-          if (!userTutorSubjects.some(s => tSubjs.some(ts => ts.includes(s.toLowerCase())))) return false;
+          const tSubjs = getSubjects(t); // Already lowercase
+          const userSubjsNormalized = userTutorSubjects.map(s => s.toLowerCase().trim());
+          // Check if any tutor subject matches any user subject preference
+          const hasMatchingSubject = userSubjsNormalized.some(us => 
+            tSubjs.some(ts => ts === us || ts.includes(us) || us.includes(ts))
+          );
+          if (!hasMatchingSubject) return false;
         }
       }
       return true;
     });
-  }, [tutors, cityFilter, searchQuery, userClasses, userTutorSubjects, isCityMatch, getCityValue, isClassMatch, getSubjects]);
+  }, [tutors, cityFilter, searchQuery, userClasses, userTutorSubjects, getCityValue, isClassMatch, getSubjects]);
 
   const activeLeadsCount = useMemo(() => {
     return allLeads.filter(l => isCityMatch(l.City, userCity) && (getLeadStatus(l) === 'New' || getLeadStatus(l) === 'Searching')).length;
@@ -312,10 +325,12 @@ export default function App() {
                     </div>
                   </div>
                   <div className="space-y-6">
-                    <input className="w-full bg-slate-50 p-5 rounded-2xl text-sm font-black shadow-inner outline-none" value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Full Name" />
+                    <input className="w-full bg-slate-50 p-5 rounded-2xl text-sm font-black shadow-inner outline-none" value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Your Name" />
                     <div className="grid grid-cols-2 gap-2">
                       {['Male', 'Female'].map(g => (
-                        <button key={g} onClick={() => setEditGender(g)} className={cn("p-5 rounded-2xl text-[10px] font-black uppercase tracking-widest", editGender === g ? "bg-slate-900 text-white shadow-xl" : "bg-slate-100 text-slate-400")}>{g}</button>
+                        <button key={g} onClick={() => setEditGender(g)} className={cn("p-5 rounded-2xl text-[10px] font-black uppercase tracking-widest", editGender === g ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400")}>
+                          {g}
+                        </button>
                       ))}
                     </div>
                     <button onClick={() => setOnboardingStep(2)} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[10px] uppercase shadow-xl">Next Step</button>
@@ -335,7 +350,9 @@ export default function App() {
                   <div className="space-y-6">
                     <div className="flex flex-wrap gap-2 max-h-[30vh] overflow-y-auto p-2 custom-scrollbar">
                        {CLASSES_LIST.map(c => (
-                         <button key={c} onClick={() => setEditClasses(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])} className={cn("px-4 py-3 rounded-xl text-[10px] font-black uppercase", editClasses.includes(c) ? "bg-primary text-white shadow-lg" : "bg-slate-100 text-slate-400")}>{c}</button>
+                         <button key={c} onClick={() => setEditClasses(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])} className={cn("px-4 py-3 rounded-xl text-[10px] font-black uppercase", editClasses.includes(c) ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>
+                           {c}
+                         </button>
                        ))}
                     </div>
                     <button onClick={() => setOnboardingStep(3)} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[10px] uppercase shadow-xl">Continue</button>
@@ -355,10 +372,12 @@ export default function App() {
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto p-2 custom-scrollbar">
                       {CITIES_LIST.map(city => (
-                        <button key={city} onClick={() => { setEditCity(city); if(isSelectingCityOnly) { completeOnboarding(); } }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase text-center min-h-[80px]", editCity === city ? "bg-slate-900 text-white shadow-2xl scale-105" : "bg-slate-100 text-slate-400")}>{city}</button>
+                        <button key={city} onClick={() => { setEditCity(city); if(isSelectingCityOnly) { completeOnboarding(); } }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase", editCity === city ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>
+                          {city}
+                        </button>
                       ))}
                     </div>
-                    {!isSelectingCityOnly && <button onClick={completeOnboarding} className="w-full bg-slate-900 text-white py-6 rounded-[32px] font-black text-[12px] uppercase tracking-[0.3em] shadow-2xl flex items-center justify-center gap-4">Initialize Portal <ArrowRight size={20} /></button>}
+                    {!isSelectingCityOnly && <button onClick={completeOnboarding} className="w-full bg-slate-900 text-white py-6 rounded-[32px] font-black text-[12px] uppercase tracking-[0.3em] shadow-xl">Complete Setup</button>}
                   </div>
                 </motion.div>
               )}
@@ -371,16 +390,20 @@ export default function App() {
       <AnimatePresence>
         {showFilterDrawer && (
           <div className="fixed inset-0 z-[9000] flex items-end justify-center">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilterDrawer(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilterDrawer(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
             <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-t-[48px] p-8 space-y-8 max-h-[85vh] overflow-y-auto">
                <div className="flex justify-between items-center">
                   <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase">Switch City</h3>
                   <button onClick={() => setShowFilterDrawer(false)} className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-400"><X size={20} /></button>
                </div>
                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  <button onClick={() => setCityFilter('all')} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase", cityFilter === 'all' ? "bg-slate-900 text-white shadow-xl" : "bg-slate-50 text-slate-400 dark:bg-slate-800")}>All India</button>
+                  <button onClick={() => setCityFilter('all')} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase", cityFilter === 'all' ? "bg-slate-900 text-white shadow-xl" : "bg-slate-100 text-slate-400")}>
+                    All Cities
+                  </button>
                   {CITIES_LIST.map(c => (
-                    <button key={c} onClick={() => { setCityFilter(c); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate", cityFilter === c ? "bg-slate-900 text-white shadow-xl" : "bg-slate-50 text-slate-400 dark:bg-slate-800")}>{c}</button>
+                    <button key={c} onClick={() => { setCityFilter(c); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate", cityFilter === c ? "bg-primary text-white shadow-xl" : "bg-slate-100 text-slate-400")}>
+                      {c}
+                    </button>
                   ))}
                </div>
             </motion.div>
@@ -423,14 +446,14 @@ export default function App() {
                  <div className="space-y-2">
                     <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tighter">Inspiring Success in<br/> {userCity}</h3>
                     <p className="text-white/80 text-[13px] font-bold leading-relaxed max-w-md">
-                      {userType === 'teacher' ? <>Your knowledge has the power to ignite minds. Discover elite opportunities in <span className="text-secondary">{userCity}</span>.</> : <>Your child's potential is limitless. We've curated the most inspiring mentors in <span className="text-secondary">{userCity}</span>.</>}
+                      {userType === 'teacher' ? <>Your knowledge has the power to ignite minds. Discover elite opportunities in <span className="text-secondary">{userCity}</span>.</> : <>Your child deserves the best education. Find verified tutors in <span className="text-secondary">{userCity}</span>.</>}
                     </p>
                  </div>
                  <div className="flex flex-col sm:flex-row gap-3">
-                    <button onClick={() => { setIsSelectingCityOnly(true); setShowOnboarding(true); setOnboardingStep(3); }} className="bg-white text-slate-900 px-8 py-5 rounded-[28px] font-black text-[10px] uppercase flex items-center gap-3">
+                    <button onClick={() => { setIsSelectingCityOnly(true); setShowOnboarding(true); setOnboardingStep(3); }} className="bg-white text-slate-900 px-8 py-5 rounded-[28px] font-black text-[10px] uppercase flex items-center justify-center gap-2 shadow-lg active:scale-95">
                       <MapPin size={18} className="text-primary" /> Change City
                     </button>
-                    <button onClick={() => { setShowOnboarding(true); setOnboardingStep(0); }} className="bg-primary text-white p-5 rounded-[28px] font-black text-[10px] uppercase flex items-center gap-2">
+                    <button onClick={() => { setShowOnboarding(true); setOnboardingStep(0); }} className="bg-primary text-white p-5 rounded-[28px] font-black text-[10px] uppercase flex items-center justify-center gap-2 shadow-lg active:scale-95">
                       <Settings size={18} /> Update Preference
                     </button>
                  </div>
@@ -449,7 +472,7 @@ export default function App() {
               <div className="sticky top-0 z-40 py-4 bg-slate-50/80 backdrop-blur-md">
                  <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 overflow-x-auto no-scrollbar">
                    {['New', 'Searching', 'Booking', 'Hired'].map((status) => (
-                     <button key={status} onClick={() => setStatusFilter(status as any)} className={cn("flex-1 min-w-[100px] flex items-center justify-center gap-2 py-3 rounded-[16px] text-[9px] font-black uppercase transition-all", statusFilter === status ? "bg-primary text-white shadow-lg" : "text-slate-400")}>
+                     <button key={status} onClick={() => setStatusFilter(status as any)} className={cn("flex-1 min-w-[100px] flex items-center justify-center gap-2 py-3 rounded-[16px] text-[9px] font-black uppercase", statusFilter === status ? "bg-primary text-white shadow-lg" : "text-slate-400")}>
                        {status}
                      </button>
                    ))}
@@ -487,7 +510,7 @@ export default function App() {
 
 function NavButton({ active, onClick, icon, label }: { active: boolean, onClick: () => void, icon: any, label: string }) {
   return (
-    <button onClick={onClick} className={cn("flex flex-col items-center gap-1 py-3 px-5 rounded-2xl transition-all duration-300", active ? "bg-white text-slate-900 scale-105 shadow-lg" : "text-white/40 hover:text-white")}>
+    <button onClick={onClick} className={cn("flex flex-col items-center gap-1 py-3 px-5 rounded-2xl transition-all duration-300", active ? "bg-white text-slate-900 scale-105 shadow-lg" : "text-white")}>
       {icon}<span className="text-[9px] font-black uppercase tracking-widest">{label}</span>
     </button>
   );
