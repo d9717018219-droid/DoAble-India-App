@@ -1,17 +1,48 @@
 {
   "name": "DoAble India",
   "short_name": "DoAble India",
-  "description": "Premium Tuition Jobs Portal",
+  "description": "Premium Tuition Jobs Portal - Find tutors and tuition jobs across India",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#ffffff",
   "theme_color": "#2563EB",
+  "scope": "/",
+  "categories": ["education", "productivity"],
   "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3233/3233483.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3233/3233483.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3233/3233483.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Find Jobs",
+      "short_name": "Jobs",
+      "description": "Browse active tuition jobs",
+      "url": "/?tab=jobs",
+      "icons": [{ "src": "https://cdn-icons-png.flaticon.com/512/3233/3233483.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Find Tutors",
+      "short_name": "Tutors",
+      "description": "Browse available tutors",
+      "url": "/?tab=tutors",
+      "icons": [{ "src": "https://cdn-icons-png.flaticon.com/512/3233/3233483.png", "sizes": "96x96" }]
     }
   ]
 }
