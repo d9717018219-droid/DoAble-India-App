@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Camera, MapPin, BookOpen, IndianRupee, Clock, Calendar, Phone, MessageSquare } from 'lucide-react';
+import { Camera, MapPin, BookOpen, IndianRupee, Clock, Calendar, Phone, MessageSquare, Share2 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { motion } from 'motion/react';
 import { JobLead } from '../types';
@@ -35,7 +35,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png', 1.0));
       if (!blob) return;
       const file = new File([blob], `Job_${job['Order ID']}.png`, { type: 'image/png' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({ files: [file], title: `Tuition Job: ${job['Order ID']}` });
       } else {
         const link = document.createElement('a');
@@ -70,6 +70,13 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
         className="p-[18px] text-center relative"
         style={{ background: theme.grad }}
       >
+        <button 
+          onClick={(e) => { e.stopPropagation(); captureAndShare(); }}
+          className="absolute top-3 right-3 p-2 bg-white/20 hover:bg-white/40 rounded-xl text-white transition-colors screenshot-btn active:scale-90"
+          title="Share as Image"
+        >
+          <Share2 size={18} strokeWidth={3} />
+        </button>
         <div className="text-[19px] font-[800] text-[#FFE66D] mb-[3px]">{genderEmoji} {job.Name || 'Student'}</div>
         <div className="text-[11px] font-[600] text-white opacity-95">🆔 Order ID: {job['Order ID']}</div>
       </div>
