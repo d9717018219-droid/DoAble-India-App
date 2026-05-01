@@ -272,8 +272,8 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
         <div className="bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-[22px] flex gap-1 border border-slate-200 dark:border-slate-800">
           {[
             { id: 'feed', label: 'Live Feed', icon: Bell, activeColor: 'bg-white dark:bg-slate-700' },
-            { id: 'setup', label: 'Settings', icon: Settings, activeColor: 'bg-white dark:bg-slate-700' },
-            { id: 'support', label: 'Support Desk', icon: MessageSquare, activeColor: 'bg-rose-500 !text-white' }
+            { id: 'support', label: 'Support Hub', icon: MessageSquare, activeColor: 'bg-rose-500 !text-white' },
+            { id: 'setup', label: 'Settings', icon: Settings, activeColor: 'bg-white dark:bg-slate-700' }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -294,45 +294,12 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
 
       <div className="px-6 space-y-4">
         {activeTab === 'support' ? (
-           <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <div className="bg-white dark:bg-slate-900 rounded-[40px] border-2 border-rose-100 dark:border-rose-900/30 overflow-hidden shadow-2xl shadow-rose-500/10 flex flex-col">
-                 <div className="p-1 bg-white">
-                    <div 
-                      id="n8n-chat-container"
-                      className="w-full h-[600px] rounded-[32px] overflow-hidden bg-slate-50"
-                    />
-                 </div>
-
-                 <div className="p-4 bg-rose-50 dark:bg-rose-950/20 text-center border-t border-rose-100 dark:border-rose-900/30">
-                    <p className="text-[9px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-[0.2em]">End-to-End Encrypted Support Session</p>
-                 </div>
-              </div>
-           </div>
-        ) : activeTab === 'setup' ? (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-6">
-            {/* Payment Section - At the top for visibility */}
-            <div className="px-2">
-              <a 
-                href="https://zohosecurepay.in/checkout/i9db4wt2-verz1l6gn6ogo/Make-a-secure-payment-now" 
-                target="_blank" 
-                rel="noreferrer"
-                className="w-full bg-[#e11d48] text-white p-6 rounded-[32px] flex items-center justify-between group active:scale-95 transition-all shadow-2xl shadow-rose-500/30 border-4 border-white dark:border-slate-800"
-              >
-                <div className="text-left">
-                  <span className="text-[10px] font-black uppercase tracking-widest opacity-80 block mb-1">Fee & Registration</span>
-                  <span className="text-xl font-black uppercase tracking-tight">Pay Now</span>
-                </div>
-                <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <CreditCard size={24} strokeWidth={3} />
-                </div>
-              </a>
-            </div>
-
             <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
                <div className="pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <div>
                     <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Support Hub</h4>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Direct Helpdesk</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Unified Helpdesk</p>
                   </div>
                   <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
                     <MessageSquare size={20} />
@@ -340,21 +307,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
                </div>
 
                <div className="space-y-3">
-                  {/* AI Support */}
-                  <button 
-                    onClick={() => setActiveTab('support')}
-                    className="w-full flex items-center gap-4 p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-primary/30 transition-all group"
-                  >
-                    <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                      <Zap size={20} className="text-amber-500" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight block">AI Support</span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">N8N Smart Assistant</span>
-                    </div>
-                    <ChevronRight size={16} className="text-slate-300" />
-                  </button>
-
                   {/* WhatsApp Support */}
                   <a 
                     href={`https://wa.me/919873965489?text=${encodeURIComponent(
@@ -373,35 +325,10 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
                     </div>
                     <div className="flex-1 text-left">
                       <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight block">WhatsApp Support</span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Live 9 AM - 6 PM</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">9 AM to 6 PM | Everyday</span>
                     </div>
                     <ChevronRight size={16} className="text-slate-300" />
                   </a>
-
-                  {/* Email Support */}
-                  <form 
-                    action="https://api.web3forms.com/submit" 
-                    method="POST"
-                    className="block"
-                  >
-                    <input type="hidden" name="access_key" value="c97fdc70-0539-4f84-a174-3325b4738234" />
-                    <input type="hidden" name="subject" value={`Support Request from ${city} - ${userType}`} />
-                    <input type="hidden" name="from_name" value="DoAble India App Support" />
-                    
-                    <button 
-                      type="submit"
-                      className="w-full flex items-center gap-4 p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-blue-500/30 transition-all group"
-                    >
-                      <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                        <Mail size={20} className="text-blue-500" />
-                      </div>
-                      <div className="flex-1 text-left">
-                        <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight block">Email Support</span>
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Web3Forms Integrated</span>
-                      </div>
-                      <ChevronRight size={16} className="text-slate-300" />
-                    </button>
-                  </form>
 
                   {/* Call Support */}
                   <a 
@@ -413,13 +340,54 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
                     </div>
                     <div className="flex-1 text-left">
                       <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight block">Call Support</span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Direct Line</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">9 AM to 6 PM | Everyday</span>
+                    </div>
+                    <ChevronRight size={16} className="text-slate-300" />
+                  </a>
+
+                  {/* Email Support */}
+                  <a 
+                    href={`mailto:info@doableindia.com?subject=${encodeURIComponent("Support Inquiry - DoAble India")}&body=${encodeURIComponent("Hello DoAble Team,\n\n")}`}
+                    className="w-full flex items-center gap-4 p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-blue-500/30 transition-all group"
+                  >
+                    <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                      <Mail size={20} className="text-blue-500" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight block">Email Support</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">info@doableindia.com</span>
                     </div>
                     <ChevronRight size={16} className="text-slate-300" />
                   </a>
                </div>
+            </div>
 
-               <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
+            {/* AI Assistant Card */}
+            <div className="bg-white dark:bg-slate-900 rounded-[40px] border-2 border-rose-100 dark:border-rose-900/30 overflow-hidden shadow-2xl shadow-rose-500/10 flex flex-col">
+               <div className="p-1 bg-white">
+                  <div 
+                    id="n8n-chat-container"
+                    className="w-full h-[600px] rounded-[32px] overflow-hidden bg-slate-50"
+                  />
+               </div>
+
+               <div className="p-4 bg-rose-50 dark:bg-rose-950/20 text-center border-t border-rose-100 dark:border-rose-900/30">
+                  <p className="text-[9px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-[0.2em]">AI Support Session Integrated</p>
+               </div>
+            </div>
+          </div>
+        ) : activeTab === 'setup' ? (
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-6">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+               <div className="pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Account Actions</h4>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Quick Management</p>
+                  </div>
+               </div>
+
+               <div className="space-y-4">
+                  {/* Documentation / Requirement Button - First */}
                   <button 
                     onClick={() => setShowFormModal(true)}
                     className="w-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white p-6 rounded-[24px] flex items-center justify-between group active:scale-95 transition-all shadow-xl"
@@ -434,6 +402,22 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
                       <ExternalLink size={20} strokeWidth={3} />
                     </div>
                   </button>
+
+                  {/* Pay Now Button - Second (Green) */}
+                  <a 
+                    href="https://zohosecurepay.in/checkout/i9db4wt2-verz1l6gn6ogo/Make-a-secure-payment-now" 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="w-full bg-[#059669] text-white p-6 rounded-[24px] flex items-center justify-between group active:scale-95 transition-all shadow-xl shadow-emerald-500/20"
+                  >
+                    <div className="text-left">
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-80 block mb-1">Fee & Registration</span>
+                      <span className="text-lg font-black uppercase tracking-tight">Pay Now</span>
+                    </div>
+                    <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <CreditCard size={20} strokeWidth={3} />
+                    </div>
+                  </a>
                </div>
             </div>
 

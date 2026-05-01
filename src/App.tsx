@@ -148,7 +148,7 @@ export default function App() {
       setLoading(true);
       const [leadsRes, tutorsRes] = await Promise.all([
         fetch('https://doabletutors.com/api/leads'),
-        fetch('https://doabletutors.com/api/tutors')
+        fetch('https://doableindia.com/api/tutors')
       ]);
       const [leadsJson, tutorsJson] = await Promise.all([leadsRes.json(), tutorsRes.json()]);
       if (leadsJson.status === 'success') {
@@ -160,11 +160,11 @@ export default function App() {
         setLeads(leadsJson.data || []);
       }
       
-      // Tutor sorting: Record_Updated_Time DESC
+      // Tutor sorting: 'Record Added' DESC
       const rawTutors: TutorProfile[] = tutorsJson.data || [];
       rawTutors.sort((a, b) => {
-        const ta = new Date((a as any)['Record_Updated_Time'] || (a as any)['Record Added'] || 0).getTime();
-        const tb = new Date((b as any)['Record_Updated_Time'] || (b as any)['Record Added'] || 0).getTime();
+        const ta = new Date((a as any)['Record Added'] || 0).getTime();
+        const tb = new Date((b as any)['Record Added'] || 0).getTime();
         return tb - ta;
       });
       setTutors(rawTutors);
@@ -534,8 +534,8 @@ export default function App() {
         <h1 className="text-[32px] font-[900] tracking-tighter relative z-10">
           {activeTab === 'home' && (
             <div className="flex flex-col items-center">
-               <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-80 mb-1 animate-pulse">{getGreeting()}</span>
                <span>{userName ? `Welcome, ${userName}` : (userType === 'teacher' ? 'Welcome, Educator' : (userType === 'parent' ? 'Welcome, Parent' : 'DoAble India'))}</span>
+               <span className="text-[10px] font-black uppercase tracking-[0.4em] opacity-80 mt-1 animate-pulse">{getGreeting()}</span>
             </div>
           )}
           {activeTab === 'jobs' && 'Jobs Portal'}
@@ -571,9 +571,6 @@ export default function App() {
 
               <div className="relative z-10 space-y-8">
                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 mb-2">
-                       <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white">{getGreeting()}</span>
-                    </div>
                     <h3 className="text-2xl sm:text-3xl font-black text-white tracking-tighter">
                       Inspiring Success in<br/>
                       <span className="inline-block border-r-2 border-white/80 pr-1" style={{ animation: 'typewriterBlink 1s step-end infinite' }}>
