@@ -15,7 +15,7 @@ interface AlertsViewProps {
 }
 
 const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, userType }) => {
-  const [activeTab, setActiveTab] = useState<'feed' | 'priority' | 'setup'>('feed');
+  const [activeTab, setActiveTab] = useState<'feed' | 'support' | 'setup'>('feed');
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTone, setSelectedTone] = useState('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
@@ -31,6 +31,11 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
 
   const tutorFormIframe = `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;"></iframe>`;
   const parentFormIframe = `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>`;
+
+  const openChat = () => {
+    const chatButton = document.querySelector('n8n-chat')?.shadowRoot?.querySelector('.n8n-chat-button');
+    if (chatButton) (chatButton as HTMLElement).click();
+  };
 
   const playSound = (url: string, volume = 0.8) => {
     if (!domAudioRef.current) return;
@@ -87,8 +92,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
     return matchesGender && matchesClass && matchesUserType;
   });
 
-  const priorityAlerts = allFilteredAlerts.filter(a => a.type === 'urgent');
-  const displayAlerts = activeTab === 'priority' ? priorityAlerts : allFilteredAlerts;
+  const displayAlerts = allFilteredAlerts;
 
   // Sound and Notification function
   const notifyUser = (alert: Alert) => {
@@ -247,9 +251,9 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
       <div className="px-6">
         <div className="bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-[22px] flex gap-1 border border-slate-200 dark:border-slate-800">
           {[
-            { id: 'feed', label: 'Live Feed', icon: Bell },
-            { id: 'priority', label: 'Priority', icon: Zap },
-            { id: 'setup', label: 'Settings', icon: Settings }
+            { id: 'feed', label: 'Live Feed', icon: Bell, activeColor: 'bg-white dark:bg-slate-700' },
+            { id: 'support', label: 'Support Desk', icon: MessageSquare, activeColor: 'bg-rose-500 !text-white' },
+            { id: 'setup', label: 'Settings', icon: Settings, activeColor: 'bg-white dark:bg-slate-700' }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -257,7 +261,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
               className={cn(
                 "flex-1 flex items-center justify-center gap-2 py-3 rounded-[16px] text-[10px] font-black uppercase tracking-widest transition-all",
                 activeTab === tab.id 
-                  ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm scale-[1.02]" 
+                  ? `${tab.activeColor} shadow-sm scale-[1.02] text-slate-900 dark:text-white` 
                   : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
               )}
             >
@@ -269,7 +273,27 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
       </div>
 
       <div className="px-6 space-y-4">
-        {activeTab === 'setup' ? (
+        {activeTab === 'support' ? (
+           <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <div className="bg-rose-50 dark:bg-rose-950/20 p-10 rounded-[40px] border border-rose-100 dark:border-rose-900/30 text-center space-y-8">
+                 <div className="w-24 h-24 bg-rose-500 text-white rounded-[40px] flex items-center justify-center mx-auto shadow-2xl shadow-rose-500/30">
+                    <MessageSquare size={48} />
+                 </div>
+                 <div className="space-y-3">
+                    <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Support Desk</h3>
+                    <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-[10px] max-w-[240px] mx-auto leading-relaxed">
+                       Our AI Assistant and Support Team are ready to assist you 24/7.
+                    </p>
+                 </div>
+                 <button 
+                    onClick={openChat}
+                    className="bg-rose-500 text-white px-10 py-5 rounded-[28px] font-black text-[12px] uppercase tracking-[0.2em] shadow-xl shadow-rose-500/20 active:scale-95 transition-transform"
+                 >
+                    Chat With Us
+                 </button>
+              </div>
+           </div>
+        ) : activeTab === 'setup' ? (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-6">
             <div className="bg-white dark:bg-slate-900 p-8 rounded-[32px] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-8">
                <div className="space-y-4">
@@ -335,46 +359,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
                       <ExternalLink size={20} strokeWidth={3} />
                     </div>
                   </button>
-               </div>
-
-               <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl flex items-center justify-center text-emerald-500">
-                      <Zap size={24} />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">System Access</h4>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Background Monitoring</p>
-                    </div>
-                  </div>
-                  
-                  {permission === 'granted' ? (
-                    <div className="bg-emerald-50 dark:bg-emerald-950/20 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-between">
-                       <div>
-                         <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest block">Status</span>
-                         <span className="text-sm font-black text-emerald-900 dark:text-emerald-400 uppercase tracking-tight">Access Granted</span>
-                       </div>
-                       <button 
-                         onClick={playTestSound}
-                         className="px-6 py-3 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20"
-                       >
-                         Test System
-                       </button>
-                    </div>
-                  ) : (
-                    <div className="bg-rose-50 dark:bg-rose-950/20 p-6 rounded-2xl border border-rose-100 dark:border-rose-900/30 flex items-center justify-between">
-                       <div>
-                         <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest block">Status</span>
-                         <span className="text-sm font-black text-rose-900 dark:text-rose-400 uppercase tracking-tight">Restricted</span>
-                       </div>
-                       <button 
-                         onClick={requestPermission}
-                         className="px-6 py-3 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20"
-                       >
-                         Enable Access
-                       </button>
-                    </div>
-                  )}
                </div>
             </div>
           </div>
@@ -468,9 +452,9 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
               <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
                 <div>
                   <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">
-                    {userType === 'teacher' ? 'Tutor Registration' : 'New Requirement'}
+                    {userType === 'teacher' ? 'Tutor Registration' : 'Requirement Details'}
                   </h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Powered by Zoho Forms</p>
+                  <p className="text-[10px] font-black text-primary uppercase tracking-widest">DoAble India Official Form</p>
                 </div>
                 <button 
                   onClick={() => setShowFormModal(false)}

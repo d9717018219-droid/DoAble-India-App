@@ -24,8 +24,26 @@ import {
   TIME_PERIODS_DATA, 
   DAY_GROUPS_DATA 
 } from './constants';
+import '@n8n/chat/style.css';
+import { createChat } from '@n8n/chat';
 
 export default function App() {
+  useEffect(() => {
+    createChat({
+      webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
+      initialMessages: ['Hi there! 👋 How can DoAble India help you today?'],
+      i18n: {
+        en: {
+          title: 'DoAble Support',
+          subtitle: 'Our AI is here to help',
+          footer: 'Powered by n8n',
+          getStarted: 'New Conversation',
+          inputPlaceholder: 'Type your message...',
+          closeButtonTooltip: 'Close',
+        },
+      },
+    });
+  }, []);
   const [leads, setLeads] = useState<JobLead[]>([]);
   const [firestoreLeads, setFirestoreLeads] = useState<JobLead[]>([]);
   const [tutors, setTutors] = useState<TutorProfile[]>([]);
