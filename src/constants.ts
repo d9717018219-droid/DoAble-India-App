@@ -40,23 +40,22 @@ export const CLASS_SUBJECTS_DATA: Record<string, string[]> = {
     "Abacus", "Vedic Maths", "Computer", "Cursive Writing", "Storytelling", "Art & Craft"
   ],
   "6th Std": [
-    "Maths", "Science (Physics, Chemistry, Biology)", "Social Science (SST)", "English",
-    "Hindi", "Sanskrit", "French", "German", "Spanish", "Computer/ICT", "Robotics"
+    "Maths", "Science", "Social Science (SST)", "English", "Hindi", "Sanskrit", 
+    "French", "German", "Spanish", "Computer/ICT", "Robotics"
   ],
   "7th Std": [
-    "Maths", "Science (Physics, Chemistry, Biology)", "Social Science (SST)", "English",
-    "Hindi", "Sanskrit", "French", "German", "Spanish", "Computer/ICT", "Robotics"
+    "Maths", "Science", "Social Science (SST)", "English", "Hindi", "Sanskrit", 
+    "French", "German", "Spanish", "Computer/ICT", "Robotics"
   ],
   "8th Std": [
-    "Maths", "Science (Physics, Chemistry, Biology)", "Social Science (SST)", "English",
-    "Hindi", "Sanskrit", "French", "German", "Spanish", "Computer/ICT", "Robotics"
+    "Maths", "Science", "Social Science (SST)", "English", "Hindi", "Sanskrit", 
+    "French", "German", "Spanish", "Computer/ICT", "Robotics"
   ],
   "9th Std": [
-    "Maths", "Science (Physics, Chemistry, Biology)", "Social Science (SST)", "English",
-    "Hindi", "Sanskrit", "French", "German", "Spanish", "Computer/ICT", "Robotics",
     "Maths (Standard/Basic)", "Physics", "Chemistry", "Biology", "History", "Civics",
-    "Geography", "Economics", "English (Language & Literature)", "Hindi (A/B)",
-    "Information Technology (IT)", "Artificial Intelligence (AI)"
+    "Geography", "Economics", "English (Language & Literature)", "Hindi (A/B)", 
+    "Sanskrit", "French", "German", "Spanish", "Information Technology (IT)", 
+    "Artificial Intelligence (AI)", "Robotics"
   ],
   "10th Std": [
     "Maths (Standard/Basic)", "Physics", "Chemistry", "Biology", "History", "Civics",
