@@ -19,59 +19,62 @@ export const CLASSES_LIST = [
 ];
 
 export const CLASS_SUBJECTS_DATA: Record<string, string[]> = {
-    '1st Std': [
-        "All Subjects (General)", "English", "Hindi", "Maths", "EVS", "Jolly Phonics", 
-        "Abacus", "Vedic Maths", "Computer", "Cursive Writing", "Storytelling", "Art & Craft"
-    ],
-    '2nd Std': [
-        "All Subjects (General)", "English", "Hindi", "Maths", "EVS", "Jolly Phonics", 
-        "Abacus", "Vedic Maths", "Computer", "Cursive Writing", "Storytelling", "Art & Craft"
-    ],
-    '3rd Std': [
-        "All Subjects (General)", "English", "Hindi", "Maths", "EVS", "Jolly Phonics", 
-        "Abacus", "Vedic Maths", "Computer", "Cursive Writing", "Storytelling", "Art & Craft"
-    ],
-    '4th Std': [
-        "All Subjects (General)", "English", "Hindi", "Maths", "EVS", "Jolly Phonics", 
-        "Abacus", "Vedic Maths", "Computer", "Cursive Writing", "Storytelling", "Art & Craft"
-    ],
-    '5th Std': [
-        "All Subjects (General)", "English", "Hindi", "Maths", "EVS", "Jolly Phonics", 
-        "Abacus", "Vedic Maths", "Computer", "Cursive Writing", "Storytelling", "Art & Craft"
-    ],
-    '6th Std': [
-        "Maths", "Science", "Social Science (SST)", "English", "Hindi", "Sanskrit", 
-        "French", "German", "Spanish", "Computer", "Robotics"
-    ],
-    '7th Std': [
-        "Maths", "Science", "Social Science (SST)", "English", "Hindi", "Sanskrit", 
-        "French", "German", "Spanish", "Computer", "Robotics"
-    ],
-    '8th Std': [
-        "Maths", "Science", "Social Science (SST)", "English", "Hindi", "Sanskrit", 
-        "French", "German", "Spanish", "Computer", "Robotics"
-    ],
-    '9th Std': [
-        "Maths", "Physics", "Chemistry", "Biology", "History", "Civics", "Geography", 
-        "Economics", "English", "Hindi", "Sanskrit", "French", "German", "Spanish", 
-        "Computer", "Robotics", "Artificial Intelligence (AI)"
-    ],
-    '10th Std': [
-        "Maths", "Physics", "Chemistry", "Biology", "History", "Civics", "Geography", 
-        "Economics", "English", "Hindi", "French", "German", "Computer", "Artificial Intelligence (AI)"
-    ],
-    '11th Std': [
-        "Physics", "Chemistry", "Maths", "Biology", "Biotechnology", "IP", "Accounts", 
-        "Business Studies", "Economics", "Applied Maths", "Entrepreneurship", "Psychology", 
-        "Sociology", "Political Science", "History", "Geography", "Home Science", "Legal Studies", 
-        "English", "Physical Education", "Fine Arts"
-    ],
-    '12th Std': [
-        "Physics", "Chemistry", "Maths", "Biology", "Biotechnology", "IP", "Accounts", 
-        "Business Studies", "Economics", "Applied Maths", "Entrepreneurship", "Psychology", 
-        "Sociology", "Political Science", "History", "Geography", "Home Science", "Legal Studies", 
-        "English", "Physical Education", "Fine Arts"
-    ]
+  "1st Std": [
+    "All Subjects (General)", "English", "Hindi", "Maths", "EVS", "Jolly Phonics",
+    "Abacus", "Vedic Maths", "Computer", "Cursive Writing", "Storytelling", "Art & Craft"
+  ],
+  "2nd Std": [
+    "All Subjects (General)", "English", "Hindi", "Maths", "EVS", "Jolly Phonics",
+    "Abacus", "Vedic Maths", "Computer", "Cursive Writing", "Storytelling", "Art & Craft"
+  ],
+  "3rd Std": [
+    "All Subjects (General)", "English", "Hindi", "Maths", "EVS", "Jolly Phonics",
+    "Abacus", "Vedic Maths", "Computer", "Cursive Writing", "Storytelling", "Art & Craft"
+  ],
+  "4th Std": [
+    "All Subjects (General)", "English", "Hindi", "Maths", "EVS", "Jolly Phonics",
+    "Abacus", "Vedic Maths", "Computer", "Cursive Writing", "Storytelling", "Art & Craft"
+  ],
+  "5th Std": [
+    "All Subjects (General)", "English", "Hindi", "Maths", "EVS", "Jolly Phonics",
+    "Abacus", "Vedic Maths", "Computer", "Cursive Writing", "Storytelling", "Art & Craft"
+  ],
+  "6th Std": [
+    "Maths", "Science (Physics, Chemistry, Biology)", "Social Science (SST)", "English",
+    "Hindi", "Sanskrit", "French", "German", "Spanish", "Computer/ICT", "Robotics"
+  ],
+  "7th Std": [
+    "Maths", "Science (Physics, Chemistry, Biology)", "Social Science (SST)", "English",
+    "Hindi", "Sanskrit", "French", "German", "Spanish", "Computer/ICT", "Robotics"
+  ],
+  "8th Std": [
+    "Maths", "Science (Physics, Chemistry, Biology)", "Social Science (SST)", "English",
+    "Hindi", "Sanskrit", "French", "German", "Spanish", "Computer/ICT", "Robotics"
+  ],
+  "9th Std": [
+    "Maths", "Science (Physics, Chemistry, Biology)", "Social Science (SST)", "English",
+    "Hindi", "Sanskrit", "French", "German", "Spanish", "Computer/ICT", "Robotics",
+    "Maths (Standard/Basic)", "Physics", "Chemistry", "Biology", "History", "Civics",
+    "Geography", "Economics", "English (Language & Literature)", "Hindi (A/B)",
+    "Information Technology (IT)", "Artificial Intelligence (AI)"
+  ],
+  "10th Std": [
+    "Maths (Standard/Basic)", "Physics", "Chemistry", "Biology", "History", "Civics",
+    "Geography", "Economics", "English (Language & Literature)", "Hindi (A/B)",
+    "French", "German", "Information Technology (IT)", "Artificial Intelligence (AI)"
+  ],
+  "11th Std": [
+    "Physics", "Chemistry", "Maths", "Biology", "Biotechnology", "IP", "Accounts",
+    "Business Studies", "Economics", "Applied Maths", "Entrepreneurship", "Psychology",
+    "Sociology", "Political Science", "History", "Geography", "Home Science", "Legal Studies",
+    "English Core", "English Elective", "Physical Education", "Fine Arts"
+  ],
+  "12th Std": [
+    "Physics", "Chemistry", "Maths", "Biology", "Biotechnology", "IP", "Accounts",
+    "Business Studies", "Economics", "Applied Maths", "Entrepreneurship", "Psychology",
+    "Sociology", "Political Science", "History", "Geography", "Home Science", "Legal Studies",
+    "English Core", "English Elective", "Physical Education", "Fine Arts"
+  ]
 };
 
 export const CITY_TO_LOCATIONS_DATA: Record<string, string[]> = {
