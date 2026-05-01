@@ -224,7 +224,8 @@ export default function App() {
         l['Order ID']?.toLowerCase().includes(searchLower)
       )) return false;
 
-      if (statusFilter !== 'All' && getLeadStatus(l) !== statusFilter) return false;
+      const effectiveStatusFilter = userType === 'teacher' ? 'Searching' : statusFilter;
+      if (effectiveStatusFilter !== 'All' && getLeadStatus(l) !== effectiveStatusFilter) return false;
 
       const hasPrefs = userTutorLocations.length > 0 || userTutorSubjects.length > 0;
       if (hasPrefs) {
@@ -444,7 +445,7 @@ export default function App() {
 
         {(activeTab === 'leads' || activeTab === 'tutors') && (
           <div className="space-y-6">
-            {activeTab === 'leads' && (
+            {activeTab === 'leads' && userType !== 'teacher' && (
               <div className="sticky top-0 z-40 py-4 bg-slate-50/80 backdrop-blur-md">
                  <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 overflow-x-auto no-scrollbar">
                    {['New', 'Searching', 'Booking', 'Hired'].map((status) => (
