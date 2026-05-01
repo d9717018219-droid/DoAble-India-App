@@ -1692,7 +1692,7 @@ export default function App() {
                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70">Sync With Local Demand</span>
                         </div>
-                        <h3 className="text-2xl sm:text-3xl font-black leading-tight text-white tracking-tighter break-words">Perfect Match for<br/> {userCity}</h3>
+                        <h3 className="text-2xl sm:text-3xl font-black leading-tight text-white tracking-tighter break-words">Inspiring Success in<br/> {userCity}</h3>
                         <p className="text-white/80 text-[13px] font-bold leading-relaxed max-w-md animate-in fade-in slide-in-from-left duration-1000 delay-300">
                           {userType === 'teacher' ? (
                             <>Your knowledge has the power to ignite minds. Discover elite opportunities in <span className="text-secondary">{userCity}</span> that value your expertise and passion. Shape the leaders of tomorrow, today.</>
@@ -1727,32 +1727,6 @@ export default function App() {
                      </div>
                   </div>
                   <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white/10 rounded-full blur-[80px]" />
-                </div>
-
-                {/* Role-Based Actions Corner */}
-                <div className="bg-slate-900 p-8 rounded-[48px] text-white space-y-6 shadow-2xl shadow-slate-900/40 relative overflow-hidden group border border-white/5 animate-in slide-in-from-bottom duration-700 delay-300">
-                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
-                    <GraduationCap size={120} />
-                  </div>
-                  <div className="space-y-2 relative z-10">
-                    <p className="text-primary text-[10px] font-black uppercase tracking-[0.4em]">{userType === 'teacher' ? 'Official Liaison' : 'Parent Priority'}</p>
-                    <h3 className="text-3xl font-black uppercase tracking-tighter">{userType === 'teacher' ? 'Tutor Corner' : 'Requirement'}</h3>
-                  </div>
-                  <div className="p-1 bg-white/5 rounded-[32px] border border-white/10 backdrop-blur-sm">
-                      <button 
-                        onClick={() => setShowTutorForm(true)}
-                        className="w-full bg-white text-slate-900 p-6 rounded-[28px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 shadow-2xl"
-                      >
-                        <span className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                          <Edit3 size={16} />
-                        </span>
-                        {userType === 'teacher' ? 'Tell details to city coordinator' : 'Update My Preferences'}
-                      </button>
-                  </div>
-                  <div className="flex items-center gap-3 justify-center opacity-40">
-                      <CheckCircle size={12} className="text-primary" />
-                      <p className="text-[8px] font-black uppercase tracking-widest leading-none">Update your profile on DoAble server</p>
-                  </div>
                 </div>
 
 
