@@ -1693,6 +1693,13 @@ export default function App() {
                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70">Sync With Local Demand</span>
                         </div>
                         <h3 className="text-2xl sm:text-3xl font-black leading-tight text-white tracking-tighter break-words">Perfect Match for<br/> {userCity}</h3>
+                        <p className="text-white/80 text-[13px] font-bold leading-relaxed max-w-md animate-in fade-in slide-in-from-left duration-1000 delay-300">
+                          {userType === 'teacher' ? (
+                            <>Your knowledge has the power to ignite minds. Discover elite opportunities in <span className="text-secondary">{userCity}</span> that value your expertise and passion. Shape the leaders of tomorrow, today.</>
+                          ) : (
+                            <>Your child's potential is limitless. We've curated the most inspiring mentors in <span className="text-secondary">{userCity}</span> to turn their dreams into reality. Because your child deserves nothing less than a champion.</>
+                          )}
+                        </p>
                      </div>
                      
                      <div className="flex flex-col sm:flex-row gap-3">
