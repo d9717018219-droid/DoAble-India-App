@@ -1007,7 +1007,7 @@ export default function App() {
                   {activeTab === 'leads' && (
                     <div className="sticky top-0 z-40 py-4 bg-slate-50/80 backdrop-blur-md -mx-[10px] px-[10px]">
                        <div className="bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-[22px] flex gap-1 border border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
-                         {['All', 'New', 'Searching', 'Booking', 'Hired', 'Not Converted'].map((status) => (
+                         {['New', 'Searching', 'Booking', 'Not Converted', 'Hired', 'All'].map((status) => (
                            <button
                              key={status}
                              onClick={() => setStatusFilter(status as any)}
@@ -1018,12 +1018,12 @@ export default function App() {
                                  : "text-slate-400 hover:text-slate-600"
                              )}
                            >
-                             {status === 'All' && <FileText size={12} />}
                              {status === 'New' && <Sparkles size={12} />}
                              {status === 'Searching' && <Search size={12} />}
                              {status === 'Booking' && <Check size={12} />}
-                             {status === 'Hired' && <CheckCircle size={12} />}
                              {status === 'Not Converted' && <X size={12} />}
+                             {status === 'Hired' && <CheckCircle size={12} />}
+                             {status === 'All' && <FileText size={12} />}
                              {status}
                            </button>
                          ))}
@@ -1084,12 +1084,14 @@ export default function App() {
             icon={<FileText size={20} strokeWidth={2.5} />} 
             label="Leads" 
           />
-          <NavButton 
-            active={activeTab === 'tutors'} 
-            onClick={() => { setActiveTab('tutors'); setShowTutorForm(false); window.scrollTo({top: 0, behavior: 'smooth'}); }} 
-            icon={<GraduationCap size={20} strokeWidth={2.5} />} 
-            label="Tutors" 
-          />
+          {userType !== 'teacher' && (
+            <NavButton 
+              active={activeTab === 'tutors'} 
+              onClick={() => { setActiveTab('tutors'); setShowTutorForm(false); window.scrollTo({top: 0, behavior: 'smooth'}); }} 
+              icon={<GraduationCap size={20} strokeWidth={2.5} />} 
+              label="Tutors" 
+            />
+          )}
           <NavButton 
             active={activeTab === 'alerts'} 
             onClick={() => { setActiveTab('alerts'); setShowTutorForm(false); window.scrollTo({top: 0, behavior: 'smooth'}); }} 
