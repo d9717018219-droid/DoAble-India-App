@@ -2,27 +2,49 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#2563EB" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="DoAble India" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="description" content="Premium Tuition Jobs Portal - Find tutors and tuition jobs across India" />
+
+    <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3233/3233483.png" />
+
+    <!-- Apple Touch Icons (required for iOS PWA install) -->
+    <link rel="apple-touch-icon" sizes="192x192" href="https://cdn-icons-png.flaticon.com/512/3233/3233483.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="https://cdn-icons-png.flaticon.com/512/3233/3233483.png" />
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3233/3233483.png" />
+
     <title>DoAble India</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script>
+      // PWA: Service Worker Registration
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('SW Registered'))
-            .catch(err => console.log('SW Error', err));
+            .then(reg => {
+              console.log('[SW] Registered:', reg.scope);
+              // Check for updates
+              reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                if (newWorker) {
+                  newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                      console.log('[SW] New version available');
+                    }
+                  });
+                }
+              });
+            })
+            .catch(err => console.log('[SW] Registration failed:', err));
         });
       }
     </script>
   </body>
 </html>
-
