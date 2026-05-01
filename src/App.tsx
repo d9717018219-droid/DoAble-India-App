@@ -561,6 +561,38 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* City Filter Drawer */}
+      <AnimatePresence>
+        {showFilterDrawer && (
+          <div className="fixed inset-0 z-[9000] flex items-end justify-center">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilterDrawer(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-t-[48px] p-8 space-y-8 max-h-[85vh] overflow-y-auto">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase">Switch City</h3>
+                <button onClick={() => setShowFilterDrawer(false)} className="p-4 bg-slate-100 rounded-2xl text-slate-400"><X size={20} /></button>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <button onClick={() => { setCityFilter('all'); setLocationBypass(null); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase", cityFilter === 'all' ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400")}>All Cities</button>
+                {CITIES_LIST.map(c => (
+                  <button key={c} onClick={() => { setCityFilter(c); setLocationBypass(null); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate", cityFilter === c ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{c}</button>
+                ))}
+              </div>
+              {isAdminUser && (
+                <div className="pt-4 flex flex-col items-center gap-4 border-t border-slate-100 dark:border-slate-800">
+                  <button 
+                    onClick={() => { setActiveTab('admin'); setShowFilterDrawer(false); }}
+                    className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 px-4 py-3 rounded-xl group hover:bg-primary/5 transition-all w-full justify-center"
+                  >
+                    <Settings size={16} className="text-slate-400 group-hover:text-primary transition-colors" />
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-primary transition-colors">System Setting Only for Admin Use</span>
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* PWA Install Banner */}
       <AnimatePresence>
         {showInstallBanner && deferredPrompt && (
