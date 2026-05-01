@@ -7,7 +7,7 @@ import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User, Sparkles, Bo
 import { collection, onSnapshot, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, auth, auth as firebaseAuth } from './firebase';
 import { handleFirestoreError, OperationType } from './lib/firestore-errors';
-import { User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
+import { User as FirebaseUser, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { motion, AnimatePresence } from 'motion/react';
 import { JobLead, TutorProfile, Alert, UserType } from './types';
 import { JobCard } from './components/JobCard';
@@ -130,9 +130,26 @@ export default function App() {
   }, [themeMode]);
 
   useEffect(() => {
+    const unsubAuth = onAuthStateChanged(firebaseAuth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsubAuth();
+  }, []);
+
+  useEffect(() => {
     if (currentUser?.email === 'd9717018219@gmail.com') setIsAdminUser(true);
     else setIsAdminUser(false);
   }, [currentUser]);
+
+  const handleSignIn = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(firebaseAuth, provider);
+    } catch (err: any) {
+      console.error("Sign in error:", err);
+      setError("Login failed: " + err.message);
+    }
+  };
 
   // PWA install prompt capture
   useEffect(() => {
@@ -799,7 +816,18 @@ export default function App() {
           </div>
         )}
 
-        {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} isAdminUser={isAdminUser} onAdminClick={() => setActiveTab('admin')} />}
+        {activeTab === 'alerts' && (
+          <AlertsView 
+            city={userCity || 'All'} 
+            userGender={userGender} 
+            userClasses={userClasses} 
+            userType={userType} 
+            isAdminUser={isAdminUser} 
+            onAdminClick={() => setActiveTab('admin')} 
+            currentUser={currentUser}
+            handleSignIn={handleSignIn}
+          />
+        )}
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}
 
         {(activeTab === 'jobs' || activeTab === 'tutors') && (

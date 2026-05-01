@@ -17,9 +17,11 @@ interface AlertsViewProps {
   userType?: UserType | null;
   isAdminUser?: boolean;
   onAdminClick?: () => void;
+  currentUser?: any;
+  handleSignIn?: () => void;
 }
 
-const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, userType, isAdminUser, onAdminClick }) => {
+const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, userType, isAdminUser, onAdminClick, currentUser, handleSignIn }) => {
   const [activeTab, setActiveTab] = useState<'feed' | 'support' | 'setup'>('feed');
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -435,6 +437,24 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
                           <Settings size={20} strokeWidth={3} />
                         </div>
                       </button>
+                    </div>
+                  )}
+
+                  {!currentUser && handleSignIn && (
+                    <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
+                       <button 
+                         onClick={handleSignIn}
+                         className="w-full bg-slate-900 text-white p-6 rounded-[24px] flex items-center justify-between group active:scale-95 transition-all shadow-xl"
+                       >
+                         <div className="text-left">
+                           <span className="text-[10px] font-black uppercase tracking-widest opacity-70 block">Administrator Auth</span>
+                           <span className="text-lg font-black uppercase tracking-tight">Sign in for Admin</span>
+                         </div>
+                         <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-slate-900 transition-all">
+                           <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
+                         </div>
+                       </button>
+                       <p className="text-[9px] font-bold text-slate-400 text-center mt-3 uppercase tracking-widest">Only authorized owners can access system settings</p>
                     </div>
                   )}
                </div>
