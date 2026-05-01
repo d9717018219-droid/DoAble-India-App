@@ -43,6 +43,28 @@ export default function App() {
         },
       },
     });
+
+    // Forcefully hide the floating chat button via JS since CSS might fail on Shadow DOM
+    const hideChatButton = () => {
+      const n8nChat = document.querySelector('n8n-chat');
+      if (n8nChat && n8nChat.shadowRoot) {
+        const button = n8nChat.shadowRoot.querySelector('.n8n-chat-button');
+        if (button) {
+          (button as HTMLElement).style.setProperty('display', 'none', 'important');
+          (button as HTMLElement).style.setProperty('opacity', '0', 'important');
+          (button as HTMLElement).style.setProperty('pointer-events', 'none', 'important');
+        }
+      }
+    };
+
+    // Run initially and set an interval to catch it when it renders
+    hideChatButton();
+    const intervalId = setInterval(hideChatButton, 500);
+    
+    // Stop checking after 10 seconds (assuming it renders by then)
+    setTimeout(() => clearInterval(intervalId), 10000);
+
+    return () => clearInterval(intervalId);
   }, []);
   const [leads, setLeads] = useState<JobLead[]>([]);
   const [firestoreLeads, setFirestoreLeads] = useState<JobLead[]>([]);
