@@ -749,11 +749,11 @@ export default function App() {
         </h1>
         <div className="flex items-center justify-center gap-3 mt-3 relative z-10">
           <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 max-w-[45%]">
-            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-            <span className="text-[10px] font-black uppercase text-white truncate">{activeLeadsCount} Jobs in {userCity}</span>
+            <span className="text-xs">💼</span>
+            <span className="text-[10px] font-black uppercase text-white truncate">{activeLeadsCount} Jobs</span>
           </div>
           <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 max-w-[45%]">
-            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
+            <span className="text-xs">🎓</span>
             <span className="text-[10px] font-black uppercase text-white truncate">{activeTutorsCount} Tutors</span>
           </div>
         </div>
