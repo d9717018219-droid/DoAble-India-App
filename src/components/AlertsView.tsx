@@ -7,6 +7,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, Play, Volume2, Settings, X, MessageSquare } from 'lucide-react';
 import { cn, getCityTheme } from '../utils';
 
+import { createChat } from '@n8n/chat';
+import '@n8n/chat/style.css';
+
 interface AlertsViewProps {
   city: string;
   userGender?: string | null;
@@ -29,9 +32,39 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
 
   const celestialTone = { name: 'Celestial Goal', url: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3' };
 
-  const chatIframe = `<iframe src="https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat" style="width:100%;height:600px;border:none;border-radius:24px;" allow="microphone; camera"></iframe>`;
   const tutorFormIframe = `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;"></iframe>`;
   const parentFormIframe = `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>`;
+
+  // Initialize Chat when Support tab is active
+  useEffect(() => {
+    if (activeTab === 'support') {
+      const initChat = () => {
+        const container = document.getElementById('n8n-chat-container');
+        if (container && container.innerHTML === '') {
+          createChat({
+            target: '#n8n-chat-container',
+            mode: 'fullscreen',
+            webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
+            initialMessages: ['Hi there! 👋 How can DoAble India help you today?'],
+            i18n: {
+              en: {
+                title: 'DoAble Support',
+                subtitle: 'AI Assistant',
+                footer: 'Support Desk',
+                getStarted: 'Start Chatting',
+                inputPlaceholder: 'Type your query here...',
+                closeButtonTooltip: 'Close',
+              },
+            },
+          });
+        }
+      };
+      
+      // Small delay to ensure DOM is ready
+      const timeoutId = setTimeout(initChat, 100);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [activeTab]);
 
   const playSound = (url: string, volume = 0.8) => {
     if (!domAudioRef.current) return;
@@ -290,8 +323,8 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
                  
                  <div className="p-2 bg-white">
                     <div 
-                      className="w-full rounded-[24px] overflow-hidden bg-slate-50"
-                      dangerouslySetInnerHTML={{ __html: chatIframe }} 
+                      id="n8n-chat-container"
+                      className="w-full h-[500px] rounded-[24px] overflow-hidden bg-slate-50"
                     />
                  </div>
 

@@ -94,25 +94,16 @@
   @apply absolute top-3 right-3 w-9 h-9 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center text-white border-none cursor-pointer z-10 transition-transform active:scale-95;
 }
 
-/* Fail-safe: Hide the entire n8n-chat widget host by default */
-n8n-chat {
-  position: fixed !important;
-  bottom: 20px !important;
-  right: 20px !important;
-  z-index: 9999 !important;
-  transform: scale(0) !important;
-  transform-origin: bottom right !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+/* Ensure embedded n8n chat takes full space of its container */
+#n8n-chat-container .n8n-chat-window {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  right: auto !important;
+  bottom: auto !important;
+  box-shadow: none !important;
 }
 
-/* Only show it when we explicitly add the 'is-visible' class via JS */
-n8n-chat.chat-active {
-  transform: scale(1) !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-}
 
 
 
