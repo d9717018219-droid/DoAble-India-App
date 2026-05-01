@@ -281,8 +281,8 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
         <div className="bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-[22px] flex gap-1 border border-slate-200 dark:border-slate-800">
           {[
             { id: 'feed', label: 'Live Feed', icon: Bell, activeColor: 'bg-white dark:bg-slate-700' },
-            { id: 'support', label: 'Support Desk', icon: MessageSquare, activeColor: 'bg-rose-500 !text-white' },
-            { id: 'setup', label: 'Settings', icon: Settings, activeColor: 'bg-white dark:bg-slate-700' }
+            { id: 'setup', label: 'Settings', icon: Settings, activeColor: 'bg-white dark:bg-slate-700' },
+            { id: 'support', label: 'Support Desk', icon: MessageSquare, activeColor: 'bg-rose-500 !text-white' }
           ].map((tab) => (
             <button
               key={tab.id}
