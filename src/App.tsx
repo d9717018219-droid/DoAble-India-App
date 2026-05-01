@@ -536,6 +536,17 @@ export default function App() {
                   <button key={c} onClick={() => { setCityFilter(c); setLocationBypass(null); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate", cityFilter === c ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{c}</button>
                 ))}
               </div>
+              {isAdminUser && (
+                <div className="pt-4 flex flex-col items-center gap-4 border-t border-slate-100 dark:border-slate-800">
+                  <button 
+                    onClick={() => { setActiveTab('admin'); setShowFilterDrawer(false); }}
+                    className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 px-4 py-3 rounded-xl group hover:bg-primary/5 transition-all w-full justify-center"
+                  >
+                    <Settings size={16} className="text-slate-400 group-hover:text-primary transition-colors" />
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-primary transition-colors">System Setting Only for Admin Use</span>
+                  </button>
+                </div>
+              )}
             </motion.div>
           </div>
         )}
@@ -704,7 +715,10 @@ export default function App() {
           )}
           <NavButton active={activeTab === 'alerts'} onClick={() => { setActiveTab('alerts'); window.scrollTo(0,0); }} icon={<Bell size={20} />} label="Alerts" />
           {isAdminUser && (
-            <button className="absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900">
+            <button 
+              onClick={() => setActiveTab('admin')}
+              className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}
+            >
               <Settings size={20} />
             </button>
           )}
