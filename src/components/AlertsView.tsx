@@ -4,7 +4,7 @@ import { db } from '../firebase';
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 import { Alert, UserType } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, Play, Volume2, Settings, X } from 'lucide-react';
+import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, Play, Volume2, Settings, X, MessageSquare } from 'lucide-react';
 import { cn, getCityTheme } from '../utils';
 
 interface AlertsViewProps {
@@ -20,6 +20,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
   const [loading, setLoading] = useState(true);
   const [selectedTone, setSelectedTone] = useState('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
+  const [showFormModal, setShowFormModal] = useState(false);
   const domAudioRef = React.useRef<HTMLAudioElement | null>(null);
 
   const [permission, setPermission] = useState<NotificationPermission>(
@@ -27,6 +28,9 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
   );
 
   const celestialTone = { name: 'Celestial Goal', url: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3' };
+
+  const tutorFormIframe = `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;"></iframe>`;
+  const parentFormIframe = `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>`;
 
   const playSound = (url: string, volume = 0.8) => {
     if (!domAudioRef.current) return;
@@ -306,6 +310,35 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
 
                <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                      {userType === 'teacher' ? <Settings size={24} /> : <MessageSquare size={24} />}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                        {userType === 'teacher' ? 'Professional Profile' : 'Student Requirement'}
+                      </h4>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Integration Center</p>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={() => setShowFormModal(true)}
+                    className="w-full bg-primary text-white p-6 rounded-[24px] flex items-center justify-between group active:scale-95 transition-all shadow-xl shadow-primary/20"
+                  >
+                    <div className="text-left">
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-70 block">Available Action</span>
+                      <span className="text-lg font-black uppercase tracking-tight">
+                        {userType === 'teacher' ? 'Create Tutor Profile' : 'Share Your Requirement'}
+                      </span>
+                    </div>
+                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform">
+                      <ExternalLink size={20} strokeWidth={3} />
+                    </div>
+                  </button>
+               </div>
+
+               <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl flex items-center justify-center text-emerald-500">
                       <Zap size={24} />
                     </div>
@@ -414,6 +447,54 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
           </AnimatePresence>
         )}
       </div>
+
+      {/* Form Modal */}
+      <AnimatePresence>
+        {showFormModal && (
+          <div className="fixed inset-0 z-[6000] flex items-center justify-center p-4 sm:p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFormModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            >
+              <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                    {userType === 'teacher' ? 'Tutor Registration' : 'New Requirement'}
+                  </h3>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Powered by Zoho Forms</p>
+                </div>
+                <button 
+                  onClick={() => setShowFormModal(false)}
+                  className="p-3 bg-white dark:bg-slate-800 rounded-2xl text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors shadow-sm"
+                >
+                  <X size={20} strokeWidth={3} />
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-2 bg-white">
+                <div 
+                  dangerouslySetInnerHTML={{ 
+                    __html: userType === 'teacher' ? tutorFormIframe : parentFormIframe 
+                  }} 
+                />
+              </div>
+
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 text-center">
+                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Secure connection established with doableindia.com</p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
