@@ -250,6 +250,19 @@ export default function App() {
       .slice(0, 5);
   }, [allLeads, cityFilter, isCityMatch]);
 
+  const cityTutorLocationBreakdown = useMemo(() => {
+    const cityTutors = tutors.filter(t => isCityMatch(getCityValue(t), cityFilter));
+    const counts = new Map<string, number>();
+    cityTutors.forEach(t => {
+      const locs = (t['Preferred Location(s)'] || '').split(',').map(s => s.trim()).filter(Boolean);
+      const primary = locs[0] || getCityValue(t) || '';
+      if (primary) counts.set(primary, (counts.get(primary) || 0) + 1);
+    });
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+  }, [tutors, cityFilter, isCityMatch, getCityValue]);
+
   const filteredJobs = useMemo(() => {
     return allLeads.filter(l => {
       const remark = (l['Internal Remark'] || '').trim().toLowerCase();
@@ -276,6 +289,11 @@ export default function App() {
       const tutorCity = getCityValue(t);
       const fc = cityFilter.toLowerCase().trim();
       if (fc !== 'all' && tutorCity !== fc) return false;
+
+      if (locationBypass) {
+        return (t['Preferred Location(s)'] || '').toLowerCase().includes(locationBypass.toLowerCase());
+      }
+
       if (searchQuery) {
         const sl = searchQuery.toLowerCase();
         if (!( t.Name?.toLowerCase().includes(sl) || t['Tutor ID']?.toString().includes(sl) || t['Preferred Subject(s)']?.toLowerCase().includes(sl))) return false;
@@ -299,16 +317,22 @@ export default function App() {
       const tutorCity = getCityValue(t);
       const fc = cityFilter.toLowerCase().trim();
       if (fc !== 'all' && tutorCity !== fc) return false;
+      if (locationBypass) {
+        return (t['Preferred Location(s)'] || '').toLowerCase().includes(locationBypass.toLowerCase());
+      }
       if (userClasses.length > 0 && !isClassMatch(t['Preferred Class Group'], userClasses)) return false;
       return true;
     });
-  }, [tutors, cityFilter, searchQuery, userClasses, userTutorSubjects, getCityValue, isClassMatch, getSubjects]);
+  }, [tutors, cityFilter, searchQuery, userClasses, userTutorSubjects, getCityValue, isClassMatch, getSubjects, locationBypass]);
 
   const isFallbackTutors = useMemo(() => {
     const strictCount = tutors.filter(t => {
       const tutorCity = getCityValue(t);
       const fc = cityFilter.toLowerCase().trim();
       if (fc !== 'all' && tutorCity !== fc) return false;
+      if (locationBypass) {
+        return (t['Preferred Location(s)'] || '').toLowerCase().includes(locationBypass.toLowerCase());
+      }
       const hasPrefs = userClasses.length > 0 || userTutorSubjects.length > 0;
       if (!hasPrefs) return true;
       if (userClasses.length > 0 && !isClassMatch(t['Preferred Class Group'], userClasses)) return false;
@@ -320,7 +344,7 @@ export default function App() {
       return true;
     }).length;
     return strictCount === 0 && filteredTutors.length > 0;
-  }, [tutors, cityFilter, userClasses, userTutorSubjects, getCityValue, isClassMatch, getSubjects, filteredTutors]);
+  }, [tutors, cityFilter, userClasses, userTutorSubjects, getCityValue, isClassMatch, getSubjects, filteredTutors, locationBypass]);
 
   const activeLeadsCount = useMemo(() => {
     return allLeads.filter(l => isCityMatch(l.City, userCity) && (l['Internal Remark'] || '').trim().toLowerCase() === 'searching').length;
@@ -625,9 +649,33 @@ export default function App() {
               </div>
             )}
 
-            {activeTab === 'tutors' && isFallbackTutors && (
-              <div className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-3 text-[11px] font-bold text-amber-700">
-                ⚠️ No exact matches found. Showing all available tutors in {cityFilter} matching your class group.
+            {activeTab === 'tutors' && (
+              <div className="sticky top-0 z-40 py-4 bg-slate-50/90 backdrop-blur-md space-y-3">
+                <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between">
+                  <span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500">
+                    {locationBypass ? `📍 ${locationBypass}` : 'Expert Tutors'}
+                  </span>
+                  <div className="flex gap-2">
+                    {locationBypass && (
+                      <button onClick={() => setLocationBypass(null)} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear Filter</button>
+                    )}
+                    <button onClick={() => setShowFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary"><Filter size={14} strokeWidth={3} /></button>
+                  </div>
+                </div>
+                {cityTutorLocationBreakdown.length > 0 && !locationBypass && (
+                  <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                    {cityTutorLocationBreakdown.map(([loc, count]) => (
+                      <button key={loc} onClick={() => setLocationBypass(loc)} className="flex-shrink-0 bg-white border border-primary/20 text-primary px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap shadow-sm hover:bg-primary hover:text-white transition-colors">
+                        {loc} ({count})
+                      </button>
+                    ))}
+                  </div>
+                )}
+                {isFallbackTutors && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-3 text-[11px] font-bold text-amber-700">
+                    ⚠️ No exact matches found. Showing all available tutors in {cityFilter} matching your class group.
+                  </div>
+                )}
               </div>
             )}
 
@@ -647,11 +695,11 @@ export default function App() {
         <div className="bg-slate-900/95 backdrop-blur-2xl rounded-[32px] p-2 flex items-center justify-between shadow-2xl border border-white/10 relative">
           <NavButton active={activeTab === 'home'} onClick={() => { setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={20} />} label="Home" />
           {userType === 'teacher' && <NavButton active={activeTab === 'jobs'} onClick={() => { setActiveTab('jobs'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" />}
-          {userType === 'parent' && <NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />}
+          {userType === 'parent' && <NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />}
           {!userType && (
             <>
               <NavButton active={activeTab === 'jobs'} onClick={() => { setActiveTab('jobs'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" />
-              <NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />
+              <NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />
             </>
           )}
           <NavButton active={activeTab === 'alerts'} onClick={() => { setActiveTab('alerts'); window.scrollTo(0,0); }} icon={<Bell size={20} />} label="Alerts" />
