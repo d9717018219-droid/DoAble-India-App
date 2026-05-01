@@ -300,9 +300,24 @@ export default function App() {
         (l['Order ID']?.toLowerCase().includes(searchLower)) ||
         (l.City?.toLowerCase().includes(searchLower));
 
-      // Internal Remark / Status Filter Mapping
+      // Internal Remark / Status Filter Mapping (Inclusive Logic)
       const remark = (l['Internal Remark'] || '').trim();
-      const leadStatus = remark === '' ? 'New' : remark;
+      let leadStatus = 'All';
+      
+      if (remark === '' || remark === 'New Lead' || remark === 'Need Assist' || remark === 'Job Seeker') {
+        leadStatus = 'New';
+      } else if (remark === 'Searching' || remark === 'Follow Up' || remark === 'On Hold' || remark === 'Not Picking Calls' || remark === 'NPC') {
+        leadStatus = 'Searching';
+      } else if (remark === 'Booking') {
+        leadStatus = 'Booking';
+      } else if (remark === 'Hired' || remark === 'Tutor Found') {
+        leadStatus = 'Hired';
+      } else if (remark === 'Not Converted' || remark === 'Junk' || remark === 'Low Budget' || remark === 'Tutor Not Found') {
+        leadStatus = 'Not Converted';
+      } else {
+        leadStatus = remark; // Fallback for other unique values
+      }
+
       const matchesStatus = statusFilter === 'All' || leadStatus === statusFilter;
 
       // Conditional Preference Filtering
