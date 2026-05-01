@@ -1,0 +1,15 @@
+RewriteEngine On
+RewriteBase /
+
+# Handle API routes as PHP files
+<Files "tutors">
+    SetHandler application/x-httpd-php
+</Files>
+<Files "leads">
+    SetHandler application/x-httpd-php
+</Files>
+
+# Send all other requests to React app
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
