@@ -6,6 +6,8 @@ import { Alert, UserType } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, Play, Volume2, Settings, X, MessageSquare } from 'lucide-react';
 import { cn, getCityTheme } from '../utils';
+import { createChat } from '@n8n/chat';
+import '@n8n/chat/style.css';
 
 interface AlertsViewProps {
   city: string;
@@ -33,19 +35,44 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
   const parentFormIframe = `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>`;
 
   const openChat = () => {
-    const chatElement = document.querySelector('n8n-chat');
-    if (chatElement) {
-      // 1. Make the host element visible and interactive
-      chatElement.classList.add('chat-active');
-      
-      // 2. Click the internal button to expand the chat
-      if (chatElement.shadowRoot) {
-        const chatButton = chatElement.shadowRoot.querySelector('.n8n-chat-button') as HTMLElement;
-        if (chatButton) {
-          chatButton.click();
+    // 1. If chat doesn't exist, initialize it
+    if (!document.querySelector('n8n-chat')) {
+      createChat({
+        webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
+        initialMessages: ['Hi there! 👋 How can DoAble India help you today?'],
+        i18n: {
+          en: {
+            title: 'DoAble Support',
+            subtitle: 'Our AI Assistant',
+            footer: 'Support Desk',
+            getStarted: 'New Conversation',
+            inputPlaceholder: 'Type your message...',
+            closeButtonTooltip: 'Close',
+          },
+        },
+      });
+    }
+
+    // 2. Poll for the chat widget to render and then trigger/toggle its display
+    const checkAndTrigger = setInterval(() => {
+      const chatElement = document.querySelector('n8n-chat');
+      if (chatElement) {
+        // Force the host to be active
+        chatElement.classList.add('chat-active');
+        
+        if (chatElement.shadowRoot) {
+          const chatButton = chatElement.shadowRoot.querySelector('.n8n-chat-button') as HTMLElement;
+          if (chatButton) {
+            // Trigger the internal click to open the window
+            chatButton.click();
+            clearInterval(checkAndTrigger);
+          }
         }
       }
-    }
+    }, 100);
+
+    // Timeout safety
+    setTimeout(() => clearInterval(checkAndTrigger), 5000);
   };
 
   const playSound = (url: string, volume = 0.8) => {
