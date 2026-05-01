@@ -213,11 +213,18 @@ export default function App() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://doableindia.com/api_data.php');
-      const result = await response.json();
-      // The new API returns an object with a "data" field containing the leads
-      setLeads(result.data || []);
-      setTutors([]); // Tutors not present in this specific API
+      const [leadsRes, tutorsRes] = await Promise.all([
+        fetch('https://doabletutors.com/api/leads'),
+        fetch('https://doabletutors.com/api/tutors')
+      ]);
+
+      const [leadsData, tutorsData] = await Promise.all([
+        leadsRes.json(),
+        tutorsRes.json()
+      ]);
+
+      setLeads(leadsData.data || []);
+      setTutors(tutorsData.data || []);
       setError(null);
     } catch (err: any) {
       setError(`Failed to load data. Please try again. Error: ${err.message || 'Unknown'}`);
