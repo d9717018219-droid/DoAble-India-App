@@ -1626,9 +1626,14 @@ export default function App() {
         </div>
 
         <h1 className={cn("text-[32px] font-[900] tracking-tighter", userCity ? "text-white" : "text-primary")}>
-          {activeTab === 'home' && (userName ? `Welcome, ${userName}` : 'DoAble India')}
+          {activeTab === 'home' && (
+            userName 
+              ? `Welcome, ${userName}` 
+              : (userType === 'teacher' ? 'Welcome, Educator' : (userType === 'parent' ? 'Welcome, Parent' : 'DoAble India'))
+          )}
           {activeTab === 'jobs' && 'Tuition Jobs'}
           {activeTab === 'tutors' && 'Expert Tutors'}
+          {activeTab === 'alerts' && 'Broadcasts'}
         </h1>
         
         <div className="flex items-center justify-center gap-3 mt-3">
