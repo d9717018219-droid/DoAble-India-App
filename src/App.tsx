@@ -148,13 +148,13 @@ export default function App() {
       setLoading(true);
       const [leadsRes, tutorsRes] = await Promise.all([
         fetch('https://doabletutors.com/api/leads'),
-        fetch('https://doableindia.com/api/tutors')
+        fetch('https://doabletutors.com/api/tutors')
       ]);
       const [leadsJson, tutorsJson] = await Promise.all([leadsRes.json(), tutorsRes.json()]);
       if (leadsJson.status === 'success') {
         const filteredJobs = (leadsJson.data as JobLead[])
           .filter(x => x['Internal Remark']?.trim().toLowerCase() === 'searching')
-          .sort((a, b) => new Date(b['Updated Time']).getTime() - new Date(a['Updated Time']).getTime());
+          .sort((a, b) => new Date(b['Updated Time'] || 0).getTime() - new Date(a['Updated Time'] || 0).getTime());
         setLeads(filteredJobs);
       } else {
         setLeads(leadsJson.data || []);
