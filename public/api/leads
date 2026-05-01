@@ -1,46 +1,27 @@
 <?php
-/**
- * DoAble India - Leads API Proxy
- */
 ob_start();
 ob_clean();
-
 header("Content-Type: application/json; charset=UTF-8");
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Pragma: no-cache");
 header("Access-Control-Allow-Origin: *");
-
 $url = "https://doableindia.com/api_data.php";
-
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, 10);
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept: application/json']);
 $data = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
 curl_close($ch);
-
 ob_end_clean();
-
 if ($data === false || $httpCode !== 200) {
-    echo json_encode(["status" => "error", "message" => "Source Offline", "code" => $httpCode]);
+    echo json_encode(["status" => "error", "message" => "Source Offline"]);
     exit;
 }
-
-if (strpos($contentType, 'application/json') === false) {
-    echo json_encode(["status" => "error", "message" => "Source returned non-JSON", "type" => $contentType]);
-    exit;
-}
-
 $cleanData = trim($data);
 $decoded = json_decode($cleanData, true);
-
 if (json_last_error() !== JSON_ERROR_NONE) {
-    echo json_encode(["status" => "error", "message" => "Invalid JSON", "detail" => json_last_error_msg()]);
+    echo json_encode(["status" => "error", "message" => "Invalid JSON"]);
     exit;
 }
-
 echo $cleanData;
 exit;
