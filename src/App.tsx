@@ -1128,11 +1128,11 @@ export default function App() {
                           }
                         }}
                         className={cn(
-                          "p-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all text-center",
+                          "p-4 sm:p-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all text-center flex items-center justify-center min-h-[80px] break-words",
                           editCity === city ? "bg-slate-900 text-white shadow-2xl scale-105" : "bg-slate-100 text-slate-400"
                         )}
                       >
-                        {city}
+                        <span className="w-full line-clamp-2">{city}</span>
                       </button>
                     ))}
                   </div>
@@ -1632,13 +1632,13 @@ export default function App() {
         </h1>
         
         <div className="flex items-center justify-center gap-3 mt-3">
-          <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 shadow-sm transition-transform hover:scale-105">
-            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.5)]" />
-            <span className="text-[10px] font-black uppercase tracking-tight text-white">{allLeads.filter(l => isCityMatch(l.City, userCity)).length} Jobs in {userCity}</span>
+          <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 shadow-sm transition-transform hover:scale-105 max-w-[45%]">
+            <div className="w-1.5 h-1.5 min-w-[6px] bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.5)]" />
+            <span className="text-[10px] font-black uppercase tracking-tight text-white truncate" title={`${allLeads.filter(l => isCityMatch(l.City, userCity)).length} Jobs in ${userCity}`}>{allLeads.filter(l => isCityMatch(l.City, userCity)).length} Jobs in {userCity}</span>
           </div>
-          <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 shadow-sm transition-transform hover:scale-105">
-            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
-            <span className="text-[10px] font-black uppercase tracking-tight text-white">{tutors.filter(t => isCityMatch(getCityValue(t), userCity)).length} Tutors</span>
+          <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 shadow-sm transition-transform hover:scale-105 max-w-[45%]">
+            <div className="w-1.5 h-1.5 min-w-[6px] bg-blue-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
+            <span className="text-[10px] font-black uppercase tracking-tight text-white truncate" title={`${tutors.filter(t => isCityMatch(getCityValue(t), userCity)).length} Tutors`}>{tutors.filter(t => isCityMatch(getCityValue(t), userCity)).length} Tutors</span>
           </div>
         </div>
 
@@ -1692,7 +1692,7 @@ export default function App() {
                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70">Sync With Local Demand</span>
                         </div>
-                        <h3 className="text-3xl font-black leading-none text-white tracking-tighter">Perfect Match for<br/> {userCity}</h3>
+                        <h3 className="text-2xl sm:text-3xl font-black leading-tight text-white tracking-tighter break-words">Perfect Match for<br/> {userCity}</h3>
                      </div>
                      
                      <div className="flex flex-col sm:flex-row gap-3">

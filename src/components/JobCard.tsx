@@ -83,24 +83,24 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
 
       {/* Quick Stats Grid */}
       <div className="grid grid-cols-2 gap-2 p-4 bg-[#F8F9FA] border-b-2 border-[#F0F0F0]">
-        <div className="stat-item">
+        <div className="stat-item min-w-0">
           <div className="text-2xl mb-1">{genderEmoji}</div>
-          <div className="text-[14px] font-bold text-primary">{job.Gender || 'Any'}</div>
+          <div className="text-[14px] font-bold text-primary truncate px-1">{job.Gender || 'Any'}</div>
           <div className="text-[10px] text-slate-400 uppercase font-bold">Gender</div>
         </div>
-        <div className="stat-item">
+        <div className="stat-item min-w-0">
           <div className="text-2xl mb-1">📍</div>
-          <div className="text-[14px] font-bold text-primary">{location}</div>
+          <div className="text-[14px] font-bold text-primary truncate px-1" title={location}>{location}</div>
           <div className="text-[10px] text-slate-400 uppercase font-bold">Location</div>
         </div>
-        <div className="stat-item">
+        <div className="stat-item min-w-0">
           <div className="text-2xl mb-1">📖</div>
-          <div className="text-[14px] font-bold text-primary">{classBoard}</div>
+          <div className="text-[14px] font-bold text-primary truncate px-1" title={classBoard}>{classBoard}</div>
           <div className="text-[10px] text-slate-400 uppercase font-bold">Class/Board</div>
         </div>
-        <div className="stat-item">
+        <div className="stat-item min-w-0">
           <div className="text-2xl mb-1">💰</div>
-          <div className="text-[14px] font-bold text-primary">₹{formatCurrency(job.Fee)}/Mo</div>
+          <div className="text-[14px] font-bold text-primary truncate px-1">₹{formatCurrency(job.Fee)}/Mo</div>
           <div className="text-[10px] text-slate-400 uppercase font-bold">Fee</div>
         </div>
         
