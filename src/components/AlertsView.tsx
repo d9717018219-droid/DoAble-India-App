@@ -34,15 +34,16 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
 
   const openChat = () => {
     const chatElement = document.querySelector('n8n-chat');
-    if (chatElement && chatElement.shadowRoot) {
-      // Find and remove our injected hide style momentarily
-      const hideStyle = chatElement.shadowRoot.querySelector('#doable-hide-btn');
-      if (hideStyle) hideStyle.remove();
-
-      const chatButton = chatElement.shadowRoot.querySelector('.n8n-chat-button') as HTMLElement;
-      if (chatButton) {
-        chatButton.style.setProperty('display', 'block', 'important');
-        chatButton.click();
+    if (chatElement) {
+      // 1. Make the host element visible and interactive
+      chatElement.classList.add('chat-active');
+      
+      // 2. Click the internal button to expand the chat
+      if (chatElement.shadowRoot) {
+        const chatButton = chatElement.shadowRoot.querySelector('.n8n-chat-button') as HTMLElement;
+        if (chatButton) {
+          chatButton.click();
+        }
       }
     }
   };

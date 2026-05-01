@@ -94,28 +94,25 @@
   @apply absolute top-3 right-3 w-9 h-9 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center text-white border-none cursor-pointer z-10 transition-transform active:scale-95;
 }
 
-/* Aggressively hide the n8n floating chat bubble */
-n8n-chat::part(button),
-.n8n-chat-button,
-#n8n-chat-button,
-[class*="n8n-chat-button"],
-n8n-chat > div:last-child {
-  display: none !important;
-  visibility: hidden !important;
+/* Fail-safe: Hide the entire n8n-chat widget host by default */
+n8n-chat {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  z-index: 9999 !important;
+  transform: scale(0) !important;
+  transform-origin: bottom right !important;
   opacity: 0 !important;
   pointer-events: none !important;
-  width: 0 !important;
-  height: 0 !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* Ensure the chat window itself is NOT hidden when it eventually opens */
-n8n-chat::part(window),
-.n8n-chat-window,
-[class*="n8n-chat-window"] {
-  display: flex !important;
-  visibility: visible !important;
+/* Only show it when we explicitly add the 'is-visible' class via JS */
+n8n-chat.chat-active {
+  transform: scale(1) !important;
   opacity: 1 !important;
   pointer-events: auto !important;
 }
+
 
 

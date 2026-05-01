@@ -43,47 +43,6 @@ export default function App() {
         },
       },
     });
-
-    // Highly aggressive "Nuclear" hide for the chat bubble
-    const forceHideChatButton = () => {
-      const n8nChat = document.querySelector('n8n-chat');
-      if (n8nChat && n8nChat.shadowRoot) {
-        // Inject a style tag directly into the Shadow DOM
-        let styleTag = n8nChat.shadowRoot.querySelector('#doable-hide-btn');
-        if (!styleTag) {
-          styleTag = document.createElement('style');
-          styleTag.id = 'doable-hide-btn';
-          styleTag.textContent = `
-            .n8n-chat-button { 
-              display: none !important; 
-              opacity: 0 !important; 
-              visibility: hidden !important; 
-              pointer-events: none !important;
-              width: 0 !important;
-              height: 0 !important;
-              overflow: hidden !important;
-            }
-          `;
-          n8nChat.shadowRoot.appendChild(styleTag);
-        }
-      }
-      
-      // Also hide any "Welcome" or "CTA" bubbles that might be siblings
-      const possibleBubbles = document.querySelectorAll('[class*="n8n-chat"]');
-      possibleBubbles.forEach(el => {
-        if (el.tagName !== 'N8N-CHAT' && (el as HTMLElement).innerText?.includes('?')) {
-           (el as HTMLElement).style.display = 'none';
-        }
-      });
-    };
-
-    // Run frequently to catch any re-renders
-    const intervalId = setInterval(forceHideChatButton, 300);
-    
-    // Safety: keep it running for a while
-    setTimeout(() => clearInterval(intervalId), 30000);
-
-    return () => clearInterval(intervalId);
   }, []);
   const [leads, setLeads] = useState<JobLead[]>([]);
   const [firestoreLeads, setFirestoreLeads] = useState<JobLead[]>([]);
