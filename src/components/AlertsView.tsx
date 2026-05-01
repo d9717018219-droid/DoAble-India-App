@@ -423,40 +423,20 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
                     </div>
                   </a>
 
-                  {isAdminUser && onAdminClick && (
-                    <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
-                      <button 
-                        onClick={onAdminClick}
-                        className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 p-6 rounded-[24px] flex items-center justify-between group active:scale-95 transition-all hover:bg-primary/5 hover:border-primary/20"
-                      >
-                        <div className="text-left">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 group-hover:text-primary transition-colors block mb-1">Owner Restricted Access</span>
-                          <span className="text-lg font-black uppercase tracking-tight text-slate-600 dark:text-slate-300 group-hover:text-primary transition-colors">System Setting</span>
-                        </div>
-                        <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all">
-                          <Settings size={20} strokeWidth={3} />
-                        </div>
-                      </button>
-                    </div>
-                  )}
-
-                  {!currentUser && handleSignIn && (
-                    <div className="pt-6 border-t border-slate-100 dark:border-slate-800">
-                       <button 
-                         onClick={handleSignIn}
-                         className="w-full bg-slate-900 text-white p-6 rounded-[24px] flex items-center justify-between group active:scale-95 transition-all shadow-xl"
-                       >
-                         <div className="text-left">
-                           <span className="text-[10px] font-black uppercase tracking-widest opacity-70 block">Administrator Auth</span>
-                           <span className="text-lg font-black uppercase tracking-tight">Sign in for Admin</span>
-                         </div>
-                         <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white group-hover:text-slate-900 transition-all">
-                           <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="Google" />
-                         </div>
-                       </button>
-                       <p className="text-[9px] font-bold text-slate-400 text-center mt-3 uppercase tracking-widest">Only authorized owners can access system settings</p>
-                    </div>
-                  )}
+                  <div className="pt-4 text-center">
+                    <button 
+                      onClick={() => {
+                        if (isAdminUser && onAdminClick) {
+                          onAdminClick();
+                        } else if (handleSignIn) {
+                          handleSignIn();
+                        }
+                      }}
+                      className="text-[9px] font-bold text-slate-300 dark:text-slate-700 uppercase tracking-widest hover:text-slate-400 transition-colors"
+                    >
+                      System Settings
+                    </button>
+                  </div>
                </div>
             </div>
 
