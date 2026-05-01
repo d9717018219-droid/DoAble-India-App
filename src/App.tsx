@@ -20,7 +20,7 @@ import {
   CITIES_LIST, 
   CLASSES_LIST, 
   CLASS_SUBJECTS_DATA, 
-  STATE_DISTRICT_LOCATIONS_DATA, 
+  CITY_TO_LOCATIONS_DATA, 
   TIME_PERIODS_DATA, 
   DAY_GROUPS_DATA 
 } from './constants';
@@ -722,19 +722,7 @@ export default function App() {
     const city = (activeTab === 'home' || activeTab === 'alerts') ? editCity : cityFilter;
     if (!city || city === 'all') return [];
     
-    const cityLower = city.toLowerCase().trim();
-    let locations: string[] = [];
-    
-    // ONLY use data from constants.ts as per user request to avoid "random picking"
-    for (const state in STATE_DISTRICT_LOCATIONS_DATA) {
-        for (const c in STATE_DISTRICT_LOCATIONS_DATA[state]) {
-            if (isCityMatch(c, city)) {
-                locations = [...locations, ...STATE_DISTRICT_LOCATIONS_DATA[state][c]];
-            }
-        }
-    }
-
-    return Array.from(new Set(locations)).sort();
+    return CITY_TO_LOCATIONS_DATA[city] || [];
   }, [editCity, cityFilter, activeTab]);
 
   const filteredLeads = useMemo(() => {
