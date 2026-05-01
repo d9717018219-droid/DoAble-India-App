@@ -63,7 +63,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       id={`card-${job['Order ID']}`}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-slate-900 rounded-[20px] overflow-hidden shadow-md border border-slate-200 dark:border-slate-800 flex flex-col relative"
+      className="bg-white rounded-[20px] overflow-hidden shadow-md border border-slate-200 flex flex-col relative"
     >
       {/* Card Top / Header */}
       <div 
@@ -75,41 +75,41 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       </div>
 
       {/* Quick Stats Grid */}
-      <div className="grid grid-cols-2 gap-2 p-4 bg-[#F8F9FA] dark:bg-slate-800/50 border-b-2 border-[#F0F0F0] dark:border-slate-800">
+      <div className="grid grid-cols-2 gap-2 p-4 bg-[#F8F9FA] border-b-2 border-[#F0F0F0]">
         <div className="stat-item">
           <div className="text-2xl mb-1">{genderEmoji}</div>
-          <div className="text-[14px] font-bold text-primary dark:text-blue-400">{job.Gender || 'Any'}</div>
+          <div className="text-[14px] font-bold text-primary">{job.Gender || 'Any'}</div>
           <div className="text-[10px] text-slate-400 uppercase font-bold">Gender</div>
         </div>
         <div className="stat-item">
           <div className="text-2xl mb-1">📍</div>
-          <div className="text-[14px] font-bold text-primary dark:text-blue-400">{location}</div>
+          <div className="text-[14px] font-bold text-primary">{location}</div>
           <div className="text-[10px] text-slate-400 uppercase font-bold">Location</div>
         </div>
         <div className="stat-item">
           <div className="text-2xl mb-1">📖</div>
-          <div className="text-[14px] font-bold text-primary dark:text-blue-400">{classBoard}</div>
-          <div className="text-[10px] text-slate-400 uppercase font-bold">Subject List</div>
+          <div className="text-[14px] font-bold text-primary">{classBoard}</div>
+          <div className="text-[10px] text-slate-400 uppercase font-bold">Class/Board</div>
         </div>
         <div className="stat-item">
           <div className="text-2xl mb-1">💰</div>
-          <div className="text-[14px] font-bold text-primary dark:text-blue-400">₹{formatCurrency(job.Fee)}/Mo</div>
+          <div className="text-[14px] font-bold text-primary">₹{formatCurrency(job.Fee)}/Mo</div>
           <div className="text-[10px] text-slate-400 uppercase font-bold">Fee</div>
         </div>
         
         <div 
-          className="col-span-2 p-2.5 rounded-xl text-center bg-white dark:bg-slate-800 border border-[#E8E8E8] dark:border-slate-700"
+          className="col-span-2 p-2.5 rounded-xl text-center bg-white border border-[#E8E8E8]"
         >
-          <span className="text-[11px] font-bold flex items-center justify-center gap-1 text-primary dark:text-blue-400">
+          <span className="text-[11px] font-bold flex items-center justify-center gap-1 text-primary">
             🕒 Posted On: {formatPostedDate(job['Updated Time'])}
           </span>
         </div>
       </div>
 
       {/* Parent Note */}
-      <div className="bg-[#FFE66D]/10 dark:bg-amber-400/5 p-4 mx-4 my-4 rounded-xl border border-dashed border-[#F59E0B] dark:border-amber-600/50">
-        <span className="text-[10px] font-black uppercase text-[#B45309] dark:text-amber-500 block mb-1.5 tracking-widest">📝 Parent Note</span>
-        <div className="text-[12px] font-bold text-slate-700 dark:text-slate-300 leading-relaxed italic">
+      <div className="bg-[#FFE66D]/10 p-4 mx-4 my-4 rounded-xl border border-dashed border-[#F59E0B]">
+        <span className="text-[10px] font-black uppercase text-[#B45309] block mb-1.5 tracking-widest">📝 Parent Note</span>
+        <div className="text-[12px] font-bold text-slate-700 leading-relaxed italic">
           {job.Notes || 'No specific requirements.'}
         </div>
       </div>
@@ -119,7 +119,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
         <label className="text-[10px] uppercase font-black text-slate-400 mb-2 block tracking-wider">Subjects we want you to teach</label>
         <div className="flex flex-wrap gap-1.5 mb-4">
           {(job.subjects || 'General').split(',').map((s, i) => (
-            <span key={i} className="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-[11px] font-extrabold text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 flex items-center gap-2 hover:bg-blue-100 dark:hover:bg-blue-800/30 transition-colors">
+            <span key={i} className="px-3 py-1.5 rounded-xl bg-blue-50 text-[11px] font-extrabold text-blue-600 border border-blue-100 flex items-center gap-2 hover:bg-blue-100 transition-colors">
               📖 {s.trim()}
             </span>
           ))}
@@ -127,7 +127,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
 
         <label className="text-[10px] uppercase font-black text-slate-400 mb-2 block tracking-wider">Where you have to take class</label>
         <div 
-          className="residency-box mb-4 dark:text-slate-300 dark:bg-slate-800/50 dark:border-slate-700"
+          className="residency-box mb-4"
           style={{ borderLeftColor: theme.solid }}
           onClick={() => {
             const dest = encodeURIComponent(`${job.residency || 'Student Home'}, ${location}`);
@@ -140,20 +140,20 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
 
         <label className="text-[10px] uppercase font-black text-slate-400 mb-2 block tracking-wider">Schedule & Availability</label>
         <div className="flex flex-wrap gap-1.5">
-          <span className="px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-[11px] font-extrabold text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-800 flex items-center gap-2 hover:bg-amber-100 dark:hover:bg-amber-800/30 transition-colors shadow-sm">
+          <span className="px-3 py-2 rounded-xl bg-amber-50 text-[11px] font-extrabold text-amber-600 border border-amber-100 flex items-center gap-2 hover:bg-amber-100 transition-colors shadow-sm">
             ⏳ {job.duration || '1 Hr/Day'}
           </span>
-          <span className="px-3 py-2 rounded-xl bg-rose-50 dark:bg-rose-900/20 text-[11px] font-extrabold text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-800 flex items-center gap-2 hover:bg-rose-100 dark:hover:bg-rose-800/30 transition-colors shadow-sm">
+          <span className="px-3 py-2 rounded-xl bg-rose-50 text-[11px] font-extrabold text-rose-600 border border-rose-100 flex items-center gap-2 hover:bg-rose-100 transition-colors shadow-sm">
             📅 {job.days || 'Discuss'}
           </span>
-          <span className="px-3 py-2 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-[11px] font-extrabold text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800 flex items-center gap-2 hover:bg-indigo-100 dark:hover:bg-indigo-800/30 transition-colors shadow-sm">
+          <span className="px-3 py-2 rounded-xl bg-indigo-50 text-[11px] font-extrabold text-indigo-600 border border-indigo-100 flex items-center gap-2 hover:bg-indigo-100 transition-colors shadow-sm">
             🕒 {job.time || 'Flexible'}
           </span>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="card-actions grid grid-cols-2 gap-3 p-4 border-t border-slate-100 dark:border-slate-800">
+      <div className="card-actions grid grid-cols-2 gap-3 p-4 border-t border-slate-100">
         <a 
           href={`tel:${phone}`}
           className="p-3 rounded-xl font-extrabold text-[12px] text-center transition-colors border-2"

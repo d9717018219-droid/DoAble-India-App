@@ -58,7 +58,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="bg-slate-900 rounded-[32px] p-8 text-white border-2 border-white/5">
+      <div className="bg-slate-900 rounded-[32px] p-8 text-white">
         <h2 className="text-2xl font-black tracking-tight mb-2 flex items-center gap-2">
             <Zap className="text-amber-400" /> Admin Broadcast
         </h2>
@@ -71,7 +71,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
                 <select 
                     value={targetCity}
                     onChange={(e) => setTargetCity(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-primary transition-colors"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-primary"
                 >
                     {CITIES_LIST.map(c => <option key={c} value={c} className="bg-slate-900">{c}</option>)}
                 </select>
@@ -81,7 +81,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
                 <select 
                     value={targetGender}
                     onChange={(e) => setTargetGender(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-primary transition-colors"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-primary"
                 >
                     <option value="Any" className="bg-slate-900">Any Gender</option>
                     <option value="Male" className="bg-slate-900">Male Only</option>
@@ -89,11 +89,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
                 </select>
             </div>
             <div className="space-y-2">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Subject List</label>
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Target Class</label>
                 <select 
                     value={targetClass}
                     onChange={(e) => setTargetClass(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-primary transition-colors"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-primary"
                 >
                     {CLASSES_LIST.map(c => <option key={c} value={c} className="bg-slate-900">{c}</option>)}
                 </select>
@@ -103,7 +103,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
                 <select 
                     value={targetUserType}
                     onChange={(e) => setTargetUserType(e.target.value as any)}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-primary transition-colors"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-primary"
                 >
                     <option value="all" className="bg-slate-900">All (Parents & Teachers)</option>
                     <option value="parent" className="bg-slate-900">Parents Only</option>
@@ -137,7 +137,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Type your announcement here..."
-                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-4 text-sm font-medium focus:outline-none focus:border-primary min-h-[120px] transition-colors"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-4 text-sm font-medium focus:outline-none focus:border-primary min-h-[120px]"
             />
           </div>
 
@@ -157,17 +157,17 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
         </div>
       </div>
 
-      <div className="bg-slate-50 dark:bg-slate-900/50 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[32px] p-8">
-          <h3 className="text-slate-900 dark:text-white font-black text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
+      <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[32px] p-8">
+          <h3 className="text-slate-900 font-black text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
               <Globe size={18} className="text-slate-400" /> API Integration Info
           </h3>
-          <div className="space-y-4 text-[11px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed">
+          <div className="space-y-4 text-[11px] font-bold text-slate-500 leading-relaxed">
               <p>You can connect your other apps to this alert module via Firebase SDK.</p>
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 font-mono text-[9px] overflow-x-auto whitespace-pre">
+              <div className="bg-white p-4 rounded-xl border border-slate-100 font-mono text-[9px] overflow-x-auto whitespace-pre">
 {`// Add document to "alerts" collation
 const alert = {
   message: "Hi from API",
-  city: "\${targetCity}",
+  city: "${targetCity}",
   type: "info",
   sender: "External App",
   timestamp: serverTimestamp()

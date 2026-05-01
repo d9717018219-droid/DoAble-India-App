@@ -20,7 +20,7 @@ import {
   CITIES_LIST, 
   CLASSES_LIST, 
   CLASS_SUBJECTS_DATA, 
-  CITY_TO_LOCATIONS_DATA, 
+  STATE_DISTRICT_LOCATIONS_DATA, 
   TIME_PERIODS_DATA, 
   DAY_GROUPS_DATA 
 } from './constants';
@@ -39,7 +39,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [cityFilter, setCityFilter] = useState(localStorage.getItem('userCity') || 'all');
+  const [cityFilter, setCityFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts'>('home');
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
@@ -48,17 +48,6 @@ export default function App() {
   const [adminStatus, setAdminStatus] = useState<string>('Checking...');
   const [jobLimit, setJobLimit] = useState(15);
   const [tutorLimit, setTutorLimit] = useState(15);
-  const [themeMode, setThemeMode] = useState<'light' | 'dark'>(localStorage.getItem('themeMode') as 'light' | 'dark' || 'light');
-
-  // Theme effect
-  useEffect(() => {
-    if (themeMode === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('themeMode', themeMode);
-  }, [themeMode]);
 
   // Admin Check
   useEffect(() => {
@@ -95,13 +84,6 @@ export default function App() {
   const [editTutorStatus, setEditTutorStatus] = useState<string>(localStorage.getItem('userTutorStatus') || '');
   const [editClasses, setEditClasses] = useState<string[]>(JSON.parse(localStorage.getItem('userClasses') || '[]'));
   const [editCity, setEditCity] = useState<string>(localStorage.getItem('userCity') || 'Ghaziabad');
-
-  const timeGreeting = useMemo(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
-  }, []);
 
   const [userTutorSubjects, setUserTutorSubjects] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorSubjects') || '[]'));
   const [userTutorLocations, setUserTutorLocations] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorLocations') || '[]'));
@@ -190,6 +172,35 @@ export default function App() {
     return false;
   };
 
+  const isClassMatch = (leadOrTutorClass: string | undefined, selectedClasses: string[]) => {
+    if (!selectedClasses || selectedClasses.length === 0) return true;
+    
+    const targetString = (leadOrTutorClass || '').toLowerCase();
+    const targetNums = getNumbers(targetString);
+    
+    return selectedClasses.some(cls => {
+      const prefNums = getNumbers(cls);
+      
+      // Numeric matching
+      if (targetNums.length > 0 && prefNums.length > 0) {
+        if (prefNums.some(n => targetNums.includes(n))) return true;
+      }
+      
+      // Range matching for tutors profile ("I to V")
+      if (targetString.includes('i to v') && (prefNums.some(n => n >= 1 && n <= 5))) return true;
+      if (targetString.includes('vi to viii') && (prefNums.some(n => n >= 6 && n <= 8))) return true;
+      if (targetString.includes('ix to x') && (prefNums.some(n => n >= 9 && n <= 10))) return true;
+      if (targetString.includes('xi to xii') && (prefNums.some(n => n >= 11 && n <= 12))) return true;
+
+      // Keyword matching
+      const c = cls.toLowerCase().replace(' std', '').trim();
+      const pattern = c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(^|\\b|\\s)${pattern}($|\\b|\\s|th|st|nd|rd|std)`, 'i');
+      
+      return regex.test(targetString) || targetString.includes(c) || c.includes(targetString);
+    });
+  };
+
   const isLocationMatch = (leadLocations: string | undefined, selectedLocations: string[], leadCity: string | undefined) => {
     if (!selectedLocations || selectedLocations.length === 0) return true;
     
@@ -217,7 +228,8 @@ export default function App() {
       if (slNumbers && slNumbers.length > 0) {
         const num = slNumbers[0];
         // Check if the number exists as a word or with common abbreviations in leadLocsLower
-        const sectorRegex = new RegExp(`(^|\\b|\\s|sec|s|-)${num}(\\b|\\s|th|st|nd|rd|std|$)`, 'i');
+        // Permissive regex for sectors: Sec 15, Sector 15, S-15, S15, 15A
+        const sectorRegex = new RegExp(`(^|\\b|\\s|sec|s|-)${num}(\\b|\\s|th|st|nd|rd|std|[a-z]|$)`, 'i');
         if (sectorRegex.test(leadLocsLower)) return true;
       }
       
@@ -296,8 +308,6 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('userCity'));
   const [isSelectingCityOnly, setIsSelectingCityOnly] = useState(false);
 
-  const theme = useMemo(() => getCityTheme(userCity), [userCity]);
-
   useEffect(() => {
     if (showOnboarding && onboardingStep === 0) {
       const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
@@ -357,22 +367,11 @@ export default function App() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const fsJobs = snapshot.docs.map(doc => {
         const data = doc.data();
-        const postedAt = data.postedAt;
-        let updatedTime = new Date().toISOString();
-        if (postedAt) {
-          if (typeof postedAt.toDate === 'function') {
-            updatedTime = postedAt.toDate().toISOString();
-          } else if (postedAt instanceof Date) {
-            updatedTime = postedAt.toISOString();
-          } else if (typeof postedAt === 'string') {
-            updatedTime = new Date(postedAt).toISOString();
-          }
-        }
         return {
           'Order ID': data.orderId,
           City: data.city,
           subjects: data.subject,
-          'Updated Time': updatedTime,
+          'Updated Time': data.postedAt?.toDate()?.toISOString() || new Date().toISOString(),
           Name: 'New Requirement',
           'Internal Remark': 'searching',
           'Preferred Job Type': 'Home Tuition',
@@ -416,25 +415,9 @@ export default function App() {
       const json: ApiResponse<JobLead> = await response.json();
       
       if (json.status === 'success') {
-        const normalized = json.data.map(lead => {
-          // Normalize dates: Updated Time > Created Time > Record Added > Now
-          let dateStr = lead['Updated Time'] || (lead as any)['Created Time'] || (lead as any)['Record Added'];
-          if (!dateStr || dateStr === '0000-00-00 00:00:00') {
-            dateStr = new Date().toISOString();
-          }
-          return { ...lead, 'Updated Time': dateStr };
-        });
-
-        const filtered = normalized
-          .filter(x => {
-            const remark = (x['Internal Remark'] || '').trim().toLowerCase();
-            return remark.includes('searching') || remark.includes('search');
-          })
-          .sort((a, b) => {
-            const dateA = new Date(a['Updated Time']).getTime();
-            const dateB = new Date(b['Updated Time']).getTime();
-            return (isNaN(dateB) ? 0 : dateB) - (isNaN(dateA) ? 0 : dateA);
-          });
+        const filtered = json.data
+          .filter(x => x['Internal Remark']?.trim().toLowerCase() === 'searching')
+          .sort((a, b) => new Date(b['Updated Time']).getTime() - new Date(a['Updated Time']).getTime());
         setLeads(filtered);
       } else {
         throw new Error(json.message || 'API returned failure status');
@@ -529,24 +512,10 @@ export default function App() {
       if (!matchesGender) return false;
 
       // 2. Class Filter
-      let matchesClass = true;
       if (targetClasses.length > 0) {
         const leadClass = ((l['Class / Board'] || '') + ' ' + (l.Class || '')).toString().toLowerCase();
-        const leadNums = getNumbers(leadClass);
-        matchesClass = targetClasses.some(pref => {
-          const prefNums = getNumbers(pref);
-          if (leadNums.length > 0 && prefNums.length > 0) {
-            if (prefNums.some(n => leadNums.includes(n))) return true;
-          }
-          const keywords = [pref.toLowerCase().replace(' std', '')];
-          return keywords.some(k => {
-            const pattern = k.toLowerCase().trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`(^|\\b|\\s)${pattern}($|\\b|\\s|th|st|nd|rd|std)`, 'i');
-            return regex.test(leadClass);
-          });
-        });
+        if (!isClassMatch(leadClass, targetClasses)) return false;
       }
-      if (!matchesClass) return false;
 
       // 3. City Filter
       if (city && city !== 'all' && city !== '') {
@@ -562,9 +531,40 @@ export default function App() {
     }).length;
   };
 
+  const getMatchingTutorsCount = (genderPref: string, targetClasses: string[], city: string, locations: string[]) => {
+    return tutors.filter(t => {
+      // 1. Gender Filter
+      let matchesGender = true;
+      if (genderPref && genderPref !== 'Any') {
+        const tutorGender = (t.Gender || '').toLowerCase();
+        const prefGender = genderPref.toLowerCase();
+        matchesGender = tutorGender === prefGender || tutorGender.includes(prefGender);
+      }
+      if (!matchesGender) return false;
+
+      // 2. Class Filter
+      if (targetClasses.length > 0) {
+        if (!isClassMatch(t['Preferred Class Group'], targetClasses)) return false;
+      }
+
+      // 3. City Filter
+      if (city && city !== 'all' && city !== '') {
+        const tutorCity = t['Preferred City'] || '';
+        if (!isCityMatch(tutorCity, city)) return false;
+      }
+
+      // 4. Area Filter
+      if (city && city !== 'all' && locations.length > 0) {
+        if (!isLocationMatch(t['Preferred Location(s)'], locations, t['Preferred City'])) return false;
+      }
+
+      return true;
+    }).length;
+  };
+
   const handleCompleteOnboarding = () => {
     if (!editName || (editUserType === 'teacher' && !editGender) || !editUserType || editClasses.length === 0 || !editCity) {
-      alert("Please complete all required fields (Name, Gender/Pref, City, Subject List)!");
+      alert("Please complete all required fields (Name, Gender/Pref, City, Classes)!");
       return;
     }
     
@@ -713,25 +713,28 @@ export default function App() {
   }, [leads, tutors, activeTab]);
 
   const allLeads = useMemo(() => {
-    const combined = [...firestoreLeads, ...leads];
-    const uniqueMap = new Map();
-    combined.forEach(l => {
-      if (l && l['Order ID'] && !uniqueMap.has(l['Order ID'])) {
-        uniqueMap.set(l['Order ID'], l);
-      }
-    });
-    return Array.from(uniqueMap.values()).sort((a, b) => {
-      const dateA = new Date(a['Updated Time']).getTime();
-      const dateB = new Date(b['Updated Time']).getTime();
-      return (isNaN(dateB) ? 0 : dateB) - (isNaN(dateA) ? 0 : dateA);
-    });  }, [leads, firestoreLeads]);
+    return [...firestoreLeads, ...leads].sort((a, b) => 
+      new Date(b['Updated Time']).getTime() - new Date(a['Updated Time']).getTime()
+    );
+  }, [leads, firestoreLeads]);
 
   const availableLocationsForCity = useMemo(() => {
     const city = (activeTab === 'home' || activeTab === 'alerts') ? editCity : cityFilter;
     if (!city || city === 'all') return [];
     
-    // Direct lookup from the flat mapping
-    return CITY_TO_LOCATIONS_DATA[city] || [];
+    const cityLower = city.toLowerCase().trim();
+    let locations: string[] = [];
+    
+    // ONLY use data from constants.ts as per user request to avoid "random picking"
+    for (const state in STATE_DISTRICT_LOCATIONS_DATA) {
+        for (const c in STATE_DISTRICT_LOCATIONS_DATA[state]) {
+            if (isCityMatch(c, city)) {
+                locations = [...locations, ...STATE_DISTRICT_LOCATIONS_DATA[state][c]];
+            }
+        }
+    }
+
+    return Array.from(new Set(locations)).sort();
   }, [editCity, cityFilter, activeTab]);
 
   const filteredLeads = useMemo(() => {
@@ -743,10 +746,7 @@ export default function App() {
         (l.Name?.toLowerCase().includes(searchLower)) ||
         (l.subjects?.toLowerCase().includes(searchLower)) ||
         (l['Order ID']?.toLowerCase().includes(searchLower)) ||
-        (l.City?.toLowerCase().includes(searchLower)) ||
-        (l.Locations?.toLowerCase().includes(searchLower)) ||
-        (l.Notes?.toLowerCase().includes(searchLower)) ||
-        (((l['Class / Board'] || '') + ' ' + (l.Class || '')).toLowerCase().includes(searchLower));
+        (l.City?.toLowerCase().includes(searchLower));
 
       // Area filter for Jobs
       let matchesArea = true;
@@ -780,27 +780,7 @@ export default function App() {
       let matchesPreference = true;
       if (userClasses && userClasses.length > 0) {
         const leadClass = ((l['Class / Board'] || '') + ' ' + (l.Class || '')).toString().toLowerCase();
-        const leadNums = getNumbers(leadClass);
-
-        matchesPreference = userClasses.some(pref => {
-          const prefNums = getNumbers(pref);
-          
-          // Intersection check
-          if (leadNums.length > 0 && prefNums.length > 0) {
-            if (prefNums.some(n => leadNums.includes(n))) return true;
-          }
-
-          // Fallback to keyword matching for specific text
-          const keywords = [pref.toLowerCase().replace(' std', '')];
-          
-          return keywords.some(k => {
-            const cleanK = k.toLowerCase().trim();
-            if (!cleanK) return false;
-            const pattern = cleanK.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`(^|\\b|\\s)${pattern}($|\\b|\\s|th|st|nd|rd|std)`, 'i');
-            return regex.test(leadClass);
-          });
-        });
+        matchesPreference = isClassMatch(leadClass, userClasses);
       }
       
       return matchesCity && matchesArea && matchesSearch && matchesPreference && matchesGender && matchesSubjects;
@@ -820,18 +800,12 @@ export default function App() {
       let matchesCityAndLoc = true;
       if (cityFilter !== 'all') {
         const tutorCity = getCityValue(t);
-        // Flexible match for city
         const isCityMatchResult = isCityMatch(tutorCity, cityFilter);
         
         if (!isCityMatchResult) {
           matchesCityAndLoc = false;
         } else if (userTutorLocations.length > 0) {
-          // If city matches, check specific locations
-          const tutorLocs = getLocations(t).map(loc => loc.toLowerCase());
-          matchesCityAndLoc = userTutorLocations.some(loc => {
-            const l = loc.toLowerCase();
-            return tutorLocs.some(tl => tl.includes(l) || l.includes(tl));
-          });
+          matchesCityAndLoc = isLocationMatch(t['Preferred Location(s)'], userTutorLocations, tutorCity);
         }
       }
 
@@ -846,20 +820,9 @@ export default function App() {
       // 4. Class & Subject Filter (Hierarchical)
       let matchesClassAndSubj = true;
       if (userClasses.length > 0) {
-        const tutorClassString = (t['Preferred Class Group'] || '').toLowerCase();
-        const tutorNums = getNumbers(tutorClassString);
+        const isClassMatchResult = isClassMatch(t['Preferred Class Group'], userClasses);
         
-        const isClassMatch = userClasses.some(cls => {
-          const prefNums = getNumbers(cls);
-          if (tutorNums.length > 0 && prefNums.length > 0) {
-            if (prefNums.some(n => tutorNums.includes(n))) return true;
-          }
-          
-          const c = cls.toLowerCase();
-          return tutorClassString.includes(c) || c.includes(tutorClassString);
-        });
-        
-        if (!isClassMatch) {
+        if (!isClassMatchResult) {
           matchesClassAndSubj = false;
         } else if (userTutorSubjects.length > 0) {
           // If class matches, check subjects
@@ -930,10 +893,10 @@ export default function App() {
   }, [tutors, cityFilter, searchQuery, userTutorGenderPref, userClasses, userTutorSubjects, userTutorLocations, userTutorTimes, userTutorDays, userTutorFee, userTutorSchoolExp, userTutorVehicle, userTutorLastUpdated, userTutorStatus]);
 
   return (
-    <div className="fixed inset-0 bg-white dark:bg-slate-950 transition-colors duration-300 overflow-hidden font-sans flex flex-col">
+    <div className="min-h-screen bg-white transition-colors duration-300 relative overflow-x-hidden font-sans pb-24">
       {/* Onboarding Overlay */}
       {showOnboarding && (
-        <div className="fixed inset-0 z-[9999] bg-white dark:bg-slate-950 flex flex-col items-center justify-center p-6 overflow-y-auto">
+        <div className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center p-6 overflow-y-auto">
           <div className="w-full max-w-md space-y-8 py-10">
             <AnimatePresence mode="wait">
               {onboardingStep === 0 && (
@@ -949,7 +912,7 @@ export default function App() {
                       <Zap size={48} className="animate-pulse" />
                     </div>
                     <div className="space-y-2">
-                      <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none font-display">Welcome to<br/>DoAbLe India</h1>
+                      <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase leading-none font-display">Welcome to<br/>DoAbLe India</h1>
                       <p className="text-slate-400 text-xs font-black uppercase tracking-widest leading-relaxed">The Premium Tuition Connection Hub</p>
                     </div>
                   </div>
@@ -959,16 +922,16 @@ export default function App() {
                     <div className="grid grid-cols-2 gap-4">
                       <button 
                          onClick={() => selectUserType('parent')}
-                         className="bg-slate-50 dark:bg-slate-900 p-6 rounded-[32px] border-2 border-transparent hover:border-primary/30 transition-all flex flex-col items-center gap-3 active:scale-95 group"
+                         className="bg-slate-50 p-6 rounded-[32px] border-2 border-transparent hover:border-primary/30 transition-all flex flex-col items-center gap-3 active:scale-95 group"
                       >
                          <User size={32} className="text-primary/60 group-hover:scale-110 transition-transform" />
-                         <span className="text-xs font-black uppercase tracking-tight dark:text-slate-300">I'm Parent</span>
+                         <span className="text-xs font-black uppercase tracking-tight">I'm Parent</span>
                       </button>
                       <button 
                          onClick={() => selectUserType('teacher')}
-                         className="bg-slate-900 dark:bg-primary text-white p-6 rounded-[32px] border-2 border-transparent hover:border-primary/50 transition-all flex flex-col items-center gap-3 active:scale-95 group"
+                         className="bg-slate-900 text-white p-6 rounded-[32px] border-2 border-transparent hover:border-primary/50 transition-all flex flex-col items-center gap-3 active:scale-95 group"
                       >
-                         <GraduationCap size={32} className="text-primary dark:text-white group-hover:scale-110 transition-transform" />
+                         <GraduationCap size={32} className="text-primary group-hover:scale-110 transition-transform" />
                          <span className="text-xs font-black uppercase tracking-tight">I'm Tutor</span>
                       </button>
                     </div>
@@ -982,14 +945,14 @@ export default function App() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 space-y-8"
+                  className="bg-white p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 space-y-8"
                 >
                   <div className="flex items-center gap-4 mb-2">
                     <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
                       <User size={24} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Your Identity</h3>
+                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Your Identity</h3>
                       <p className="text-[10px] font-black text-primary uppercase tracking-widest">Update Your Details</p>
                     </div>
                   </div>
@@ -998,7 +961,7 @@ export default function App() {
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-2">Full Name</label>
                       <input 
-                        className="w-full bg-slate-50 dark:bg-slate-800 border-none p-5 rounded-2xl text-sm font-black shadow-inner focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-300 dark:text-white"
+                        className="w-full bg-slate-50 border-none p-5 rounded-2xl text-sm font-black shadow-inner focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-slate-300"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
                         placeholder="Enter your name"
@@ -1043,6 +1006,11 @@ export default function App() {
                           {getMatchingJobsCount(editGender, [], 'all', [])} Matching Jobs Available
                         </p>
                       )}
+                      {editUserType === 'parent' && editTutorGenderPref && (
+                        <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse mt-4">
+                          {getMatchingTutorsCount(editTutorGenderPref, [], 'all', [])} Matching Tutors Available
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -1075,58 +1043,42 @@ export default function App() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 space-y-8"
+                  className="bg-white p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 space-y-8"
                 >
                   <div className="flex items-center gap-4 mb-2">
                     <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
                       <GraduationCap size={24} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Subject List</h3>
+                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Classes</h3>
                       <p className="text-[10px] font-black text-primary uppercase tracking-widest">Academic Target</p>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select from Subject List you are interested in:</p>
-                    <div className="grid grid-cols-2 gap-3 max-h-[30vh] overflow-y-auto p-2 scroll-smooth custom-scrollbar">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select classes you are interested in:</p>
+                    <div className="grid grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto p-2 scroll-smooth custom-scrollbar">
                        {CLASSES_LIST.map(cls => (
                          <button
                            key={cls}
                            onClick={() => setEditClasses(prev => prev.includes(cls) ? prev.filter(c => c !== cls) : [...prev, cls])}
                            className={cn(
                              "p-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all text-center",
-                             editClasses.includes(cls) ? "bg-slate-900 dark:bg-primary text-white shadow-xl scale-105" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border border-transparent"
+                             editClasses.includes(cls) ? "bg-slate-900 text-white shadow-xl scale-105" : "bg-slate-50 text-slate-400 border border-transparent"
                            )}
                          >
                            {cls}
                          </button>
                        ))}
                     </div>
-
-                    {editClasses.length > 0 && (
-                      <div className="space-y-3 animate-in fade-in slide-in-from-top-4 duration-500">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Now select subjects:</p>
-                        <div className="flex flex-wrap gap-2 max-h-[30vh] overflow-y-auto p-4 bg-slate-50 dark:bg-slate-950 rounded-[32px] border border-slate-100 dark:border-slate-800">
-                          {Array.from(new Set(editClasses.flatMap(cls => CLASS_SUBJECTS_DATA[cls] || []))).map((subj, idx) => (
-                            <button
-                              key={`${subj}-${idx}`}
-                              onClick={() => setEditTutorSubjects(prev => prev.includes(subj) ? prev.filter(s => s !== subj) : [...prev, subj])}
-                              className={cn(
-                                "px-3 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
-                                editTutorSubjects.includes(subj) ? "bg-primary text-white shadow-md" : "bg-white dark:bg-slate-800 text-slate-400 border border-slate-100 dark:border-slate-700"
-                              )}
-                            >
-                              {subj}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
                     {editUserType === 'teacher' && editClasses.length > 0 && (
                         <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">
                           {getMatchingJobsCount(editGender, editClasses, 'all', [])} Matching Jobs Available
+                        </p>
+                      )}
+                      {editUserType === 'parent' && editClasses.length > 0 && (
+                        <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">
+                          {getMatchingTutorsCount(editTutorGenderPref, editClasses, 'all', [])} Matching Tutors Available
                         </p>
                       )}
                   </div>
@@ -1134,14 +1086,14 @@ export default function App() {
                   <div className="pt-4 flex gap-3">
                     <button 
                       onClick={() => setOnboardingStep(1)}
-                      className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
+                      className="flex-1 bg-slate-100 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
                     >
                       Back
                     </button>
                     <button 
                       onClick={() => {
                         if (editClasses.length === 0) {
-                          alert("Please select at least one item from the Subject List!");
+                          alert("Please select at least one class!");
                           return;
                         }
                         setOnboardingStep(3);
@@ -1160,14 +1112,14 @@ export default function App() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 space-y-8"
+                  className="bg-white p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 space-y-8"
                 >
                   <div className="flex items-center gap-4 mb-2">
                     <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
                       <MapPin size={24} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Select City</h3>
+                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Select City</h3>
                       <p className="text-[10px] font-black text-primary uppercase tracking-widest">Base Location</p>
                     </div>
                   </div>
@@ -1188,8 +1140,8 @@ export default function App() {
                           }
                         }}
                         className={cn(
-                          "min-h-[70px] p-3 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center text-center leading-tight break-words",
-                          editCity === city ? "bg-slate-900 dark:bg-primary text-white shadow-2xl scale-105" : "bg-slate-100 dark:bg-slate-800 text-slate-400"
+                          "p-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all text-center",
+                          editCity === city ? "bg-slate-900 text-white shadow-2xl scale-105" : "bg-slate-100 text-slate-400"
                         )}
                       >
                         {city}
@@ -1202,11 +1154,16 @@ export default function App() {
                           {getMatchingJobsCount(editGender, editClasses, editCity, [])} Matching Jobs in {editCity}
                         </p>
                       )}
+                      {editUserType === 'parent' && editCity && (
+                        <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse mt-4">
+                          {getMatchingTutorsCount(editTutorGenderPref, editClasses, editCity, [])} Matching Tutors in {editCity}
+                        </p>
+                      )}
 
                   <div className="pt-4 flex gap-3">
                     <button 
                       onClick={() => setOnboardingStep(2)}
-                      className="flex-1 bg-slate-50 dark:bg-slate-800 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
+                      className="flex-1 bg-slate-50 text-slate-400 p-5 rounded-[24px] font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all"
                     >
                       Back
                     </button>
@@ -1244,14 +1201,14 @@ export default function App() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="bg-white dark:bg-slate-900 p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 space-y-8"
+                  className="bg-white p-8 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-slate-100 space-y-8"
                 >
                   <div className="flex items-center gap-4 mb-2">
                     <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
                       <Navigation size={24} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Pick Areas</h3>
+                      <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Pick Areas</h3>
                       <p className="text-[10px] font-black text-primary uppercase tracking-widest">Neighborhood Reach</p>
                     </div>
                   </div>
@@ -1263,7 +1220,7 @@ export default function App() {
                           placeholder="Search for area (e.g. Indiranagar)"
                           value={areaSearch}
                           onChange={(e) => setAreaSearch(e.target.value)}
-                          className="w-full bg-slate-50 dark:bg-slate-800 border-none p-4 pl-12 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-300 dark:text-white"
+                          className="w-full bg-slate-50 border-none p-4 pl-12 rounded-2xl text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 outline-none transition-all placeholder:text-slate-300"
                         />
                         <Search size={14} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" />
                       </div>
@@ -1272,7 +1229,7 @@ export default function App() {
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Select your reach:</p>
                         <p className="text-[8px] font-black text-primary/40 uppercase tracking-widest animate-pulse">Scroll to see all ↓</p>
                       </div>
-                      <div className="flex flex-wrap gap-2 max-h-[35vh] overflow-y-auto p-4 bg-slate-50 dark:bg-slate-950 rounded-[32px] border border-slate-100 dark:border-slate-800 scrollbar-thin scrollbar-thumb-slate-200">
+                      <div className="flex flex-wrap gap-2 max-h-[35vh] overflow-y-auto p-4 bg-slate-50 rounded-[32px] border border-slate-100 scrollbar-thin scrollbar-thumb-slate-200">
                          {(() => {
                             let locations = [...availableLocationsForCity];
                             
@@ -1292,7 +1249,7 @@ export default function App() {
                               onClick={() => setEditTutorLocations(prev => prev.includes(loc) ? prev.filter(l => l !== loc) : [...prev, loc])}
                               className={cn(
                                 "px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
-                                editTutorLocations.includes(loc) ? "bg-slate-900 dark:bg-primary text-white shadow-lg shadow-slate-200" : "bg-white dark:bg-slate-800 text-slate-400 border border-slate-100 dark:border-slate-700"
+                                editTutorLocations.includes(loc) ? "bg-slate-900 text-white shadow-lg shadow-slate-200" : "bg-white text-slate-400 border border-slate-100"
                               )}
                             >
                               {loc}
@@ -1302,6 +1259,11 @@ export default function App() {
                           {editUserType === 'teacher' && (
                             <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse mt-4">
                               {getMatchingJobsCount(editGender, editClasses, editCity, editTutorLocations)} Final Matching Jobs
+                            </p>
+                          )}
+                          {editUserType === 'parent' && (
+                            <p className="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse mt-4">
+                              {getMatchingTutorsCount(editTutorGenderPref, editClasses, editCity, editTutorLocations)} Final Matching Tutors
                             </p>
                           )}
                     </div>
@@ -1365,7 +1327,7 @@ export default function App() {
                   </div>
                   <div>
                     <h3 className="text-lg font-black text-slate-900 uppercase tracking-tighter">Smart Filter</h3>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{activeTab === 'jobs' ? 'Job Discovery' : 'Tutor Discovery'}</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tutor Discovery</p>
                   </div>
                 </div>
                 <button onClick={() => setShowFilterDrawer(false)} className="p-3 bg-slate-50 rounded-2xl text-slate-400 hover:text-slate-900 shadow-sm">
@@ -1437,32 +1399,30 @@ export default function App() {
                 )}
 
                 {/* Gender Preference */}
-                {activeTab === 'tutors' && (
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tutor Gender</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {['Any', 'Male', 'Female'].map(g => (
-                        <button 
-                          key={g}
-                          onClick={() => {
-                            setUserTutorGenderPref(g);
-                            localStorage.setItem('userTutorGenderPref', g);
-                          }}
-                          className={cn(
-                            "p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
-                            userTutorGenderPref === g ? "bg-slate-900 text-white shadow-xl" : "bg-slate-50 text-slate-400"
-                          )}
-                        >
-                          {g === 'Any' ? 'All' : g}
-                        </button>
-                      ))}
-                    </div>
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tutor Gender</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {['Any', 'Male', 'Female'].map(g => (
+                      <button 
+                        key={g}
+                        onClick={() => {
+                          setUserTutorGenderPref(g);
+                          localStorage.setItem('userTutorGenderPref', g);
+                        }}
+                        className={cn(
+                          "p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all",
+                          userTutorGenderPref === g ? "bg-slate-900 text-white shadow-xl" : "bg-slate-50 text-slate-400"
+                        )}
+                      >
+                        {g === 'Any' ? 'All' : g}
+                      </button>
+                    ))}
                   </div>
-                )}
+                </div>
 
                 {/* Class & Subject matching */}
                 <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Subject List</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Classes & Subjects</label>
                   <div className="space-y-3">
                     <div className="flex flex-wrap gap-2">
                        {CLASSES_LIST.map(cls => (
@@ -1484,7 +1444,7 @@ export default function App() {
                     </div>
                     {userClasses.length > 0 && (
                       <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-4 bg-slate-50 rounded-[32px] border border-slate-100/50">
-                         {Array.from(new Set(userClasses.flatMap(cls => CLASS_SUBJECTS_DATA[cls] || []))).map((subj, idx) => (
+                         {userClasses.flatMap(cls => CLASS_SUBJECTS_DATA[cls] || []).map((subj, idx) => (
                            <button
                              key={`${subj}-${idx}`}
                              onClick={() => {
@@ -1506,118 +1466,116 @@ export default function App() {
                 </div>
 
                 {/* Availability */}
-                {activeTab === 'tutors' && (
-                  <div className="space-y-6">
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Availability (Days)</label>
-                        <div className="grid grid-cols-2 gap-2">
-                          {Object.keys(DAY_GROUPS_DATA).map(group => (
-                            <button 
-                              key={group}
-                              onClick={() => {
-                                const next = userTutorDays.includes(group) ? userTutorDays.filter(g => g !== group) : [...userTutorDays, group];
-                                setUserTutorDays(next);
-                                localStorage.setItem('userTutorDays', JSON.stringify(next));
-                              }}
-                              className={cn("p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all", userTutorDays.includes(group) ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 text-slate-400")}
-                            >
-                              {group}
-                            </button>
-                          ))}
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Availability (Time)</label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {Object.keys(TIME_PERIODS_DATA).map(period => (
-                            <button 
-                              key={period}
-                              onClick={() => {
-                                const next = userTutorTimes.includes(period) ? userTutorTimes.filter(p => p !== period) : [...userTutorTimes, period];
-                                setUserTutorTimes(next);
-                                localStorage.setItem('userTutorTimes', JSON.stringify(next));
-                              }}
-                              className={cn("p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all", userTutorTimes.includes(period) ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 text-slate-400")}
-                            >
-                              {period}
-                            </button>
-                          ))}
-                        </div>
-                    </div>
+                <div className="space-y-6">
+                   <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Availability (Days)</label>
+                      <div className="grid grid-cols-2 gap-2">
+                         {Object.keys(DAY_GROUPS_DATA).map(group => (
+                           <button 
+                             key={group}
+                             onClick={() => {
+                               const next = userTutorDays.includes(group) ? userTutorDays.filter(g => g !== group) : [...userTutorDays, group];
+                               setUserTutorDays(next);
+                               localStorage.setItem('userTutorDays', JSON.stringify(next));
+                             }}
+                             className={cn("p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all", userTutorDays.includes(group) ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 text-slate-400")}
+                           >
+                             {group}
+                           </button>
+                         ))}
+                      </div>
+                   </div>
+                   <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Availability (Time)</label>
+                      <div className="grid grid-cols-3 gap-2">
+                         {Object.keys(TIME_PERIODS_DATA).map(period => (
+                           <button 
+                             key={period}
+                             onClick={() => {
+                               const next = userTutorTimes.includes(period) ? userTutorTimes.filter(p => p !== period) : [...userTutorTimes, period];
+                               setUserTutorTimes(next);
+                               localStorage.setItem('userTutorTimes', JSON.stringify(next));
+                             }}
+                             className={cn("p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all", userTutorTimes.includes(period) ? "bg-primary text-white shadow-xl shadow-primary/20" : "bg-slate-50 text-slate-400")}
+                           >
+                             {period}
+                           </button>
+                         ))}
+                      </div>
+                   </div>
 
-                    {/* Add New Detailed Filters */}
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Fee Range</label>
+                   {/* Add New Detailed Filters */}
+                   <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Fee Range</label>
+                      <select 
+                        value={userTutorFee}
+                        onChange={(e) => { setUserTutorFee(e.target.value); localStorage.setItem('userTutorFee', e.target.value); }}
+                        className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
+                      >
+                         <option value="">All Fees</option>
+                         <option value="0-300">₹0 - ₹300</option>
+                         <option value="300-600">₹300 - ₹600</option>
+                         <option value="600-1000">₹600 - ₹1000</option>
+                         <option value="1000+">₹1000+</option>
+                      </select>
+                   </div>
+
+                   <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">School Exp.</label>
                         <select 
-                          value={userTutorFee}
-                          onChange={(e) => { setUserTutorFee(e.target.value); localStorage.setItem('userTutorFee', e.target.value); }}
+                          value={userTutorSchoolExp}
+                          onChange={(e) => { setUserTutorSchoolExp(e.target.value); localStorage.setItem('userTutorSchoolExp', e.target.value); }}
                           className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
                         >
-                          <option value="">All Fees</option>
-                          <option value="0-300">₹0 - ₹300</option>
-                          <option value="300-600">₹300 - ₹600</option>
-                          <option value="600-1000">₹600 - ₹1000</option>
-                          <option value="1000+">₹1000+</option>
+                           <option value="">All</option>
+                           <option value="Yes">Yes</option>
+                           <option value="No">No</option>
                         </select>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">School Exp.</label>
-                          <select 
-                            value={userTutorSchoolExp}
-                            onChange={(e) => { setUserTutorSchoolExp(e.target.value); localStorage.setItem('userTutorSchoolExp', e.target.value); }}
-                            className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
-                          >
-                            <option value="">All</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                          </select>
-                        </div>
-                        <div className="space-y-3">
-                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Own Vehicle</label>
-                          <select 
-                            value={userTutorVehicle}
-                            onChange={(e) => { setUserTutorVehicle(e.target.value); localStorage.setItem('userTutorVehicle', e.target.value); }}
-                            className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
-                          >
-                            <option value="">All</option>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                          </select>
-                        </div>
-                    </div>
-
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Last Updated</label>
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Own Vehicle</label>
                         <select 
-                          value={userTutorLastUpdated}
-                          onChange={(e) => { setUserTutorLastUpdated(e.target.value); localStorage.setItem('userTutorLastUpdated', e.target.value); }}
+                          value={userTutorVehicle}
+                          onChange={(e) => { setUserTutorVehicle(e.target.value); localStorage.setItem('userTutorVehicle', e.target.value); }}
                           className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
                         >
-                          <option value="">All</option>
-                          <option value="7">Last 7 days</option>
-                          <option value="30">Last 30 days</option>
-                          <option value="90">Last 90 days</option>
-                          <option value="180">Last 180 days</option>
+                           <option value="">All</option>
+                           <option value="Yes">Yes</option>
+                           <option value="No">No</option>
                         </select>
-                    </div>
+                      </div>
+                   </div>
 
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tutor Status</label>
-                        <select 
-                          value={userTutorStatus}
-                          onChange={(e) => { setUserTutorStatus(e.target.value); localStorage.setItem('userTutorStatus', e.target.value); }}
-                          className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
-                        >
-                          <option value="">All Status</option>
-                          <option value="Active">Active</option>
-                          <option value="Not Available">Not Available</option>
-                          <option value="Suspended">Suspended</option>
-                        </select>
-                    </div>
-                  </div>
-                )}
+                   <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Last Updated</label>
+                      <select 
+                        value={userTutorLastUpdated}
+                        onChange={(e) => { setUserTutorLastUpdated(e.target.value); localStorage.setItem('userTutorLastUpdated', e.target.value); }}
+                        className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
+                      >
+                         <option value="">All</option>
+                         <option value="7">Last 7 days</option>
+                         <option value="30">Last 30 days</option>
+                         <option value="90">Last 90 days</option>
+                         <option value="180">Last 180 days</option>
+                      </select>
+                   </div>
+
+                   <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tutor Status</label>
+                      <select 
+                        value={userTutorStatus}
+                        onChange={(e) => { setUserTutorStatus(e.target.value); localStorage.setItem('userTutorStatus', e.target.value); }}
+                        className="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-extrabold outline-none appearance-none"
+                      >
+                         <option value="">All Status</option>
+                         <option value="Active">Active</option>
+                         <option value="Not Available">Not Available</option>
+                         <option value="Suspended">Suspended</option>
+                      </select>
+                   </div>
+                </div>
               </div>
 
               <div className="p-6 border-t border-slate-100 bg-slate-50">
@@ -1656,7 +1614,7 @@ export default function App() {
                      onClick={() => setShowFilterDrawer(false)}
                      className="flex-[2] bg-slate-900 text-white py-4 rounded-[20px] font-extrabold text-[10px] uppercase tracking-widest shadow-xl shadow-slate-900/20 active:scale-95 transition-all"
                    >
-                     View {activeTab === 'jobs' ? filteredLeads.length : filteredTutors.length} Results
+                     View {filteredTutors.length} Results
                    </button>
                  </div>
               </div>
@@ -1666,277 +1624,148 @@ export default function App() {
       </AnimatePresence>
       <header 
         className={cn(
-          "sticky top-0 transition-all duration-500 z-50",
-          activeTab === 'home' ? "p-6 bg-white dark:bg-slate-950" : "bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 shadow-sm"
+          "p-[30px_20px] text-center border-b relative transition-all duration-500",
+          userCity ? "text-white border-transparent" : "bg-white border-slate-50"
         )}
+        style={userCity ? { background: getCityTheme(userCity).grad } : {}}
       >
-        <div className={cn(activeTab === 'home' ? "" : "p-4 space-y-4 max-w-[1200px] mx-auto")}>
-          <div className="flex items-center gap-3">
-            <div className="flex-1 space-y-1">
-              {activeTab === 'home' ? (
-                <motion.div 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="space-y-1"
-                >
-                  <h1 className="text-4xl font-black tracking-tighter leading-none font-display bg-clip-text text-transparent bg-gradient-to-r from-primary via-blue-400 to-primary bg-[length:200%_auto] animate-gradient-x">
-                    {timeGreeting}, {userName?.split(' ')[0] || 'Friend'}
-                  </h1>
-                  <p className="text-[11px] font-medium text-slate-500 leading-tight">
-                    Thanks for being a <span style={{ color: theme.solid }} className="font-bold">{userType === 'teacher' ? 'professional tutor' : 'parent member'}</span> with DoAble India
-                  </p>
-                </motion.div>
-              ) : (
-                <div className="flex flex-col gap-2">
-                   <button 
-                     onClick={() => {
-                        setIsSelectingCityOnly(true);
-                        setShowOnboarding(true);
-                        setOnboardingStep(3);
-                     }}
-                     className="flex items-center gap-1.5 group"
-                   >
-                     <MapPin size={16} className="text-primary fill-primary/10" />
-                     <span className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter border-b-2 border-primary/20 group-hover:border-primary transition-all">
-                       {userCity}
-                     </span>
-                     <ChevronRight size={14} className="text-slate-400 rotate-90" />
-                   </button>
-                   
-                   {!showTutorForm && (activeTab === 'jobs' || activeTab === 'tutors') && (
-                     <div className="flex gap-2">
-                        <div className="relative group flex-1">
-                          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" size={16} />
-                          <input 
-                            type="text"
-                            placeholder={activeTab === 'jobs' ? "Search city, subject..." : "Search tutors..."}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-slate-50 dark:bg-slate-800 border-none rounded-[16px] py-2.5 pl-10 pr-8 text-xs font-bold focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-slate-700 transition-all outline-none placeholder:text-slate-400 dark:text-slate-500 shadow-sm dark:text-white"
-                          />
-                          {searchQuery && (
-                            <button 
-                              onClick={() => setSearchQuery('')}
-                              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
-                            >
-                              <X size={14} strokeWidth={3} />
-                            </button>
-                          )}
-                        </div>
-                        <button 
-                          onClick={() => setShowFilterDrawer(true)}
-                          className={cn(
-                            "p-2.5 rounded-[16px] shadow-sm transition-all active:scale-95 flex items-center justify-center border-2",
-                            (userTutorLocations.length > 0 || userTutorSubjects.length > 0 || cityFilter !== 'all' || userTutorGenderPref !== 'Any' || userTutorFee || userClasses.length > 0) 
-                              ? "bg-primary text-white border-primary" 
-                              : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-100 dark:border-slate-700"
-                          )}
-                        >
-                          <Filter size={18} strokeWidth={2.5} />
-                        </button>
-                     </div>
-                   )}
-                </div>
-              )}
-            </div>
-
-            <div className="flex items-center gap-3 self-start pt-1">
-              {currentUser && (
-                <button 
-                  onClick={() => firebaseAuth.signOut()} 
-                  className="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-500 transition-all rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm active:scale-95"
-                >
-                  <LogOut size={18} />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {activeTab !== 'home' && !showTutorForm && (activeTab === 'jobs' || activeTab === 'tutors') && (
-            <div className="flex flex-wrap gap-2 overflow-x-auto pb-1 scrollbar-none">
-               {userTutorLocations.length > 0 && (
-                 <button 
-                   onClick={() => setShowFilterDrawer(true)}
-                   className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1.5 whitespace-nowrap active:scale-95 transition-all"
-                 >
-                   <MapPin size={10} /> {userTutorLocations.length} Areas
-                 </button>
-               )}
-               {userTutorSubjects.length > 0 && (
-                 <button 
-                   onClick={() => setShowFilterDrawer(true)}
-                   className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase flex items-center gap-1.5 whitespace-nowrap active:scale-95 transition-all"
-                 >
-                   <BookOpen size={10} /> {userTutorSubjects.length} Subjects
-                 </button>
-               )}
-               {userTutorGenderPref !== 'Any' && (
-                 <button 
-                   onClick={() => setShowFilterDrawer(true)}
-                   className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap active:scale-95 transition-all"
-                 >
-                   {userTutorGenderPref} Only
-                 </button>
-               )}
-               {userTutorFee && (
-                 <button 
-                   onClick={() => setShowFilterDrawer(true)}
-                   className="bg-primary/10 text-primary border border-primary/20 px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap active:scale-95 transition-all"
-                 >
-                   ₹ {userTutorFee}
-                 </button>
-               )}
-            </div>
-          )}
-
-          {activeTab !== 'home' && (activeTab === 'alerts' || !showTutorForm && activeTab !== 'jobs' && activeTab !== 'tutors') && (
-            <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-2 scrollbar-none">
-              <div className="bg-primary/5 px-4 py-2 rounded-2xl flex items-center gap-2 border border-primary/10 shrink-0">
-                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-                <span className="text-[10px] font-bold text-primary">
-                  {userType === 'teacher' ? filteredLeads.length : allLeads.filter(l => isCityMatch(l.City, userCity)).length} Active Leads
-                </span>
-              </div>
-              <div className="bg-blue-50 px-4 py-2 rounded-2xl flex items-center gap-2 border border-blue-100 shrink-0">
-                <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-                <span className="text-[10px] font-bold text-blue-600">
-                  {tutors.filter(t => isCityMatch(getCityValue(t), userCity) || (t['Preferred Location(s)'] || '').toLowerCase().includes(userCity.toLowerCase())).length} Tutors
-                </span>
-              </div>
-            </div>
+        <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-3">
+          {currentUser && (
+            <button onClick={() => firebaseAuth.signOut()} className={cn(userCity ? "text-white/70 hover:text-white" : "text-slate-400 hover:text-red-500", "transition-colors")}>
+              <LogOut size={20} />
+            </button>
           )}
         </div>
+
+        <h1 className={cn("text-[32px] font-[900] tracking-tighter", userCity ? "text-white" : "text-primary")}>
+          {activeTab === 'home' && (userName ? `Welcome, ${userName}` : 'DoAble India')}
+          {activeTab === 'jobs' && 'Tuition Jobs'}
+          {activeTab === 'tutors' && 'Expert Tutors'}
+        </h1>
+        
+        <div className="flex items-center justify-center gap-3 mt-3">
+          <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 shadow-sm transition-transform hover:scale-105">
+            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.5)]" />
+            <span className="text-[10px] font-black uppercase tracking-tight text-white">{allLeads.filter(l => isCityMatch(l.City, userCity)).length} Jobs in {userCity}</span>
+          </div>
+          <div className="bg-white/15 backdrop-blur-md px-3 py-1.5 rounded-xl flex items-center gap-2 border border-white/10 shadow-sm transition-transform hover:scale-105">
+            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
+            <span className="text-[10px] font-black uppercase tracking-tight text-white">{tutors.filter(t => isCityMatch(getCityValue(t), userCity)).length} Tutors</span>
+          </div>
+        </div>
+
+        <p className={cn("text-[13px] font-bold uppercase tracking-widest mt-2", userCity ? "text-white/70" : "text-slate-400")}>
+          {activeTab === 'home' && (userName ? `PERFECT MATCHES FOR YOUR PROFILE` : 'Premium Teaching Portal')}
+          {activeTab === 'jobs' && 'Live Teaching Feed'}
+          {activeTab === 'tutors' && 'Professional Educators'}
+        </p>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto scrollbar-none container mx-auto p-4 max-w-[1200px] relative z-30 pb-32 overscroll-y-contain touch-pan-y">
+      <main className="container mx-auto p-[10px] max-w-[1200px]">
         {showTutorForm ? (
-          <div className="animate-in slide-in-from-bottom duration-500 bg-white dark:bg-slate-900 min-h-[85vh] rounded-[48px] overflow-hidden border border-slate-100 dark:border-slate-800 shadow-2xl relative">
-            <div className="bg-slate-50 dark:bg-slate-950 p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+          <div className="animate-in slide-in-from-bottom duration-500 bg-white min-h-[85vh] rounded-[40px] overflow-hidden border border-slate-100 shadow-2xl relative">
+            <div className="bg-slate-50 p-6 flex items-center justify-between border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-primary/10 rounded-2xl text-primary">
-                  <Settings className="animate-spin-slow" size={20} />
-                </div>
-                <div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white">Update Profile</h3>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Secure Sync</p>
-                </div>
+                <Settings className="text-primary animate-spin-slow" size={20} />
+                <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Update Profile</h3>
               </div>
-              <button
+              <button 
                 onClick={() => setShowTutorForm(false)}
-                className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white p-4 px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm border border-slate-100 dark:border-slate-700"
+                className="bg-primary/10 text-primary p-3 rounded-2xl font-black text-[10px] uppercase tracking-tighter hover:bg-primary/20 transition-colors"
               >
-                Return Home
+                Close & Go Home
               </button>
             </div>
-            <iframe
-              src="https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8"
-              className="w-full h-[75vh] border-none dark:invert dark:hue-rotate-180 dark:brightness-90"
+            <iframe 
+              src="https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8" 
+              className="w-full h-[75vh] border-none"
               title="Tutor Update Form"
             />
-            <div className="p-6 bg-slate-50 dark:bg-slate-950 text-center border-t border-slate-100 dark:border-slate-800">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed max-w-xs mx-auto">
-                Securely encrypted on DoAble servers. Changes reflect within 24-48 hours.
+            <div className="p-6 bg-slate-50 text-center">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">
+                Form processed by DoAble India official Portal.<br/>Changes may take 24-48 hours to reflect on live profiles.
               </p>
             </div>
           </div>
-        ) : (          <>
+        ) : (
+          <>
             {activeTab === 'home' && (
-              <div className="flex-1 flex flex-col justify-start py-4 space-y-6 overflow-hidden">
-                {/* 2. Hero Action Card - Dynamic & Full Width */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ type: "spring", damping: 20, stiffness: 100 }}
-                  onClick={() => {
-                    setActiveTab(userType === 'parent' ? 'tutors' : 'jobs');
-                    window.scrollTo({top: 0, behavior: 'smooth'});
-                  }}
-                  style={{ background: theme.grad }}
-                  className="p-8 rounded-[40px] relative overflow-hidden shadow-2xl shadow-slate-200 border border-white/10 group w-full cursor-pointer active:scale-[0.98] transition-all"
+          <div className="space-y-8 py-8 px-4">
+              <div className="space-y-10">
+                {/* 2. Perfect Match for [City] Section */}
+                <div 
+                  className="p-10 rounded-[48px] relative overflow-hidden shadow-2xl shadow-primary/20 border border-primary/5 animate-in fade-in zoom-in duration-1000 delay-200"
+                  style={{ background: getCityTheme(userCity).grad }}
                 >
-                  {/* Decorative Elements */}
-                  <div className="absolute top-[-10%] right-[-5%] w-64 h-64 bg-white/10 rounded-full blur-[80px]" />
-                  <div className="absolute bottom-8 right-8 text-white/40 group-hover:text-white/60 transition-colors">
-                    <ArrowRight size={48} strokeWidth={3} />
-                  </div>
-
                   <div className="relative z-10 space-y-8">
-                    <div className="space-y-2">
-                      <h3 className="text-3xl font-black leading-tight text-white tracking-tighter">
-                        {userType === 'parent' ? 'Find Expert Tutors' : 'Find Tuition Jobs'}
-                      </h3>
-                      <p className="text-white/80 text-[11px] font-bold uppercase tracking-widest">
-                        Available in {userCity}
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/20">
-                        <p className="text-[8px] font-bold text-white/60 mb-1">Active Jobs</p>
-                        <p className="text-2xl font-black text-white leading-none">
-                          {userType === 'teacher' ? filteredLeads.length : allLeads.filter(l => isCityMatch(l.City, userCity)).length}
-                        </p>
-                      </div>
-                      <div className="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/20">
-                        <p className="text-[8px] font-bold text-white/60 mb-1">Active Tutors</p>
-                        <p className="text-2xl font-black text-white leading-none">
-                          {tutors.filter(t => isCityMatch(getCityValue(t), userCity) || (t['Preferred Location(s)'] || '').toLowerCase().includes(userCity.toLowerCase())).length}
-                        </p>
-                      </div>
-                    </div>
+                     <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                           <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shadow-[0_0_10px_rgba(74,222,128,0.5)]" />
+                           <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/70">Sync With Local Demand</span>
+                        </div>
+                        <h3 className="text-3xl font-black leading-none text-white tracking-tighter">Perfect Match for<br/> {userCity}</h3>
+                     </div>
+                     
+                     <div className="flex flex-col sm:flex-row gap-3">
+                        <button 
+                          onClick={() => {
+                            setIsSelectingCityOnly(true);
+                            setShowOnboarding(true);
+                            setOnboardingStep(3); // City Selection
+                          }}
+                          className="bg-white text-slate-900 px-8 py-5 rounded-[28px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all shadow-xl active:scale-95"
+                        >
+                          <MapPin size={18} className="text-primary" />
+                          Change City
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setShowOnboarding(true);
+                            setOnboardingStep(0); // Identity/Preference Reset
+                          }}
+                          className="bg-primary text-white p-5 rounded-[28px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all active:scale-95"
+                        >
+                          <Settings size={18} />
+                          Update Preference
+                        </button>
+                     </div>
                   </div>
-                </motion.div>
-
-                {/* 3. Primary Action Buttons - Uber Style (Clean & Full Width) */}
-                <div className="space-y-4 pt-2">
-                  <button 
-                    onClick={() => {
-                      setIsSelectingCityOnly(true);
-                      setShowOnboarding(true);
-                      setOnboardingStep(3);
-                    }}
-                    className="w-full bg-slate-50 text-slate-900 p-5 rounded-[28px] font-bold text-sm flex items-center justify-between border border-slate-100 shadow-sm active:scale-98 transition-all group"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-white rounded-2xl shadow-sm group-hover:bg-primary/5 transition-colors">
-                        <MapPin size={22} className="text-primary" />
-                      </div>
-                      <span className="text-slate-700">Change city</span>
-                    </div>
-                    <ChevronRight size={18} className="text-slate-300" />
-                  </button>
-
-                  <button 
-                    onClick={() => {
-                      setShowOnboarding(true);
-                      setOnboardingStep(0);
-                    }}
-                    className="w-full bg-primary/5 text-primary p-5 rounded-[28px] font-bold text-sm flex items-center justify-between border border-primary/10 shadow-sm active:scale-98 transition-all group"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-white rounded-2xl shadow-sm">
-                        <Settings size={22} className="text-primary" />
-                      </div>
-                      <span className="text-primary">Change my preference</span>
-                    </div>
-                    <ChevronRight size={18} className="text-primary/30" />
-                  </button>
+                  <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-white/10 rounded-full blur-[80px]" />
                 </div>
-              </div>
-            )}
 
-            {activeTab === 'alerts' && (
-              <AlertsView 
-                city={userCity || 'All'} 
-                userGender={userGender} 
-                userClasses={userClasses} 
-                userType={userType} 
-                setShowTutorForm={setShowTutorForm} 
-                themeMode={themeMode}
-                setThemeMode={setThemeMode}
-              />
-            )}
+                {/* Role-Based Actions Corner */}
+                <div className="bg-slate-900 p-8 rounded-[48px] text-white space-y-6 shadow-2xl shadow-slate-900/40 relative overflow-hidden group border border-white/5 animate-in slide-in-from-bottom duration-700 delay-300">
+                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                    <GraduationCap size={120} />
+                  </div>
+                  <div className="space-y-2 relative z-10">
+                    <p className="text-primary text-[10px] font-black uppercase tracking-[0.4em]">{userType === 'teacher' ? 'Official Liaison' : 'Parent Priority'}</p>
+                    <h3 className="text-3xl font-black uppercase tracking-tighter">{userType === 'teacher' ? 'Tutor Corner' : 'Requirement'}</h3>
+                  </div>
+                  <div className="p-1 bg-white/5 rounded-[32px] border border-white/10 backdrop-blur-sm">
+                      <button 
+                        onClick={() => setShowTutorForm(true)}
+                        className="w-full bg-white text-slate-900 p-6 rounded-[28px] font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-slate-50 transition-all active:scale-95 shadow-2xl"
+                      >
+                        <span className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                          <Edit3 size={16} />
+                        </span>
+                        {userType === 'teacher' ? 'Tell details to city coordinator' : 'Update My Preferences'}
+                      </button>
+                  </div>
+                  <div className="flex items-center gap-3 justify-center opacity-40">
+                      <CheckCircle size={12} className="text-primary" />
+                      <p className="text-[8px] font-black uppercase tracking-widest leading-none">Update your profile on DoAble server</p>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+          )}
+
+        {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} />}
         
         {showAdminSettings && (
           <div className="fixed inset-0 z-[5000] bg-white flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
@@ -1995,9 +1824,61 @@ export default function App() {
         )}
 
         {(activeTab === 'jobs' || activeTab === 'tutors') && !showTutorForm && (
-          <div className="animate-in fade-in duration-500 relative">
-            <div className="space-y-6">
-              {loading && (leads.length === 0 && tutors.length === 0) ? (
+          <div className="space-y-6 animate-in fade-in duration-500 relative">
+            {/* Search */}
+            <div className="px-2 pt-4 flex gap-3">
+              <div className="relative group flex-1">
+                <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-primary transition-colors" size={20} />
+                <input 
+                  type="text"
+                  placeholder={activeTab === 'jobs' ? "Search city, subject, order ID..." : "Search name, subject, tutor ID..."}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-slate-50 border-2 border-slate-50 rounded-[28px] py-5 pl-14 pr-7 text-sm font-bold focus:ring-4 focus:ring-primary/5 focus:border-primary/20 focus:bg-white transition-all outline-none placeholder:text-slate-300 shadow-sm"
+                />
+              </div>
+              {(activeTab === 'tutors' || activeTab === 'jobs') && (
+                <button 
+                  onClick={() => setShowFilterDrawer(true)}
+                  className="bg-primary text-white p-5 rounded-[28px] shadow-lg shadow-primary/20 active:scale-95 transition-transform flex items-center justify-center"
+                >
+                  <Filter size={24} />
+                </button>
+              )}
+            </div>
+
+            {/* Filter Summary Tags */}
+            {(activeTab === 'tutors' || activeTab === 'jobs') && (
+              <div className="flex flex-wrap gap-2 px-4">
+                 {userTutorLocations.length > 0 && (
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase flex items-center gap-1">
+                     <MapPin size={10} /> {userTutorLocations.length} Areas
+                   </span>
+                 )}
+                 {userTutorSubjects.length > 0 && (
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase flex items-center gap-1">
+                     <BookOpen size={10} /> {userTutorSubjects.length} Subjects
+                   </span>
+                 )}
+                 {userTutorGenderPref !== 'Any' && (
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase">
+                     {userTutorGenderPref} Only
+                   </span>
+                 )}
+                 {userTutorFee && (
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase">
+                     ₹ {userTutorFee}
+                   </span>
+                 )}
+                 {userTutorStatus && (
+                   <span className="bg-primary/10 text-primary px-3 py-1.5 rounded-full text-[10px] font-black uppercase">
+                     Status: {userTutorStatus}
+                   </span>
+                 )}
+              </div>
+            )}
+
+            {loading && (leads.length === 0 && tutors.length === 0) ? (
               <div className="text-center p-32 text-primary font-black flex flex-col items-center gap-5">
                 <Loader2 className="animate-spin" size={40} />
                 <div className="uppercase tracking-[0.3em] text-[10px] opacity-40">Syncing Data</div>
@@ -2059,7 +1940,7 @@ export default function App() {
 
       {/* Bottom Navigation */}
       <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[90%] max-w-md flex flex-col items-center gap-3 z-[3000]">
-        <div className="w-full bg-white dark:bg-slate-900 shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-[28px] border border-slate-200 dark:border-slate-800 px-4 py-2 flex justify-around items-center safe-area-bottom">
+        <div className="w-full bg-white shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-[32px] border border-slate-100 px-4 py-3 flex justify-around items-center safe-area-bottom">
           <NavButton 
             active={activeTab === 'home' && !showTutorForm} 
             onClick={() => { setActiveTab('home'); setShowTutorForm(false); window.scrollTo({top: 0, behavior: 'smooth'}); }}
@@ -2230,12 +2111,12 @@ function NavButton({ active, onClick, icon, label }: { active: boolean, onClick:
       onClick={onClick}
       className={cn(
         "flex flex-col items-center gap-1.5 py-1 px-3 sm:px-5 rounded-2xl transition-all active:scale-95",
-        active ? "text-primary dark:text-blue-400 scale-110" : "text-slate-300 dark:text-slate-700"
+        active ? "text-primary scale-110" : "text-slate-300"
       )}
     >
       <div className={cn(
         "p-2 rounded-xl transition-all",
-        active ? "bg-primary/5 dark:bg-blue-400/5 shadow-inner" : ""
+        active ? "bg-primary/5 shadow-inner" : ""
       )}>
         {icon}
       </div>
@@ -2249,10 +2130,10 @@ function NavButton({ active, onClick, icon, label }: { active: boolean, onClick:
 
 function FeatureCard({ icon, title, desc }: { icon: any, title: string, desc: string }) {
   return (
-    <div className="bg-white dark:bg-slate-900 p-7 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm space-y-3">
-      <div className="p-3 bg-slate-50 dark:bg-slate-800 w-fit rounded-2xl">{icon}</div>
-      <h4 className="font-extrabold text-slate-900 dark:text-white">{title}</h4>
-      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{desc}</p>
+    <div className="bg-white p-7 rounded-[32px] border border-slate-100 shadow-sm space-y-3">
+      <div className="p-3 bg-slate-50 w-fit rounded-2xl">{icon}</div>
+      <h4 className="font-extrabold text-slate-900">{title}</h4>
+      <p className="text-xs text-slate-500 leading-relaxed">{desc}</p>
     </div>
   );
 }
