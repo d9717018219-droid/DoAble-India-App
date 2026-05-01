@@ -94,3 +94,14 @@
   @apply absolute top-3 right-3 w-9 h-9 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center text-white border-none cursor-pointer z-10 transition-transform active:scale-95;
 }
 
+/* Hide n8n floating chat bubble to prevent overlapping footer menu */
+n8n-chat::part(button) {
+  display: none !important;
+}
+
+/* Ensure chat window still displays correctly when triggered manually */
+n8n-chat::part(window) {
+  z-index: 9999;
+}
+
+
