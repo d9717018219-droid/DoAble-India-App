@@ -283,6 +283,9 @@ export default function App() {
     return tutors.filter(t => isCityMatch(getCityValue(t), userCity)).length;
   }, [tutors, userCity, isCityMatch, getCityValue]);
 
+  // Get locations for selected city
+  const cityLocations = CITY_TO_LOCATIONS_DATA[editCity] || [];
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 font-sans selection:bg-primary selection:text-white" ref={mainScrollRef}>
       
@@ -372,12 +375,71 @@ export default function App() {
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto p-2 custom-scrollbar">
                       {CITIES_LIST.map(city => (
-                        <button key={city} onClick={() => { setEditCity(city); if(isSelectingCityOnly) { completeOnboarding(); } }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase", editCity === city ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>
+                        <button key={city} onClick={() => setEditCity(city)} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase", editCity === city ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>
                           {city}
                         </button>
                       ))}
                     </div>
-                    {!isSelectingCityOnly && <button onClick={completeOnboarding} className="w-full bg-slate-900 text-white py-6 rounded-[32px] font-black text-[12px] uppercase tracking-[0.3em] shadow-xl">Complete Setup</button>}
+                    <button onClick={() => setOnboardingStep(4)} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[10px] uppercase shadow-xl">Select Locations</button>
+                  </div>
+                </motion.div>
+              )}
+
+              {onboardingStep === 4 && (
+                <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-8 rounded-[40px] shadow-2xl border border-slate-100 space-y-8">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><MapPin size={24} /></div>
+                    <div>
+                      <h3 className="text-xl font-black text-slate-900 uppercase">Your Areas</h3>
+                      <p className="text-[10px] font-black text-primary uppercase">Select Preferred Locations in {editCity}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <input 
+                        type="text" 
+                        placeholder="Search locations..." 
+                        value={areaSearch} 
+                        onChange={(e) => setAreaSearch(e.target.value.toLowerCase())} 
+                        className="w-full bg-slate-50 p-3 rounded-xl text-sm font-bold outline-none border border-slate-200"
+                      />
+                    </div>
+                    <div className="flex flex-wrap gap-2 max-h-[35vh] overflow-y-auto p-2 custom-scrollbar">
+                      {cityLocations.filter(loc => loc.toLowerCase().includes(areaSearch)).map((location) => (
+                        <button 
+                          key={location} 
+                          onClick={() => setEditTutorLocations(prev => 
+                            prev.includes(location) 
+                              ? prev.filter(x => x !== location) 
+                              : [...prev, location]
+                          )} 
+                          className={cn("px-3 py-2 rounded-xl text-[10px] font-black uppercase whitespace-nowrap", 
+                            editTutorLocations.includes(location) 
+                              ? "bg-primary text-white" 
+                              : "bg-slate-100 text-slate-400"
+                          )}
+                        >
+                          {location}
+                        </button>
+                      ))}
+                    </div>
+                    {editTutorLocations.length === 0 && (
+                      <p className="text-[12px] text-slate-400 text-center py-4">Select at least one location to continue</p>
+                    )}
+                    <div className="grid grid-cols-2 gap-3">
+                      <button onClick={() => setOnboardingStep(3)} className="w-full bg-slate-200 text-slate-900 py-3 rounded-2xl font-black text-[10px] uppercase shadow-lg">Back</button>
+                      <button 
+                        onClick={completeOnboarding} 
+                        disabled={editTutorLocations.length === 0}
+                        className={cn("w-full py-3 rounded-2xl font-black text-[10px] uppercase shadow-lg", 
+                          editTutorLocations.length === 0 
+                            ? "bg-slate-300 text-slate-500 cursor-not-allowed" 
+                            : "bg-slate-900 text-white"
+                        )}
+                      >
+                        Complete Setup
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               )}
