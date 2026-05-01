@@ -122,6 +122,22 @@ export default function App() {
     return (t.Gender || 'Male').trim();
   };
 
+  const getLeadStatus = (l: JobLead): string => {
+    const remark = (l['Internal Remark'] || '').trim();
+    if (remark === '' || remark === 'New Lead' || remark === 'Need Assist' || remark === 'Job Seeker' || remark === 'Check Available Tutors') {
+      return 'New';
+    } else if (remark === 'Searching' || remark === 'Follow Up' || remark === 'On Hold' || remark === 'Not Picking Calls' || remark === 'NPC') {
+      return 'Searching';
+    } else if (remark === 'Booking') {
+      return 'Booking';
+    } else if (remark === 'Hired' || remark === 'Tutor Found') {
+      return 'Hired';
+    } else if (remark === 'Not Converted' || remark === 'Junk' || remark === 'Low Budget' || remark === 'Tutor Not Found') {
+      return 'Not Converted';
+    }
+    return remark;
+  };
+
   const isCityMatch = (leadCity: string | undefined, filterCity: string) => {
     if (!leadCity) return false;
     if (filterCity === 'all') return true;
@@ -197,10 +213,11 @@ export default function App() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://script.google.com/macros/s/AKfycbz_98lYgU_W7YI7x_oAonL6-yR_M4QkKpxG1xX3Z7l9W7S7yG0/exec');
+      const response = await fetch('https://doableindia.com/api_data.php');
       const result = await response.json();
-      setLeads(result.leads || []);
-      setTutors(result.tutors || []);
+      // The new API returns an object with a "data" field containing the leads
+      setLeads(result.data || []);
+      setTutors([]); // Tutors not present in this specific API
       setError(null);
     } catch (err: any) {
       setError(`Failed to load data. Please try again. Error: ${err.message || 'Unknown'}`);
@@ -300,24 +317,8 @@ export default function App() {
         (l['Order ID']?.toLowerCase().includes(searchLower)) ||
         (l.City?.toLowerCase().includes(searchLower));
 
-      // Internal Remark / Status Filter Mapping (Inclusive Logic)
-      const remark = (l['Internal Remark'] || '').trim();
-      let leadStatus = 'All';
-      
-      if (remark === '' || remark === 'New Lead' || remark === 'Need Assist' || remark === 'Job Seeker') {
-        leadStatus = 'New';
-      } else if (remark === 'Searching' || remark === 'Follow Up' || remark === 'On Hold' || remark === 'Not Picking Calls' || remark === 'NPC') {
-        leadStatus = 'Searching';
-      } else if (remark === 'Booking') {
-        leadStatus = 'Booking';
-      } else if (remark === 'Hired' || remark === 'Tutor Found') {
-        leadStatus = 'Hired';
-      } else if (remark === 'Not Converted' || remark === 'Junk' || remark === 'Low Budget' || remark === 'Tutor Not Found') {
-        leadStatus = 'Not Converted';
-      } else {
-        leadStatus = remark; // Fallback for other unique values
-      }
-
+      // Status Filter
+      const leadStatus = getLeadStatus(l);
       const matchesStatus = statusFilter === 'All' || leadStatus === statusFilter;
 
       // Conditional Preference Filtering
@@ -325,8 +326,6 @@ export default function App() {
       let matchesSubjects = true;
       let matchesGender = true;
 
-      // Only apply tutor-specific filters if the user has actually set some preferences
-      // otherwise show all leads in the city
       const hasSetPreferences = userTutorLocations.length > 0 || userTutorSubjects.length > 0;
 
       if (hasSetPreferences) {
@@ -406,7 +405,9 @@ export default function App() {
       const mg = !gender || gender === 'Any' || (l.Gender || '').toLowerCase().includes(gender.toLowerCase());
       const mcl = classes.length === 0 || isClassMatch(l.Class, classes);
       const ml = locs.length === 0 || isLocationMatch(l.Locations, locs, l.City);
-      return mc && mg && mcl && ml && (l['Internal Remark'] || 'Searching') === 'Searching';
+      // Stats should only count 'New' or 'Searching' leads to be relevant
+      const status = getLeadStatus(l);
+      return mc && mg && mcl && ml && (status === 'New' || status === 'Searching');
     }).length;
   };
 
