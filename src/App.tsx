@@ -42,7 +42,7 @@ export default function App() {
   const [cityFilter, setCityFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'home' | 'leads' | 'tutors' | 'alerts'>('home');
-  const [statusFilter, setStatusFilter] = useState<'All' | 'New' | 'Searching' | 'Booking' | 'Hired'>('Searching');
+  const [statusFilter, setStatusFilter] = useState<'All' | 'New' | 'Searching' | 'Booking' | 'Hired' | 'Not Converted'>('Searching');
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [showAdminSettings, setShowAdminSettings] = useState(false);
@@ -300,8 +300,9 @@ export default function App() {
         (l['Order ID']?.toLowerCase().includes(searchLower)) ||
         (l.City?.toLowerCase().includes(searchLower));
 
-      // Internal Remark / Status Filter
-      const leadStatus = (l['Internal Remark'] || 'Searching');
+      // Internal Remark / Status Filter Mapping
+      const remark = (l['Internal Remark'] || '').trim();
+      const leadStatus = remark === '' ? 'New' : remark;
       const matchesStatus = statusFilter === 'All' || leadStatus === statusFilter;
 
       // Conditional Preference Filtering
@@ -1006,12 +1007,12 @@ export default function App() {
                   {activeTab === 'leads' && (
                     <div className="sticky top-0 z-40 py-4 bg-slate-50/80 backdrop-blur-md -mx-[10px] px-[10px]">
                        <div className="bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-[22px] flex gap-1 border border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
-                         {['All', 'New', 'Searching', 'Booking', 'Hired'].map((status) => (
+                         {['All', 'New', 'Searching', 'Booking', 'Hired', 'Not Converted'].map((status) => (
                            <button
                              key={status}
                              onClick={() => setStatusFilter(status as any)}
                              className={cn(
-                               "flex-1 min-w-[80px] flex items-center justify-center gap-2 py-3 rounded-[16px] text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
+                               "flex-1 min-w-[100px] flex items-center justify-center gap-2 py-3 rounded-[16px] text-[9px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                                statusFilter === status 
                                  ? "bg-primary text-white shadow-lg scale-[1.02]" 
                                  : "text-slate-400 hover:text-slate-600"
@@ -1022,6 +1023,7 @@ export default function App() {
                              {status === 'Searching' && <Search size={12} />}
                              {status === 'Booking' && <Check size={12} />}
                              {status === 'Hired' && <CheckCircle size={12} />}
+                             {status === 'Not Converted' && <X size={12} />}
                              {status}
                            </button>
                          ))}
