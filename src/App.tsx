@@ -85,24 +85,6 @@ export default function App() {
   const [editClasses, setEditClasses] = useState<string[]>(JSON.parse(localStorage.getItem('userClasses') || '[]'));
   const [editCity, setEditCity] = useState<string>(localStorage.getItem('userCity') || 'Ghaziabad');
 
-  // Global Chat Auto-Hide Logic
-  useEffect(() => {
-    const chatElement = document.querySelector('n8n-chat');
-    if (chatElement) {
-      // Force hide unless we are explicitly in the Support module and user requested it
-      // Since Support Desk is inside Alerts module, we hide it for all other main tabs
-      if (activeTab !== 'alerts') {
-        chatElement.classList.remove('chat-active');
-        
-        // Also programmatically click the close button if it's open
-        if (chatElement.shadowRoot) {
-           const closeButton = chatElement.shadowRoot.querySelector('.n8n-chat-close-button') as HTMLElement;
-           if (closeButton) closeButton.click();
-        }
-      }
-    }
-  }, [activeTab]);
-
   const [userTutorSubjects, setUserTutorSubjects] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorSubjects') || '[]'));
   const [userTutorLocations, setUserTutorLocations] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorLocations') || '[]'));
   const [userTutorTimes, setUserTutorTimes] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorTimes') || '[]'));

@@ -6,8 +6,6 @@ import { Alert, UserType } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, Play, Volume2, Settings, X, MessageSquare } from 'lucide-react';
 import { cn, getCityTheme } from '../utils';
-import { createChat } from '@n8n/chat';
-import '@n8n/chat/style.css';
 
 interface AlertsViewProps {
   city: string;
@@ -31,67 +29,9 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
 
   const celestialTone = { name: 'Celestial Goal', url: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3' };
 
+  const chatIframe = `<iframe src="https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat" style="width:100%;height:600px;border:none;border-radius:24px;" allow="microphone; camera"></iframe>`;
   const tutorFormIframe = `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;"></iframe>`;
   const parentFormIframe = `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>`;
-
-  // Cleanup and visibility control for chat
-  useEffect(() => {
-    const hideChat = () => {
-      const chatElement = document.querySelector('n8n-chat');
-      if (chatElement) {
-        chatElement.classList.remove('chat-active');
-      }
-    };
-
-    // If we move away from support tab, hide the chat
-    if (activeTab !== 'support') {
-      hideChat();
-    }
-
-    // On component unmount (switching main app tabs), hide the chat
-    return () => hideChat();
-  }, [activeTab]);
-
-  const openChat = () => {
-    // 1. If chat doesn't exist, initialize it
-    if (!document.querySelector('n8n-chat')) {
-      createChat({
-        webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
-        initialMessages: ['Hi there! 👋 How can DoAble India help you today?'],
-        i18n: {
-          en: {
-            title: 'DoAble Support',
-            subtitle: 'Our AI Assistant',
-            footer: 'Support Desk',
-            getStarted: 'New Conversation',
-            inputPlaceholder: 'Type your message...',
-            closeButtonTooltip: 'Close',
-          },
-        },
-      });
-    }
-
-    // 2. Poll for the chat widget to render and then trigger/toggle its display
-    const checkAndTrigger = setInterval(() => {
-      const chatElement = document.querySelector('n8n-chat');
-      if (chatElement) {
-        // Force the host to be active
-        chatElement.classList.add('chat-active');
-        
-        if (chatElement.shadowRoot) {
-          const chatButton = chatElement.shadowRoot.querySelector('.n8n-chat-button') as HTMLElement;
-          if (chatButton) {
-            // Trigger the internal click to open the window
-            chatButton.click();
-            clearInterval(checkAndTrigger);
-          }
-        }
-      }
-    }, 100);
-
-    // Timeout safety
-    setTimeout(() => clearInterval(checkAndTrigger), 5000);
-  };
 
   const playSound = (url: string, volume = 0.8) => {
     if (!domAudioRef.current) return;
@@ -331,22 +271,33 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
       <div className="px-6 space-y-4">
         {activeTab === 'support' ? (
            <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
-              <div className="bg-rose-50 dark:bg-rose-950/20 p-10 rounded-[40px] border border-rose-100 dark:border-rose-900/30 text-center space-y-8">
-                 <div className="w-24 h-24 bg-rose-500 text-white rounded-[40px] flex items-center justify-center mx-auto shadow-2xl shadow-rose-500/30">
-                    <MessageSquare size={48} />
+              <div className="bg-white dark:bg-slate-900 rounded-[40px] border-2 border-rose-100 dark:border-rose-900/30 overflow-hidden shadow-2xl shadow-rose-500/10 flex flex-col">
+                 <div className="bg-rose-500 p-6 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                       <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white">
+                          <MessageSquare size={20} />
+                       </div>
+                       <div>
+                          <h3 className="text-lg font-black text-white uppercase tracking-tight">Support Desk</h3>
+                          <p className="text-[10px] font-bold text-rose-100 uppercase tracking-widest">Active & Secure</p>
+                       </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                       <span className="text-[10px] font-black text-white uppercase tracking-widest">Online</span>
+                    </div>
                  </div>
-                 <div className="space-y-3">
-                    <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Support Desk</h3>
-                    <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-[10px] max-w-[240px] mx-auto leading-relaxed">
-                       Our AI Assistant and Support Team are ready to assist you 24/7.
-                    </p>
+                 
+                 <div className="p-2 bg-white">
+                    <div 
+                      className="w-full rounded-[24px] overflow-hidden bg-slate-50"
+                      dangerouslySetInnerHTML={{ __html: chatIframe }} 
+                    />
                  </div>
-                 <button 
-                    onClick={openChat}
-                    className="bg-rose-500 text-white px-10 py-5 rounded-[28px] font-black text-[12px] uppercase tracking-[0.2em] shadow-xl shadow-rose-500/20 active:scale-95 transition-transform"
-                 >
-                    Chat With Us
-                 </button>
+
+                 <div className="p-4 bg-rose-50 dark:bg-rose-950/20 text-center border-t border-rose-100 dark:border-rose-900/30">
+                    <p className="text-[9px] font-bold text-rose-600 dark:text-rose-400 uppercase tracking-[0.2em]">End-to-End Encrypted Support Session</p>
+                 </div>
               </div>
            </div>
         ) : activeTab === 'setup' ? (
@@ -420,7 +371,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
           </div>
         ) : (
           <AnimatePresence mode="popLayout">
-            {displayAlerts.length === 0 ? (
+            {allFilteredAlerts.length === 0 ? (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -433,7 +384,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
                 <p className="text-slate-500 text-[10px] font-bold mt-2 uppercase tracking-[0.3em]">All signals are stable in {city}</p>
               </motion.div>
             ) : (
-                displayAlerts.map((alert, index) => (
+                allFilteredAlerts.map((alert, index) => (
                 <motion.div
                   layout
                   initial={{ opacity: 0, x: -20 }}
