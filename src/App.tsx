@@ -42,7 +42,7 @@ export default function App() {
   const [cityFilter, setCityFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'home' | 'leads' | 'tutors' | 'alerts'>('home');
-  const [statusFilter, setStatusFilter] = useState<'All' | 'New' | 'Searching' | 'Booking' | 'Hired' | 'Not Converted'>('Searching');
+  const [statusFilter, setStatusFilter] = useState<'New' | 'Searching' | 'Booking' | 'Hired'>('Searching');
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [showAdminSettings, setShowAdminSettings] = useState(false);
@@ -132,10 +132,8 @@ export default function App() {
       return 'Booking';
     } else if (remark === 'Hired' || remark === 'Tutor Found') {
       return 'Hired';
-    } else if (remark === 'Not Converted' || remark === 'Junk' || remark === 'Low Budget' || remark === 'Tutor Not Found') {
-      return 'Not Converted';
     }
-    return remark;
+    return 'Other';
   };
 
   const isCityMatch = (leadCity: string | undefined, filterCity: string) => {
@@ -1030,7 +1028,7 @@ export default function App() {
                   {activeTab === 'leads' && (
                     <div className="sticky top-0 z-40 py-4 bg-slate-50/80 backdrop-blur-md -mx-[10px] px-[10px]">
                        <div className="bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-[22px] flex gap-1 border border-slate-200 dark:border-slate-800 overflow-x-auto no-scrollbar">
-                         {['New', 'Searching', 'Booking', 'Not Converted', 'Hired', 'All'].map((status) => (
+                         {['New', 'Searching', 'Booking', 'Hired'].map((status) => (
                            <button
                              key={status}
                              onClick={() => setStatusFilter(status as any)}
@@ -1044,9 +1042,7 @@ export default function App() {
                              {status === 'New' && <Sparkles size={12} />}
                              {status === 'Searching' && <Search size={12} />}
                              {status === 'Booking' && <Check size={12} />}
-                             {status === 'Not Converted' && <X size={12} />}
                              {status === 'Hired' && <CheckCircle size={12} />}
-                             {status === 'All' && <FileText size={12} />}
                              {status}
                            </button>
                          ))}
