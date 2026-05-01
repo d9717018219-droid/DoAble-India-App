@@ -34,6 +34,24 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
   const tutorFormIframe = `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;"></iframe>`;
   const parentFormIframe = `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>`;
 
+  // Cleanup and visibility control for chat
+  useEffect(() => {
+    const hideChat = () => {
+      const chatElement = document.querySelector('n8n-chat');
+      if (chatElement) {
+        chatElement.classList.remove('chat-active');
+      }
+    };
+
+    // If we move away from support tab, hide the chat
+    if (activeTab !== 'support') {
+      hideChat();
+    }
+
+    // On component unmount (switching main app tabs), hide the chat
+    return () => hideChat();
+  }, [activeTab]);
+
   const openChat = () => {
     // 1. If chat doesn't exist, initialize it
     if (!document.querySelector('n8n-chat')) {
