@@ -35,17 +35,14 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
   const openChat = () => {
     const chatElement = document.querySelector('n8n-chat');
     if (chatElement && chatElement.shadowRoot) {
+      // Find and remove our injected hide style momentarily
+      const hideStyle = chatElement.shadowRoot.querySelector('#doable-hide-btn');
+      if (hideStyle) hideStyle.remove();
+
       const chatButton = chatElement.shadowRoot.querySelector('.n8n-chat-button') as HTMLElement;
       if (chatButton) {
-        // Temporarily remove the display none to allow the click to register
-        const originalDisplay = chatButton.style.getPropertyValue('display');
         chatButton.style.setProperty('display', 'block', 'important');
         chatButton.click();
-        
-        // Hide it again after a tiny delay
-        setTimeout(() => {
-          chatButton.style.setProperty('display', 'none', 'important');
-        }, 100);
       }
     }
   };
