@@ -239,10 +239,15 @@ export default function App() {
   const completeOnboarding = () => {
     localStorage.setItem('userType', editUserType || userType || '');
     localStorage.setItem('userCity', editCity);
+    // CRITICAL: Clear legacy filters to prevent hidden profiles
+    localStorage.removeItem('userClasses');
+    localStorage.removeItem('userTutorSubjects');
     
     setUserType(editUserType || userType);
     setUserCity(editCity);
     setCityFilter(editCity);
+    setUserClasses([]);
+    setUserTutorSubjects([]);
     
     setVisibleJobsCount(10);
     setVisibleTutorsCount(10);
@@ -305,9 +310,15 @@ export default function App() {
       if (!t) return false;
       const tutorCity = getCityValue(t);
       const fc = cityFilter.toLowerCase().trim();
+      const tutorLocs = (t['Preferred Location(s)'] || (t as any).preferredLocations || '').toString().toLowerCase();
+      
+      // INCLUSIVE City Match: Check City OR Locations
       if (fc !== 'all') {
-        if (!tutorCity.includes(fc) && !fc.includes(tutorCity)) return false;
+        const cityMatch = tutorCity.includes(fc) || fc.includes(tutorCity);
+        const locMatch = tutorLocs.includes(fc);
+        if (!cityMatch && !locMatch) return false;
       }
+
       const tID = (t['Tutor ID'] || (t as any).tutorId || (t as any).id || '').toString().toLowerCase();
       if (tutorFilterID && !tID.includes(tutorFilterID.toLowerCase())) return false;
       const tName = (t.Name || (t as any).name || '').toString().toLowerCase();
