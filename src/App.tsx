@@ -81,7 +81,7 @@ export default function App() {
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [themeMode] = useState<'light' | 'dark'>(localStorage.getItem('themeMode') as 'light' | 'dark' || 'light');
-  const [locationBypass, setLocationBypass] = useState<string | null>(null);
+  const [selectedLocalities, setSelectedLocalities] = useState<string[]>([]);
   const [visibleJobsCount, setVisibleJobsCount] = useState(10);
   const [visibleTutorsCount, setVisibleTutorsCount] = useState(10);
   const mainScrollRef = useRef<HTMLDivElement>(null);
@@ -110,7 +110,7 @@ export default function App() {
 
   // Update clear filters function to use resetCounts
   const clearFilters = useCallback(() => {
-    setLocationBypass(null);
+    setSelectedLocalities([]);
     setTutorFilterID('');
     setTutorFilterName('');
     setTutorFilterGender('all');
@@ -126,6 +126,7 @@ export default function App() {
     setUserClasses([]);
     setUserTutorSubjects([]);
     setSearchQuery('');
+    setCityFilter('all');
     resetCounts();
   }, [resetCounts]);
 
@@ -339,11 +340,11 @@ export default function App() {
       const remark = (l['Internal Remark'] || '').trim().toLowerCase();
       if (remark !== 'searching') return false;
       
-      if (locationBypass) {
-        if (!isCityMatch(l.City, cityFilter)) return false;
-        if (!(l.Locations || '').toLowerCase().includes(locationBypass.toLowerCase())) return false;
-      } else if (!isCityMatch(l.City, cityFilter)) {
-        return false;
+      if (!isCityMatch(l.City, cityFilter)) return false;
+
+      if (selectedLocalities.length > 0) {
+        const jLocs = (l.Locations || '').toLowerCase();
+        if (!selectedLocalities.some(loc => jLocs.includes(loc.toLowerCase()))) return false;
       }
 
       if (searchQuery) {
@@ -367,7 +368,7 @@ export default function App() {
 
       return true;
     });
-  }, [allLeads, cityFilter, searchQuery, isCityMatch, locationBypass, userClasses, userTutorSubjects, isClassMatch]);
+  }, [allLeads, cityFilter, searchQuery, isCityMatch, selectedLocalities, userClasses, userTutorSubjects, isClassMatch]);
 
   const filteredTutors = useMemo(() => {
     return tutors.filter(t => {
@@ -375,12 +376,11 @@ export default function App() {
       
       const tCity = (t['Preferred City'] || (t as any).preferredCity || (t as any).City || (t as any).city || '').toString();
       
-      if (locationBypass) {
-        if (!isCityMatch(tCity, cityFilter)) return false;
+      if (!isCityMatch(tCity, cityFilter)) return false;
+
+      if (selectedLocalities.length > 0) {
         const tLocs = (t['Preferred Location(s)'] || (t as any).preferredLocations || '').toString().toLowerCase();
-        if (!tLocs.includes(locationBypass.toLowerCase())) return false;
-      } else if (!isCityMatch(tCity, cityFilter)) {
-        return false;
+        if (!selectedLocalities.some(loc => tLocs.includes(loc.toLowerCase()))) return false;
       }
 
       const tID = (t['Tutor ID'] || (t as any).tutorId || (t as any).id || '').toString().toLowerCase();
@@ -468,7 +468,7 @@ export default function App() {
       }
       return true;
     });
-  }, [tutors, cityFilter, searchQuery, userClasses, userTutorSubjects, isCityMatch, isClassMatch, getSubjects, locationBypass, tutorFilterID, tutorFilterName, tutorFilterGender, tutorFilterVehicle, tutorFilterExperience, tutorFilterQualification, tutorFilterTime, tutorFilterDate, tutorFilterDay, tutorFilterFee, tutorFilterStatus, tutorFilterSchoolExp, parseDate]);
+  }, [tutors, cityFilter, searchQuery, userClasses, userTutorSubjects, isCityMatch, isClassMatch, getSubjects, selectedLocalities, tutorFilterID, tutorFilterName, tutorFilterGender, tutorFilterVehicle, tutorFilterExperience, tutorFilterQualification, tutorFilterTime, tutorFilterDate, tutorFilterDay, tutorFilterFee, tutorFilterStatus, tutorFilterSchoolExp, parseDate]);
 
   const activeLeadsCount = useMemo(() => filteredJobs.length, [filteredJobs]);
   const activeTutorsCount = useMemo(() => filteredTutors.length, [filteredTutors]);
@@ -606,21 +606,56 @@ export default function App() {
                 </div>
 
                 {/* 2. City & Localities */}
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Primary City</label>
-                  <div className="flex flex-wrap gap-2 max-h-[15vh] overflow-y-auto custom-scrollbar pr-2 bg-slate-50 dark:bg-slate-800 p-4 rounded-3xl">
-                    <button onClick={() => { setCityFilter('all'); setLocationBypass(null); resetCounts(); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase transition-all border", cityFilter === 'all' ? "bg-slate-900 text-white" : "bg-white dark:bg-slate-700 text-slate-400")}>All Cities</button>
-                    {dynamicCities.map(c => (<button key={c} onClick={() => { setCityFilter(c); setLocationBypass(null); resetCounts(); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase transition-all border", cityFilter === c ? "bg-primary text-white border-primary shadow-md scale-105" : "bg-white dark:bg-slate-700 text-slate-400")}>{c}</button>))}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Primary City (Pick List)</label>
+                    <div className="relative">
+                      <select 
+                        value={cityFilter} 
+                        onChange={e => { setCityFilter(e.target.value); setSelectedLocalities([]); resetCounts(); }}
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 pl-12 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none appearance-none cursor-pointer focus:border-primary transition-all"
+                      >
+                        <option value="all">All Cities</option>
+                        {dynamicCities.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                      <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-[10px]">▼</div>
+                    </div>
                   </div>
                   
                   {cityFilter !== 'all' && (
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Target Localities in {cityFilter}</label>
-                      <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-3xl space-y-4">
-                        <div className="flex flex-wrap gap-2 max-h-[25vh] overflow-y-auto custom-scrollbar pr-2">
-                           <button onClick={() => { setLocationBypass(null); resetCounts(); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase transition-all border", !locationBypass ? "bg-slate-900 text-white" : "bg-white dark:bg-slate-700 text-slate-400")}>📍 Whole City</button>
-                           {cityLocations.map(loc => (<button key={loc} onClick={() => { setLocationBypass(loc); resetCounts(); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase transition-all border", locationBypass === loc ? "bg-primary text-white border-primary shadow-md" : "bg-white dark:bg-slate-700 text-slate-400")}>{loc}</button>))}
+                    <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="flex justify-between items-center px-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400">Localities in {cityFilter} (Multipick)</label>
+                        {selectedLocalities.length > 0 && <button onClick={() => { setSelectedLocalities([]); resetCounts(); }} className="text-[9px] font-black uppercase text-rose-500 hover:text-rose-600 transition-colors">Clear All</button>}
+                      </div>
+                      <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-[32px] space-y-4 border border-slate-100 dark:border-slate-700 shadow-inner">
+                        <div className="flex flex-wrap gap-2 max-h-[30vh] overflow-y-auto custom-scrollbar pr-2">
+                           <button 
+                             onClick={() => { setSelectedLocalities([]); resetCounts(); }} 
+                             className={cn("px-5 py-3 rounded-xl text-[10px] font-black uppercase transition-all border shadow-sm", selectedLocalities.length === 0 ? "bg-slate-900 text-white border-slate-900" : "bg-white dark:bg-slate-700 text-slate-400 border-slate-100 dark:border-slate-600 hover:border-primary/50")}
+                           >
+                             📍 Whole City
+                           </button>
+                           {cityLocations.map(loc => {
+                             const isActive = selectedLocalities.includes(loc);
+                             return (
+                               <button 
+                                 key={loc} 
+                                 onClick={() => { setSelectedLocalities(prev => isActive ? prev.filter(l => l !== loc) : [...prev, loc]); resetCounts(); }} 
+                                 className={cn("px-5 py-3 rounded-xl text-[10px] font-black uppercase transition-all border flex items-center gap-2 shadow-sm active:scale-95", isActive ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white dark:bg-slate-700 text-slate-400 border-slate-100 dark:border-slate-600 hover:border-primary/50")}
+                               >
+                                 {isActive ? <CheckCircle size={12} strokeWidth={4} /> : <div className="w-3 h-3 rounded-full border-2 border-slate-200 dark:border-slate-500" />}
+                                 {loc}
+                               </button>
+                             );
+                           })}
                         </div>
+                        {selectedLocalities.length > 0 && (
+                          <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
+                             <p className="text-[9px] font-black text-primary uppercase text-center tracking-[0.1em]">{selectedLocalities.length} Areas Selected</p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -719,10 +754,14 @@ export default function App() {
             <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100">
               <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-4">
                 <span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500">
-                  {locationBypass ? `📍 ${locationBypass}` : (activeTab === 'jobs' ? 'Searching Jobs' : 'Expert Tutors')}
+                  {cityFilter !== 'all' ? (
+                    selectedLocalities.length > 0 
+                      ? `📍 ${selectedLocalities.length} Areas in ${cityFilter}`
+                      : `📍 ${cityFilter} (Whole City)`
+                  ) : (activeTab === 'jobs' ? 'Searching Jobs' : 'Expert Tutors')}
                 </span>
                 <div className="flex gap-2">
-                  {(locationBypass || tutorFilterID || tutorFilterName || tutorFilterGender !== 'all' || tutorFilterVehicle !== 'all' || tutorFilterExperience !== 'all' || tutorFilterQualification !== 'all' || tutorFilterTime !== 'all' || tutorFilterDate !== 'all' || tutorFilterDay !== 'all' || tutorFilterFee !== 'all' || tutorFilterStatus !== 'all' || tutorFilterSchoolExp !== 'all' || userClasses.length > 0 || userTutorSubjects.length > 0 || searchQuery) && (
+                  {(selectedLocalities.length > 0 || cityFilter !== 'all' || tutorFilterID || tutorFilterName || tutorFilterGender !== 'all' || tutorFilterVehicle !== 'all' || tutorFilterExperience !== 'all' || tutorFilterQualification !== 'all' || tutorFilterTime !== 'all' || tutorFilterDate !== 'all' || tutorFilterDay !== 'all' || tutorFilterFee !== 'all' || tutorFilterStatus !== 'all' || tutorFilterSchoolExp !== 'all' || userClasses.length > 0 || userTutorSubjects.length > 0 || searchQuery) && (
                     <button onClick={clearFilters} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear All</button>
                   )}
                   <button onClick={() => setShowAdvancedFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary shadow-sm"><Filter size={14} strokeWidth={3} /></button>
@@ -743,9 +782,9 @@ export default function App() {
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[8000] w-[92%] max-w-[400px]">
         <div className="bg-slate-900/95 backdrop-blur-2xl rounded-[32px] p-2 flex items-center justify-between shadow-2xl border border-white/10 relative">
           <NavButton active={activeTab === 'home'} onClick={() => { setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={20} />} label="Home" />
-          {userType === 'teacher' && <NavButton active={activeTab === 'jobs'} onClick={() => { setActiveTab('jobs'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" />}
-          {userType === 'parent' && <NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />}
-          {!userType && (<><NavButton active={activeTab === 'jobs'} onClick={() => { setActiveTab('jobs'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" /><NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" /></>)}
+          {userType === 'teacher' && <NavButton active={activeTab === 'jobs'} onClick={() => { setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" />}
+          {userType === 'parent' && <NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />}
+          {!userType && (<><NavButton active={activeTab === 'jobs'} onClick={() => { setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" /><NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" /></>)}
           <NavButton active={activeTab === 'alerts'} onClick={() => { setActiveTab('alerts'); window.scrollTo(0,0); }} icon={<Bell size={20} />} label="Alerts" />
           {isAdminUser && (<button onClick={() => setActiveTab('admin')} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>
