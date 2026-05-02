@@ -79,7 +79,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
         </button>
         
         <div className="text-xl sm:text-2xl font-[900] text-white mb-1 drop-shadow-md uppercase tracking-tight line-clamp-2 px-4">
-          💼 {job.subjects || 'Premium Job'}
+          📍 {location}
         </div>
         <div className="text-[10px] sm:text-[12px] font-black text-white/90 uppercase tracking-[0.2em]">
           🆔 Order ID: {job['Order ID']}
@@ -113,11 +113,11 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
 
         {/* 3. Detailed Information Blocks */}
         <div className="space-y-8">
-           <DetailSection icon={<MapPin size={16} className="text-primary" />} label="Target Territories">
+           <DetailSection icon={<BookOpen size={16} className="text-primary" />} label="Required Subjects">
               <div className="flex flex-wrap gap-2">
-                {location.split(/[;,]/).map((l, i) => (
-                  <span key={i} className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-1.5 rounded-lg text-[9px] font-bold border border-slate-100 dark:border-slate-700 shadow-sm">
-                    {l.trim()}
+                {(job.subjects || 'All Subjects').split(/[;,]/).map((s, i) => (
+                  <span key={i} className="bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border border-slate-100 dark:border-slate-700 shadow-sm">
+                    {s.trim()}
                   </span>
                 ))}
               </div>

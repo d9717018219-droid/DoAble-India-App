@@ -128,8 +128,8 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
           <Share2 size={16} strokeWidth={3} />
         </button>
         
-        <div className="text-xl sm:text-2xl font-[900] text-white mb-1 drop-shadow-md uppercase tracking-tight line-clamp-1 px-4">
-          🎓 {name}
+        <div className="text-xl sm:text-2xl font-[900] text-white mb-1 drop-shadow-md uppercase tracking-tight line-clamp-2 px-4">
+          📍 {locationRaw || cityFull}
         </div>
         <div className="text-[10px] sm:text-[12px] font-black text-white/90 uppercase tracking-[0.2em]">
           🆔 Tutor ID: {tutorId}
@@ -163,6 +163,13 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
 
         {/* Detailed Information Blocks */}
         <div className="space-y-8">
+          <DetailSection icon={<User size={16} className="text-primary" />} label="Expert Profile">
+             <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                <div className="text-sm font-black text-slate-700 dark:text-white uppercase">{name}</div>
+                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Verified Professional</div>
+             </div>
+          </DetailSection>
+
           <DetailSection icon={<BookOpen size={16} className="text-primary" />} label="Expert Subjects">
             <div className="flex flex-wrap gap-2">
               {subjectList.map((s, i) => (
