@@ -869,7 +869,7 @@ export default function App() {
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}
 
         {(activeTab === 'jobs' || activeTab === 'tutors') && (
-          <div className="flex flex-col h-[calc(100dvh-180px)] overflow-hidden">
+          <div className="flex flex-col min-h-screen">
 
             {activeTab === 'jobs' && (
               <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100">
@@ -903,7 +903,7 @@ export default function App() {
               </div>
             )}
 
-            <div className="flex-1 overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-smooth custom-scrollbar">
+            <div className="flex-1 space-y-6 py-4">
               {loading ? (
                 <div className="h-full flex flex-col items-center justify-center py-40">
                   <Loader2 className="w-12 h-12 animate-spin text-primary" />
@@ -912,7 +912,7 @@ export default function App() {
               ) : activeTab === 'jobs' ? (
                 filteredJobs.length > 0 ? (
                   filteredJobs.map((job) => (
-                    <div key={(job as any).id || job['Order ID']} className="h-full min-h-[85vh] w-full snap-start snap-always shrink-0">
+                    <div key={(job as any).id || job['Order ID']} className="w-full px-4 sm:px-0 max-w-[600px] mx-auto">
                       <JobCard job={job} />
                     </div>
                   ))
@@ -926,7 +926,7 @@ export default function App() {
               ) : (
                 filteredTutors.length > 0 ? (
                   filteredTutors.map((tutor) => (
-                    <div key={(tutor as any).id || tutor['Tutor ID']} className="h-full min-h-[85vh] w-full snap-start snap-always shrink-0">
+                    <div key={(tutor as any).id || tutor['Tutor ID']} className="w-full px-4 sm:px-0 max-w-[600px] mx-auto">
                       <TutorCard tutor={tutor} />
                     </div>
                   ))

@@ -59,11 +59,11 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   return (
     <div 
       ref={cardRef}
-      className="w-full h-full snap-start snap-always bg-white dark:bg-slate-900 overflow-hidden flex flex-col relative border-b border-slate-100 dark:border-slate-800"
+      className="w-full bg-white dark:bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col relative animate-fade-down mb-6"
     >
       {/* Card Header */}
       <div 
-        className="p-6 sm:p-10 text-center relative shrink-0"
+        className="p-8 sm:p-10 text-center relative shrink-0"
         style={{ background: theme.grad }}
       >
         <div className="absolute top-4 right-4 flex gap-2">
@@ -87,7 +87,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8">
+      <div className="p-6 sm:p-8 space-y-8">
         {/* 4-Icon Quick Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
@@ -152,19 +152,19 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
         </div>
       </div>
 
-      {/* Action Dock - Pinned to Bottom */}
-      <div className="card-actions grid grid-cols-2 gap-4 p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shrink-0">
+      {/* Action Dock - Flowing naturally at bottom of card */}
+      <div className="card-actions grid grid-cols-2 gap-4 p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 shrink-0">
         <a 
           href={`tel:${phone}`}
-          className="p-5 rounded-2xl font-[900] text-xs uppercase tracking-widest text-center transition-all border-2 border-primary text-primary hover:bg-primary hover:text-white active:scale-95 flex items-center justify-center gap-2"
+          className="p-5 rounded-[20px] font-[900] text-xs uppercase tracking-widest text-center transition-all border-2 border-primary text-primary hover:bg-primary hover:text-white active:scale-95 flex items-center justify-center gap-2 shadow-sm"
         >
-          <Phone size={16} /> Call Now
+          <Phone size={16} /> Call Support
         </a>
         <a 
           href={generateWhatsAppLink()}
           target="_blank"
           rel="noopener noreferrer"
-          className="p-5 rounded-2xl font-[900] text-xs uppercase tracking-widest text-center text-white shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
+          className="p-5 rounded-[20px] font-[900] text-xs uppercase tracking-widest text-center text-white shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
           style={{ background: theme.grad }}
         >
           <MessageSquare size={16} /> Apply on WA
