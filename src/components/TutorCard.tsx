@@ -114,9 +114,9 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   };
 
   const getStatusBadge = (s: string) => {
-    const lowS = s.toString().toLowerCase();
+    const lowS = s.toString().toLowerCase().trim();
     if (lowS === 'active' || !lowS || lowS === 'searching') return { label: 'Active', color: '#10B981', emoji: '✅' };
-    if (lowS === 'not available' || lowS === 'busy') return { label: 'Busy', color: '#FBBF24', emoji: '⏸️' };
+    if (lowS === 'not available' || lowS === 'busy' || lowS === 'no') return { label: 'Not Available', color: '#FBBF24', emoji: '⏸️' };
     return { label: 'Suspended', color: '#EF5350', emoji: '🚫' };
   };
 
