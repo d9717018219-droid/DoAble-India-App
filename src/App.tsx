@@ -83,6 +83,8 @@ export default function App() {
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [themeMode] = useState<'light' | 'dark'>(localStorage.getItem('themeMode') as 'light' | 'dark' || 'light');
   const [locationBypass, setLocationBypass] = useState<string | null>(null);
+  const [visibleJobsCount, setVisibleJobsCount] = useState(10);
+  const [visibleTutorsCount, setVisibleTutorsCount] = useState(10);
   const mainScrollRef = useRef<HTMLDivElement>(null);
 
   // ─── Tutor Filters state ─────────────────────────────────────────
@@ -345,53 +347,69 @@ export default function App() {
 
   const filteredTutors = useMemo(() => {
     return tutors.filter(t => {
-      const tutorCity = getCityValue(t);
+      if (!t) return false;
+      const tutorCity = (t['Preferred City'] || t.preferredCity || 'India').toString().toLowerCase().trim();
       const fc = cityFilter.toLowerCase().trim();
       
-      // Relaxed City Match
+      // Robust City Match (Relaxed)
       if (fc !== 'all') {
         if (!tutorCity.includes(fc) && !fc.includes(tutorCity)) return false;
       }
 
-      if (tutorFilterID && !t['Tutor ID']?.toString().toLowerCase().includes(tutorFilterID.toLowerCase())) return false;
-      if (tutorFilterName && !t.Name?.toLowerCase().includes(tutorFilterName.toLowerCase())) return false;
+      const tID = (t['Tutor ID'] || t.tutorId || '').toString().toLowerCase();
+      if (tutorFilterID && !tID.includes(tutorFilterID.toLowerCase())) return false;
+      
+      const tName = (t.Name || t.name || '').toString().toLowerCase();
+      if (tutorFilterName && !tName.includes(tutorFilterName.toLowerCase())) return false;
 
-      if (tutorFilterGender !== 'all' && t.Gender?.toLowerCase() !== tutorFilterGender.toLowerCase()) return false;
+      const tGender = (t.Gender || t.gender || 'any').toString().toLowerCase();
+      if (tutorFilterGender !== 'all' && tGender !== tutorFilterGender.toLowerCase()) return false;
 
       if (tutorFilterVehicle !== 'all') {
-        const hasVehicle = (t['Have own Vehicle'] || '').toLowerCase().includes('yes');
+        const vRaw = (t['Have own Vehicle'] || t.haveOwnVehicle || '').toString().toLowerCase();
+        const hasVehicle = vRaw.includes('yes') || vRaw === 'y';
         if (tutorFilterVehicle === 'yes' && !hasVehicle) return false;
         if (tutorFilterVehicle === 'no' && hasVehicle) return false;
       }
 
       if (tutorFilterExperience !== 'all') {
-         const exp = (t.Experience || '').toLowerCase();
+         const exp = (t.Experience || t.experience || '').toString().toLowerCase();
          if (tutorFilterExperience === 'fresher' && !exp.includes('fresher') && !exp.includes('0')) return false;
          if (tutorFilterExperience === '1-3' && !exp.includes('1') && !exp.includes('2') && !exp.includes('3')) return false;
          if (tutorFilterExperience === '3-5' && !exp.includes('3') && !exp.includes('4') && !exp.includes('5')) return false;
-         if (tutorFilterExperience === '5+' && !exp.includes('5') && !exp.includes('6') && !exp.includes('more')) return false;
+         if (tutorFilterExperience === '5+' && !exp.includes('5') && !exp.includes('6') && !exp.includes('more') && !exp.includes('10')) return false;
       }
 
-      if (tutorFilterQualification !== 'all' && !t['Qualification(s)']?.toLowerCase().includes(tutorFilterQualification.toLowerCase())) return false;
-      if (tutorFilterTime !== 'all' && !t['Preferred Time']?.toLowerCase().includes(tutorFilterTime.toLowerCase())) return false;
+      const tQual = (t['Qualification(s)'] || t.qualifications || '').toString().toLowerCase();
+      if (tutorFilterQualification !== 'all' && !tQual.includes(tutorFilterQualification.toLowerCase())) return false;
+      
+      const tTime = (t['Preferred Time'] || t.preferredTime || '').toString().toLowerCase();
+      if (tutorFilterTime !== 'all' && !tTime.includes(tutorFilterTime.toLowerCase())) return false;
 
       if (tutorFilterDate !== 'all') {
-         const added = parseDate(t['Record Added']);
+         const added = parseDate(t['Record Added'] || t.recordAdded);
          const diffDays = (Date.now() - added) / (1000 * 3600 * 24);
          if (tutorFilterDate === '7' && diffDays > 7) return false;
          if (tutorFilterDate === '30' && diffDays > 30) return false;
          if (tutorFilterDate === '90' && diffDays > 90) return false;
       }
 
-      if (locationBypass) return (t['Preferred Location(s)'] || '').toLowerCase().includes(locationBypass.toLowerCase());
+      if (locationBypass) {
+        const tLocs = (t['Preferred Location(s)'] || t.preferredLocations || '').toString().toLowerCase();
+        if (!tLocs.includes(locationBypass.toLowerCase())) return false;
+      }
+
       if (searchQuery) {
         const sl = searchQuery.toLowerCase();
-        return t.Name?.toLowerCase().includes(sl) || t['Tutor ID']?.toString().includes(sl) || t['Preferred Subject(s)']?.toLowerCase().includes(sl);
+        const tSubj = (t['Preferred Subject(s)'] || t.subjects || '').toString().toLowerCase();
+        if (!(tName.includes(sl) || tID.includes(sl) || tSubj.includes(sl))) return false;
       }
       
       const hasPrefs = userClasses.length > 0 || userTutorSubjects.length > 0;
       if (hasPrefs) {
-        if (userClasses.length > 0 && !isClassMatch(t['Preferred Class Group'], userClasses)) return false;
+        const tClass = (t['Preferred Class Group'] || t.classGroup || '').toString();
+        if (userClasses.length > 0 && !isClassMatch(tClass, userClasses)) return false;
+        
         if (userTutorSubjects.length > 0) {
           const tS = getSubjects(t);
           const uS = userTutorSubjects.map(s => s.toLowerCase().trim());
@@ -402,11 +420,8 @@ export default function App() {
     });
   }, [tutors, cityFilter, searchQuery, userClasses, userTutorSubjects, getCityValue, isClassMatch, getSubjects, locationBypass, tutorFilterID, tutorFilterName, tutorFilterGender, tutorFilterVehicle, tutorFilterExperience, tutorFilterQualification, tutorFilterTime, tutorFilterDate, parseDate]);
 
-  const activeLeadsCount = useMemo(() => {
-    return allLeads.filter(l => isCityMatch(l.City, userCity) && (l['Internal Remark'] || '').trim().toLowerCase() === 'searching').length;
-  }, [allLeads, userCity, isCityMatch]);
-
-  const activeTutorsCount = useMemo(() => tutors.filter(t => isCityMatch(getCityValue(t), userCity)).length, [tutors, userCity, isCityMatch, getCityValue]);
+  const activeLeadsCount = useMemo(() => filteredJobs.length, [filteredJobs]);
+  const activeTutorsCount = useMemo(() => filteredTutors.length, [filteredTutors]);
 
   const subjectsForSelectedClasses = useMemo(() => {
     const subjectSet = new Set<string>();
@@ -416,7 +431,29 @@ export default function App() {
     return Array.from(subjectSet);
   }, [editClasses]);
 
-  const cityLocations = CITY_TO_LOCATIONS_DATA[editCity] || [];
+  const dynamicCities = useMemo(() => {
+    const citySet = new Set<string>(CITIES_LIST);
+    tutors.forEach(t => { const c = getCityValue(t); if (c) citySet.add(c.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')); });
+    allLeads.forEach(l => { if (l.City) citySet.add(l.City.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')); });
+    return Array.from(citySet).sort();
+  }, [tutors, allLeads, getCityValue]);
+
+  const cityLocations = useMemo(() => {
+    const locSet = new Set<string>(CITY_TO_LOCATIONS_DATA[editCity] || []);
+    tutors.forEach(t => {
+      if (getCityValue(t) === editCity.toLowerCase()) {
+        const locs = (t['Preferred Location(s)'] || '').toString().split(/[;,]/).map(s => s.trim()).filter(Boolean);
+        locs.forEach(l => locSet.add(l));
+      }
+    });
+    allLeads.forEach(l => {
+      if (l.City?.toLowerCase() === editCity.toLowerCase()) {
+        const locs = (l.Locations || '').toString().split(/[;,]/).map(s => s.trim()).filter(Boolean);
+        locs.forEach(l => locSet.add(l));
+      }
+    });
+    return Array.from(locSet).sort();
+  }, [editCity, tutors, allLeads, getCityValue]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 font-sans" ref={mainScrollRef}>
@@ -548,12 +585,12 @@ export default function App() {
                   </div>
                   <div className="space-y-6">
                     <div className="grid grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto p-2 custom-scrollbar">
-                      {CITIES_LIST.map(city => (
-                        <button key={city} onClick={() => setEditCity(city)} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase", editCity === city ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{city}</button>
+                      {dynamicCities.map(city => (
+                        <button key={city} onClick={() => setEditCity(city)} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate", editCity === city ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{city}</button>
                       ))}
                     </div>
                     {isSelectingCityOnly ? (
-                      <button onClick={() => { localStorage.setItem('userCity', editCity); setUserCity(editCity); setCityFilter(editCity); setShowOnboarding(false); setIsSelectingCityOnly(false); }} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[10px] uppercase shadow-xl">Confirm City</button>
+                      <button onClick={() => { localStorage.setItem('userCity', editCity); setUserCity(editCity); setCityFilter(editCity); setVisibleJobsCount(10); setVisibleTutorsCount(10); setShowOnboarding(false); setIsSelectingCityOnly(false); }} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[10px] uppercase shadow-xl">Confirm City</button>
                     ) : (
                       <button onClick={() => setOnboardingStep(4)} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[10px] uppercase shadow-xl">Select Locations</button>
                     )}
@@ -571,7 +608,7 @@ export default function App() {
                     <input type="text" placeholder="Search locations..." value={areaSearch} onChange={e => setAreaSearch(e.target.value.toLowerCase())} className="w-full bg-slate-50 p-3 rounded-xl text-sm font-bold outline-none border border-slate-200" />
                     <div className="flex flex-wrap gap-2 max-h-[35vh] overflow-y-auto p-2 custom-scrollbar">
                       {cityLocations.filter(l => l.toLowerCase().includes(areaSearch)).map(loc => (
-                        <button key={loc} onClick={() => setEditTutorLocations(prev => prev.includes(loc) ? prev.filter(x => x !== loc) : [...prev, loc])} className={cn("px-3 py-2 rounded-xl text-[10px] font-black uppercase whitespace-nowrap", editTutorLocations.includes(loc) ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{loc}</button>
+                        <button key={loc} onClick={() => setEditTutorLocations(prev => prev.includes(loc) ? prev.filter(x => x !== loc) : [...prev, loc])} className={cn("px-3 py-2 rounded-xl text-[10px] font-black uppercase whitespace-nowrap border transition-all", editTutorLocations.includes(loc) ? "bg-primary text-white border-primary" : "bg-slate-50 text-slate-400 border-slate-100")}>{loc}</button>
                       ))}
                     </div>
                     {editTutorLocations.length === 0 && <p className="text-[12px] text-slate-400 text-center py-4">Select at least one location</p>}
@@ -598,9 +635,9 @@ export default function App() {
                 <button onClick={() => setShowFilterDrawer(false)} className="p-4 bg-slate-100 rounded-2xl text-slate-400"><X size={20} /></button>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                <button onClick={() => { setCityFilter('all'); setLocationBypass(null); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase", cityFilter === 'all' ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400")}>All Cities</button>
-                {CITIES_LIST.map(c => (
-                  <button key={c} onClick={() => { setCityFilter(c); setLocationBypass(null); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate", cityFilter === c ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{c}</button>
+                <button onClick={() => { setCityFilter('all'); setLocationBypass(null); setVisibleJobsCount(10); setVisibleTutorsCount(10); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase", cityFilter === 'all' ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400")}>All Cities</button>
+                {dynamicCities.map(c => (
+                  <button key={c} onClick={() => { setCityFilter(c); setLocationBypass(null); setVisibleJobsCount(10); setVisibleTutorsCount(10); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate", cityFilter === c ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{c}</button>
                 ))}
               </div>
               {isAdminUser && (
@@ -640,8 +677,8 @@ export default function App() {
             <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-t-[48px] p-8 space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
               <div className="flex justify-between items-center sticky top-0 bg-white dark:bg-slate-900 z-10 pb-4 border-b border-slate-100 dark:border-slate-800">
                 <div>
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase">Filter Tutors</h3>
-                  <p className="text-[10px] font-black text-primary uppercase">Find your perfect match</p>
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase">Advanced Filters</h3>
+                  <p className="text-[10px] font-black text-primary uppercase">Precision tutor search</p>
                 </div>
                 <button onClick={() => setShowTutorFilterDrawer(false)} className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-400"><X size={20} /></button>
               </div>
@@ -651,11 +688,41 @@ export default function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Tutor ID</label>
-                    <input type="text" placeholder="Search ID..." value={tutorFilterID} onChange={e => setTutorFilterID(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
+                    <input type="text" placeholder="Search ID..." value={tutorFilterID} onChange={e => { setTutorFilterID(e.target.value); setVisibleTutorsCount(10); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Name</label>
-                    <input type="text" placeholder="Search Name..." value={tutorFilterName} onChange={e => setTutorFilterName(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
+                    <input type="text" placeholder="Search Name..." value={tutorFilterName} onChange={e => { setTutorFilterName(e.target.value); setVisibleTutorsCount(10); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
+                  </div>
+                </div>
+
+                {/* Hierarchical Classes & Subjects */}
+                <div className="space-y-4">
+                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Select Classes & Subjects</label>
+                   <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-3xl space-y-4">
+                      <div className="flex flex-wrap gap-2 max-h-[15vh] overflow-y-auto custom-scrollbar">
+                        {CLASSES_LIST.map(c => (
+                          <button key={c} onClick={() => { setUserClasses(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]); setVisibleTutorsCount(10); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase border transition-all", userClasses.includes(c) ? "bg-slate-900 text-white border-slate-900" : "bg-white dark:bg-slate-700 text-slate-400 border-slate-100 dark:border-slate-600")}>{c}</button>
+                        ))}
+                      </div>
+                      {userClasses.length > 0 && (
+                        <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex flex-wrap gap-2 max-h-[20vh] overflow-y-auto custom-scrollbar">
+                           {subjectsForSelectedClasses.map(s => (
+                             <button key={s} onClick={() => { setUserTutorSubjects(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]); setVisibleTutorsCount(10); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase border transition-all", userTutorSubjects.includes(s) ? "bg-primary text-white border-primary" : "bg-white dark:bg-slate-700 text-slate-400 border-slate-100 dark:border-slate-600")}>{s}</button>
+                           ))}
+                        </div>
+                      )}
+                   </div>
+                </div>
+
+                {/* City Locations */}
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Locations in {cityFilter === 'all' ? 'Any City' : cityFilter}</label>
+                  <div className="flex flex-wrap gap-2 max-h-[20vh] overflow-y-auto p-1">
+                    <button onClick={() => { setLocationBypass(null); setVisibleTutorsCount(10); }} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase border transition-all", !locationBypass ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>All Areas</button>
+                    {(cityLocations).map(loc => (
+                      <button key={loc} onClick={() => { setLocationBypass(loc); setVisibleTutorsCount(10); }} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase border transition-all", locationBypass === loc ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{loc}</button>
+                    ))}
                   </div>
                 </div>
 
@@ -665,7 +732,7 @@ export default function App() {
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender</label>
                     <div className="flex gap-2">
                       {['all', 'male', 'female'].map(g => (
-                        <button key={g} onClick={() => setTutorFilterGender(g)} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterGender === g ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{g}</button>
+                        <button key={g} onClick={() => { setTutorFilterGender(g); setVisibleTutorsCount(10); }} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterGender === g ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{g}</button>
                       ))}
                     </div>
                   </div>
@@ -673,7 +740,7 @@ export default function App() {
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Own Vehicle</label>
                     <div className="flex gap-2">
                       {['all', 'yes', 'no'].map(v => (
-                        <button key={v} onClick={() => setTutorFilterVehicle(v)} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterVehicle === v ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{v}</button>
+                        <button key={v} onClick={() => { setTutorFilterVehicle(v); setVisibleTutorsCount(10); }} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterVehicle === v ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{v}</button>
                       ))}
                     </div>
                   </div>
@@ -690,7 +757,7 @@ export default function App() {
                         { label: '3-5 Yrs', value: '3-5' },
                         { label: '5+ Yrs', value: '5+' }
                       ].map(opt => (
-                        <button key={opt.value} onClick={() => setTutorFilterExperience(opt.value)} className={cn("px-4 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterExperience === opt.value ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{opt.label}</button>
+                        <button key={opt.value} onClick={() => { setTutorFilterExperience(opt.value); setVisibleTutorsCount(10); }} className={cn("px-4 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterExperience === opt.value ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{opt.label}</button>
                       ))}
                    </div>
                 </div>
@@ -700,14 +767,14 @@ export default function App() {
                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Qualification</label>
                    <div className="flex flex-wrap gap-2">
                       {['all', 'B.Ed', 'M.Ed', 'B.Sc', 'M.Sc', 'B.A', 'M.A', 'Engineering', 'Graduate'].map(q => (
-                        <button key={q} onClick={() => setTutorFilterQualification(q)} className={cn("px-4 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterQualification === q ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{q === 'all' ? 'Any' : q}</button>
+                        <button key={q} onClick={() => { setTutorFilterQualification(q); setVisibleTutorsCount(10); }} className={cn("px-4 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterQualification === q ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{q === 'all' ? 'Any' : q}</button>
                       ))}
                    </div>
                 </div>
 
                 {/* Recency (Tap and Select) */}
                 <div className="space-y-3">
-                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Show Profiles Updated In</label>
+                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Update Recency</label>
                    <div className="flex gap-2">
                       {[
                         { label: 'Anytime', value: 'all' },
@@ -715,24 +782,14 @@ export default function App() {
                         { label: 'Last 30 Days', value: '30' },
                         { label: 'Last 90 Days', value: '90' }
                       ].map(opt => (
-                        <button key={opt.value} onClick={() => setTutorFilterDate(opt.value)} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterDate === opt.value ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{opt.label}</button>
-                      ))}
-                   </div>
-                </div>
-
-                {/* Time (Tap and Select) */}
-                <div className="space-y-3">
-                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Availability</label>
-                   <div className="flex gap-2">
-                      {['all', 'Morning', 'Afternoon', 'Evening'].map(t => (
-                        <button key={t} onClick={() => setTutorFilterTime(t)} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterTime === t ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{t === 'all' ? 'Any' : t}</button>
+                        <button key={opt.value} onClick={() => { setTutorFilterDate(opt.value); setVisibleTutorsCount(10); }} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterDate === opt.value ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{opt.label}</button>
                       ))}
                    </div>
                 </div>
 
                 <div className="pt-6 flex gap-3">
-                  <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience('all'); setTutorFilterQualification('all'); setTutorFilterTime('all'); setTutorFilterDate('all'); setUserClasses([]); setUserTutorSubjects([]); }} className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest active:scale-95 transition-all">Reset All</button>
-                  <button onClick={() => setShowTutorFilterDrawer(false)} className="flex-[2] bg-primary text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all">Show Results</button>
+                  <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience('all'); setTutorFilterQualification('all'); setTutorFilterTime('all'); setTutorFilterDate('all'); setUserClasses([]); setUserTutorSubjects([]); setVisibleTutorsCount(10); }} className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest active:scale-95 transition-all">Clear All</button>
+                  <button onClick={() => setShowTutorFilterDrawer(false)} className="flex-[2] bg-primary text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all">Show {activeTutorsCount} Tutors</button>
                 </div>
               </div>
             </motion.div>
@@ -906,33 +963,57 @@ export default function App() {
                   <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading Premium Data...</p>
                 </div>
               ) : activeTab === 'jobs' ? (
-                filteredJobs.length > 0 ? (
-                  filteredJobs.map((job) => (
-                    <div key={(job as any).id || job['Order ID']} className="w-full max-w-[600px] mx-auto">
-                      <JobCard job={job} />
+                <>
+                  {filteredJobs.slice(0, visibleJobsCount).map((job) => (
+                    <JobCard 
+                      key={(job as any).id || job['Order ID']} 
+                      job={job} 
+                    />
+                  ))}
+                  {visibleJobsCount < filteredJobs.length && (
+                    <div className="col-span-full py-10 flex justify-center">
+                      <button 
+                        onClick={() => setVisibleJobsCount(prev => prev + 10)}
+                        className="bg-white dark:bg-slate-900 border-2 border-primary text-primary px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl active:scale-95"
+                      >
+                        Load More Jobs ({filteredJobs.length - visibleJobsCount} Left)
+                      </button>
                     </div>
-                  ))
-                ) : (
-                  <div className="col-span-full py-20 text-center">
-                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div>
-                    <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Jobs Found</h3>
-                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">Try changing your filters or location</p>
-                  </div>
-                )
+                  )}
+                  {filteredJobs.length === 0 && (
+                    <div className="col-span-full py-20 text-center">
+                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div>
+                      <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Jobs Found</h3>
+                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">Try changing your filters or location</p>
+                    </div>
+                  )}
+                </>
               ) : (
-                filteredTutors.length > 0 ? (
-                  filteredTutors.map((tutor) => (
-                    <div key={(tutor as any).id || tutor['Tutor ID']} className="w-full max-w-[600px] mx-auto">
-                      <TutorCard tutor={tutor} />
+                <>
+                  {filteredTutors.slice(0, visibleTutorsCount).map((tutor) => (
+                    <TutorCard 
+                      key={(tutor as any).id || tutor['Tutor ID']} 
+                      tutor={tutor} 
+                    />
+                  ))}
+                  {visibleTutorsCount < filteredTutors.length && (
+                    <div className="col-span-full py-10 flex justify-center">
+                      <button 
+                        onClick={() => setVisibleTutorsCount(prev => prev + 10)}
+                        className="bg-white dark:bg-slate-900 border-2 border-primary text-primary px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl active:scale-95"
+                      >
+                        Load More Tutors ({filteredTutors.length - visibleTutorsCount} Left)
+                      </button>
                     </div>
-                  ))
-                ) : (
-                  <div className="col-span-full py-20 text-center">
-                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div>
-                    <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Tutors Found</h3>
-                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">No expert tutors match your search</p>
-                  </div>
-                )
+                  )}
+                  {filteredTutors.length === 0 && (
+                    <div className="col-span-full py-20 text-center">
+                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div>
+                      <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Tutors Found</h3>
+                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">No expert tutors match your search</p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
