@@ -115,7 +115,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   const status = getStatusBadge(statusRaw);
   const paragraphs = cleanAndFormatAbout(aboutRaw);
   const subjectList = subjectsRaw.toString().split(/[;,]/).map((s: string) => s.trim()).filter(Boolean);
-  const locationList = locationRaw.toString().split(/[;,]/).map((l: string) => l.trim()).filter(Boolean);
+  const locationList = locationRaw.toString().split(/[;,]/).map((l: string) => l.trim().split('-')[0].trim()).filter(Boolean);
   
   const getTimes = (times: string) => {
     if (!times) return [];

@@ -15,7 +15,8 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   const genderEmoji = gender.includes('male') && !gender.includes('female') ? "👨‍🏫" : (gender.includes('female') ? "👩‍🏫" : "👥");
   
   const classBoard = job['Class / Board'] || ((job.Class || '') + (job.Board ? ' (' + job.Board + ')' : '')) || 'Any Class';
-  const location = job.Locations || job.City || 'Not Provided';
+  const locationRaw = job.Locations || job.City || 'Not Provided';
+  const location = locationRaw.toString().split(/[;,]/).map(l => l.trim().split('-')[0].trim()).join(', ');
   const phone = getCityPhone(job.City);
   const postedDate = formatPostedDate(job['Record Added'] || job['Updated Time']);
 
