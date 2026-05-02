@@ -1,7 +1,7 @@
 import React from 'react';
 import { Phone, MessageSquare, User, GraduationCap, Zap, Calendar, BookOpen, Clock, MapPin, Library, Share2, CheckCircle2, Info } from 'lucide-react';
 import { TutorProfile } from '../types';
-import { cn, getTutorTheme } from '../utils';
+import { cn, getCityTheme } from '../utils';
 
 interface TutorCardProps {
   tutor: TutorProfile;
@@ -10,8 +10,7 @@ interface TutorCardProps {
 export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   if (!tutor) return null;
 
-  const tutorTheme = getTutorTheme();
-  
+  // Robust Data Accessors - Priority Mapping
   const getValue = (keys: string[], fallback: string = '–') => {
     for (const key of keys) {
       const val = (tutor as any)[key];
@@ -30,13 +29,15 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
         .join(' ');
   };
 
+  const cityFull = getValue(['Preferred City', 'preferredCity', 'City', 'city'], 'India').toString();
+  const tutorTheme = getCityTheme(cityFull);
+
   const nameRaw = getValue(['Name', 'name', 'fullName', 'Full Name'], 'Premium Tutor').toString();
   const name = toProperCase(nameRaw);
   const tutorId = getValue(['Tutor ID', 'tutorId', 'id', 'ID'], 'N/A').toString();
   const genderRaw = getValue(['Gender', 'gender'], '–').toString().trim();
   const displayGender = genderRaw && genderRaw.toLowerCase() !== 'null' ? genderRaw : '–';
   
-  const cityFull = getValue(['Preferred City', 'preferredCity', 'City', 'city'], 'India').toString();
   const cityShort = cityFull.substring(0, 15);
   
   const feeRaw = getValue(['Fee/Month', 'feeMonth', 'Fee', 'fee'], '₹200').toString();
