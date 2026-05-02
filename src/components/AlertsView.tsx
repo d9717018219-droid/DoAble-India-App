@@ -19,15 +19,16 @@ interface AlertsViewProps {
   onAdminClick?: () => void;
   currentUser?: any;
   handleSignIn?: () => void;
+  showFormModal: boolean;
+  setShowFormModal: (show: boolean) => void;
 }
 
-const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, userType, isAdminUser, onAdminClick, currentUser, handleSignIn }) => {
+const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, userType, isAdminUser, onAdminClick, currentUser, handleSignIn, showFormModal, setShowFormModal }) => {
   const [activeTab, setActiveTab] = useState<'feed' | 'support' | 'setup'>('feed');
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTone, setSelectedTone] = useState('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
-  const [showFormModal, setShowFormModal] = useState(false);
   const domAudioRef = React.useRef<HTMLAudioElement | null>(null);
 
   const [permission, setPermission] = useState<NotificationPermission>(

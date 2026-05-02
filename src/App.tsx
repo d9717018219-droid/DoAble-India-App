@@ -100,6 +100,7 @@ export default function App() {
 
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('userType'));
+  const [showFormModal, setShowFormModal] = useState(false);
   const [isSelectingCityOnly, setIsSelectingCityOnly] = useState(false);
   const [editName, setEditName] = useState(localStorage.getItem('userName') || '');
   const [editGender, setEditGender] = useState(localStorage.getItem('userGender') || '');
@@ -808,25 +809,40 @@ export default function App() {
                       </span>
                     </h3>
                     <p className="text-white/70 text-sm sm:text-lg font-medium leading-[1.6] max-w-2xl">
-                      {userType === 'teacher' ? 
-                        <>Your expertise has the power to ignite minds. Explore premium teaching opportunities tailored for you in <span className="text-white font-black underline decoration-primary decoration-4 underline-offset-4">{userCity}</span>.</> : 
-                        <>Every child's potential is limitless. We've handpicked the most inspiring and qualified mentors across <span className="text-white font-black underline decoration-primary decoration-4 underline-offset-4">{userCity}</span>.</>
-                      }
+                      {!userName ? (
+                        <>Welcome to DoAble India. Let's start by setting up your profile to match you with the best opportunities in <span className="text-white font-black">{userCity}</span>.</>
+                      ) : (
+                        userType === 'teacher' ? 
+                          <>Hello <span className="text-white font-black">{userName}</span>, your expertise is igniting minds. Keep your profile updated for premium teaching opportunities in <span className="text-white font-black underline decoration-primary decoration-4 underline-offset-4">{userCity}</span>.</> : 
+                          <>Hello <span className="text-white font-black">{userName}</span>, we've curated the most inspiring and qualified mentors for your requirements across <span className="text-white font-black underline decoration-primary decoration-4 underline-offset-4">{userCity}</span>.</>
+                      )}
                     </p>
                  </div>
+                 
                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                    <button 
-                      onClick={() => { setIsSelectingCityOnly(true); setShowOnboarding(true); setOnboardingStep(3); }} 
-                      className="bg-white/10 backdrop-blur-xl text-white border border-white/20 px-8 sm:px-10 py-5 sm:py-6 rounded-[24px] font-black text-xs uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all group"
-                    >
-                      <MapPin size={18} className="text-white group-hover:animate-bounce" /> Change City
-                    </button>
-                    <button 
-                      onClick={() => { setShowOnboarding(true); setOnboardingStep(0); }} 
-                      className="bg-white text-slate-900 px-8 sm:px-10 py-5 sm:py-6 rounded-[24px] font-black text-xs uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"
-                    >
-                      <Settings size={18} className="text-primary animate-spin-slow" /> Update Profile
-                    </button>
+                    {!userName ? (
+                      <button 
+                        onClick={() => { setShowOnboarding(true); setOnboardingStep(0); }} 
+                        className="bg-white text-slate-900 px-10 py-6 rounded-[24px] font-[900] text-sm uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.05] active:scale-95 transition-all"
+                      >
+                        <Sparkles size={20} className="text-primary animate-pulse" /> Create App Profile
+                      </button>
+                    ) : (
+                      <>
+                        <button 
+                          onClick={() => { setShowOnboarding(true); setOnboardingStep(0); }} 
+                          className="bg-white/10 backdrop-blur-xl text-white border border-white/20 px-8 sm:px-10 py-5 sm:py-6 rounded-[24px] font-black text-xs uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all group"
+                        >
+                          <Settings size={18} className="text-white" /> App Preferences
+                        </button>
+                        <button 
+                          onClick={() => setShowFormModal(true)} 
+                          className="bg-white text-slate-900 px-8 sm:px-10 py-5 sm:py-6 rounded-[24px] font-black text-xs uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"
+                        >
+                          <FileText size={18} className="text-primary" /> {userType === 'teacher' ? 'Official Registration' : 'Post Requirement'}
+                        </button>
+                      </>
+                    )}
                  </div>
               </div>
             </motion.div>
@@ -858,7 +874,6 @@ export default function App() {
             </div>
           </div>
         )}
-
         {activeTab === 'alerts' && (
           <AlertsView 
             city={userCity || 'All'} 
@@ -869,6 +884,8 @@ export default function App() {
             onAdminClick={() => setActiveTab('admin')} 
             currentUser={currentUser}
             handleSignIn={handleSignIn}
+            showFormModal={showFormModal}
+            setShowFormModal={setShowFormModal}
           />
         )}
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}
