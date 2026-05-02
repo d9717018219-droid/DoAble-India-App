@@ -783,34 +783,77 @@ export default function App() {
 
       <main className="container mx-auto p-3 sm:p-[10px] max-w-[1200px] pb-32">
         {activeTab === 'home' && (
-          <div className="space-y-6 sm:space-y-10 py-4 sm:py-8">
-            <div className="p-6 sm:p-10 rounded-[32px] sm:rounded-[48px] relative overflow-hidden shadow-2xl border border-primary/5" style={{ background: getCityTheme(userCity).grad }}>
+          <div className="space-y-8 sm:space-y-12 py-4 sm:py-8 flex flex-col items-center">
+            {/* Premium Hero Card */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="w-[94%] sm:w-full min-h-[45vh] sm:min-h-[400px] p-8 sm:p-16 rounded-[40px] sm:rounded-[56px] relative overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.2)] border border-white/10 mesh-gradient flex items-center"
+            >
+              {/* Glassmorphism Overlay */}
+              <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] z-0" />
+              
               {/* Weather Animations for Hero Card */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute -top-10 -right-10 text-white"><Sun size={80} className="sm:w-[120px] sm:h-[120px]" strokeWidth={1} /></motion.div>
-                 <motion.div animate={{ x: [-20, 20, -20] }} transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }} className="absolute -bottom-10 left-20 text-white"><Cloud size={70} className="sm:w-[100px] sm:h-[100px]" strokeWidth={1} /></motion.div>
+              <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30 z-0">
+                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} className="absolute -top-20 -right-20 text-white/40"><Sun size={150} strokeWidth={1} /></motion.div>
+                 <motion.div animate={{ x: [-30, 30, -30], y: [-10, 10, -10] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }} className="absolute -bottom-20 left-10 text-white/40"><Cloud size={120} strokeWidth={1} /></motion.div>
               </div>
 
-              <div className="relative z-10 space-y-6 sm:space-y-8">
-                 <div className="space-y-2">
-                    <h3 className="text-xl sm:text-3xl font-black text-white tracking-tighter leading-tight">
+              <div className="relative z-10 space-y-8 sm:space-y-10 w-full">
+                 <div className="space-y-4">
+                    <h3 className="text-3xl sm:text-6xl font-[900] text-white tracking-tighter leading-[1.1]">
                       Inspiring Success in<br/>
-                      <span className="inline-block border-r-2 border-white/80 pr-1" style={{ animation: 'typewriterBlink 1s step-end infinite' }}>
+                      <span className="inline-block border-r-4 border-white/90 pr-2 text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70" style={{ animation: 'typewriterBlink 1s step-end infinite' }}>
                         {typewriterCity}
                       </span>
                     </h3>
-                    <p className="text-white/80 text-[11px] sm:text-[13px] font-bold leading-relaxed max-w-md">
-                      {userType === 'teacher' ? <>Your knowledge has the power to ignite minds. Discover elite opportunities in <span className="text-secondary font-black">{userCity}</span>.</> : <>Your child's potential is limitless. We've curated the most inspiring mentors in <span className="text-secondary font-black">{userCity}</span>.</>}
+                    <p className="text-white/70 text-sm sm:text-lg font-medium leading-[1.6] max-w-2xl">
+                      {userType === 'teacher' ? 
+                        <>Your expertise has the power to ignite minds. Explore premium teaching opportunities tailored for you in <span className="text-white font-black underline decoration-primary decoration-4 underline-offset-4">{userCity}</span>.</> : 
+                        <>Every child's potential is limitless. We've handpicked the most inspiring and qualified mentors across <span className="text-white font-black underline decoration-primary decoration-4 underline-offset-4">{userCity}</span>.</>
+                      }
                     </p>
                  </div>
-                 <div className="flex flex-col sm:flex-row gap-3">
-                    <button onClick={() => { setIsSelectingCityOnly(true); setShowOnboarding(true); setOnboardingStep(3); }} className="bg-white text-slate-900 px-6 sm:px-8 py-4 sm:py-5 rounded-[20px] sm:rounded-[28px] font-black text-[10px] uppercase flex items-center justify-center gap-3 shadow-lg active:scale-95">
-                      <MapPin size={16} className="sm:w-[18px] sm:h-[18px] text-primary" /> Change City
+                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                    <button 
+                      onClick={() => { setIsSelectingCityOnly(true); setShowOnboarding(true); setOnboardingStep(3); }} 
+                      className="bg-white/10 backdrop-blur-xl text-white border border-white/20 px-8 sm:px-10 py-5 sm:py-6 rounded-[24px] font-black text-xs uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all group"
+                    >
+                      <MapPin size={18} className="text-white group-hover:animate-bounce" /> Change City
                     </button>
-                    <button onClick={() => { setShowOnboarding(true); setOnboardingStep(0); }} className="bg-primary text-white p-4 sm:p-5 rounded-[20px] sm:rounded-[28px] font-black text-[10px] uppercase flex items-center justify-center gap-2 shadow-lg active:scale-95">
-                      <Settings size={16} className="sm:w-[18px] sm:h-[18px]" /> Update Preference
+                    <button 
+                      onClick={() => { setShowOnboarding(true); setOnboardingStep(0); }} 
+                      className="bg-white text-slate-900 px-8 sm:px-10 py-5 sm:py-6 rounded-[24px] font-black text-xs uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"
+                    >
+                      <Settings size={18} className="text-primary animate-spin-slow" /> Update Profile
                     </button>
                  </div>
+              </div>
+            </motion.div>
+
+            {/* Quick Stats Highlights */}
+            <div className="w-full overflow-hidden py-4 relative">
+              <div className="animate-scroll flex gap-6 sm:gap-10 items-center">
+                {[
+                  { icon: '⚡', text: 'Instant Booking' },
+                  { icon: '✅', text: 'Verified Tutors' },
+                  { icon: '🎓', text: '4.9/5 Rating' },
+                  { icon: '🛡️', text: 'Secure Payments' },
+                  { icon: '🚀', text: 'Fast Onboarding' },
+                  { icon: '🌟', text: 'Premium Support' },
+                  // Repeat for infinite effect
+                  { icon: '⚡', text: 'Instant Booking' },
+                  { icon: '✅', text: 'Verified Tutors' },
+                  { icon: '🎓', text: '4.9/5 Rating' },
+                  { icon: '🛡️', text: 'Secure Payments' },
+                  { icon: '🚀', text: 'Fast Onboarding' },
+                  { icon: '🌟', text: 'Premium Support' }
+                ].map((stat, i) => (
+                  <div key={i} className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 whitespace-nowrap">
+                    <span className="text-lg">{stat.icon}</span>
+                    <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">{stat.text}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -917,6 +960,25 @@ export default function App() {
         @keyframes typewriterBlink {
           0%, 100% { border-color: rgba(255,255,255,0.8); }
           50% { border-color: transparent; }
+        }
+        @keyframes mesh {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .mesh-gradient {
+          background: linear-gradient(-45deg, #22c55e, #3b82f6, #10b981, #2563eb);
+          background-size: 400% 400%;
+          animation: mesh 15s ease infinite;
+        }
+        @keyframes scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-scroll {
+          display: flex;
+          width: max-content;
+          animation: scroll 20s linear infinite;
         }
       `}</style>
     </div>
