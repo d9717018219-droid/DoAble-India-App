@@ -998,6 +998,57 @@ export default function App() {
           animation: scroll 20s linear infinite;
         }
       `}</style>
+
+      {/* Form Modal (Global) */}
+      <AnimatePresence>
+        {showFormModal && (
+          <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFormModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            >
+              <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                    {userType === 'teacher' ? 'Official Registration' : 'Requirement Details'}
+                  </h3>
+                  <p className="text-[10px] font-black text-primary uppercase tracking-widest">DoAble India Official Form</p>
+                </div>
+                <button 
+                  onClick={() => setShowFormModal(false)}
+                  className="p-3 bg-white dark:bg-slate-800 rounded-2xl text-slate-400 hover:text-slate-900 dark:hover:white transition-colors shadow-sm"
+                >
+                  <X size={20} strokeWidth={3} />
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-2 bg-white">
+                <div 
+                  className="w-full h-full min-h-[600px]"
+                  dangerouslySetInnerHTML={{ 
+                    __html: userType === 'teacher' ? 
+                      `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;"></iframe>` : 
+                      `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>` 
+                  }} 
+                />
+              </div>
+
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 text-center">
+                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Secure connection established with doableindia.com</p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -499,23 +499,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
                </div>
 
                <div className="space-y-4">
-                  {/* Documentation / Requirement Button - First */}
-                  <button 
-                    onClick={() => setShowFormModal(true)}
-                    className="w-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white p-6 rounded-[24px] flex items-center justify-between group active:scale-95 transition-all shadow-xl"
-                  >
-                    <div className="text-left">
-                      <span className="text-[10px] font-black uppercase tracking-widest opacity-70 block">Official Documentation</span>
-                      <span className="text-lg font-black uppercase tracking-tight">
-                        {userType === 'teacher' ? 'Update Profile' : 'Post Requirement'}
-                      </span>
-                    </div>
-                    <div className="w-12 h-12 bg-white/20 dark:bg-slate-900/10 rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform">
-                      <ExternalLink size={20} strokeWidth={3} />
-                    </div>
-                  </button>
-
-                  {/* Pay Now Button - Second (Green) */}
+                  {/* Pay Now Button - Green */}
                   <a 
                     href="https://zohosecurepay.in/checkout/i9db4wt2-verz1l6gn6ogo/Make-a-secure-payment-now" 
                     target="_blank" 
