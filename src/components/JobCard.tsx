@@ -78,10 +78,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           <Share2 size={16} strokeWidth={3} />
         </button>
         
-        <div className="text-2xl sm:text-4xl font-[900] text-white mb-1 drop-shadow-md uppercase tracking-tight">
+        <div className="text-xl sm:text-2xl font-[900] text-white mb-1 drop-shadow-md uppercase tracking-tight line-clamp-2 px-4">
           💼 {job.subjects || 'Premium Job'}
         </div>
-        <div className="text-[10px] sm:text-[14px] font-black text-white/90 uppercase tracking-[0.2em]">
+        <div className="text-[10px] sm:text-[12px] font-black text-white/90 uppercase tracking-[0.2em]">
           🆔 Order ID: {job['Order ID']}
         </div>
       </div>
@@ -92,22 +92,22 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
             <div className="text-3xl mb-1">{genderEmoji}</div>
             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gender</div>
-            <div className="text-sm font-[900]" style={{ color: theme.solid }}>{job.Gender || 'Any'}</div>
+            <div className="text-[11px] sm:text-xs font-[900]" style={{ color: theme.solid }}>{job.Gender || 'Any'}</div>
           </div>
           <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
             <div className="text-3xl mb-1">📍</div>
             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">City</div>
-            <div className="text-sm font-[900]" style={{ color: theme.solid }}>{job.City}</div>
+            <div className="text-[11px] sm:text-xs font-[900]" style={{ color: theme.solid }}>{job.City}</div>
           </div>
           <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
             <div className="text-3xl mb-1">🏫</div>
             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Class / Board</div>
-            <div className="text-sm font-[900] truncate w-full px-2" style={{ color: theme.solid }}>{classBoard}</div>
+            <div className="text-[11px] sm:text-xs font-[900] truncate w-full px-2" style={{ color: theme.solid }}>{classBoard}</div>
           </div>
           <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
             <div className="text-3xl mb-1">💰</div>
             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Budgeted Fee</div>
-            <div className="text-sm font-[900]" style={{ color: theme.solid }}>{formatCurrency(job.Fee)} / Mo</div>
+            <div className="text-[11px] sm:text-xs font-[900]" style={{ color: theme.solid }}>{formatCurrency(job.Fee)} / Mo</div>
           </div>
         </div>
 
