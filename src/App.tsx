@@ -250,22 +250,22 @@ export default function App() {
   };
 
   const getSubjects = useCallback((t: TutorProfile) => {
-    return (t['Preferred Subject(s)'] || '').split(';').join(',').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    return (t['Preferred Subject(s)'] || '').toString().split(';').join(',').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
   }, []);
-  const getCityValue = useCallback((t: TutorProfile) => (t['Preferred City'] || 'Ghaziabad').trim().toLowerCase(), []);
+  const getCityValue = useCallback((t: TutorProfile) => (t['Preferred City'] || 'Ghaziabad').toString().trim().toLowerCase(), []);
   const isCityMatch = useCallback((city: string | undefined, filter: string) => {
     if (!city) return false;
     if (filter.toLowerCase() === 'all') return true;
-    return city.toLowerCase().trim() === filter.toLowerCase().trim();
+    return city.toString().toLowerCase().trim() === filter.toLowerCase().trim();
   }, []);
   const isLocationMatch = useCallback((locs: string | undefined, userLocs: string[]) => {
     if (!locs || userLocs.length === 0) return true;
-    const leadArr = locs.toLowerCase().split(',').map(l => l.trim());
+    const leadArr = locs.toString().toLowerCase().split(',').map(l => l.trim());
     return userLocs.map(l => l.toLowerCase().trim()).some(u => leadArr.some(l => l.includes(u) || u.includes(l)));
   }, []);
   const isClassMatch = useCallback((classes: string | undefined, uClasses: string[]) => {
     if (!classes || uClasses.length === 0) return true;
-    const lc = classes.toLowerCase();
+    const lc = classes.toString().toLowerCase();
     return uClasses.some(c => lc.includes(c.toLowerCase()));
   }, []);
 
@@ -314,73 +314,58 @@ export default function App() {
   }, [allLeads, cityFilter, searchQuery, userTutorLocations, userTutorSubjects, isCityMatch, isLocationMatch, locationBypass]);
 
   const filteredTutors = useMemo(() => {
-    const strictFilter = (t: TutorProfile) => {
+    return tutors.filter(t => {
       const tutorCity = getCityValue(t);
       const fc = cityFilter.toLowerCase().trim();
       if (fc !== 'all' && tutorCity !== fc) return false;
 
-      // ID Filter (Text Search)
       if (tutorFilterID && !t['Tutor ID']?.toString().toLowerCase().includes(tutorFilterID.toLowerCase())) return false;
-      
-      // Name Filter (Text Search)
       if (tutorFilterName && !t.Name?.toLowerCase().includes(tutorFilterName.toLowerCase())) return false;
 
-      // Gender Filter (Tap & Select)
       if (tutorFilterGender !== 'all' && t.Gender?.toLowerCase() !== tutorFilterGender.toLowerCase()) return false;
 
-      // Vehicle Filter (Tap & Select)
       if (tutorFilterVehicle !== 'all') {
         const hasVehicle = (t['Have own Vehicle'] || '').toLowerCase().includes('yes');
         if (tutorFilterVehicle === 'yes' && !hasVehicle) return false;
         if (tutorFilterVehicle === 'no' && hasVehicle) return false;
       }
 
-      // Experience Filter (Tap & Select)
       if (tutorFilterExperience !== 'all') {
          const exp = (t.Experience || '').toLowerCase();
          if (tutorFilterExperience === 'fresher' && !exp.includes('fresher') && !exp.includes('0')) return false;
          if (tutorFilterExperience === '1-3' && !exp.includes('1') && !exp.includes('2') && !exp.includes('3')) return false;
          if (tutorFilterExperience === '3-5' && !exp.includes('3') && !exp.includes('4') && !exp.includes('5')) return false;
-         if (tutorFilterExperience === '5+' && !exp.includes('5') && !exp.includes('6') && !exp.includes('7') && !exp.includes('8') && !exp.includes('9') && !exp.includes('10') && !exp.includes('more')) return false;
+         if (tutorFilterExperience === '5+' && !exp.includes('5') && !exp.includes('6') && !exp.includes('more')) return false;
       }
 
-      // Qualification Filter (Tap & Select)
       if (tutorFilterQualification !== 'all' && !t['Qualification(s)']?.toLowerCase().includes(tutorFilterQualification.toLowerCase())) return false;
-
-      // Time Filter (Tap & Select)
       if (tutorFilterTime !== 'all' && !t['Preferred Time']?.toLowerCase().includes(tutorFilterTime.toLowerCase())) return false;
 
-      // Date Filter (Tap & Select)
       if (tutorFilterDate !== 'all') {
          const added = new Date(t['Record Added'] || 0).getTime();
-         const now = Date.now();
-         const diffDays = (now - added) / (1000 * 3600 * 24);
+         const diffDays = (Date.now() - added) / (1000 * 3600 * 24);
          if (tutorFilterDate === '7' && diffDays > 7) return false;
          if (tutorFilterDate === '30' && diffDays > 30) return false;
          if (tutorFilterDate === '90' && diffDays > 90) return false;
       }
 
-      if (locationBypass) {
-        return (t['Preferred Location(s)'] || '').toLowerCase().includes(locationBypass.toLowerCase());
-      }
-
+      if (locationBypass) return (t['Preferred Location(s)'] || '').toLowerCase().includes(locationBypass.toLowerCase());
       if (searchQuery) {
         const sl = searchQuery.toLowerCase();
-        if (!( t.Name?.toLowerCase().includes(sl) || t['Tutor ID']?.toString().includes(sl) || t['Preferred Subject(s)']?.toLowerCase().includes(sl))) return false;
+        return t.Name?.toLowerCase().includes(sl) || t['Tutor ID']?.toString().includes(sl) || t['Preferred Subject(s)']?.toLowerCase().includes(sl);
       }
+      
       const hasPrefs = userClasses.length > 0 || userTutorSubjects.length > 0;
       if (hasPrefs) {
         if (userClasses.length > 0 && !isClassMatch(t['Preferred Class Group'], userClasses)) return false;
         if (userTutorSubjects.length > 0) {
           const tS = getSubjects(t);
           const uS = userTutorSubjects.map(s => s.toLowerCase().trim());
-          if (!uS.some(us => tS.some(ts => ts === us || ts.includes(us) || us.includes(ts)))) return false;
+          if (!uS.some(us => tS.some(ts => ts === us || ts.includes(us)))) return false;
         }
       }
       return true;
-    };
-
-    return tutors.filter(strictFilter);
+    });
   }, [tutors, cityFilter, searchQuery, userClasses, userTutorSubjects, getCityValue, isClassMatch, getSubjects, locationBypass, tutorFilterID, tutorFilterName, tutorFilterGender, tutorFilterVehicle, tutorFilterExperience, tutorFilterQualification, tutorFilterTime, tutorFilterDate]);
 
   const activeLeadsCount = useMemo(() => {
@@ -400,14 +385,13 @@ export default function App() {
   const cityLocations = CITY_TO_LOCATIONS_DATA[editCity] || [];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans" ref={mainScrollRef}>
+    <div className="min-h-screen bg-white dark:bg-slate-950 font-sans" ref={mainScrollRef}>
 
       {/* Onboarding Overlay */}
       <AnimatePresence>
         {showOnboarding && (
           <div className="fixed inset-0 z-[10000] bg-white flex flex-col items-center justify-center p-4 sm:p-10 overflow-y-auto">
             <div className="w-full max-w-lg space-y-6 sm:space-y-10">
-
               {onboardingStep === 0 && (
                 <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center space-y-6 sm:space-y-8">
                   <div className="flex flex-col items-center gap-4 sm:gap-6">
@@ -463,7 +447,6 @@ export default function App() {
                          </div>
                       </div>
                     )}
-
                     <button onClick={() => setOnboardingStep(2)} className="w-full bg-primary text-white py-4 sm:py-5 rounded-xl sm:rounded-2xl font-black text-[10px] uppercase shadow-xl">Next Step</button>
                   </div>
                 </motion.div>
@@ -848,7 +831,7 @@ export default function App() {
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}
 
         {(activeTab === 'jobs' || activeTab === 'tutors') && (
-          <div className="flex flex-col min-h-screen">
+          <div className="flex flex-col space-y-4">
 
             {activeTab === 'jobs' && (
               <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100">
@@ -882,37 +865,39 @@ export default function App() {
               </div>
             )}
 
-            <div className="flex-1 space-y-4 sm:space-y-6 py-2 sm:py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 px-2 sm:px-0">
               {loading ? (
-                <div className="h-full flex flex-col items-center justify-center py-40">
-                  <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                <div className="col-span-full py-40 text-center">
+                  <Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" />
                   <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading Premium Data...</p>
                 </div>
               ) : activeTab === 'jobs' ? (
                 filteredJobs.length > 0 ? (
                   filteredJobs.map((job) => (
-                    <div key={(job as any).id || job['Order ID']} className="w-full max-w-[600px] mx-auto">
-                      <JobCard job={job} />
-                    </div>
+                    <JobCard 
+                      key={(job as any).id || job['Order ID']} 
+                      job={job} 
+                    />
                   ))
                 ) : (
-                  <div className="h-full flex flex-col items-center justify-center p-10 text-center">
-                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mb-6 text-3xl shadow-inner">🏁</div>
-                    <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Results</h3>
+                  <div className="col-span-full py-20 text-center">
+                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div>
+                    <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Jobs Found</h3>
                     <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">Try changing your filters or location</p>
                   </div>
                 )
               ) : (
                 filteredTutors.length > 0 ? (
                   filteredTutors.map((tutor) => (
-                    <div key={(tutor as any).id || tutor['Tutor ID']} className="w-full max-w-[600px] mx-auto">
-                      <TutorCard tutor={tutor} />
-                    </div>
+                    <TutorCard 
+                      key={(tutor as any).id || tutor['Tutor ID']} 
+                      tutor={tutor} 
+                    />
                   ))
                 ) : (
-                  <div className="h-full flex flex-col items-center justify-center p-10 text-center">
-                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mb-6 text-3xl shadow-inner">🏁</div>
-                    <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Results</h3>
+                  <div className="col-span-full py-20 text-center">
+                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div>
+                    <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Tutors Found</h3>
                     <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">No expert tutors match your search</p>
                   </div>
                 )
