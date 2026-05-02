@@ -846,32 +846,6 @@ export default function App() {
                  </div>
               </div>
             </motion.div>
-
-            {/* Quick Stats Highlights */}
-            <div className="w-full overflow-hidden py-4 relative">
-              <div className="animate-scroll flex gap-6 sm:gap-10 items-center">
-                {[
-                  { icon: '⚡', text: 'Instant Booking' },
-                  { icon: '✅', text: 'Verified Tutors' },
-                  { icon: '🎓', text: '4.9/5 Rating' },
-                  { icon: '🛡️', text: 'Secure Payments' },
-                  { icon: '🚀', text: 'Fast Onboarding' },
-                  { icon: '🌟', text: 'Premium Support' },
-                  // Repeat for infinite effect
-                  { icon: '⚡', text: 'Instant Booking' },
-                  { icon: '✅', text: 'Verified Tutors' },
-                  { icon: '🎓', text: '4.9/5 Rating' },
-                  { icon: '🛡️', text: 'Secure Payments' },
-                  { icon: '🚀', text: 'Fast Onboarding' },
-                  { icon: '🌟', text: 'Premium Support' }
-                ].map((stat, i) => (
-                  <div key={i} className="flex items-center gap-2 px-6 py-3 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 whitespace-nowrap">
-                    <span className="text-lg">{stat.icon}</span>
-                    <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">{stat.text}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         )}
         {activeTab === 'alerts' && (
@@ -987,15 +961,6 @@ export default function App() {
           background: linear-gradient(-45deg, #22c55e, #3b82f6, #10b981, #2563eb);
           background-size: 400% 400%;
           animation: mesh 15s ease infinite;
-        }
-        @keyframes scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-scroll {
-          display: flex;
-          width: max-content;
-          animation: scroll 20s linear infinite;
         }
       `}</style>
 
