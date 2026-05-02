@@ -70,7 +70,6 @@ export default function App() {
   const [userType, setUserType] = useState<UserType | null>(localStorage.getItem('userType') as UserType);
   const [userClasses, setUserClasses] = useState<string[]>(JSON.parse(localStorage.getItem('userClasses') || '[]'));
   const [userTutorSubjects, setUserTutorSubjects] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorSubjects') || '[]'));
-  const [userTutorLocations, setUserTutorLocations] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorLocations') || '[]'));
 
   // ─── UI state ────────────────────────────────────────────────────
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
@@ -98,26 +97,17 @@ export default function App() {
   const [tutorFilterTime, setTutorFilterTime] = useState('all');
   const [tutorFilterDate, setTutorFilterDate] = useState('all');
 
-  // ─── Onboarding ──────────────────────────────────────────────────
+  // ─── Simplified Onboarding ───────────────────────────────────────
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('userType'));
   const [showFormModal, setShowFormModal] = useState(false);
   const [isSelectingCityOnly, setIsSelectingCityOnly] = useState(false);
-  const [editName, setEditName] = useState(localStorage.getItem('userName') || '');
-  const [editGender, setEditGender] = useState(localStorage.getItem('userGender') || '');
   const [editUserType, setEditUserType] = useState<UserType | null>(localStorage.getItem('userType') as UserType);
-  const [editTutorSubjects, setEditTutorSubjects] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorSubjects') || '[]'));
-  const [editTutorLocations, setEditTutorLocations] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorLocations') || '[]'));
-  const [editParentTutorGender, setEditParentTutorGender] = useState<string>(localStorage.getItem('parentTutorGender') || 'Any');
-  const [areaSearch, setAreaSearch] = useState('');
-  const [editClasses, setEditClasses] = useState<string[]>(JSON.parse(localStorage.getItem('userClasses') || '[]'));
   const [editCity, setEditCity] = useState<string>(localStorage.getItem('userCity') || 'Ghaziabad');
+  const [areaSearch, setAreaSearch] = useState('');
 
-  // ─── PWA install prompt ──────────────────────────────────────────
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
-
-  // ─── Typewriter for city ─────────────────────────────────────────
   const typewriterCity = useTypewriter(userCity, 70);
 
   const getGreeting = () => {
@@ -154,7 +144,6 @@ export default function App() {
     }
   };
 
-  // PWA install prompt capture
   useEffect(() => {
     const handler = (e: any) => {
       e.preventDefault();
@@ -179,17 +168,14 @@ export default function App() {
   const parseDate = useCallback((dateStr: string | undefined): number => {
     if (!dateStr) return 0;
     const s = dateStr.toString().trim();
-    // Handle DD/MM/YY or DD/MM/YYYY or YYYY-MM-DD formats
     const parts = s.split(/[\/\-\s:]/);
     if (parts.length >= 3) {
       let day, month, year;
       if (parts[0].length === 4) {
-        // YYYY-MM-DD
         year = parseInt(parts[0]);
         month = parseInt(parts[1]) - 1;
         day = parseInt(parts[2]);
       } else if (parts[2].length === 4 || parts[2].length === 2) {
-        // DD/MM/YY or DD/MM/YYYY
         day = parseInt(parts[0]);
         month = parseInt(parts[1]) - 1;
         year = parseInt(parts[2]);
@@ -227,7 +213,6 @@ export default function App() {
         setLeads(leadsJson.data || []);
       }
       
-      // Tutor sorting: 'Record Added' DESC
       const rawTutors: TutorProfile[] = tutorsJson.data || [];
       rawTutors.sort((a, b) => {
         const ta = parseDate((a as any)['Record Added'] || (a as any).recordAdded || (a as any)['Updated Time']);
@@ -235,7 +220,6 @@ export default function App() {
         return tb - ta;
       });
       setTutors(rawTutors);
-
       setError(null);
     } catch (err: any) {
       setError(`Failed to load data: ${err.message || 'Unknown Error'}`);
@@ -253,40 +237,32 @@ export default function App() {
   };
 
   const completeOnboarding = () => {
-    localStorage.setItem('userName', editName);
-    localStorage.setItem('userGender', editGender);
-    localStorage.setItem('userClasses', JSON.stringify(editClasses));
+    localStorage.setItem('userType', editUserType || userType || '');
     localStorage.setItem('userCity', editCity);
-    localStorage.setItem('userTutorSubjects', JSON.stringify(editTutorSubjects));
-    localStorage.setItem('userTutorLocations', JSON.stringify(editTutorLocations));
-    localStorage.setItem('parentTutorGender', editParentTutorGender);
     
-    setUserName(editName);
-    setUserGender(editGender);
-    setUserClasses(editClasses);
+    setUserType(editUserType || userType);
     setUserCity(editCity);
     setCityFilter(editCity);
-    setUserTutorSubjects(editTutorSubjects);
-    setUserTutorLocations(editTutorLocations);
-
-    // Apply filters based on onboarding questions
-    if (editUserType === 'parent') {
-       if (editParentTutorGender !== 'Any') setTutorFilterGender(editParentTutorGender);
-    }
-
+    
+    setVisibleJobsCount(10);
+    setVisibleTutorsCount(10);
+    setLocationBypass(null);
     setShowOnboarding(false);
     setIsSelectingCityOnly(false);
-    setLocationBypass(null);
+
     const resolved = editUserType || userType;
     if (resolved === 'parent') setActiveTab('tutors');
     else if (resolved === 'teacher') setActiveTab('jobs');
+    else setActiveTab('home');
   };
 
   const getSubjects = useCallback((t: TutorProfile) => {
     const raw = (t['Preferred Subject(s)'] || (t as any).preferredSubjects || (t as any).subjects || '').toString();
     return raw.split(/[;,]/).map(s => s.trim().toLowerCase()).filter(Boolean);
   }, []);
+
   const getCityValue = useCallback((t: TutorProfile) => (t['Preferred City'] || (t as any).preferredCity || (t as any).City || (t as any).city || 'India').toString().trim().toLowerCase(), []);
+
   const isCityMatch = useCallback((city: string | undefined, filter: string) => {
     if (!city) return false;
     if (filter.toLowerCase() === 'all') return true;
@@ -294,11 +270,7 @@ export default function App() {
     const f = filter.toLowerCase().trim();
     return c.includes(f) || f.includes(c);
   }, []);
-  const isLocationMatch = useCallback((locs: string | undefined, userLocs: string[]) => {
-    if (!locs || userLocs.length === 0) return true;
-    const leadArr = locs.toString().toLowerCase().split(',').map(l => l.trim());
-    return userLocs.map(l => l.toLowerCase().trim()).some(u => leadArr.some(l => l.includes(u) || u.includes(l)));
-  }, []);
+
   const isClassMatch = useCallback((classes: string | undefined, uClasses: string[]) => {
     if (!classes || uClasses.length === 0) return true;
     const lc = classes.toString().toLowerCase();
@@ -313,7 +285,7 @@ export default function App() {
   }, [leads, firestoreLeads]);
 
   const filteredJobs = useMemo(() => {
-    const jobs = allLeads.filter(l => {
+    return allLeads.filter(l => {
       const remark = (l['Internal Remark'] || '').trim().toLowerCase();
       if (remark !== 'searching') return false;
       if (locationBypass) {
@@ -324,43 +296,30 @@ export default function App() {
         const sl = searchQuery.toLowerCase();
         if (!( l.Name?.toLowerCase().includes(sl) || (l.subjects || '').toLowerCase().includes(sl) || l['Order ID']?.toLowerCase().includes(sl))) return false;
       }
-      if (userTutorLocations.length > 0 && !isLocationMatch(l.Locations, userTutorLocations)) return false;
-      if (userTutorSubjects.length > 0) {
-        const ls = (l.subjects || '').toLowerCase();
-        if (!userTutorSubjects.some(s => ls.includes(s.toLowerCase()))) return false;
-      }
       return true;
     });
-    return jobs;
-  }, [allLeads, cityFilter, searchQuery, userTutorLocations, userTutorSubjects, isCityMatch, isLocationMatch, locationBypass]);
+  }, [allLeads, cityFilter, searchQuery, isCityMatch, locationBypass]);
 
   const filteredTutors = useMemo(() => {
     return tutors.filter(t => {
       if (!t) return false;
       const tutorCity = getCityValue(t);
       const fc = cityFilter.toLowerCase().trim();
-      
-      // Robust City Match (Relaxed)
       if (fc !== 'all') {
         if (!tutorCity.includes(fc) && !fc.includes(tutorCity)) return false;
       }
-
       const tID = (t['Tutor ID'] || (t as any).tutorId || (t as any).id || '').toString().toLowerCase();
       if (tutorFilterID && !tID.includes(tutorFilterID.toLowerCase())) return false;
-      
       const tName = (t.Name || (t as any).name || '').toString().toLowerCase();
       if (tutorFilterName && !tName.includes(tutorFilterName.toLowerCase())) return false;
-
       const tGender = (t.Gender || (t as any).gender || 'any').toString().toLowerCase().trim();
       if (tutorFilterGender !== 'all' && tGender !== tutorFilterGender.toLowerCase()) return false;
-
       if (tutorFilterVehicle !== 'all') {
         const vRaw = (t['Have own Vehicle'] || (t as any).haveOwnVehicle || '').toString().toLowerCase();
         const hasVehicle = vRaw.includes('yes') || vRaw === 'y';
         if (tutorFilterVehicle === 'yes' && !hasVehicle) return false;
         if (tutorFilterVehicle === 'no' && hasVehicle) return false;
       }
-
       if (tutorFilterExperience !== 'all') {
          const exp = (t.Experience || (t as any).experience || '').toString().toLowerCase();
          if (tutorFilterExperience === 'fresher' && !exp.includes('fresher') && !exp.includes('0')) return false;
@@ -368,13 +327,10 @@ export default function App() {
          if (tutorFilterExperience === '3-5' && !exp.includes('3') && !exp.includes('4') && !exp.includes('5')) return false;
          if (tutorFilterExperience === '5+' && !exp.includes('5') && !exp.includes('6') && !exp.includes('more') && !exp.includes('10')) return false;
       }
-
       const tQual = (t['Qualification(s)'] || (t as any).qualifications || '').toString().toLowerCase();
       if (tutorFilterQualification !== 'all' && !tQual.includes(tutorFilterQualification.toLowerCase())) return false;
-      
       const tTime = (t['Preferred Time'] || (t as any).preferredTime || '').toString().toLowerCase();
       if (tutorFilterTime !== 'all' && !tTime.includes(tutorFilterTime.toLowerCase())) return false;
-
       if (tutorFilterDate !== 'all') {
          const added = parseDate(t['Record Added'] || (t as any).recordAdded);
          const diffDays = (Date.now() - added) / (1000 * 3600 * 24);
@@ -382,28 +338,23 @@ export default function App() {
          if (tutorFilterDate === '30' && diffDays > 30) return false;
          if (tutorFilterDate === '90' && diffDays > 90) return false;
       }
-
       if (locationBypass) {
         const tLocs = (t['Preferred Location(s)'] || (t as any).preferredLocations || '').toString().toLowerCase();
         if (!tLocs.includes(locationBypass.toLowerCase())) return false;
       }
-
       if (searchQuery) {
         const sl = searchQuery.toLowerCase();
         const tSubj = (t['Preferred Subject(s)'] || (t as any).subjects || '').toString().toLowerCase();
         if (!(tName.includes(sl) || tID.includes(sl) || tSubj.includes(sl))) return false;
       }
-      
-      const hasPrefs = userClasses.length > 0 || userTutorSubjects.length > 0;
-      if (hasPrefs) {
+      if (userClasses.length > 0) {
         const tClass = (t['Preferred Class Group'] || (t as any).classGroup || '').toString();
-        if (userClasses.length > 0 && !isClassMatch(tClass, userClasses)) return false;
-        
-        if (userTutorSubjects.length > 0) {
-          const tS = getSubjects(t);
-          const uS = userTutorSubjects.map(s => s.toLowerCase().trim());
-          if (!uS.some(us => tS.some(ts => ts === us || ts.includes(us)))) return false;
-        }
+        if (!isClassMatch(tClass, userClasses)) return false;
+      }
+      if (userTutorSubjects.length > 0) {
+        const tS = getSubjects(t);
+        const uS = userTutorSubjects.map(s => s.toLowerCase().trim());
+        if (!uS.some(us => tS.some(ts => ts === us || ts.includes(us)))) return false;
       }
       return true;
     });
@@ -414,25 +365,17 @@ export default function App() {
 
   const subjectsForSelectedClasses = useMemo(() => {
     const subjectSet = new Set<string>();
-    editClasses.forEach(cls => {
-      (CLASS_SUBJECTS_DATA[cls] || []).forEach(s => subjectSet.add(s));
-    });
+    userClasses.forEach(cls => { (CLASS_SUBJECTS_DATA[cls] || []).forEach(s => subjectSet.add(s)); });
     return Array.from(subjectSet);
-  }, [editClasses]);
+  }, [userClasses]);
 
   const dynamicCities = useMemo(() => {
     const citySet = new Set<string>(CITIES_LIST);
     tutors.forEach(t => { 
       const c = (t['Preferred City'] || (t as any).preferredCity || (t as any).City || (t as any).city || '').toString().trim();
-      if (c && c.toLowerCase() !== 'india') {
-        citySet.add(c.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
-      }
+      if (c && c.toLowerCase() !== 'india') citySet.add(c.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
     });
-    allLeads.forEach(l => { 
-      if (l.City && l.City.toLowerCase() !== 'india') {
-        citySet.add(l.City.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
-      }
-    });
+    allLeads.forEach(l => { if (l.City && l.City.toLowerCase() !== 'india') citySet.add(l.City.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')); });
     return Array.from(citySet).sort();
   }, [tutors, allLeads]);
 
@@ -456,7 +399,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 font-sans" ref={mainScrollRef}>
 
-      {/* Onboarding Overlay */}
+      {/* Simplified 2-Step Onboarding */}
       <AnimatePresence>
         {showOnboarding && (
           <div className="fixed inset-0 z-[10000] bg-white flex flex-col items-center justify-center p-4 sm:p-10 overflow-y-auto">
@@ -475,144 +418,32 @@ export default function App() {
                   <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     <button onClick={() => selectUserType('parent')} className="bg-slate-50 p-4 sm:p-6 rounded-[24px] sm:rounded-[32px] flex flex-col items-center gap-2 sm:gap-3 active:scale-95 border border-slate-100">
                       <User size={28} className="sm:w-8 sm:h-8 text-primary/60" />
-                      <span className="text-[10px] sm:text-xs font-black uppercase">I'm Parent</span>
+                      <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">I'm Parent</span>
                     </button>
                     <button onClick={() => selectUserType('teacher')} className="bg-slate-900 text-white p-4 sm:p-6 rounded-[24px] sm:rounded-[32px] flex flex-col items-center gap-2 sm:gap-3 active:scale-95">
                       <GraduationCap size={28} className="sm:w-8 sm:h-8 text-primary" />
-                      <span className="text-[10px] sm:text-xs font-black uppercase">I'm Tutor</span>
+                      <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest">I'm Tutor</span>
                     </button>
                   </div>
                 </motion.div>
               )}
 
               {onboardingStep === 1 && (
-                <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] shadow-2xl border border-slate-100 space-y-6 sm:space-y-8">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-primary"><User size={20} className="sm:w-6 sm:h-6" /></div>
-                    <div><h3 className="text-lg sm:text-xl font-black text-slate-900 uppercase">Your Identity</h3><p className="text-[9px] sm:text-[10px] font-black text-primary uppercase">Basic Profile</p></div>
-                  </div>
-                  <div className="space-y-4 sm:space-y-6">
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">What is your name?</label>
-                       <input className="w-full bg-slate-50 p-4 sm:p-5 rounded-xl sm:rounded-2xl text-sm font-black shadow-inner outline-none border border-slate-100" value={editName} onChange={e => setEditName(e.target.value)} placeholder="Full Name" />
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Your Gender</label>
-                       <div className="grid grid-cols-2 gap-2">
-                         {['Male', 'Female'].map(g => (
-                           <button key={g} onClick={() => setEditGender(g)} className={cn("p-4 sm:p-5 rounded-xl sm:rounded-2xl text-[9px] font-black uppercase transition-all", editGender === g ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400")}>{g}</button>
-                         ))}
-                       </div>
-                    </div>
-                    
-                    {editUserType === 'parent' && (
-                      <div className="space-y-2 pt-2">
-                         <label className="text-[10px] font-black uppercase text-primary ml-2 italic">Parent Preference Question:</label>
-                         <label className="text-[11px] font-black uppercase text-slate-600 block px-2 leading-tight">"Which gender of tutor is your child comfortable with?"</label>
-                         <div className="grid grid-cols-3 gap-2">
-                           {['Any', 'Male', 'Female'].map(g => (
-                             <button key={g} onClick={() => setEditParentTutorGender(g)} className={cn("py-3 rounded-xl text-[9px] font-black uppercase transition-all border", editParentTutorGender === g ? "bg-primary text-white border-primary" : "bg-slate-50 text-slate-400 border-slate-100")}>{g}</button>
-                           ))}
-                         </div>
-                      </div>
-                    )}
-                    <button onClick={() => setOnboardingStep(2)} className="w-full bg-primary text-white py-4 sm:py-5 rounded-xl sm:rounded-2xl font-black text-[10px] uppercase shadow-xl">Next Step</button>
-                  </div>
-                </motion.div>
-              )}
-
-              {onboardingStep === 2 && (
-                <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] shadow-2xl border border-slate-100 space-y-6 sm:space-y-8">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-primary"><Sparkles size={20} className="sm:w-6 sm:h-6" /></div>
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-black text-slate-900 uppercase">
-                        {editUserType === 'parent' ? 'Child\'s Class' : 'Select Classes'}
-                      </h3>
-                      <p className="text-[9px] sm:text-[10px] font-black text-primary uppercase">
-                        {editUserType === 'parent' ? '"Which class group does your child belong to?"' : 'Pick one or more'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-4 sm:space-y-6">
-                    <div className="flex flex-wrap gap-2 max-h-[30vh] overflow-y-auto p-1 sm:p-2 custom-scrollbar">
-                      {CLASSES_LIST.map(c => (
-                        <button key={c} onClick={() => setEditClasses(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])} className={cn("px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-[9px] font-black uppercase transition-all", editClasses.includes(c) ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{c}</button>
-                      ))}
-                    </div>
-                    <button onClick={() => {
-                      if ((editUserType || userType) === 'parent' && editClasses.length > 0) setOnboardingStep(25);
-                      else setOnboardingStep(3);
-                    }} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[10px] uppercase shadow-xl">Continue</button>
-                  </div>
-                </motion.div>
-              )}
-
-              {onboardingStep === 25 && (
-                <motion.div key="s25" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-8 rounded-[40px] shadow-2xl border border-slate-100 space-y-8">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><Sparkles size={24} /></div>
-                    <div>
-                      <h3 className="text-xl font-black text-slate-900 uppercase">Select Subjects</h3>
-                      <p className="text-[10px] font-black text-primary uppercase">Based on your classes</p>
-                    </div>
-                  </div>
-                  <div className="space-y-6">
-                    {subjectsForSelectedClasses.length > 0 ? (
-                      <div className="flex flex-wrap gap-2 max-h-[35vh] overflow-y-auto p-2 custom-scrollbar">
-                        {subjectsForSelectedClasses.map(s => (
-                          <button key={s} onClick={() => setEditTutorSubjects(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])} className={cn("px-4 py-3 rounded-xl text-[10px] font-black uppercase", editTutorSubjects.includes(s) ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{s}</button>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-slate-400 text-sm text-center py-4">No subjects found for selected classes</p>
-                    )}
-                    <div className="grid grid-cols-2 gap-3">
-                      <button onClick={() => setOnboardingStep(2)} className="w-full bg-slate-200 text-slate-900 py-3 rounded-2xl font-black text-[10px] uppercase">Back</button>
-                      <button onClick={() => setOnboardingStep(3)} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[10px] uppercase shadow-xl">Continue</button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {onboardingStep === 3 && (
-                <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-8 rounded-[40px] shadow-2xl border border-slate-100 space-y-8">
+                <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-6 sm:p-10 rounded-[40px] shadow-2xl border border-slate-100 space-y-8">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><MapPin size={24} /></div>
-                    <div><h3 className="text-xl font-black text-slate-900 uppercase">Your Territory</h3><p className="text-[10px] font-black text-primary uppercase">Select Primary City</p></div>
+                    <div><h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Your Territory</h3><p className="text-[10px] font-black text-primary uppercase">Select Primary City</p></div>
                   </div>
                   <div className="space-y-6">
+                    <input type="text" placeholder="Search your city..." value={areaSearch} onChange={e => setAreaSearch(e.target.value)} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100" />
                     <div className="grid grid-cols-2 gap-3 max-h-[40vh] overflow-y-auto p-2 custom-scrollbar">
-                      {dynamicCities.map(city => (
-                        <button key={city} onClick={() => setEditCity(city)} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate", editCity === city ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{city}</button>
+                      {dynamicCities.filter(c => c.toLowerCase().includes(areaSearch.toLowerCase())).map(city => (
+                        <button key={city} onClick={() => setEditCity(city)} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase transition-all border", editCity === city ? "bg-primary text-white border-primary shadow-lg" : "bg-slate-50 text-slate-400 border-slate-100")}>{city}</button>
                       ))}
                     </div>
-                    {isSelectingCityOnly ? (
-                      <button onClick={() => { localStorage.setItem('userCity', editCity); setUserCity(editCity); setCityFilter(editCity); setVisibleJobsCount(10); setVisibleTutorsCount(10); setShowOnboarding(false); setIsSelectingCityOnly(false); }} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[10px] uppercase shadow-xl">Confirm City</button>
-                    ) : (
-                      <button onClick={() => setOnboardingStep(4)} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[10px] uppercase shadow-xl">Select Locations</button>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-
-              {onboardingStep === 4 && !isSelectingCityOnly && (
-                <motion.div key="s4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-8 rounded-[40px] shadow-2xl border border-slate-100 space-y-8">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary"><MapPin size={24} /></div>
-                    <div><h3 className="text-xl font-black text-slate-900 uppercase">Your Areas</h3><p className="text-[10px] font-black text-primary uppercase">Locations in {editCity}</p></div>
-                  </div>
-                  <div className="space-y-6">
-                    <input type="text" placeholder="Search locations..." value={areaSearch} onChange={e => setAreaSearch(e.target.value.toLowerCase())} className="w-full bg-slate-50 p-3 rounded-xl text-sm font-bold outline-none border border-slate-200" />
-                    <div className="flex flex-wrap gap-2 max-h-[35vh] overflow-y-auto p-2 custom-scrollbar">
-                      {cityLocations.filter(l => l.toLowerCase().includes(areaSearch)).map(loc => (
-                        <button key={loc} onClick={() => setEditTutorLocations(prev => prev.includes(loc) ? prev.filter(x => x !== loc) : [...prev, loc])} className={cn("px-3 py-2 rounded-xl text-[10px] font-black uppercase whitespace-nowrap border transition-all", editTutorLocations.includes(loc) ? "bg-primary text-white border-primary" : "bg-slate-50 text-slate-400 border-slate-100")}>{loc}</button>
-                      ))}
-                    </div>
-                    {editTutorLocations.length === 0 && <p className="text-[12px] text-slate-400 text-center py-4">Select at least one location</p>}
-                    <div className="grid grid-cols-2 gap-3">
-                      <button onClick={() => setOnboardingStep(3)} className="w-full bg-slate-200 text-slate-900 py-3 rounded-2xl font-black text-[10px] uppercase">Back</button>
-                      <button onClick={completeOnboarding} disabled={editTutorLocations.length === 0} className={cn("w-full py-3 rounded-2xl font-black text-[10px] uppercase", editTutorLocations.length === 0 ? "bg-slate-300 text-slate-500 cursor-not-allowed" : "bg-slate-900 text-white")}>Complete Setup</button>
+                    <div className="grid grid-cols-1 gap-3">
+                      {!isSelectingCityOnly && <button onClick={() => setOnboardingStep(0)} className="w-full bg-slate-100 text-slate-400 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest">Change Role</button>}
+                      <button onClick={completeOnboarding} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-primary/30 active:scale-95 transition-all">Submit Preference</button>
                     </div>
                   </div>
                 </motion.div>
@@ -640,30 +471,14 @@ export default function App() {
               </div>
               {isAdminUser && (
                 <div className="pt-4 flex flex-col items-center gap-4 border-t border-slate-100 dark:border-slate-800">
-                  <button 
-                    onClick={() => { setActiveTab('admin'); setShowFilterDrawer(false); }}
-                    className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 px-4 py-3 rounded-xl group hover:bg-primary/5 transition-all w-full justify-center"
-                  >
-                    <Settings size={16} className="text-slate-400 group-hover:text-primary transition-colors" />
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-primary transition-colors">System Setting Only for Admin Use</span>
+                  <button onClick={() => { setActiveTab('admin'); setShowFilterDrawer(false); }} className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 px-4 py-3 rounded-xl group hover:bg-primary/5 transition-all w-full justify-center">
+                    <Settings size={16} className="text-slate-400 group-hover:text-primary" />
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-primary">Admin Control Panel</span>
                   </button>
                 </div>
               )}
             </motion.div>
           </div>
-        )}
-      </AnimatePresence>
-
-      {/* PWA Install Banner */}
-      <AnimatePresence>
-        {showInstallBanner && deferredPrompt && (
-          <motion.div initial={{ y: -80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -80, opacity: 0 }} className="fixed top-0 left-0 right-0 z-[9999] bg-primary text-white px-4 py-3 flex items-center justify-between shadow-xl">
-            <span className="text-[11px] font-black uppercase tracking-widest">📲 Install DoAble India for the best experience</span>
-            <div className="flex gap-2">
-              <button onClick={async () => { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; setShowInstallBanner(false); }} className="bg-white text-primary text-[10px] font-black uppercase px-3 py-1.5 rounded-xl">Install</button>
-              <button onClick={() => setShowInstallBanner(false)} className="text-white/60 hover:text-white"><X size={16} /></button>
-            </div>
-          </motion.div>
         )}
       </AnimatePresence>
 
@@ -674,117 +489,41 @@ export default function App() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowTutorFilterDrawer(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
             <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-t-[48px] p-8 space-y-6 max-h-[90vh] overflow-y-auto custom-scrollbar">
               <div className="flex justify-between items-center sticky top-0 bg-white dark:bg-slate-900 z-10 pb-4 border-b border-slate-100 dark:border-slate-800">
-                <div>
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase">Advanced Filters</h3>
-                  <p className="text-[10px] font-black text-primary uppercase">Precision tutor search</p>
-                </div>
+                <div><h3 className="text-xl font-black text-slate-900 dark:text-white uppercase">Advanced Filters</h3><p className="text-[10px] font-black text-primary uppercase">Precision tutor search</p></div>
                 <button onClick={() => setShowTutorFilterDrawer(false)} className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-400"><X size={20} /></button>
               </div>
-
               <div className="space-y-8 py-4">
-                {/* Search by ID & Name */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Tutor ID</label>
-                    <input type="text" placeholder="Search ID..." value={tutorFilterID} onChange={e => { setTutorFilterID(e.target.value); setVisibleTutorsCount(10); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Name</label>
-                    <input type="text" placeholder="Search Name..." value={tutorFilterName} onChange={e => { setTutorFilterName(e.target.value); setVisibleTutorsCount(10); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
-                  </div>
+                  <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Tutor ID</label><input type="text" placeholder="Search ID..." value={tutorFilterID} onChange={e => { setTutorFilterID(e.target.value); setVisibleTutorsCount(10); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Name</label><input type="text" placeholder="Search Name..." value={tutorFilterName} onChange={e => { setTutorFilterName(e.target.value); setVisibleTutorsCount(10); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" /></div>
                 </div>
-
-                {/* Hierarchical Classes & Subjects */}
                 <div className="space-y-4">
-                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Select Classes & Subjects</label>
+                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Classes & Subjects</label>
                    <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-3xl space-y-4">
                       <div className="flex flex-wrap gap-2 max-h-[15vh] overflow-y-auto custom-scrollbar">
-                        {CLASSES_LIST.map(c => (
-                          <button key={c} onClick={() => { setUserClasses(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]); setVisibleTutorsCount(10); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase border transition-all", userClasses.includes(c) ? "bg-slate-900 text-white border-slate-900" : "bg-white dark:bg-slate-700 text-slate-400 border-slate-100 dark:border-slate-600")}>{c}</button>
-                        ))}
+                        {CLASSES_LIST.map(c => (<button key={c} onClick={() => { setUserClasses(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]); setVisibleTutorsCount(10); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase border transition-all", userClasses.includes(c) ? "bg-slate-900 text-white border-slate-900" : "bg-white dark:bg-slate-700 text-slate-400 border-slate-100 dark:border-slate-600")}>{c}</button>))}
                       </div>
                       {userClasses.length > 0 && (
                         <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex flex-wrap gap-2 max-h-[20vh] overflow-y-auto custom-scrollbar">
-                           {subjectsForSelectedClasses.map(s => (
-                             <button key={s} onClick={() => { setUserTutorSubjects(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]); setVisibleTutorsCount(10); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase border transition-all", userTutorSubjects.includes(s) ? "bg-primary text-white border-primary" : "bg-white dark:bg-slate-700 text-slate-400 border-slate-100 dark:border-slate-600")}>{s}</button>
-                           ))}
+                           {subjectsForSelectedClasses.map(s => (<button key={s} onClick={() => { setUserTutorSubjects(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]); setVisibleTutorsCount(10); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase border transition-all", userTutorSubjects.includes(s) ? "bg-primary text-white border-primary" : "bg-white dark:bg-slate-700 text-slate-400 border-slate-100 dark:border-slate-600")}>{s}</button>))}
                         </div>
                       )}
                    </div>
                 </div>
-
-                {/* City Locations */}
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Locations in {cityFilter === 'all' ? 'Any City' : cityFilter}</label>
                   <div className="flex flex-wrap gap-2 max-h-[20vh] overflow-y-auto p-1">
                     <button onClick={() => { setLocationBypass(null); setVisibleTutorsCount(10); }} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase border transition-all", !locationBypass ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>All Areas</button>
-                    {(cityLocations).map(loc => (
-                      <button key={loc} onClick={() => { setLocationBypass(loc); setVisibleTutorsCount(10); }} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase border transition-all", locationBypass === loc ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{loc}</button>
-                    ))}
+                    {cityLocations.map(loc => (<button key={loc} onClick={() => { setLocationBypass(loc); setVisibleTutorsCount(10); }} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase border transition-all", locationBypass === loc ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{loc}</button>))}
                   </div>
                 </div>
-
-                {/* Gender & Vehicle (Tap and Select) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender</label>
-                    <div className="flex gap-2">
-                      {['all', 'male', 'female'].map(g => (
-                        <button key={g} onClick={() => { setTutorFilterGender(g); setVisibleTutorsCount(10); }} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterGender === g ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{g}</button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Own Vehicle</label>
-                    <div className="flex gap-2">
-                      {['all', 'yes', 'no'].map(v => (
-                        <button key={v} onClick={() => { setTutorFilterVehicle(v); setVisibleTutorsCount(10); }} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterVehicle === v ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{v}</button>
-                      ))}
-                    </div>
-                  </div>
+                  <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender</label><div className="flex gap-2">{['all', 'male', 'female'].map(g => (<button key={g} onClick={() => { setTutorFilterGender(g); setVisibleTutorsCount(10); }} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterGender === g ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{g}</button>))}</div></div>
+                  <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Own Vehicle</label><div className="flex gap-2">{['all', 'yes', 'no'].map(v => (<button key={v} onClick={() => { setTutorFilterVehicle(v); setVisibleTutorsCount(10); }} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterVehicle === v ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{v}</button>))}</div></div>
                 </div>
-
-                {/* Experience (Tap and Select) */}
-                <div className="space-y-3">
-                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Experience Level</label>
-                   <div className="flex flex-wrap gap-2">
-                      {[
-                        { label: 'Any', value: 'all' },
-                        { label: 'Fresher', value: 'fresher' },
-                        { label: '1-3 Yrs', value: '1-3' },
-                        { label: '3-5 Yrs', value: '3-5' },
-                        { label: '5+ Yrs', value: '5+' }
-                      ].map(opt => (
-                        <button key={opt.value} onClick={() => { setTutorFilterExperience(opt.value); setVisibleTutorsCount(10); }} className={cn("px-4 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterExperience === opt.value ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{opt.label}</button>
-                      ))}
-                   </div>
-                </div>
-
-                {/* Qualification (Tap and Select) */}
-                <div className="space-y-3">
-                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Qualification</label>
-                   <div className="flex flex-wrap gap-2">
-                      {['all', 'B.Ed', 'M.Ed', 'B.Sc', 'M.Sc', 'B.A', 'M.A', 'Engineering', 'Graduate'].map(q => (
-                        <button key={q} onClick={() => { setTutorFilterQualification(q); setVisibleTutorsCount(10); }} className={cn("px-4 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterQualification === q ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{q === 'all' ? 'Any' : q}</button>
-                      ))}
-                   </div>
-                </div>
-
-                {/* Recency (Tap and Select) */}
-                <div className="space-y-3">
-                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Update Recency</label>
-                   <div className="flex gap-2">
-                      {[
-                        { label: 'Anytime', value: 'all' },
-                        { label: 'Last 7 Days', value: '7' },
-                        { label: 'Last 30 Days', value: '30' },
-                        { label: 'Last 90 Days', value: '90' }
-                      ].map(opt => (
-                        <button key={opt.value} onClick={() => { setTutorFilterDate(opt.value); setVisibleTutorsCount(10); }} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterDate === opt.value ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{opt.label}</button>
-                      ))}
-                   </div>
-                </div>
-
+                <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Experience Level</label><div className="flex flex-wrap gap-2">{[{ label: 'Any', value: 'all' }, { label: 'Fresher', value: 'fresher' }, { label: '1-3 Yrs', value: '1-3' }, { label: '3-5 Yrs', value: '3-5' }, { label: '5+ Yrs', value: '5+' }].map(opt => (<button key={opt.value} onClick={() => { setTutorFilterExperience(opt.value); setVisibleTutorsCount(10); }} className={cn("px-4 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterExperience === opt.value ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{opt.label}</button>))}</div></div>
+                <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Qualification</label><div className="flex flex-wrap gap-2">{['all', 'B.Ed', 'M.Ed', 'B.Sc', 'M.Sc', 'B.A', 'M.A', 'Engineering', 'Graduate'].map(q => (<button key={q} onClick={() => { setTutorFilterQualification(q); setVisibleTutorsCount(10); }} className={cn("px-4 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterQualification === q ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{q === 'all' ? 'Any' : q}</button>))}</div></div>
+                <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Update Recency</label><div className="flex gap-2">{[{ label: 'Anytime', value: 'all' }, { label: 'Last 7 Days', value: '7' }, { label: 'Last 30 Days', value: '30' }, { label: 'Last 90 Days', value: '90' }].map(opt => (<button key={opt.value} onClick={() => { setTutorFilterDate(opt.value); setVisibleTutorsCount(10); }} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterDate === opt.value ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{opt.label}</button>))}</div></div>
                 <div className="pt-6 flex gap-3">
                   <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience('all'); setTutorFilterQualification('all'); setTutorFilterTime('all'); setTutorFilterDate('all'); setUserClasses([]); setUserTutorSubjects([]); setVisibleTutorsCount(10); }} className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest active:scale-95 transition-all">Clear All</button>
                   <button onClick={() => setShowTutorFilterDrawer(false)} className="flex-[2] bg-primary text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all">Show {activeTutorsCount} Tutors</button>
@@ -796,222 +535,50 @@ export default function App() {
       </AnimatePresence>
 
       <header className={cn("p-[20px_16px] sm:p-[30px_20px] text-center border-b relative transition-all duration-500 overflow-hidden", userCity ? "text-white border-transparent" : "bg-white border-slate-50")} style={userCity ? { background: getCityTheme(userCity).grad } : {}}>
-        {/* Weather Animations */}
-        {userCity && (
-          <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
-             <motion.div animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }} transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }} className="absolute top-4 left-[10%]"><Sun size={32} className="sm:w-10 sm:h-10" strokeWidth={1} /></motion.div>
-             <motion.div animate={{ x: [0, 20, 0], y: [0, 10, 0] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }} className="absolute bottom-4 right-[15%]"><Cloud size={40} className="sm:w-14 sm:h-14" strokeWidth={1} /></motion.div>
-             <motion.div animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }} transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} className="absolute top-10 right-[25%]"><Moon size={20} className="sm:w-7 sm:h-7" strokeWidth={1} /></motion.div>
-          </div>
-        )}
-
-        <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-10">
-          {currentUser && <button onClick={() => firebaseAuth.signOut()} className="text-white/70 hover:text-white transition-colors"><LogOut size={18} className="sm:w-5 sm:h-5" /></button>}
-        </div>
-        
+        <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-10">{currentUser && <button onClick={() => firebaseAuth.signOut()} className="text-white/70 hover:text-white transition-colors"><LogOut size={18} className="sm:w-5 sm:h-5" /></button>}</div>
         <h1 className="text-[24px] sm:text-[32px] font-[900] tracking-tighter relative z-10">
-          {activeTab === 'home' && (
-            <div className="flex flex-col items-center">
-               <span className="truncate max-w-[280px] sm:max-w-none">{userName ? `Welcome, ${userName}` : (userType === 'teacher' ? 'Welcome, Educator' : (userType === 'parent' ? 'Welcome, Parent' : 'DoAble India'))}</span>
-               <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] opacity-80 mt-1 animate-pulse">{getGreeting()}</span>
-            </div>
-          )}
-          {activeTab === 'jobs' && 'Jobs Portal'}
-          {activeTab === 'tutors' && 'Expert Tutors'}
-          {activeTab === 'alerts' && 'Broadcasts'}
+          {activeTab === 'home' && (<div className="flex flex-col items-center"><span className="truncate max-w-[280px] sm:max-w-none">{userName ? `Welcome, ${userName}` : (userType === 'teacher' ? 'Welcome, Educator' : (userType === 'parent' ? 'Welcome, Parent' : 'DoAble India'))}</span><span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] opacity-80 mt-1 animate-pulse">{getGreeting()}</span></div>)}
+          {activeTab === 'jobs' && 'Jobs Portal'}{activeTab === 'tutors' && 'Expert Tutors'}{activeTab === 'alerts' && 'Broadcasts'}
         </h1>
         <div className="flex items-center justify-center gap-2 sm:gap-3 mt-3 relative z-10">
-          <div className="bg-white/15 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl flex items-center gap-1.5 sm:gap-2 border border-white/10 max-w-[48%]">
-            <span className="text-[10px] sm:text-xs">💼</span>
-            <span className="text-[9px] sm:text-[10px] font-black uppercase text-white truncate">{activeLeadsCount} Jobs</span>
-          </div>
-          <div className="bg-white/15 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl flex items-center gap-1.5 sm:gap-2 border border-white/10 max-w-[48%]">
-            <span className="text-[10px] sm:text-xs">🎓</span>
-            <span className="text-[9px] sm:text-[10px] font-black uppercase text-white truncate">{activeTutorsCount} Tutors</span>
-          </div>
+          <div className="bg-white/15 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl flex items-center gap-1.5 sm:gap-2 border border-white/10 max-w-[48%]"><span className="text-[10px] sm:text-xs">💼</span><span className="text-[9px] sm:text-[10px] font-black uppercase text-white truncate">{activeLeadsCount} Jobs</span></div>
+          <div className="bg-white/15 backdrop-blur-md px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl flex items-center gap-1.5 sm:gap-2 border border-white/10 max-w-[48%]"><span className="text-[10px] sm:text-xs">🎓</span><span className="text-[9px] sm:text-[10px] font-black uppercase text-white truncate">{activeTutorsCount} Tutors</span></div>
         </div>
-        <p className="text-[11px] sm:text-[13px] font-bold uppercase tracking-wider sm:tracking-widest mt-2 text-white/70 relative z-10">
-          {activeTab === 'home' && (userName ? `PERFECT MATCHES FOR YOUR PROFILE` : 'Premium Teaching Portal')}
-          {activeTab === 'jobs' && 'Active Tuition Openings'}
-          {activeTab === 'tutors' && 'Professional Educators'}
-        </p>
+        <p className="text-[11px] sm:text-[13px] font-bold uppercase tracking-wider sm:tracking-widest mt-2 text-white/70 relative z-10">{activeTab === 'home' && (userName ? `PERFECT MATCHES FOR YOUR PROFILE` : 'Premium Teaching Portal')}{activeTab === 'jobs' && 'Active Tuition Openings'}{activeTab === 'tutors' && 'Professional Educators'}</p>
       </header>
 
       <main className="container mx-auto p-0 sm:p-[10px] max-w-[1200px] pb-32">
         {activeTab === 'home' && (
           <div className="space-y-8 sm:space-y-12 py-4 sm:py-8 flex flex-col items-center px-3 sm:px-0">
-            {/* Premium Hero Card */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="w-[94%] sm:w-full min-h-[45vh] sm:min-h-[400px] p-8 sm:p-16 rounded-[40px] sm:rounded-[56px] relative overflow-hidden shadow-[0_20px_50px_-12px_rgba(0,0,0,0.2)] border border-white/10 mesh-gradient flex items-center"
-            >
-              {/* Glassmorphism Overlay */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-[94%] sm:w-full min-h-[45vh] sm:min-h-[400px] p-8 sm:p-16 rounded-[40px] sm:rounded-[56px] relative overflow-hidden shadow-2xl border border-white/10 mesh-gradient flex items-center">
               <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] z-0" />
-              
-              {/* Weather Animations for Hero Card */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30 z-0">
-                 <motion.div animate={{ rotate: 360 }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} className="absolute -top-20 -right-20 text-white/40"><Sun size={150} strokeWidth={1} /></motion.div>
-                 <motion.div animate={{ x: [-30, 30, -30], y: [-10, 10, -10] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }} className="absolute -bottom-20 left-10 text-white/40"><Cloud size={120} strokeWidth={1} /></motion.div>
-              </div>
-
               <div className="relative z-10 space-y-8 sm:space-y-10 w-full">
                  <div className="space-y-4">
-                    <h3 className="text-3xl sm:text-6xl font-[900] text-white tracking-tighter leading-[1.1]">
-                      Inspiring Success in<br/>
-                      <span className="inline-block border-r-4 border-white/90 pr-2 text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70" style={{ animation: 'typewriterBlink 1s step-end infinite' }}>
-                        {typewriterCity}
-                      </span>
-                    </h3>
-                    <p className="text-white/70 text-sm sm:text-lg font-medium leading-[1.6] max-w-2xl">
-                      {!userName ? (
-                        <>Welcome to DoAble India. Let's start by setting up your profile to match you with the best opportunities in <span className="text-white font-black">{userCity}</span>.</>
-                      ) : (
-                        userType === 'teacher' ? 
-                          <>Hello <span className="text-white font-black">{userName}</span>, your expertise is igniting minds. Keep your profile updated for premium teaching opportunities in <span className="text-white font-black underline decoration-primary decoration-4 underline-offset-4">{userCity}</span>.</> : 
-                          <>Hello <span className="text-white font-black">{userName}</span>, we've curated the most inspiring and qualified mentors for your requirements across <span className="text-white font-black underline decoration-primary decoration-4 underline-offset-4">{userCity}</span>.</>
-                      )}
-                    </p>
+                    <h3 className="text-3xl sm:text-6xl font-[900] text-white tracking-tighter leading-[1.1]">Inspiring Success in<br/><span className="inline-block border-r-4 border-white/90 pr-2 text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70" style={{ animation: 'typewriterBlink 1s step-end infinite' }}>{typewriterCity}</span></h3>
+                    <p className="text-white/70 text-sm sm:text-lg font-medium leading-[1.6] max-w-2xl">{!userType ? <>Welcome to DoAble India. Let's start by setting up your profile to match you with the best opportunities in <span className="text-white font-black">{userCity}</span>.</> : userType === 'teacher' ? <>Hello Educator, your expertise is igniting minds. Keep your profile updated for premium teaching opportunities in <span className="text-white font-black underline decoration-primary decoration-4 underline-offset-4">{userCity}</span>.</> : <>Hello Parent, we've curated the most inspiring and qualified mentors for your requirements across <span className="text-white font-black underline decoration-primary decoration-4 underline-offset-4">{userCity}</span>.</>}</p>
                  </div>
-                 
                  <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                    {!userName ? (
-                      <button 
-                        onClick={() => { setShowOnboarding(true); setOnboardingStep(0); }} 
-                        className="bg-white text-slate-900 px-10 py-6 rounded-[24px] font-[900] text-sm uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.05] active:scale-95 transition-all"
-                      >
-                        <Sparkles size={20} className="text-primary animate-pulse" /> Create App Profile
-                      </button>
+                    {!userType ? (
+                      <button onClick={() => { setShowOnboarding(true); setOnboardingStep(0); }} className="bg-white text-slate-900 px-10 py-6 rounded-[24px] font-[900] text-sm uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.05] active:scale-95 transition-all"><Sparkles size={20} className="text-primary animate-pulse" /> Get Started</button>
                     ) : (
-                      <>
-                        <button 
-                          onClick={() => { setShowOnboarding(true); setOnboardingStep(0); }} 
-                          className="bg-white/10 backdrop-blur-xl text-white border border-white/20 px-8 sm:px-10 py-5 sm:py-6 rounded-[24px] font-black text-xs uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all group"
-                        >
-                          <Settings size={18} className="text-white" /> App Preferences
-                        </button>
-                        <button 
-                          onClick={() => setShowFormModal(true)} 
-                          className="bg-white text-slate-900 px-8 sm:px-10 py-5 sm:py-6 rounded-[24px] font-black text-xs uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"
-                        >
-                          <FileText size={18} className="text-primary" /> {userType === 'teacher' ? 'Official Registration' : 'Post Requirement'}
-                        </button>
-                      </>
+                      <><button onClick={() => { setShowOnboarding(true); setOnboardingStep(0); setAreaSearch(''); }} className="bg-white/10 backdrop-blur-xl text-white border border-white/20 px-8 sm:px-10 py-5 sm:py-6 rounded-[24px] font-black text-xs uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all group"><Settings size={18} className="text-white" /> App Preferences</button><button onClick={() => setShowFormModal(true)} className="bg-white text-slate-900 px-8 sm:px-10 py-5 sm:py-6 rounded-[24px] font-black text-xs uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"><FileText size={18} className="text-primary" /> {userType === 'teacher' ? 'Official Registration' : 'Post Requirement'}</button></>
                     )}
                  </div>
               </div>
             </motion.div>
           </div>
         )}
-        {activeTab === 'alerts' && (
-          <AlertsView 
-            city={userCity || 'All'} 
-            userGender={userGender} 
-            userClasses={userClasses} 
-            userType={userType} 
-            isAdminUser={isAdminUser} 
-            onAdminClick={() => setActiveTab('admin')} 
-            currentUser={currentUser}
-            handleSignIn={handleSignIn}
-            showFormModal={showFormModal}
-            setShowFormModal={setShowFormModal}
-          />
-        )}
+        {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} isAdminUser={isAdminUser} onAdminClick={() => setActiveTab('admin')} currentUser={currentUser} handleSignIn={handleSignIn} showFormModal={showFormModal} setShowFormModal={setShowFormModal} />}
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}
-
         {(activeTab === 'jobs' || activeTab === 'tutors') && (
           <div className="flex flex-col space-y-4">
-
-            {activeTab === 'jobs' && (
-              <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100">
-                <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-4">
-                  <span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500">
-                    {locationBypass ? `📍 ${locationBypass}` : 'Searching Jobs'}
-                  </span>
-                  <div className="flex gap-2">
-                    {locationBypass && (
-                      <button onClick={() => setLocationBypass(null)} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear</button>
-                    )}
-                    <button onClick={() => setShowFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary shadow-sm"><Filter size={14} strokeWidth={3} /></button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'tutors' && (
-              <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100">
-                <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-4">
-                  <span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500">
-                    {locationBypass ? `📍 ${locationBypass}` : 'Expert Tutors'}
-                  </span>
-                  <div className="flex gap-2">
-                    {(locationBypass || tutorFilterID || tutorFilterName || tutorFilterGender !== 'all' || tutorFilterVehicle !== 'all' || tutorFilterExperience !== 'all' || tutorFilterQualification !== 'all' || tutorFilterTime !== 'all' || tutorFilterDate !== 'all') && (
-                      <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience('all'); setTutorFilterQualification('all'); setTutorFilterTime('all'); setTutorFilterDate('all'); setUserClasses([]); setUserTutorSubjects([]); setVisibleTutorsCount(10); }} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear All</button>
-                    )}
-                    <button onClick={() => setShowTutorFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary shadow-sm"><Filter size={14} strokeWidth={3} /></button>
-                  </div>
-                </div>
-              </div>
-            )}
-
+            {activeTab === 'jobs' && (<div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100"><div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-4"><span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500">{locationBypass ? `📍 ${locationBypass}` : 'Searching Jobs'}</span><div className="flex gap-2">{locationBypass && <button onClick={() => setLocationBypass(null)} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear</button>}<button onClick={() => setShowFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary shadow-sm"><Filter size={14} strokeWidth={3} /></button></div></div></div>)}
+            {activeTab === 'tutors' && (<div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100"><div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-4"><span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500">{locationBypass ? `📍 ${locationBypass}` : 'Expert Tutors'}</span><div className="flex gap-2">{(locationBypass || tutorFilterID || tutorFilterName || tutorFilterGender !== 'all' || tutorFilterVehicle !== 'all' || tutorFilterExperience !== 'all' || tutorFilterQualification !== 'all' || tutorFilterTime !== 'all' || tutorFilterDate !== 'all') && <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience('all'); setTutorFilterQualification('all'); setTutorFilterTime('all'); setTutorFilterDate('all'); setUserClasses([]); setUserTutorSubjects([]); setVisibleTutorsCount(10); }} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear All</button>}<button onClick={() => setShowTutorFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary shadow-sm"><Filter size={14} strokeWidth={3} /></button></div></div></div>)}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 px-2 sm:px-0 pb-10">
-              {loading ? (
-                <div className="col-span-full py-40 text-center">
-                  <Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" />
-                  <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading Premium Data...</p>
-                </div>
-              ) : activeTab === 'jobs' ? (
-                <>
-                  {filteredJobs.slice(0, visibleJobsCount).map((job) => (
-                    <JobCard 
-                      key={(job as any).id || job['Order ID']} 
-                      job={job} 
-                    />
-                  ))}
-                  {visibleJobsCount < filteredJobs.length && (
-                    <div className="col-span-full py-10 flex justify-center">
-                      <button 
-                        onClick={() => setVisibleJobsCount(prev => prev + 10)}
-                        className="bg-white dark:bg-slate-900 border-2 border-primary text-primary px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl active:scale-95"
-                      >
-                        Load More Jobs ({filteredJobs.length - visibleJobsCount} Left)
-                      </button>
-                    </div>
-                  )}
-                  {filteredJobs.length === 0 && (
-                    <div className="col-span-full py-20 text-center">
-                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div>
-                      <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Jobs Found</h3>
-                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">Try changing your filters or location</p>
-                    </div>
-                  )}
-                </>
+              {loading ? (<div className="col-span-full py-40 text-center"><Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" /><p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading Premium Data...</p></div>) : activeTab === 'jobs' ? (
+                <>{filteredJobs.slice(0, visibleJobsCount).map((job) => (<JobCard key={(job as any).id || job['Order ID']} job={job} />))}{visibleJobsCount < filteredJobs.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleJobsCount(prev => prev + 10)} className="bg-white dark:bg-slate-900 border-2 border-primary text-primary px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl active:scale-95">Load More Jobs ({filteredJobs.length - visibleJobsCount} Left)</button></div>)}{filteredJobs.length === 0 && (<div className="col-span-full py-20 text-center"><div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div><h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Jobs Found</h3><p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">Try changing your filters or location</p></div>)}</>
               ) : (
-                <>
-                  {filteredTutors.slice(0, visibleTutorsCount).map((tutor) => (
-                    <TutorCard 
-                      key={(tutor as any).id || (tutor as any)['Tutor ID']} 
-                      tutor={tutor} 
-                    />
-                  ))}
-                  {visibleTutorsCount < filteredTutors.length && (
-                    <div className="col-span-full py-10 flex justify-center">
-                      <button 
-                        onClick={() => setVisibleTutorsCount(prev => prev + 10)}
-                        className="bg-white dark:bg-slate-900 border-2 border-primary text-primary px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl active:scale-95"
-                      >
-                        Load More Tutors ({filteredTutors.length - visibleTutorsCount} Left)
-                      </button>
-                    </div>
-                  )}
-                  {filteredTutors.length === 0 && (
-                    <div className="col-span-full py-20 text-center">
-                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div>
-                      <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Tutors Found</h3>
-                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">No expert tutors match your search</p>
-                    </div>
-                  )}
-                </>
+                <>{filteredTutors.slice(0, visibleTutorsCount).map((tutor) => (<TutorCard key={(tutor as any).id || (tutor as any)['Tutor ID']} tutor={tutor} />))}{visibleTutorsCount < filteredTutors.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleTutorsCount(prev => prev + 10)} className="bg-white dark:bg-slate-900 border-2 border-primary text-primary px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl active:scale-95">Load More Tutors ({filteredTutors.length - visibleTutorsCount} Left)</button></div>)}{filteredTutors.length === 0 && (<div className="col-span-full py-20 text-center"><div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div><h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Tutors Found</h3><p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">No expert tutors match your search</p></div>)}</>
               )}
             </div>
           </div>
@@ -1023,96 +590,33 @@ export default function App() {
           <NavButton active={activeTab === 'home'} onClick={() => { setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={20} />} label="Home" />
           {userType === 'teacher' && <NavButton active={activeTab === 'jobs'} onClick={() => { setActiveTab('jobs'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" />}
           {userType === 'parent' && <NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />}
-          {!userType && (
-            <>
-              <NavButton active={activeTab === 'jobs'} onClick={() => { setActiveTab('jobs'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" />
-              <NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />
-            </>
-          )}
+          {!userType && (<><NavButton active={activeTab === 'jobs'} onClick={() => { setActiveTab('jobs'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" /><NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); setLocationBypass(null); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" /></>)}
           <NavButton active={activeTab === 'alerts'} onClick={() => { setActiveTab('alerts'); window.scrollTo(0,0); }} icon={<Bell size={20} />} label="Alerts" />
-          {isAdminUser && (
-            <button 
-              onClick={() => setActiveTab('admin')}
-              className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}
-            >
-              <Settings size={20} />
-            </button>
-          )}
+          {isAdminUser && (<button onClick={() => setActiveTab('admin')} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>
       </nav>
       <style>{`
-        @keyframes typewriterBlink {
-          0%, 100% { border-color: rgba(255,255,255,0.8); }
-          50% { border-color: transparent; }
-        }
-        @keyframes mesh {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .mesh-gradient {
-          background: linear-gradient(-45deg, #22c55e, #3b82f6, #10b981, #2563eb);
-          background-size: 400% 400%;
-          animation: mesh 15s ease infinite;
-        }
+        @keyframes typewriterBlink { 0%, 100% { border-color: rgba(255,255,255,0.8); } 50% { border-color: transparent; } }
+        @keyframes mesh { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .mesh-gradient { background: linear-gradient(-45deg, #22c55e, #3b82f6, #10b981, #2563eb); background-size: 400% 400%; animation: mesh 15s ease infinite; }
       `}</style>
 
-      {/* Form Modal (Global) */}
+      {/* Form Modal */}
       <AnimatePresence>
         {showFormModal && (
           <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 sm:p-6">
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowFormModal(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFormModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
               <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-                <div>
-                  <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">
-                    {userType === 'teacher' ? 'Official Registration' : 'Requirement Details'}
-                  </h3>
-                  <p className="text-[10px] font-black text-primary uppercase tracking-widest">DoAble India Official Form</p>
-                </div>
-                <button 
-                  onClick={() => setShowFormModal(false)}
-                  className="p-3 bg-white dark:bg-slate-800 rounded-2xl text-slate-400 hover:text-slate-900 dark:hover:white transition-colors shadow-sm"
-                >
-                  <X size={20} strokeWidth={3} />
-                </button>
+                <div><h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">{userType === 'teacher' ? 'Official Registration' : 'Requirement Details'}</h3><p className="text-[10px] font-black text-primary uppercase tracking-widest">DoAble India Official Form</p></div>
+                <button onClick={() => setShowFormModal(false)} className="p-3 bg-white dark:bg-slate-800 rounded-2xl text-slate-400 hover:text-slate-900 dark:hover:white transition-colors shadow-sm"><X size={20} strokeWidth={3} /></button>
               </div>
-              
-              <div className="flex-1 overflow-y-auto p-2 bg-white">
-                <div 
-                  className="w-full h-full min-h-[600px]"
-                  dangerouslySetInnerHTML={{ 
-                    __html: userType === 'teacher' ? 
-                      `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;" allowfullscreen="true"></iframe>` : 
-                      `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>` 
-                  }} 
-                />
-              </div>
-
-              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 text-center">
-                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Secure connection established with doableindia.com</p>
-              </div>
+              <div className="flex-1 overflow-y-auto p-2 bg-white"><div className="w-full h-full min-h-[600px]" dangerouslySetInnerHTML={{ __html: userType === 'teacher' ? `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;" allowfullscreen="true"></iframe>` : `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>` }} /></div>
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 text-center"><p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Secure connection established with doableindia.com</p></div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
-
-      {/* Dynamic Preferences / Onboarding Steps (Internal Overlay Logic) */}
-      <AnimatePresence>
-        {/* Placeholder for future internal preference screens */}
-      </AnimatePresence>
-
     </div>
   );
 }
