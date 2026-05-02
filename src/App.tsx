@@ -91,13 +91,12 @@ export default function App() {
   const [tutorFilterName, setTutorFilterName] = useState('');
   const [tutorFilterGender, setTutorFilterGender] = useState('all');
   const [tutorFilterVehicle, setTutorFilterVehicle] = useState('all');
-  const [tutorFilterExperience, setTutorFilterExperience] = useState('');
-  const [tutorFilterQualification, setTutorFilterQualification] = useState('');
+  const [tutorFilterExperience, setTutorFilterExperience] = useState('all');
+  const [tutorFilterQualification, setTutorFilterQualification] = useState('all');
   const [tutorFilterTime, setTutorFilterTime] = useState('all');
-  const [tutorFilterDate, setTutorFilterDate] = useState('');
+  const [tutorFilterDate, setTutorFilterDate] = useState('all');
 
   // ─── Onboarding ──────────────────────────────────────────────────
-
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('userType'));
   const [showFormModal, setShowFormModal] = useState(false);
@@ -293,19 +292,6 @@ export default function App() {
       .slice(0, 5);
   }, [allLeads, cityFilter, isCityMatch]);
 
-  const cityTutorLocationBreakdown = useMemo(() => {
-    const cityTutors = tutors.filter(t => isCityMatch(getCityValue(t), cityFilter));
-    const counts = new Map<string, number>();
-    cityTutors.forEach(t => {
-      const locs = (t['Preferred Location(s)'] || '').split(',').map(s => s.trim()).filter(Boolean);
-      const primary = locs[0] || getCityValue(t) || '';
-      if (primary) counts.set(primary, (counts.get(primary) || 0) + 1);
-    });
-    return Array.from(counts.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
-  }, [tutors, cityFilter, isCityMatch, getCityValue]);
-
   const filteredJobs = useMemo(() => {
     return allLeads.filter(l => {
       const remark = (l['Internal Remark'] || '').trim().toLowerCase();
@@ -333,33 +319,46 @@ export default function App() {
       const fc = cityFilter.toLowerCase().trim();
       if (fc !== 'all' && tutorCity !== fc) return false;
 
-      // ID Filter
+      // ID Filter (Text Search)
       if (tutorFilterID && !t['Tutor ID']?.toString().toLowerCase().includes(tutorFilterID.toLowerCase())) return false;
       
-      // Name Filter
+      // Name Filter (Text Search)
       if (tutorFilterName && !t.Name?.toLowerCase().includes(tutorFilterName.toLowerCase())) return false;
 
-      // Gender Filter
+      // Gender Filter (Tap & Select)
       if (tutorFilterGender !== 'all' && t.Gender?.toLowerCase() !== tutorFilterGender.toLowerCase()) return false;
 
-      // Vehicle Filter
+      // Vehicle Filter (Tap & Select)
       if (tutorFilterVehicle !== 'all') {
-        const hasVehicle = (t['Have own Vehicle'] || '').toLowerCase() === 'yes';
+        const hasVehicle = (t['Have own Vehicle'] || '').toLowerCase().includes('yes');
         if (tutorFilterVehicle === 'yes' && !hasVehicle) return false;
         if (tutorFilterVehicle === 'no' && hasVehicle) return false;
       }
 
-      // Experience Filter
-      if (tutorFilterExperience && !t.Experience?.toLowerCase().includes(tutorFilterExperience.toLowerCase())) return false;
+      // Experience Filter (Tap & Select)
+      if (tutorFilterExperience !== 'all') {
+         const exp = (t.Experience || '').toLowerCase();
+         if (tutorFilterExperience === 'fresher' && !exp.includes('fresher') && !exp.includes('0')) return false;
+         if (tutorFilterExperience === '1-3' && !exp.includes('1') && !exp.includes('2') && !exp.includes('3')) return false;
+         if (tutorFilterExperience === '3-5' && !exp.includes('3') && !exp.includes('4') && !exp.includes('5')) return false;
+         if (tutorFilterExperience === '5+' && !exp.includes('5') && !exp.includes('6') && !exp.includes('7') && !exp.includes('8') && !exp.includes('9') && !exp.includes('10') && !exp.includes('more')) return false;
+      }
 
-      // Qualification Filter
-      if (tutorFilterQualification && !t['Qualification(s)']?.toLowerCase().includes(tutorFilterQualification.toLowerCase())) return false;
+      // Qualification Filter (Tap & Select)
+      if (tutorFilterQualification !== 'all' && !t['Qualification(s)']?.toLowerCase().includes(tutorFilterQualification.toLowerCase())) return false;
 
-      // Time Filter
+      // Time Filter (Tap & Select)
       if (tutorFilterTime !== 'all' && !t['Preferred Time']?.toLowerCase().includes(tutorFilterTime.toLowerCase())) return false;
 
-      // Date Filter (Record Added)
-      if (tutorFilterDate && !t['Record Added']?.toLowerCase().includes(tutorFilterDate.toLowerCase())) return false;
+      // Date Filter (Tap & Select)
+      if (tutorFilterDate !== 'all') {
+         const added = new Date(t['Record Added'] || 0).getTime();
+         const now = Date.now();
+         const diffDays = (now - added) / (1000 * 3600 * 24);
+         if (tutorFilterDate === '7' && diffDays > 7) return false;
+         if (tutorFilterDate === '30' && diffDays > 30) return false;
+         if (tutorFilterDate === '90' && diffDays > 90) return false;
+      }
 
       if (locationBypass) {
         return (t['Preferred Location(s)'] || '').toLowerCase().includes(locationBypass.toLowerCase());
@@ -381,19 +380,7 @@ export default function App() {
       return true;
     };
 
-    const strict = tutors.filter(strictFilter);
-    if (strict.length > 0) return strict;
-
-    return tutors.filter(t => {
-      const tutorCity = getCityValue(t);
-      const fc = cityFilter.toLowerCase().trim();
-      if (fc !== 'all' && tutorCity !== fc) return false;
-      if (locationBypass) {
-        return (t['Preferred Location(s)'] || '').toLowerCase().includes(locationBypass.toLowerCase());
-      }
-      if (userClasses.length > 0 && !isClassMatch(t['Preferred Class Group'], userClasses)) return false;
-      return true;
-    });
+    return tutors.filter(strictFilter);
   }, [tutors, cityFilter, searchQuery, userClasses, userTutorSubjects, getCityValue, isClassMatch, getSubjects, locationBypass, tutorFilterID, tutorFilterName, tutorFilterGender, tutorFilterVehicle, tutorFilterExperience, tutorFilterQualification, tutorFilterTime, tutorFilterDate]);
 
   const activeLeadsCount = useMemo(() => {
@@ -647,96 +634,88 @@ export default function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Tutor ID</label>
-                    <input type="text" placeholder="e.g. 12345" value={tutorFilterID} onChange={e => setTutorFilterID(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
+                    <input type="text" placeholder="Search ID..." value={tutorFilterID} onChange={e => setTutorFilterID(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Name</label>
-                    <input type="text" placeholder="e.g. John Doe" value={tutorFilterName} onChange={e => setTutorFilterName(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
+                    <input type="text" placeholder="Search Name..." value={tutorFilterName} onChange={e => setTutorFilterName(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
                   </div>
                 </div>
 
-                {/* City Locations */}
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Preferred Locations in {cityFilter}</label>
-                  <div className="flex flex-wrap gap-2 max-h-[20vh] overflow-y-auto p-1">
-                    <button onClick={() => setLocationBypass(null)} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase border transition-all", !locationBypass ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>All Areas</button>
-                    {(CITY_TO_LOCATIONS_DATA[cityFilter] || []).map(loc => (
-                      <button key={loc} onClick={() => setLocationBypass(loc)} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase border transition-all", locationBypass === loc ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{loc}</button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Classes & Subjects */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Classes</label>
-                    <div className="flex flex-wrap gap-2 max-h-[20vh] overflow-y-auto p-1">
-                      {CLASSES_LIST.map(c => (
-                        <button key={c} onClick={() => setUserClasses(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])} className={cn("px-3 py-2 rounded-xl text-[9px] font-black uppercase border transition-all", userClasses.includes(c) ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{c}</button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Subjects</label>
-                    <div className="flex flex-wrap gap-2 max-h-[20vh] overflow-y-auto p-1">
-                      {subjectsForSelectedClasses.map(s => (
-                        <button key={s} onClick={() => setUserTutorSubjects(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])} className={cn("px-3 py-2 rounded-xl text-[9px] font-black uppercase border transition-all", userTutorSubjects.includes(s) ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{s}</button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Gender & Vehicle */}
+                {/* Gender & Vehicle (Tap and Select) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender</label>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="flex gap-2">
                       {['all', 'male', 'female'].map(g => (
-                        <button key={g} onClick={() => setTutorFilterGender(g)} className={cn("py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterGender === g ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{g}</button>
+                        <button key={g} onClick={() => setTutorFilterGender(g)} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterGender === g ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{g}</button>
                       ))}
                     </div>
                   </div>
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Own Vehicle</label>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="flex gap-2">
                       {['all', 'yes', 'no'].map(v => (
-                        <button key={v} onClick={() => setTutorFilterVehicle(v)} className={cn("py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterVehicle === v ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{v}</button>
+                        <button key={v} onClick={() => setTutorFilterVehicle(v)} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterVehicle === v ? "bg-slate-900 text-white border-slate-900" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{v}</button>
                       ))}
                     </div>
                   </div>
                 </div>
 
-                {/* Experience & Qualification */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Experience</label>
-                    <input type="text" placeholder="e.g. 5 years" value={tutorFilterExperience} onChange={e => setTutorFilterExperience(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Qualification</label>
-                    <input type="text" placeholder="e.g. B.Ed, M.Sc" value={tutorFilterQualification} onChange={e => setTutorFilterQualification(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
-                  </div>
+                {/* Experience (Tap and Select) */}
+                <div className="space-y-3">
+                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Experience Level</label>
+                   <div className="flex flex-wrap gap-2">
+                      {[
+                        { label: 'Any', value: 'all' },
+                        { label: 'Fresher', value: 'fresher' },
+                        { label: '1-3 Yrs', value: '1-3' },
+                        { label: '3-5 Yrs', value: '3-5' },
+                        { label: '5+ Yrs', value: '5+' }
+                      ].map(opt => (
+                        <button key={opt.value} onClick={() => setTutorFilterExperience(opt.value)} className={cn("px-4 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterExperience === opt.value ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{opt.label}</button>
+                      ))}
+                   </div>
                 </div>
 
-                {/* Time & Date */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Preferred Time</label>
-                    <div className="grid grid-cols-2 gap-2">
+                {/* Qualification (Tap and Select) */}
+                <div className="space-y-3">
+                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Qualification</label>
+                   <div className="flex flex-wrap gap-2">
+                      {['all', 'B.Ed', 'M.Ed', 'B.Sc', 'M.Sc', 'B.A', 'M.A', 'Engineering', 'Graduate'].map(q => (
+                        <button key={q} onClick={() => setTutorFilterQualification(q)} className={cn("px-4 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterQualification === q ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{q === 'all' ? 'Any' : q}</button>
+                      ))}
+                   </div>
+                </div>
+
+                {/* Recency (Tap and Select) */}
+                <div className="space-y-3">
+                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Show Profiles Updated In</label>
+                   <div className="flex gap-2">
+                      {[
+                        { label: 'Anytime', value: 'all' },
+                        { label: 'Last 7 Days', value: '7' },
+                        { label: 'Last 30 Days', value: '30' },
+                        { label: 'Last 90 Days', value: '90' }
+                      ].map(opt => (
+                        <button key={opt.value} onClick={() => setTutorFilterDate(opt.value)} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterDate === opt.value ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{opt.label}</button>
+                      ))}
+                   </div>
+                </div>
+
+                {/* Time (Tap and Select) */}
+                <div className="space-y-3">
+                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Availability</label>
+                   <div className="flex gap-2">
                       {['all', 'Morning', 'Afternoon', 'Evening'].map(t => (
-                        <button key={t} onClick={() => setTutorFilterTime(t)} className={cn("py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterTime === t ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{t}</button>
+                        <button key={t} onClick={() => setTutorFilterTime(t)} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterTime === t ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-100 dark:border-slate-700")}>{t === 'all' ? 'Any' : t}</button>
                       ))}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Record Added Date</label>
-                    <input type="text" placeholder="e.g. May 2026" value={tutorFilterDate} onChange={e => setTutorFilterDate(e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
-                  </div>
+                   </div>
                 </div>
 
                 <div className="pt-6 flex gap-3">
-                  <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience(''); setTutorFilterQualification(''); setTutorFilterTime('all'); setTutorFilterDate(''); setUserClasses([]); setUserTutorSubjects([]); }} className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest active:scale-95 transition-all">Reset All</button>
-                  <button onClick={() => setShowTutorFilterDrawer(false)} className="flex-[2] bg-primary text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all">Apply Filters</button>
+                  <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience('all'); setTutorFilterQualification('all'); setTutorFilterTime('all'); setTutorFilterDate('all'); setUserClasses([]); setUserTutorSubjects([]); }} className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest active:scale-95 transition-all">Reset All</button>
+                  <button onClick={() => setShowTutorFilterDrawer(false)} className="flex-[2] bg-primary text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all">Show Results</button>
                 </div>
               </div>
             </motion.div>
@@ -786,9 +765,9 @@ export default function App() {
         </p>
       </header>
 
-      <main className="container mx-auto p-3 sm:p-[10px] max-w-[1200px] pb-32">
+      <main className="container mx-auto p-0 sm:p-[10px] max-w-[1200px] pb-32">
         {activeTab === 'home' && (
-          <div className="space-y-8 sm:space-y-12 py-4 sm:py-8 flex flex-col items-center">
+          <div className="space-y-8 sm:space-y-12 py-4 sm:py-8 flex flex-col items-center px-3 sm:px-0">
             {/* Premium Hero Card */}
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -894,8 +873,8 @@ export default function App() {
                     {locationBypass ? `📍 ${locationBypass}` : 'Expert Tutors'}
                   </span>
                   <div className="flex gap-2">
-                    {(locationBypass || tutorFilterID || tutorFilterName || tutorFilterGender !== 'all' || tutorFilterVehicle !== 'all' || tutorFilterExperience || tutorFilterQualification || tutorFilterTime !== 'all' || tutorFilterDate) && (
-                      <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience(''); setTutorFilterQualification(''); setTutorFilterTime('all'); setTutorFilterDate(''); }} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear</button>
+                    {(locationBypass || tutorFilterID || tutorFilterName || tutorFilterGender !== 'all' || tutorFilterVehicle !== 'all' || tutorFilterExperience !== 'all' || tutorFilterQualification !== 'all' || tutorFilterTime !== 'all' || tutorFilterDate !== 'all') && (
+                      <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience('all'); setTutorFilterQualification('all'); setTutorFilterTime('all'); setTutorFilterDate('all'); setUserClasses([]); setUserTutorSubjects([]); }} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear</button>
                     )}
                     <button onClick={() => setShowTutorFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary shadow-sm"><Filter size={14} strokeWidth={3} /></button>
                   </div>
@@ -903,7 +882,7 @@ export default function App() {
               </div>
             )}
 
-            <div className="flex-1 space-y-6 py-4">
+            <div className="flex-1 space-y-4 sm:space-y-6 py-2 sm:py-4">
               {loading ? (
                 <div className="h-full flex flex-col items-center justify-center py-40">
                   <Loader2 className="w-12 h-12 animate-spin text-primary" />
@@ -912,7 +891,7 @@ export default function App() {
               ) : activeTab === 'jobs' ? (
                 filteredJobs.length > 0 ? (
                   filteredJobs.map((job) => (
-                    <div key={(job as any).id || job['Order ID']} className="w-full px-4 sm:px-0 max-w-[600px] mx-auto">
+                    <div key={(job as any).id || job['Order ID']} className="w-full max-w-[600px] mx-auto">
                       <JobCard job={job} />
                     </div>
                   ))
@@ -926,7 +905,7 @@ export default function App() {
               ) : (
                 filteredTutors.length > 0 ? (
                   filteredTutors.map((tutor) => (
-                    <div key={(tutor as any).id || tutor['Tutor ID']} className="w-full px-4 sm:px-0 max-w-[600px] mx-auto">
+                    <div key={(tutor as any).id || tutor['Tutor ID']} className="w-full max-w-[600px] mx-auto">
                       <TutorCard tutor={tutor} />
                     </div>
                   ))
