@@ -134,15 +134,13 @@ export default function App() {
   // This is a large change, let's do it carefully.
   // Actually, I'll just replace the whole Drawer JSX and the tab headers.
 
-  // ─── Simplified Onboarding ───────────────────────────────────────
-  const [onboardingStep, setOnboardingStep] = useState(0);
+  // ─── Onboarding / Preferences ───────────────────────────────────
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('userType'));
-  const [isPreferenceMode, setIsPreferenceMode] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
-  const [isSelectingCityOnly, setIsSelectingCityOnly] = useState(false);
+  const [formType, setFormType] = useState<'parent' | 'teacher'>('parent');
   const [editUserType, setEditUserType] = useState<UserType | null>(localStorage.getItem('userType') as UserType);
   const [editCity, setEditCity] = useState<string>(localStorage.getItem('userCity') || 'Ghaziabad');
-  const [areaSearch, setAreaSearch] = useState('');
+  const [isPreferenceMode, setIsPreferenceMode] = useState(false);
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
@@ -266,14 +264,6 @@ export default function App() {
     }
   };
 
-  const selectUserType = (type: UserType) => {
-    playNotificationTone();
-    setEditUserType(type);
-    setUserType(type);
-    localStorage.setItem('userType', type);
-    setOnboardingStep(1);
-  };
-
   const completeOnboarding = () => {
     const finalRole = editUserType || userType;
     
@@ -291,7 +281,6 @@ export default function App() {
     
     resetCounts();
     setShowOnboarding(false);
-    setIsSelectingCityOnly(false);
 
     // Explicit redirection based on role
     if (finalRole === 'parent') {
@@ -935,23 +924,74 @@ export default function App() {
 
       <main className="container mx-auto p-0 sm:p-[10px] max-w-[1200px] pb-32">
         {activeTab === 'home' && (
-          <div className="space-y-8 sm:space-y-12 py-4 sm:py-8 flex flex-col items-center px-3 sm:px-0">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-[94%] sm:w-full min-h-[45vh] sm:min-h-[400px] p-8 sm:p-16 rounded-[40px] sm:rounded-[56px] relative overflow-hidden shadow-2xl border border-white/10 mesh-gradient flex items-center">
-              <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] z-0" />
-              <div className="relative z-10 space-y-8 sm:space-y-10 w-full">
-                 <div className="space-y-4">
-                    <h3 className="text-3xl sm:text-6xl font-[900] text-white tracking-tighter leading-[1.1]">Inspiring Success in<br/><span className="inline-block border-r-4 border-white/90 pr-2 text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70" style={{ animation: 'typewriterBlink 1s step-end infinite' }}>{typewriterCity}</span></h3>
-                    <p className="text-white/70 text-sm sm:text-lg font-medium leading-[1.6] max-w-2xl">{!userType ? <>Welcome to DoAble India. Let's start by setting up your profile to match you with the best opportunities in <span className="text-white font-black">{userCity}</span>.</> : userType === 'teacher' ? <>Hello Educator, your expertise is igniting minds. Keep your profile updated for premium teaching opportunities in <span className="text-white font-black underline decoration-primary decoration-4 underline-offset-4">{userCity}</span>.</> : <>Hello Parent, we've curated the most inspiring and qualified mentors for your requirements across <span className="text-white font-black underline decoration-primary decoration-4 underline-offset-4">{userCity}</span>.</>}</p>
+          <div className="space-y-12 py-6 flex flex-col items-center px-4 sm:px-0">
+            {/* 1. Elite Hero Section */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full min-h-[45vh] sm:min-h-[450px] p-8 sm:p-20 rounded-[48px] sm:rounded-[64px] relative overflow-hidden shadow-2xl border border-white/10 mesh-gradient flex items-center">
+              <div className="absolute inset-0 bg-black/15 backdrop-blur-[1px] z-0" />
+              <div className="relative z-10 space-y-10 sm:space-y-12 w-full">
+                 <div className="space-y-6">
+                    <h3 className="text-4xl sm:text-7xl font-[900] text-white tracking-tighter leading-[1.05]">Discovery Made<br/><span className="inline-block border-r-4 border-white/90 pr-2 text-transparent bg-clip-text bg-gradient-to-r from-[#FFE66D] to-white" style={{ animation: 'typewriterBlink 1s step-end infinite' }}>Simple & Live</span></h3>
+                    <p className="text-white/85 text-sm sm:text-xl font-medium leading-[1.6] max-w-2xl">Connect with elite educators and premium teaching opportunities across <span className="text-white font-black underline decoration-[#FFE66D] decoration-4 underline-offset-8">{userCity}</span>. No more searching, just discovery.</p>
                  </div>
-                 <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                    {!userType ? (
-                      <button onClick={() => { setShowOnboarding(true); setOnboardingStep(0); setIsPreferenceMode(false); }} className="bg-white text-slate-900 px-10 py-6 rounded-[24px] font-[900] text-sm uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.05] active:scale-95 transition-all"><Sparkles size={20} className="text-primary animate-pulse" /> Get Started</button>
-                    ) : (
-                      <><button onClick={() => { setShowOnboarding(true); setOnboardingStep(0); setIsPreferenceMode(true); setAreaSearch(''); }} className="bg-white/10 backdrop-blur-xl text-white border border-white/20 px-8 sm:px-10 py-5 sm:py-6 rounded-[24px] font-black text-xs uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all group"><Settings size={18} className="text-white" /> App Preferences</button><button onClick={() => setShowFormModal(true)} className="bg-white text-slate-900 px-8 sm:px-10 py-5 sm:py-6 rounded-[24px] font-black text-xs uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all"><FileText size={18} className="text-primary" /> {userType === 'teacher' ? 'Official Registration' : 'Post Requirement'}</button></>
-                    )}
+                 <div className="flex flex-col sm:flex-row gap-5">
+                    <button 
+                      onClick={() => { setFormType('teacher'); setShowFormModal(true); }} 
+                      className="bg-[#FFE66D] text-slate-900 px-10 py-6 rounded-[28px] font-[900] text-sm uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.05] active:scale-95 transition-all group"
+                    >
+                      <GraduationCap size={22} className="group-hover:rotate-12 transition-transform" /> Become a Tutor
+                    </button>
+                    <button 
+                      onClick={() => { setFormType('parent'); setShowFormModal(true); }} 
+                      className="bg-white/10 backdrop-blur-xl text-white border-2 border-white/30 px-10 py-6 rounded-[28px] font-[900] text-sm uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.05] hover:bg-white hover:text-slate-900 transition-all active:scale-95 group"
+                    >
+                      <Sparkles size={20} className="text-[#FFE66D] group-hover:scale-125 transition-transform" /> Book Free Trial
+                    </button>
                  </div>
               </div>
+              <button 
+                onClick={() => { setIsPreferenceMode(true); setShowOnboarding(true); }}
+                className="absolute top-8 right-8 p-4 bg-white/10 backdrop-blur-md rounded-2xl text-white hover:bg-white/20 transition-all group"
+                title="App Preferences"
+              >
+                <Settings size={20} className="group-hover:rotate-90 transition-transform duration-500" />
+              </button>
             </motion.div>
+
+            {/* 2. Latest Jobs Carousel */}
+            <section className="w-full space-y-6">
+               <div className="flex justify-between items-end px-2">
+                  <div>
+                    <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Fresh Leads</h2>
+                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Latest requirements in {userCity}</p>
+                  </div>
+                  <button onClick={() => setActiveTab('jobs')} className="flex items-center gap-2 text-xs font-black text-primary uppercase group">View All Portal <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" /></button>
+               </div>
+               <div className="flex gap-6 overflow-x-auto pb-8 custom-scrollbar px-2 -mx-2">
+                  {allLeads.slice(0, 5).map((job) => (
+                    <div key={(job as any).id || job['Order ID']} className="min-w-[320px] sm:min-w-[400px] scale-[0.98] hover:scale-100 transition-transform duration-500">
+                       <JobCard job={job} />
+                    </div>
+                  ))}
+               </div>
+            </section>
+
+            {/* 3. Featured Tutors Carousel */}
+            <section className="w-full space-y-6">
+               <div className="flex justify-between items-end px-2">
+                  <div>
+                    <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Featured Experts</h2>
+                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Elite educators ready to mentor</p>
+                  </div>
+                  <button onClick={() => setActiveTab('tutors')} className="flex items-center gap-2 text-xs font-black text-primary uppercase group">Find More Experts <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" /></button>
+               </div>
+               <div className="flex gap-6 overflow-x-auto pb-8 custom-scrollbar px-2 -mx-2">
+                  {tutors.slice(0, 5).map((tutor) => (
+                    <div key={(tutor as any).id || (tutor as any)['Tutor ID']} className="min-w-[320px] sm:min-w-[400px] scale-[0.98] hover:scale-100 transition-transform duration-500">
+                       <TutorCard tutor={tutor} />
+                    </div>
+                  ))}
+               </div>
+            </section>
           </div>
         )}
         {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} isAdminUser={isAdminUser} onAdminClick={() => setActiveTab('admin')} currentUser={currentUser} handleSignIn={handleSignIn} showFormModal={showFormModal} setShowFormModal={setShowFormModal} />}
@@ -986,12 +1026,11 @@ export default function App() {
         )}
       </main>
 
-      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[8000] w-[92%] max-w-[400px]">
+      <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[8000] w-[92%] max-w-[500px]">
         <div className="bg-slate-900/95 backdrop-blur-2xl rounded-[32px] p-2 flex items-center justify-between shadow-2xl border border-white/10 relative">
           <NavButton active={activeTab === 'home'} onClick={() => { setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={20} />} label="Home" />
-          {userType === 'teacher' && <NavButton active={activeTab === 'jobs'} onClick={() => { setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" />}
-          {userType === 'parent' && <NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />}
-          {!userType && (<><NavButton active={activeTab === 'jobs'} onClick={() => { setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" /><NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" /></>)}
+          <NavButton active={activeTab === 'jobs'} onClick={() => { setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" />
+          <NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />
           <NavButton active={activeTab === 'alerts'} onClick={() => { setActiveTab('alerts'); window.scrollTo(0,0); }} icon={<Bell size={20} />} label="Alerts" />
           {isAdminUser && (<button onClick={() => setActiveTab('admin')} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>
@@ -1009,10 +1048,10 @@ export default function App() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFormModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
             <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
               <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-                <div><h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">{userType === 'teacher' ? 'Official Registration' : 'Requirement Details'}</h3><p className="text-[10px] font-black text-primary uppercase tracking-widest">DoAble India Official Form</p></div>
+                <div><h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">{formType === 'teacher' ? 'Official Registration' : 'Requirement Details'}</h3><p className="text-[10px] font-black text-primary uppercase tracking-widest">DoAble India Official Form</p></div>
                 <button onClick={() => setShowFormModal(false)} className="p-3 bg-white dark:bg-slate-800 rounded-2xl text-slate-400 hover:text-slate-900 dark:hover:white transition-colors shadow-sm"><X size={20} strokeWidth={3} /></button>
               </div>
-              <div className="flex-1 overflow-y-auto p-2 bg-white"><div className="w-full h-full min-h-[600px]" dangerouslySetInnerHTML={{ __html: userType === 'teacher' ? `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;" allowfullscreen="true"></iframe>` : `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>` }} /></div>
+              <div className="flex-1 overflow-y-auto p-2 bg-white"><div className="w-full h-full min-h-[600px]" dangerouslySetInnerHTML={{ __html: formType === 'teacher' ? `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;" allowfullscreen="true"></iframe>` : `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>` }} /></div>
               <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 text-center"><p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Secure connection established with doableindia.com</p></div>
             </motion.div>
           </div>
