@@ -874,55 +874,41 @@ export default function App() {
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}
 
         {(activeTab === 'jobs' || activeTab === 'tutors') && (
-          <div className="space-y-6">
+          <div className="flex flex-col h-[calc(100dvh-180px)] overflow-hidden">
 
             {activeTab === 'jobs' && (
-              <div className="sticky top-0 z-40 py-4 bg-slate-50/90 backdrop-blur-md space-y-3">
-                <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between">
+              <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0">
+                <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-2">
                   <span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500">
                     {locationBypass ? `📍 ${locationBypass}` : 'Searching Jobs'}
                   </span>
                   <div className="flex gap-2">
                     {locationBypass && (
-                      <button onClick={() => setLocationBypass(null)} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear Filter</button>
+                      <button onClick={() => setLocationBypass(null)} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear</button>
                     )}
                     <button onClick={() => setShowFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary"><Filter size={14} strokeWidth={3} /></button>
                   </div>
                 </div>
-                {cityJobLocationBreakdown.length > 0 && !locationBypass && (
-                  <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                    {cityJobLocationBreakdown.map(([loc, count]) => (
-                      <button key={loc} onClick={() => setLocationBypass(loc)} className="flex-shrink-0 bg-white border border-primary/20 text-primary px-3 py-1.5 rounded-full text-[9px] font-black uppercase whitespace-nowrap shadow-sm hover:bg-primary hover:text-white transition-colors">
-                        {loc} ({count})
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
             )}
 
             {activeTab === 'tutors' && (
-              <div className="sticky top-0 z-40 py-4 bg-slate-50/90 backdrop-blur-md space-y-3">
-                <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between">
+              <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0">
+                <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-2">
                   <span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500">
                     {locationBypass ? `📍 ${locationBypass}` : 'Expert Tutors'}
                   </span>
                   <div className="flex gap-2">
                     {(locationBypass || tutorFilterID || tutorFilterName || tutorFilterGender !== 'all' || tutorFilterVehicle !== 'all' || tutorFilterExperience || tutorFilterQualification || tutorFilterTime !== 'all' || tutorFilterDate) && (
-                      <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience(''); setTutorFilterQualification(''); setTutorFilterTime('all'); setTutorFilterDate(''); }} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear All</button>
+                      <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience(''); setTutorFilterQualification(''); setTutorFilterTime('all'); setTutorFilterDate(''); }} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear</button>
                     )}
                     <button onClick={() => setShowTutorFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary"><Filter size={14} strokeWidth={3} /></button>
                   </div>
                 </div>
-                {isFallbackTutors && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-2xl px-5 py-3 text-[11px] font-bold text-amber-700">
-                    ⚠️ No exact matches found. Showing all available tutors in {cityFilter} matching your class group.
-                  </div>
-                )}
               </div>
             )}
 
-            <div className="relative w-full max-w-[500px] mx-auto h-[75vh] sm:h-[80vh] flex items-center justify-center perspective-1000">
+            <div className="relative w-full max-w-[500px] mx-auto flex-1 flex items-center justify-center perspective-1000 overflow-hidden py-4 px-4 sm:px-0">
               <AnimatePresence mode="popLayout">
                 {loading ? (
                   <motion.div key="loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-40 text-center">
@@ -937,17 +923,15 @@ export default function App() {
                       onSwipe={() => setJobIndex(prev => prev + 1)} 
                     />
                   ) : (
-                    <motion.div key="no-jobs" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center p-12 bg-white dark:bg-slate-900 rounded-[40px] border-2 border-dashed border-slate-200 dark:border-slate-800 shadow-xl">
-                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Zap className="text-slate-300" size={40} />
-                      </div>
+                    <motion.div key="no-jobs" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center p-10 bg-white dark:bg-slate-900 rounded-[40px] border-2 border-dashed border-slate-200 dark:border-slate-800 shadow-xl mx-4">
+                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div>
                       <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">That's everyone!</h3>
-                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">No more jobs found in {cityFilter}</p>
+                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2 leading-relaxed">No more jobs found in {cityFilter}. <br/> Check back later for new leads.</p>
                       <button 
                         onClick={() => setJobIndex(0)} 
-                        className="mt-8 bg-primary text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                        className="mt-8 bg-primary text-white px-8 py-4 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all"
                       >
-                        🔄 Refresh Deck
+                        🔄 Refresh Leads
                       </button>
                     </motion.div>
                   )
@@ -959,17 +943,15 @@ export default function App() {
                       onSwipe={() => setTutorIndex(prev => prev + 1)} 
                     />
                   ) : (
-                    <motion.div key="no-tutors" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center p-12 bg-white dark:bg-slate-900 rounded-[40px] border-2 border-dashed border-slate-200 dark:border-slate-800 shadow-xl">
-                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Zap className="text-slate-300" size={40} />
-                      </div>
+                    <motion.div key="no-tutors" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center p-10 bg-white dark:bg-slate-900 rounded-[40px] border-2 border-dashed border-slate-200 dark:border-slate-800 shadow-xl mx-4">
+                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div>
                       <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">All caught up!</h3>
-                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">No more expert tutors in {cityFilter}</p>
+                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2 leading-relaxed">No more expert tutors in {cityFilter}. <br/> Try clearing filters to see more.</p>
                       <button 
                         onClick={() => setTutorIndex(0)} 
-                        className="mt-8 bg-primary text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                        className="mt-8 bg-primary text-white px-8 py-4 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all"
                       >
-                        🔄 Refresh Deck
+                        🔄 Refresh Tutors
                       </button>
                     </motion.div>
                   )

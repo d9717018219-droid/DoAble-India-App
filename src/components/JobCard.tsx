@@ -16,9 +16,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSwipe }) => {
   const gender = (job.Gender || 'Any').toLowerCase();
   const genderEmoji = gender.includes('male') && !gender.includes('female') ? "👨‍🏫" : (gender.includes('female') ? "👩‍🏫" : "👥");
   
-  const classBoard = job['Class / Board'] || ((job.Class || '') + (job.Board ? ' (' + job.Board + ')' : '')) || 'General';
-  const location = job.Locations || job.City || 'India';
+  const classBoard = job['Class / Board'] || ((job.Class || '') + (job.Board ? ' (' + job.Board + ')' : '')) || 'Any Class';
+  const location = job.Locations || job.City || 'Not Provided';
   const phone = getCityPhone(job.City);
+  const postedDate = formatPostedDate(job['Record Added'] || job['Updated Time']);
 
   // Motion Values for Swipe
   const x = useMotionValue(0);
@@ -59,10 +60,6 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSwipe }) => {
 
   const generateWhatsAppLink = () => {
     const orderId = job['Order ID'] || 'N/A';
-    const subj = job.subjects || 'General';
-    const message = `Hello,\n\nI am interested in applying for *Order ID: ${orderId}*.\n\nI have reviewed the requirements for *${classBoard}* teaching *${subj}* at *${location}*.\n\nKindly let me know the process for a demo class. Thank you!`;
-    // For Tutors applying to Jobs, the specification said only Order ID:
-    // But since this Chat button is part of the card logic, I'll use the spec from "One-Tap WhatsApp Reply"
     return `https://wa.me/91${phone}?text=${encodeURIComponent(orderId)}`;
   };
 
@@ -90,9 +87,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSwipe }) => {
         x: swipeDir === 'right' ? 1000 : (swipeDir === 'left' ? -1000 : 0), 
         opacity: 0, 
         rotate: swipeDir === 'right' ? 60 : (swipeDir === 'left' ? -60 : 0),
-        transition: { duration: 0.5 }
+        transition: { duration: 0.4, ease: "easeInOut" }
       }}
-      className="bg-white dark:bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col relative w-full h-full max-h-[75vh] sm:max-h-[80vh] absolute"
+      className="bg-white dark:bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col relative w-full h-[95%] absolute"
     >
       {/* Visual Swipe Feedback */}
       <AnimatePresence>
@@ -134,11 +131,11 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSwipe }) => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6 pb-28">
         {/* 4-Icon Quick Stats Grid */}
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 text-center">
-            <div className="text-2xl mb-1">👥</div>
+            <div className="text-2xl mb-1">{genderEmoji}</div>
             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gender</div>
             <div className="text-sm font-extrabold text-primary">{job.Gender || 'Any'}</div>
           </div>
@@ -154,7 +151,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSwipe }) => {
           </div>
           <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 text-center">
             <div className="text-2xl mb-1">💰</div>
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Budget</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fee</div>
             <div className="text-sm font-extrabold text-primary">₹{formatCurrency(job.Fee)}</div>
           </div>
         </div>
@@ -164,7 +161,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSwipe }) => {
           <div>
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Subject Requirements</label>
             <div className="flex flex-wrap gap-2">
-              {(job.subjects || 'General').split(',').map((s, i) => (
+              {(job.subjects || 'General').split(/[,;]/).map((s, i) => (
                 <span key={i} className="px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-black border border-blue-100 dark:border-blue-800">
                   📚 {s.trim()}
                 </span>
@@ -172,22 +169,28 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onSwipe }) => {
             </div>
           </div>
 
-          <div>
-            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Schedule</label>
-            <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/30 text-amber-700 dark:text-amber-400 text-sm font-bold flex items-center gap-3">
-              <Clock size={18} />
-              {job.duration || '1 Hr/Day'} | {job.time || 'Flexible'}
+          <div className="bg-[#FFE66D]/10 p-4 rounded-2xl border border-dashed border-[#F59E0B]">
+            <label className="text-[10px] font-black text-[#B45309] uppercase tracking-widest block mb-1">📝 Parent Note</label>
+            <div className="text-sm font-bold text-slate-700 dark:text-slate-300 italic leading-relaxed">
+              {job.Notes || 'No specific requirements mentioned.'}
             </div>
           </div>
 
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl italic text-sm text-slate-600 dark:text-slate-400 border-l-4 border-primary">
-            "{(job.Notes || 'No specific requirements.').substring(0, 150)}..."
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Schedule</label>
+               <div className="text-[12px] font-bold text-slate-600 dark:text-slate-400">{job.duration || '1 Hr/Day'} | {job.time || 'Flexible'}</div>
+            </div>
+            <div className="text-right">
+               <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1">Posted On</label>
+               <div className="text-[12px] font-bold text-slate-600 dark:text-slate-400">{postedDate}</div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Action Dock - Pinned to Bottom */}
-      <div className="card-actions grid grid-cols-2 gap-4 p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 sticky bottom-0">
+      <div className="card-actions grid grid-cols-2 gap-4 p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 absolute bottom-0 left-0 right-0 z-10">
         <a 
           href={`tel:${phone}`}
           className="p-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-center transition-all border-2 border-primary text-primary hover:bg-primary hover:text-white active:scale-95"
