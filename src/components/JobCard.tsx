@@ -1,15 +1,16 @@
-import React, { useRef } from 'react';
-import { Camera, MapPin, BookOpen, IndianRupee, Clock, Calendar, Phone, MessageSquare, Share2 } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { Camera, MapPin, BookOpen, IndianRupee, Clock, Calendar, Phone, MessageSquare, Share2, CheckCircle2, Heart } from 'lucide-react';
 import html2canvas from 'html2canvas';
-import { motion } from 'motion/react';
+import { motion, useMotionValue, useTransform, AnimatePresence } from 'motion/react';
 import { JobLead } from '../types';
 import { cn, formatCurrency, formatPostedDate, getCityPhone, getCityTheme } from '../utils';
 
 interface JobCardProps {
   job: JobLead;
+  onSwipe?: (direction: 'left' | 'right') => void;
 }
 
-export const JobCard: React.FC<JobCardProps> = ({ job }) => {
+export const JobCard: React.FC<JobCardProps> = ({ job, onSwipe }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const theme = getCityTheme(job.City);
   const gender = (job.Gender || 'Any').toLowerCase();
@@ -18,6 +19,12 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   const classBoard = job['Class / Board'] || ((job.Class || '') + (job.Board ? ' (' + job.Board + ')' : '')) || 'General';
   const location = job.Locations || job.City || 'India';
   const phone = getCityPhone(job.City);
+
+  // Motion Values for Swipe
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-200, 200], [-25, 25]);
+  const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
+  const [swipeDir, setSwipeDir] = useState<'left' | 'right' | null>(null);
 
   const captureAndShare = async () => {
     if (!cardRef.current) return;
@@ -54,123 +61,136 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
     const orderId = job['Order ID'] || 'N/A';
     const subj = job.subjects || 'General';
     const message = `Hello,\n\nI am interested in applying for *Order ID: ${orderId}*.\n\nI have reviewed the requirements for *${classBoard}* teaching *${subj}* at *${location}*.\n\nKindly let me know the process for a demo class. Thank you!`;
-    return `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
+    // For Tutors applying to Jobs, the specification said only Order ID:
+    // But since this Chat button is part of the card logic, I'll use the spec from "One-Tap WhatsApp Reply"
+    return `https://wa.me/91${phone}?text=${encodeURIComponent(orderId)}`;
+  };
+
+  const handleDragEnd = (_: any, info: any) => {
+    if (info.offset.x > 100) {
+      setSwipeDir('right');
+      setTimeout(() => onSwipe?.('right'), 200);
+    } else if (info.offset.x < -100) {
+      setSwipeDir('left');
+      setTimeout(() => onSwipe?.('left'), 200);
+    }
   };
 
   return (
     <motion.div 
       ref={cardRef}
-      id={`card-${job['Order ID']}`}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-[20px] overflow-hidden shadow-md border border-slate-200 flex flex-col relative"
+      style={{ x, rotate, opacity }}
+      drag="x"
+      dragConstraints={{ left: 0, right: 0 }}
+      onDragEnd={handleDragEnd}
+      whileDrag={{ scale: 1.02 }}
+      initial={{ scale: 0.9, opacity: 0, y: 20 }}
+      animate={{ scale: 1, opacity: 1, y: 0 }}
+      exit={{ 
+        x: swipeDir === 'right' ? 1000 : (swipeDir === 'left' ? -1000 : 0), 
+        opacity: 0, 
+        rotate: swipeDir === 'right' ? 60 : (swipeDir === 'left' ? -60 : 0),
+        transition: { duration: 0.5 }
+      }}
+      className="bg-white dark:bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col relative w-full h-full max-h-[75vh] sm:max-h-[80vh] absolute"
     >
+      {/* Visual Swipe Feedback */}
+      <AnimatePresence>
+        {swipeDir === 'right' && (
+          <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1.5 }} className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none bg-emerald-500/20 backdrop-blur-[2px]">
+            <Heart size={100} className="text-emerald-500 fill-emerald-500" />
+          </motion.div>
+        )}
+        {swipeDir === 'left' && (
+          <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1.5 }} className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none bg-rose-500/20 backdrop-blur-[2px]">
+            <Share2 size={100} className="text-rose-500" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Card Top / Header */}
       <div 
-        className="p-4 sm:p-[18px] text-center relative"
+        className="p-6 sm:p-8 text-center relative"
         style={{ background: theme.grad }}
       >
+        <div className="absolute top-4 right-4 flex gap-2">
+           <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black text-white uppercase tracking-widest border border-white/20 flex items-center gap-1">
+              <CheckCircle2 size={10} /> Verified
+           </span>
+        </div>
+
         <button 
           onClick={(e) => { e.stopPropagation(); captureAndShare(); }}
-          className="absolute top-2 sm:top-3 right-2 sm:right-3 p-1.5 sm:p-2 bg-white/20 hover:bg-white/40 rounded-lg sm:rounded-xl text-white transition-colors screenshot-btn active:scale-90"
-          title="Share as Image"
+          className="absolute top-4 left-4 p-2 bg-white/20 hover:bg-white/40 rounded-xl text-white transition-colors screenshot-btn"
         >
-          <Share2 size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={3} />
+          <Share2 size={16} strokeWidth={3} />
         </button>
-        <div className="text-lg sm:text-[19px] font-[800] text-[#FFE66D] mb-0.5 sm:mb-[3px] truncate px-8">{genderEmoji} {job.Name || 'Student'}</div>
-        <div className="text-[10px] sm:text-[11px] font-[600] text-white opacity-95">🆔 Order ID: {job['Order ID']}</div>
-      </div>
-
-      {/* Quick Stats Grid */}
-      <div className="grid grid-cols-2 gap-1.5 sm:gap-2 p-3 sm:p-4 bg-[#F8F9FA] border-b-2 border-[#F0F0F0]">
-        <div className="stat-item min-w-0 p-2 sm:p-2.5">
-          <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">{genderEmoji}</div>
-          <div className="text-xs sm:text-[14px] font-bold text-primary truncate px-1">{job.Gender || 'Any'}</div>
-          <div className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-black">Gender</div>
-        </div>
-        <div className="stat-item min-w-0 p-2 sm:p-2.5">
-          <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">📍</div>
-          <div className="text-xs sm:text-[14px] font-bold text-primary truncate px-1" title={location}>{location}</div>
-          <div className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-black">Location</div>
-        </div>
-        <div className="stat-item min-w-0 p-2 sm:p-2.5">
-          <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">📖</div>
-          <div className="text-xs sm:text-[14px] font-bold text-primary truncate px-1" title={classBoard}>{classBoard}</div>
-          <div className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-black">Class/Board</div>
-        </div>
-        <div className="stat-item min-w-0 p-2 sm:p-2.5">
-          <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">💰</div>
-          <div className="text-xs sm:text-[14px] font-bold text-primary truncate px-1">₹{formatCurrency(job.Fee)}/Mo</div>
-          <div className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-black">Fee</div>
-        </div>
         
-        <div 
-          className="col-span-2 p-2 sm:p-2.5 rounded-xl text-center bg-white border border-[#E8E8E8]"
-        >
-          <span className="text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1 text-primary">
-            🕒 Posted On: {formatPostedDate(job['Updated Time'])}
-          </span>
+        <div className="text-2xl sm:text-3xl font-[900] text-[#FFE66D] mb-1 drop-shadow-md">
+          {genderEmoji} {job.Name || 'Elite Job'}
+        </div>
+        <div className="text-[10px] sm:text-[12px] font-black text-white/90 uppercase tracking-[0.2em]">
+          🆔 Order ID: {job['Order ID']}
         </div>
       </div>
 
-      {/* Parent Note */}
-      <div className="bg-[#FFE66D]/10 p-3 sm:p-4 mx-3 sm:mx-4 my-3 sm:my-4 rounded-xl border border-dashed border-[#F59E0B]">
-        <span className="text-[9px] sm:text-[10px] font-black uppercase text-[#B45309] block mb-1 sm:mb-1.5 tracking-widest">📝 Parent Note</span>
-        <div className="text-[11px] sm:text-[12px] font-bold text-slate-700 leading-relaxed italic">
-          {job.Notes || 'No specific requirements.'}
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6">
+        {/* 4-Icon Quick Stats Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 text-center">
+            <div className="text-2xl mb-1">👥</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gender</div>
+            <div className="text-sm font-extrabold text-primary">{job.Gender || 'Any'}</div>
+          </div>
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 text-center">
+            <div className="text-2xl mb-1">📍</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Location</div>
+            <div className="text-sm font-extrabold text-primary truncate">{location}</div>
+          </div>
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 text-center">
+            <div className="text-2xl mb-1">📖</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Class</div>
+            <div className="text-sm font-extrabold text-primary truncate">{classBoard}</div>
+          </div>
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 text-center">
+            <div className="text-2xl mb-1">💰</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Budget</div>
+            <div className="text-sm font-extrabold text-primary">₹{formatCurrency(job.Fee)}</div>
+          </div>
+        </div>
+
+        {/* Subjects & Details */}
+        <div className="space-y-4">
+          <div>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Subject Requirements</label>
+            <div className="flex flex-wrap gap-2">
+              {(job.subjects || 'General').split(',').map((s, i) => (
+                <span key={i} className="px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-black border border-blue-100 dark:border-blue-800">
+                  📚 {s.trim()}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Schedule</label>
+            <div className="p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-900/30 text-amber-700 dark:text-amber-400 text-sm font-bold flex items-center gap-3">
+              <Clock size={18} />
+              {job.duration || '1 Hr/Day'} | {job.time || 'Flexible'}
+            </div>
+          </div>
+
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl italic text-sm text-slate-600 dark:text-slate-400 border-l-4 border-primary">
+            "{(job.Notes || 'No specific requirements.').substring(0, 150)}..."
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="p-4 flex-1 space-y-4">
-        <div>
-          <label className="text-[9px] sm:text-[10px] uppercase font-black text-slate-400 mb-1.5 block tracking-wider">Subjects we want you to teach</label>
-          <div className="flex flex-wrap gap-1.5">
-            {(job.subjects || 'General').split(',').map((s, i) => (
-              <span key={i} className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-blue-50 text-[10px] sm:text-[11px] font-extrabold text-blue-600 border border-blue-100 flex items-center gap-1.5 hover:bg-blue-100 transition-colors">
-                📖 {s.trim()}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label className="text-[9px] sm:text-[10px] uppercase font-black text-slate-400 mb-1.5 block tracking-wider">Where you have to take class</label>
-          <div 
-            className="residency-box"
-            style={{ borderLeftColor: theme.solid }}
-            onClick={() => {
-              const dest = encodeURIComponent(`${job.residency || 'Student Home'}, ${location}`);
-              window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}`, '_blank');
-            }}
-          >
-            📍 {job.residency || 'Student Home Address'}, {location}
-            <div className="text-[8px] sm:text-[9px] text-slate-400 mt-1 uppercase font-black">Tap to check distance & route on Google Maps</div>
-          </div>
-        </div>
-
-        <div>
-          <label className="text-[9px] sm:text-[10px] uppercase font-black text-slate-400 mb-1.5 block tracking-wider">Schedule & Availability</label>
-          <div className="flex flex-wrap gap-1.5">
-            <span className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl bg-amber-50 text-[10px] sm:text-[11px] font-extrabold text-amber-600 border border-amber-100 flex items-center gap-1.5 hover:bg-amber-100 transition-colors shadow-sm">
-              ⏳ {job.duration || '1 Hr/Day'}
-            </span>
-            <span className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl bg-rose-50 text-[10px] sm:text-[11px] font-extrabold text-rose-600 border border-rose-100 flex items-center gap-1.5 hover:bg-rose-100 transition-colors shadow-sm">
-              📅 {job.days || 'Discuss'}
-            </span>
-            <span className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl bg-indigo-50 text-[10px] sm:text-[11px] font-extrabold text-indigo-600 border border-indigo-100 flex items-center gap-1.5 hover:bg-indigo-100 transition-colors shadow-sm">
-              🕒 {job.time || 'Flexible'}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div className="card-actions grid grid-cols-2 gap-3 p-4 border-t border-slate-100 bg-slate-50/50">
+      {/* Action Dock - Pinned to Bottom */}
+      <div className="card-actions grid grid-cols-2 gap-4 p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 sticky bottom-0">
         <a 
           href={`tel:${phone}`}
-          className="p-3 rounded-xl font-black text-[11px] sm:text-[12px] uppercase text-center transition-all border-2 active:scale-95"
-          style={{ color: theme.solid, borderColor: theme.solid }}
+          className="p-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-center transition-all border-2 border-primary text-primary hover:bg-primary hover:text-white active:scale-95"
         >
           📞 Call Support
         </a>
@@ -178,10 +198,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           href={generateWhatsAppLink()}
           target="_blank"
           rel="noopener noreferrer"
-          className="p-3 rounded-xl font-black text-[11px] sm:text-[12px] uppercase text-center transition-transform text-white shadow-lg active:scale-95"
-          style={{ background: theme.grad, boxShadow: `0 8px 16px ${theme.solid}30` }}
+          className="p-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-center text-white shadow-xl active:scale-95 transition-all"
+          style={{ background: theme.grad }}
         >
-          💬 Apply Now
+          💬 Apply on WA
         </a>
       </div>
     </motion.div>

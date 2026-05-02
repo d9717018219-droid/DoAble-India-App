@@ -81,6 +81,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts' | 'admin'>('home');
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
+  const [jobIndex, setJobIndex] = useState(0);
+  const [tutorIndex, setTutorIndex] = useState(0);
   const [themeMode] = useState<'light' | 'dark'>(localStorage.getItem('themeMode') as 'light' | 'dark' || 'light');
   const [locationBypass, setLocationBypass] = useState<string | null>(null);
   const mainScrollRef = useRef<HTMLDivElement>(null);
@@ -184,7 +186,11 @@ export default function App() {
       if (leadsJson.status === 'success') {
         const filteredJobs = (leadsJson.data as JobLead[])
           .filter(x => x['Internal Remark']?.trim().toLowerCase() === 'searching')
-          .sort((a, b) => new Date(b['Updated Time'] || 0).getTime() - new Date(a['Updated Time'] || 0).getTime());
+          .sort((a, b) => {
+             const ta = new Date(a['Record Added'] || a['Updated Time'] || 0).getTime();
+             const tb = new Date(b['Record Added'] || b['Updated Time'] || 0).getTime();
+             return tb - ta;
+          });
         setLeads(filteredJobs);
       } else {
         setLeads(leadsJson.data || []);
@@ -433,6 +439,9 @@ export default function App() {
   }, [editClasses]);
 
   const cityLocations = CITY_TO_LOCATIONS_DATA[editCity] || [];
+
+  useEffect(() => { setJobIndex(0); }, [filteredJobs.length]);
+  useEffect(() => { setTutorIndex(0); }, [filteredTutors.length]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans" ref={mainScrollRef}>
@@ -913,13 +922,59 @@ export default function App() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {loading
-                ? <div className="col-span-full py-40 text-center"><Loader2 className="w-10 h-10 animate-spin mx-auto text-primary" /></div>
-                : activeTab === 'jobs'
-                  ? (filteredJobs.length === 0 ? <div className="col-span-full py-40 text-center text-slate-400 font-bold uppercase text-xs">No jobs found in {cityFilter}</div> : filteredJobs.map(job => <JobCard key={(job as any).id || job['Order ID']} job={job} />))
-                  : (filteredTutors.length === 0 ? <div className="col-span-full py-40 text-center text-slate-400 font-bold uppercase text-xs">No tutors found in {cityFilter}</div> : filteredTutors.map(tutor => <TutorCard key={(tutor as any).id || tutor['Tutor ID']} tutor={tutor} />))
-              }
+            <div className="relative w-full max-w-[500px] mx-auto h-[75vh] sm:h-[80vh] flex items-center justify-center perspective-1000">
+              <AnimatePresence mode="popLayout">
+                {loading ? (
+                  <motion.div key="loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-40 text-center">
+                    <Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" />
+                    <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Finding your matches...</p>
+                  </motion.div>
+                ) : activeTab === 'jobs' ? (
+                  filteredJobs.length > jobIndex ? (
+                    <JobCard 
+                      key={(filteredJobs[jobIndex] as any).id || filteredJobs[jobIndex]['Order ID']} 
+                      job={filteredJobs[jobIndex]} 
+                      onSwipe={() => setJobIndex(prev => prev + 1)} 
+                    />
+                  ) : (
+                    <motion.div key="no-jobs" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center p-12 bg-white dark:bg-slate-900 rounded-[40px] border-2 border-dashed border-slate-200 dark:border-slate-800 shadow-xl">
+                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Zap className="text-slate-300" size={40} />
+                      </div>
+                      <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">That's everyone!</h3>
+                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">No more jobs found in {cityFilter}</p>
+                      <button 
+                        onClick={() => setJobIndex(0)} 
+                        className="mt-8 bg-primary text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                      >
+                        🔄 Refresh Deck
+                      </button>
+                    </motion.div>
+                  )
+                ) : (
+                  filteredTutors.length > tutorIndex ? (
+                    <TutorCard 
+                      key={(filteredTutors[tutorIndex] as any).id || filteredTutors[tutorIndex]['Tutor ID']} 
+                      tutor={filteredTutors[tutorIndex]} 
+                      onSwipe={() => setTutorIndex(prev => prev + 1)} 
+                    />
+                  ) : (
+                    <motion.div key="no-tutors" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center p-12 bg-white dark:bg-slate-900 rounded-[40px] border-2 border-dashed border-slate-200 dark:border-slate-800 shadow-xl">
+                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Zap className="text-slate-300" size={40} />
+                      </div>
+                      <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">All caught up!</h3>
+                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">No more expert tutors in {cityFilter}</p>
+                      <button 
+                        onClick={() => setTutorIndex(0)} 
+                        className="mt-8 bg-primary text-white px-8 py-3 rounded-xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all"
+                      >
+                        🔄 Refresh Deck
+                      </button>
+                    </motion.div>
+                  )
+                )}
+              </AnimatePresence>
             </div>
           </div>
         )}

@@ -2,6 +2,7 @@ export interface JobLead {
   'Order ID': string;
   'Internal Remark': string | null;
   'Updated Time': string;
+  'Record Added'?: string;
   City: string;
   Name?: string;
   'Class / Board'?: string;
