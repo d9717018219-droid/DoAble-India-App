@@ -3,6 +3,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 import { Send, Zap, AlertTriangle, Info, CheckCircle, Globe } from 'lucide-react';
+import { CITIES_LIST, CLASSES_LIST } from '../constants';
 
 interface AdminPanelProps {
   currentCity: string;
@@ -18,17 +19,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
 
-  const CITIES_LIST = [
-    'Ahmedabad', 'Allahabad', 'Amrawati', 'Amritsar', 'Bangalore', 'Bhopal', 'Bhubaneswar', 
-    'Chandigarh', 'Chennai', 'Cochin', 'Coimbatore', 'Dehradun', 'Delhi', 'Dispur', 
-    'Faridabad', 'Gandhinagar', 'Ghaziabad', 'Greater Noida', 'Gurgaon', 'Guwahati', 
-    'Hyderabad', 'Indore', 'Itanagar', 'Jaipur', 'Kanpur', 'Kolkata', 'Kota', 'Leh', 
-    'Lucknow', 'Mangalore', 'Meerut', 'Mohali', 'Mumbai', 'Nagpur', 'Noida', 'Panchkula', 
-    'Patna', 'Pondicherry', 'Pune', 'Raipur', 'Ranchi', 'Shimla', 'Srinagar', 'Surat', 
-    'Thane', 'Trivandrum', 'Vadodara', 'Vellore', 'Zirakpur', 'All'
-  ].sort();
-
-  const CLASSES_LIST = ['All', '1st Std', '2nd Std', '3rd Std', '4th Std', '5th Std', '6th Std', '7th Std', '8th Std', '9th Std', '10th Std', '11th Std', '12th Std'];
+  const citiesForAdmin = ['All', ...CITIES_LIST];
+  const classesForAdmin = ['All', ...CLASSES_LIST];
 
   const handleSend = async () => {
     if (!message.trim()) return;
@@ -73,7 +65,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
                     onChange={(e) => setTargetCity(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-primary"
                 >
-                    {CITIES_LIST.map(c => <option key={c} value={c} className="bg-slate-900">{c}</option>)}
+                    {citiesForAdmin.map(c => <option key={c} value={c} className="bg-slate-900">{c}</option>)}
                 </select>
             </div>
             <div className="space-y-2">
@@ -95,7 +87,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
                     onChange={(e) => setTargetClass(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-primary"
                 >
-                    {CLASSES_LIST.map(c => <option key={c} value={c} className="bg-slate-900">{c}</option>)}
+                    {classesForAdmin.map(c => <option key={c} value={c} className="bg-slate-900">{c}</option>)}
                 </select>
             </div>
             <div className="space-y-2">
