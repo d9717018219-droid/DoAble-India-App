@@ -661,8 +661,19 @@ export default function App() {
                   )}
                 </div>
 
-                {/* 3. Gender (Tutors only or shared?) - Let's keep it shared as jobs also have gender */}
-                <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender Requirement</label><div className="flex gap-2">{[{l:'All', v:'all'}, {l:'👨 Male', v:'male'}, {l:'👩 Female', v:'female'}].map(g => (<button key={g.v} onClick={() => { setTutorFilterGender(g.v); resetCounts(); }} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterGender === g.v ? "bg-slate-900 text-white" : "bg-slate-50 dark:bg-slate-800 text-slate-400")}>{g.l}</button>))}</div></div>
+                {/* 3. Gender Requirement */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender Requirement (Pick List)</label>
+                  <select 
+                    value={tutorFilterGender} 
+                    onChange={e => { setTutorFilterGender(e.target.value); resetCounts(); }}
+                    className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                  >
+                    <option value="all">Any Gender</option>
+                    <option value="male">👨 Male</option>
+                    <option value="female">👩 Female</option>
+                  </select>
+                </div>
 
                 {/* 4. Classes & Subjects */}
                 <div className="space-y-6">
@@ -722,26 +733,131 @@ export default function App() {
 
                 {activeTab === 'tutors' && (
                   <>
-                    {/* 5 & 6. Time & Days (Tutor specific) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                       <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Time Slot</label><div className="flex flex-wrap gap-2">{['all', 'Morning', 'Afternoon', 'Evening'].map(t => (<button key={t} onClick={() => { setTutorFilterTime(t); resetCounts(); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase border transition-all", tutorFilterTime === t ? "bg-primary text-white" : "bg-slate-50 dark:bg-slate-800 text-slate-400")}>{t}</button>))}</div></div>
-                       <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Day Groups</label><div className="flex flex-wrap gap-2">{['all', 'Weekdays', 'Weekend'].map(d => (<button key={d} onClick={() => { setTutorFilterDay(d); resetCounts(); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase border transition-all", tutorFilterDay === d ? "bg-primary text-white" : "bg-slate-50 dark:bg-slate-800 text-slate-400")}>{d}</button>))}</div></div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* 5. Time Slot */}
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Time Slot (Pick List)</label>
+                        <select 
+                          value={tutorFilterTime} 
+                          onChange={e => { setTutorFilterTime(e.target.value); resetCounts(); }}
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                        >
+                          <option value="all">Any Time</option>
+                          <option value="Morning">Morning</option>
+                          <option value="Afternoon">Afternoon</option>
+                          <option value="Evening">Evening</option>
+                        </select>
+                      </div>
+
+                      {/* 6. Day Groups */}
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Day Groups (Pick List)</label>
+                        <select 
+                          value={tutorFilterDay} 
+                          onChange={e => { setTutorFilterDay(e.target.value); resetCounts(); }}
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                        >
+                          <option value="all">Any Days</option>
+                          <option value="Weekdays">Weekdays</option>
+                          <option value="Weekend">Weekend</option>
+                        </select>
+                      </div>
                     </div>
 
-                    {/* 7. Fee Range (Tutor specific) */}
-                    <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Monthly Fee Range</label><div className="flex flex-wrap gap-2">{[{l:'All', v:'all'}, {l:'₹0-300', v:'0-300'}, {l:'₹300-600', v:'300-600'}, {l:'₹600-1000', v:'600-1000'}, {l:'₹1000+', v:'1000+'}].map(f => (<button key={f.v} onClick={() => { setTutorFilterFee(f.v); resetCounts(); }} className={cn("px-4 py-3 rounded-xl text-[9px] font-black uppercase border transition-all", tutorFilterFee === f.v ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400")}>{f.l}</button>))}</div></div>
-
-                    {/* 8. Experience & Vehicle (Tutor specific) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                       <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">School Experience</label><div className="flex gap-2">{['all', 'yes', 'no'].map(v => (<button key={v} onClick={() => { setTutorFilterSchoolExp(v); resetCounts(); }} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterSchoolExp === v ? "bg-slate-900 text-white" : "bg-slate-50 dark:bg-slate-800 text-slate-400")}>{v}</button>))}</div></div>
-                       <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Own Vehicle</label><div className="flex gap-2">{['all', 'yes', 'no'].map(v => (<button key={v} onClick={() => { setTutorFilterVehicle(v); resetCounts(); }} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterVehicle === v ? "bg-slate-900 text-white" : "bg-slate-50 dark:bg-slate-800 text-slate-400")}>{v}</button>))}</div></div>
+                    {/* 7. Fee Range */}
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Monthly Fee Range (Pick List)</label>
+                      <select 
+                        value={tutorFilterFee} 
+                        onChange={e => { setTutorFilterFee(e.target.value); resetCounts(); }}
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                      >
+                        <option value="all">Any Fee</option>
+                        <option value="0-300">₹0-300</option>
+                        <option value="300-600">₹300-600</option>
+                        <option value="600-1000">₹600-1000</option>
+                        <option value="1000+">₹1000+</option>
+                      </select>
                     </div>
 
-                    {/* 9. Recency */}
-                    <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Profile Recency</label><div className="flex flex-wrap gap-2">{[{l:'Anytime', v:'all'}, {l:'Last 7 Days', v:'7'}, {l:'Last 30 Days', v:'30'}, {l:'Last 90 Days', v:'90'}, {l:'Last 180 Days', v:'180'}].map(r => (<button key={r.v} onClick={() => { setTutorFilterDate(r.v); resetCounts(); }} className={cn("px-4 py-3 rounded-xl text-[9px] font-black uppercase border transition-all", tutorFilterDate === r.v ? "bg-primary text-white border-primary" : "bg-slate-50 dark:bg-slate-800 text-slate-400")}>{r.l}</button>))}</div></div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* 8. Experience */}
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Experience (Pick List)</label>
+                        <select 
+                          value={tutorFilterExperience} 
+                          onChange={e => { setTutorFilterExperience(e.target.value); resetCounts(); }}
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                        >
+                          <option value="all">Any Experience</option>
+                          <option value="fresher">Fresher (0 years)</option>
+                          <option value="1-3">1-3 Years</option>
+                          <option value="3-5">3-5 Years</option>
+                          <option value="5+">5+ Years</option>
+                        </select>
+                      </div>
 
-                    {/* 10. Status */}
-                    <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Account Status</label><div className="flex flex-wrap gap-2">{[{l:'✅ Active', v:'active'}, {l:'⏸️ Not Available', v:'notavailable'}, {l:'🚫 Suspended', v:'suspended'}].map(s => (<button key={s.v} onClick={() => { setTutorFilterStatus(s.v); resetCounts(); }} className={cn("px-4 py-3 rounded-xl text-[9px] font-black uppercase border transition-all", tutorFilterStatus === s.v ? "bg-slate-900 text-white" : "bg-slate-50 dark:bg-slate-800 text-slate-400")}>{s.l}</button>))}</div></div>
+                      {/* 9. School Exp */}
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">School Exp. (Pick List)</label>
+                        <select 
+                          value={tutorFilterSchoolExp} 
+                          onChange={e => { setTutorFilterSchoolExp(e.target.value); resetCounts(); }}
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                        >
+                          <option value="all">Any</option>
+                          <option value="yes">With School Experience</option>
+                          <option value="no">Without School Experience</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* 10. Own Vehicle */}
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Own Vehicle (Pick List)</label>
+                        <select 
+                          value={tutorFilterVehicle} 
+                          onChange={e => { setTutorFilterVehicle(e.target.value); resetCounts(); }}
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                        >
+                          <option value="all">Any</option>
+                          <option value="yes">Has Own Vehicle</option>
+                          <option value="no">No Vehicle</option>
+                        </select>
+                      </div>
+
+                      {/* 11. Profile Recency */}
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Recency (Pick List)</label>
+                        <select 
+                          value={tutorFilterDate} 
+                          onChange={e => { setTutorFilterDate(e.target.value); resetCounts(); }}
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                        >
+                          <option value="all">Anytime</option>
+                          <option value="7">Last 7 Days</option>
+                          <option value="30">Last 30 Days</option>
+                          <option value="90">Last 90 Days</option>
+                          <option value="180">Last 180 Days</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* 12. Account Status */}
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Account Status (Pick List)</label>
+                      <select 
+                        value={tutorFilterStatus} 
+                        onChange={e => { setTutorFilterStatus(e.target.value); resetCounts(); }}
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                      >
+                        <option value="all">Any Status</option>
+                        <option value="active">✅ Active</option>
+                        <option value="notavailable">⏸️ Not Available</option>
+                        <option value="suspended">🚫 Suspended</option>
+                      </select>
+                    </div>
                   </>
                 )}
 
