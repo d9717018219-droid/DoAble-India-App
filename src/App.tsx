@@ -877,8 +877,8 @@ export default function App() {
           <div className="flex flex-col h-[calc(100dvh-180px)] overflow-hidden">
 
             {activeTab === 'jobs' && (
-              <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0">
-                <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-2">
+              <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100">
+                <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-4">
                   <span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500">
                     {locationBypass ? `📍 ${locationBypass}` : 'Searching Jobs'}
                   </span>
@@ -886,15 +886,15 @@ export default function App() {
                     {locationBypass && (
                       <button onClick={() => setLocationBypass(null)} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear</button>
                     )}
-                    <button onClick={() => setShowFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary"><Filter size={14} strokeWidth={3} /></button>
+                    <button onClick={() => setShowFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary shadow-sm"><Filter size={14} strokeWidth={3} /></button>
                   </div>
                 </div>
               </div>
             )}
 
             {activeTab === 'tutors' && (
-              <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0">
-                <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-2">
+              <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100">
+                <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-4">
                   <span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500">
                     {locationBypass ? `📍 ${locationBypass}` : 'Expert Tutors'}
                   </span>
@@ -902,61 +902,49 @@ export default function App() {
                     {(locationBypass || tutorFilterID || tutorFilterName || tutorFilterGender !== 'all' || tutorFilterVehicle !== 'all' || tutorFilterExperience || tutorFilterQualification || tutorFilterTime !== 'all' || tutorFilterDate) && (
                       <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience(''); setTutorFilterQualification(''); setTutorFilterTime('all'); setTutorFilterDate(''); }} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear</button>
                     )}
-                    <button onClick={() => setShowTutorFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary"><Filter size={14} strokeWidth={3} /></button>
+                    <button onClick={() => setShowTutorFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary shadow-sm"><Filter size={14} strokeWidth={3} /></button>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="relative w-full max-w-[500px] mx-auto flex-1 flex items-center justify-center perspective-1000 overflow-hidden py-4 px-4 sm:px-0">
-              <AnimatePresence mode="popLayout">
-                {loading ? (
-                  <motion.div key="loader" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="py-40 text-center">
-                    <Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" />
-                    <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Finding your matches...</p>
-                  </motion.div>
-                ) : activeTab === 'jobs' ? (
-                  filteredJobs.length > jobIndex ? (
+            <div className="flex-1 overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-smooth custom-scrollbar">
+              {loading ? (
+                <div className="h-full flex flex-col items-center justify-center py-40">
+                  <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                  <p className="mt-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Loading Premium Data...</p>
+                </div>
+              ) : activeTab === 'jobs' ? (
+                filteredJobs.length > 0 ? (
+                  filteredJobs.map((job) => (
                     <JobCard 
-                      key={(filteredJobs[jobIndex] as any).id || filteredJobs[jobIndex]['Order ID']} 
-                      job={filteredJobs[jobIndex]} 
-                      onSwipe={() => setJobIndex(prev => prev + 1)} 
+                      key={(job as any).id || job['Order ID']} 
+                      job={job} 
                     />
-                  ) : (
-                    <motion.div key="no-jobs" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center p-10 bg-white dark:bg-slate-900 rounded-[40px] border-2 border-dashed border-slate-200 dark:border-slate-800 shadow-xl mx-4">
-                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div>
-                      <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">That's everyone!</h3>
-                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2 leading-relaxed">No more jobs found in {cityFilter}. <br/> Check back later for new leads.</p>
-                      <button 
-                        onClick={() => setJobIndex(0)} 
-                        className="mt-8 bg-primary text-white px-8 py-4 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all"
-                      >
-                        🔄 Refresh Leads
-                      </button>
-                    </motion.div>
-                  )
+                  ))
                 ) : (
-                  filteredTutors.length > tutorIndex ? (
+                  <div className="h-full flex flex-col items-center justify-center p-10 text-center">
+                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mb-6 text-3xl shadow-inner">🏁</div>
+                    <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Results</h3>
+                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">Try changing your filters or location</p>
+                  </div>
+                )
+              ) : (
+                filteredTutors.length > 0 ? (
+                  filteredTutors.map((tutor) => (
                     <TutorCard 
-                      key={(filteredTutors[tutorIndex] as any).id || filteredTutors[tutorIndex]['Tutor ID']} 
-                      tutor={filteredTutors[tutorIndex]} 
-                      onSwipe={() => setTutorIndex(prev => prev + 1)} 
+                      key={(tutor as any).id || tutor['Tutor ID']} 
+                      tutor={tutor} 
                     />
-                  ) : (
-                    <motion.div key="no-tutors" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center p-10 bg-white dark:bg-slate-900 rounded-[40px] border-2 border-dashed border-slate-200 dark:border-slate-800 shadow-xl mx-4">
-                      <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">🏁</div>
-                      <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">All caught up!</h3>
-                      <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2 leading-relaxed">No more expert tutors in {cityFilter}. <br/> Try clearing filters to see more.</p>
-                      <button 
-                        onClick={() => setTutorIndex(0)} 
-                        className="mt-8 bg-primary text-white px-8 py-4 rounded-2xl font-black uppercase text-[11px] tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all"
-                      >
-                        🔄 Refresh Tutors
-                      </button>
-                    </motion.div>
-                  )
-                )}
-              </AnimatePresence>
+                  ))
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center p-10 text-center">
+                    <div className="w-20 h-20 bg-slate-50 dark:bg-slate-900 rounded-full flex items-center justify-center mb-6 text-3xl shadow-inner">🏁</div>
+                    <h3 className="font-[900] text-slate-900 dark:text-white uppercase tracking-tight text-lg">No Results</h3>
+                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2">No expert tutors match your search</p>
+                  </div>
+                )
+              )}
             </div>
           </div>
         )}

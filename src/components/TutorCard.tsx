@@ -1,25 +1,18 @@
-import React, { useRef, useState } from 'react';
-import { motion, useMotionValue, useTransform, AnimatePresence } from 'motion/react';
-import { Share2, Phone, MessageSquare, Heart, CheckCircle2, MapPin, BookOpen, Clock, User, GraduationCap, Zap } from 'lucide-react';
+import React, { useRef } from 'react';
+import { motion } from 'motion/react';
+import { Share2, Phone, MessageSquare, Heart, CheckCircle2, MapPin, BookOpen, Clock, User, GraduationCap, Zap, Calendar, Car } from 'lucide-react';
 import { TutorProfile } from '../types';
 import { cn, getCityTheme } from '../utils';
 
 interface TutorCardProps {
   tutor: TutorProfile;
-  onSwipe?: (direction: 'left' | 'right') => void;
 }
 
-export const TutorCard: React.FC<TutorCardProps> = ({ tutor, onSwipe }) => {
+export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   const gender = (tutor['Gender'] || '').trim();
   const displayGender = gender && gender !== 'null' ? gender : 'Not Specified';
   const verified = (tutor['Verified'] || '').toString().toLowerCase().trim() === 'yes';
   const tutorTheme = getCityTheme(tutor['Preferred City'] || 'India');
-
-  // Motion Values for Swipe
-  const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 200], [-25, 25]);
-  const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
-  const [swipeDir, setSwipeDir] = useState<'left' | 'right' | null>(null);
 
   const toProperCase = (text: string) => {
     if (!text) return '';
@@ -46,50 +39,13 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor, onSwipe }) => {
     return `https://wa.me/919971969197?text=${message}`;
   };
 
-  const handleDragEnd = (_: any, info: any) => {
-    if (info.offset.x > 100) {
-      setSwipeDir('right');
-      setTimeout(() => onSwipe?.('right'), 200);
-    } else if (info.offset.x < -100) {
-      setSwipeDir('left');
-      setTimeout(() => onSwipe?.('left'), 200);
-    }
-  };
-
   return (
-    <motion.div 
-      style={{ x, rotate, opacity }}
-      drag="x"
-      dragConstraints={{ left: 0, right: 0 }}
-      onDragEnd={handleDragEnd}
-      whileDrag={{ scale: 1.02 }}
-      initial={{ scale: 0.9, opacity: 0, y: 20 }}
-      animate={{ scale: 1, opacity: 1, y: 0 }}
-      exit={{ 
-        x: swipeDir === 'right' ? 1000 : (swipeDir === 'left' ? -1000 : 0), 
-        opacity: 0, 
-        rotate: swipeDir === 'right' ? 60 : (swipeDir === 'left' ? -60 : 0),
-        transition: { duration: 0.4, ease: "easeInOut" }
-      }}
-      className="bg-white dark:bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col relative w-full h-[95%] absolute"
+    <div 
+      className="w-full h-full snap-start snap-always bg-white dark:bg-slate-900 overflow-hidden flex flex-col relative border-b border-slate-100 dark:border-slate-800"
     >
-      {/* Visual Swipe Feedback */}
-      <AnimatePresence>
-        {swipeDir === 'right' && (
-          <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1.5 }} className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none bg-emerald-500/20 backdrop-blur-[2px]">
-            <Heart size={100} className="text-emerald-500 fill-emerald-500" />
-          </motion.div>
-        )}
-        {swipeDir === 'left' && (
-          <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1.5 }} className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none bg-rose-500/20 backdrop-blur-[2px]">
-            <Share2 size={100} className="text-rose-500" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Header */}
       <div 
-        className="p-8 text-center text-white relative flex flex-col justify-center items-center overflow-hidden"
+        className="p-8 sm:p-12 text-center text-white relative flex flex-col justify-center items-center overflow-hidden shrink-0"
         style={{ background: tutorTheme.grad }}
       >
         <div className="absolute top-4 right-4 flex gap-2">
@@ -102,80 +58,95 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor, onSwipe }) => {
 
         <div className="absolute top-[-20%] right-[-10%] w-32 h-32 bg-white/10 rounded-full blur-2xl" />
         
-        <h2 className="text-2xl sm:text-3xl font-[900] text-[#FFD700] mb-1 drop-shadow-md truncate w-full px-4">
+        <h2 className="text-2xl sm:text-4xl font-[900] text-[#FFD700] mb-1 drop-shadow-md truncate w-full px-4">
           ✨ {toProperCase(tutor['Name']) || 'Premium Tutor'}
         </h2>
-        <div className="text-[10px] sm:text-[12px] font-black opacity-90 tracking-[0.2em] uppercase">
+        <div className="text-[10px] sm:text-[14px] font-black opacity-90 tracking-[0.2em] uppercase">
           🆔 Tutor ID: {tutor['Tutor ID'] || 'N/A'}
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-6 pb-28">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-8 pb-28">
         {/* Quick Stats Grid */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 text-center">
-            <div className="text-2xl mb-1">🎂</div>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
+            <div className="text-3xl mb-1">🎂</div>
             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Age</div>
-            <div className="text-sm font-extrabold text-primary">{tutor['Age'] || '–'}</div>
+            <div className="text-sm font-[900] text-primary">{tutor['Age'] || '–'}</div>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 text-center">
-            <div className="text-2xl mb-1">👥</div>
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
+            <div className="text-3xl mb-1">👥</div>
             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gender</div>
-            <div className="text-sm font-extrabold text-primary">{displayGender}</div>
+            <div className="text-sm font-[900] text-primary">{displayGender}</div>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 text-center">
-            <div className="text-2xl mb-1">📍</div>
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
+            <div className="text-3xl mb-1">📍</div>
             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">City</div>
-            <div className="text-sm font-extrabold text-primary truncate">{(tutor['Preferred City'] || 'India')}</div>
+            <div className="text-sm font-[900] text-primary truncate w-full px-2">{(tutor['Preferred City'] || 'India')}</div>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 text-center">
-            <div className="text-2xl mb-1">💰</div>
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
+            <div className="text-3xl mb-1">💰</div>
             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Fee</div>
-            <div className="text-sm font-extrabold text-primary truncate">{(tutor['Fee/Month'] || '₹200').split('(')[0].trim()}</div>
+            <div className="text-sm font-[900] text-primary truncate w-full px-2">{(tutor['Fee/Month'] || '₹200').split('(')[0].trim()}</div>
           </div>
         </div>
 
         {/* Details */}
-        <div className="space-y-4">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Expert Subjects</label>
+        <div className="space-y-6">
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Expert Subjects</label>
               <div className="flex flex-wrap gap-2">
                 {(tutor['Preferred Subject(s)'] || 'Not Provided').split(/[,;]/).map((s, i) => s.trim() && (
-                  <span key={i} className="px-4 py-2 rounded-xl bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 text-xs font-black border border-pink-100 dark:border-pink-800">
+                  <span key={i} className="px-5 py-2.5 rounded-2xl bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-400 text-xs font-black border border-pink-100 dark:border-pink-800 shadow-sm">
                     📖 {s.trim()}
                   </span>
                 ))}
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Experience & Qualifications</label>
-              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300">
-                 🎓 {tutor['Qualification(s)'] || 'Degree Not Mentioned'} <br/>
-                 📚 {tutor['Experience'] || 'Fresher'} Experience
+            <div className="space-y-3">
+              <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Experience & Qualifications</label>
+              <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-[28px] border border-slate-100 dark:border-slate-800 text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed">
+                 <div className="flex items-center gap-3 mb-2 text-primary">
+                   <GraduationCap size={18} />
+                   <span className="uppercase tracking-widest text-[10px] font-black">Qualification</span>
+                 </div>
+                 <div className="mb-4">{tutor['Qualification(s)'] || 'Degree Not Mentioned'}</div>
+                 
+                 <div className="flex items-center gap-3 mb-2 text-primary">
+                   <Zap size={18} />
+                   <span className="uppercase tracking-widest text-[10px] font-black">Experience</span>
+                 </div>
+                 <div>{tutor['Experience'] || 'Fresher'} Experience</div>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Preferred Locations</label>
+            <div className="space-y-3">
+              <label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Preferred Locations</label>
               <div className="flex flex-wrap gap-2">
                 {(tutor['Preferred Location(s)'] || 'Not Specified').split(/[,;]/).map((loc, i) => loc.trim() && (
-                  <span key={i} className="px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-black border border-blue-100 dark:border-blue-800">
+                  <span key={i} className="px-4 py-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] font-black border border-blue-100 dark:border-blue-800">
                     📍 {loc.trim()}
                   </span>
                 ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-6 pt-4 border-t border-slate-100 dark:border-slate-800">
               <div className="space-y-1">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Vehicle Status</label>
-                <div className="text-xs font-bold text-slate-700 dark:text-slate-300">{tutor['Have own Vehicle'] === 'Yes' ? '✅ Owns Vehicle' : '❌ No Vehicle'}</div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Vehicle Status</label>
+                <div className="text-[13px] font-[900] text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                  <Car size={14} className="text-primary" />
+                  {tutor['Have own Vehicle'] === 'Yes' ? 'Owns Vehicle' : 'No Vehicle'}
+                </div>
               </div>
               <div className="space-y-1 text-right">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Last Updated</label>
-                <div className="text-xs font-bold text-slate-700 dark:text-slate-300">{tutor['Record Added'] || 'Recently'}</div>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Last Updated</label>
+                <div className="text-[13px] font-[900] text-slate-700 dark:text-slate-300 flex items-center gap-2 justify-end">
+                  <Calendar size={14} className="text-primary" />
+                  {tutor['Record Added'] || 'Recently'}
+                </div>
               </div>
             </div>
           </div>
@@ -183,22 +154,22 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor, onSwipe }) => {
       </div>
 
       {/* Actions Dock */}
-      <div className="grid grid-cols-2 gap-4 p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 absolute bottom-0 left-0 right-0 z-10">
+      <div className="grid grid-cols-2 gap-4 p-6 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shrink-0">
         <a 
           href="tel:+919971969197"
-          className="p-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-center transition-all bg-gradient-to-r from-primary to-[#FF7675] text-white shadow-lg active:scale-95"
+          className="p-5 rounded-2xl font-[900] text-xs uppercase tracking-widest text-center transition-all bg-gradient-to-r from-primary to-[#FF7675] text-white shadow-xl active:scale-95 flex items-center justify-center gap-2"
         >
-          📞 Call Tutor
+          <Phone size={16} /> Call Tutor
         </a>
         <a 
           href={generateWhatsAppLink()}
           target="_blank"
           rel="noopener noreferrer"
-          className="p-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-center text-white transition-all bg-gradient-to-r from-[#4ECDC4] to-[#00B894] shadow-lg active:scale-95"
+          className="p-5 rounded-2xl font-[900] text-xs uppercase tracking-widest text-center text-white transition-all bg-gradient-to-r from-[#4ECDC4] to-[#00B894] shadow-xl active:scale-95 flex items-center justify-center gap-2"
         >
-          💬 Chat on WA
+          <MessageSquare size={16} /> Chat on WA
         </a>
       </div>
-    </motion.div>
+    </div>
   );
 };
