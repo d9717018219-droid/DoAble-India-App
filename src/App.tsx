@@ -173,6 +173,34 @@ export default function App() {
     return () => unsub();
   }, []);
 
+  // ─── Robust Date Parser ──────────────────────────────────────────
+  const parseDate = useCallback((dateStr: string | undefined): number => {
+    if (!dateStr) return 0;
+    // Handle DD/MM/YY or DD/MM/YYYY or YYYY-MM-DD formats
+    const parts = dateStr.split(/[\/\-\s:]/);
+    if (parts.length >= 3) {
+      let day, month, year;
+      if (parts[0].length === 4) {
+        // YYYY-MM-DD
+        year = parseInt(parts[0]);
+        month = parseInt(parts[1]) - 1;
+        day = parseInt(parts[2]);
+      } else {
+        // DD/MM/YY
+        day = parseInt(parts[0]);
+        month = parseInt(parts[1]) - 1;
+        year = parseInt(parts[2]);
+        if (year < 100) year += 2000;
+      }
+      const hour = parts[3] ? parseInt(parts[3]) : 0;
+      const min = parts[4] ? parseInt(parts[4]) : 0;
+      const date = new Date(year, month, day, hour, min);
+      if (!isNaN(date.getTime())) return date.getTime();
+    }
+    const native = new Date(dateStr).getTime();
+    return isNaN(native) ? 0 : native;
+  }, []);
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -185,8 +213,8 @@ export default function App() {
         const filteredJobs = (leadsJson.data as JobLead[])
           .filter(x => x['Internal Remark']?.trim().toLowerCase() === 'searching')
           .sort((a, b) => {
-             const ta = new Date(a['Record Added'] || a['Updated Time'] || 0).getTime();
-             const tb = new Date(b['Record Added'] || b['Updated Time'] || 0).getTime();
+             const ta = parseDate(a['Record Added'] || a['Updated Time']);
+             const tb = parseDate(b['Record Added'] || b['Updated Time']);
              return tb - ta;
           });
         setLeads(filteredJobs);
@@ -197,8 +225,8 @@ export default function App() {
       // Tutor sorting: 'Record Added' DESC
       const rawTutors: TutorProfile[] = tutorsJson.data || [];
       rawTutors.sort((a, b) => {
-        const ta = new Date((a as any)['Record Added'] || 0).getTime();
-        const tb = new Date((b as any)['Record Added'] || 0).getTime();
+        const ta = parseDate((a as any)['Record Added']);
+        const tb = parseDate((b as any)['Record Added']);
         return tb - ta;
       });
       setTutors(rawTutors);
@@ -256,7 +284,9 @@ export default function App() {
   const isCityMatch = useCallback((city: string | undefined, filter: string) => {
     if (!city) return false;
     if (filter.toLowerCase() === 'all') return true;
-    return city.toString().toLowerCase().trim() === filter.toLowerCase().trim();
+    const c = city.toString().toLowerCase().trim();
+    const f = filter.toLowerCase().trim();
+    return c.includes(f) || f.includes(c);
   }, []);
   const isLocationMatch = useCallback((locs: string | undefined, userLocs: string[]) => {
     if (!locs || userLocs.length === 0) return true;
@@ -317,7 +347,11 @@ export default function App() {
     return tutors.filter(t => {
       const tutorCity = getCityValue(t);
       const fc = cityFilter.toLowerCase().trim();
-      if (fc !== 'all' && tutorCity !== fc) return false;
+      
+      // Relaxed City Match
+      if (fc !== 'all') {
+        if (!tutorCity.includes(fc) && !fc.includes(tutorCity)) return false;
+      }
 
       if (tutorFilterID && !t['Tutor ID']?.toString().toLowerCase().includes(tutorFilterID.toLowerCase())) return false;
       if (tutorFilterName && !t.Name?.toLowerCase().includes(tutorFilterName.toLowerCase())) return false;
@@ -342,7 +376,7 @@ export default function App() {
       if (tutorFilterTime !== 'all' && !t['Preferred Time']?.toLowerCase().includes(tutorFilterTime.toLowerCase())) return false;
 
       if (tutorFilterDate !== 'all') {
-         const added = new Date(t['Record Added'] || 0).getTime();
+         const added = parseDate(t['Record Added']);
          const diffDays = (Date.now() - added) / (1000 * 3600 * 24);
          if (tutorFilterDate === '7' && diffDays > 7) return false;
          if (tutorFilterDate === '30' && diffDays > 30) return false;
@@ -366,7 +400,7 @@ export default function App() {
       }
       return true;
     });
-  }, [tutors, cityFilter, searchQuery, userClasses, userTutorSubjects, getCityValue, isClassMatch, getSubjects, locationBypass, tutorFilterID, tutorFilterName, tutorFilterGender, tutorFilterVehicle, tutorFilterExperience, tutorFilterQualification, tutorFilterTime, tutorFilterDate]);
+  }, [tutors, cityFilter, searchQuery, userClasses, userTutorSubjects, getCityValue, isClassMatch, getSubjects, locationBypass, tutorFilterID, tutorFilterName, tutorFilterGender, tutorFilterVehicle, tutorFilterExperience, tutorFilterQualification, tutorFilterTime, tutorFilterDate, parseDate]);
 
   const activeLeadsCount = useMemo(() => {
     return allLeads.filter(l => isCityMatch(l.City, userCity) && (l['Internal Remark'] || '').trim().toLowerCase() === 'searching').length;
@@ -874,10 +908,9 @@ export default function App() {
               ) : activeTab === 'jobs' ? (
                 filteredJobs.length > 0 ? (
                   filteredJobs.map((job) => (
-                    <JobCard 
-                      key={(job as any).id || job['Order ID']} 
-                      job={job} 
-                    />
+                    <div key={(job as any).id || job['Order ID']} className="w-full max-w-[600px] mx-auto">
+                      <JobCard job={job} />
+                    </div>
                   ))
                 ) : (
                   <div className="col-span-full py-20 text-center">
@@ -889,10 +922,9 @@ export default function App() {
               ) : (
                 filteredTutors.length > 0 ? (
                   filteredTutors.map((tutor) => (
-                    <TutorCard 
-                      key={(tutor as any).id || tutor['Tutor ID']} 
-                      tutor={tutor} 
-                    />
+                    <div key={(tutor as any).id || tutor['Tutor ID']} className="w-full max-w-[600px] mx-auto">
+                      <TutorCard tutor={tutor} />
+                    </div>
                   ))
                 ) : (
                   <div className="col-span-full py-20 text-center">
@@ -983,7 +1015,7 @@ export default function App() {
                   className="w-full h-full min-h-[600px]"
                   dangerouslySetInnerHTML={{ 
                     __html: userType === 'teacher' ? 
-                      `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;"></iframe>` : 
+                      `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;" allowfullscreen="true"></iframe>` : 
                       `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>` 
                   }} 
                 />
