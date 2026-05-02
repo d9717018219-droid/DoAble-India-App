@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
-import { MapPin, BookOpen, Clock, Calendar, Phone, MessageSquare, Share2, CheckCircle2, Zap, Info } from 'lucide-react';
+import { MapPin, BookOpen, Clock, Calendar, Phone, MessageSquare, Share2, CheckCircle2, Zap, Info, User } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { JobLead } from '../types';
-import { cn, formatCurrency, formatPostedDate, getCityPhone, getJobTheme } from '../utils';
+import { cn, formatCurrency, formatPostedDate, getCityPhone, getCityTheme } from '../utils';
 
 interface JobCardProps {
   job: JobLead;
@@ -10,15 +10,16 @@ interface JobCardProps {
 
 export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   const cardRef = useRef<HTMLDivElement>(null);
-  const theme = getJobTheme();
+  const theme = getCityTheme(job.City);
   const gender = (job.Gender || 'Any').toLowerCase();
-  const genderEmoji = gender.includes('male') && !gender.includes('female') ? "👨‍🏫" : (gender.includes('female') ? "👩‍🏫" : "👥");
+  const genderEmoji = gender.includes('male') && !gender.includes('female') ? "👨‍🏫" : (gender.includes('female') ? "👩‍🏫" : "👨‍🏫👩‍🏫");
   
-  const classBoard = job['Class / Board'] || ((job.Class || '') + (job.Board ? ' (' + job.Board + ')' : '')) || 'Any Class';
-  const locationRaw = job.Locations || job.City || 'Not Provided';
+  const classBoard = job['Class / Board'] || ((job.Class || '') + (job.Board ? ' (' + job.Board + ')' : '')) || 'General';
+  const locationRaw = job.Locations || job.City || 'India';
   const location = locationRaw.toString().split(/[;,]/).map(l => l.trim().split('-')[0].trim()).join(', ');
+  const resi = (job as any).residency || 'Student Home Address';
   const phone = getCityPhone(job.City);
-  const postedDate = formatPostedDate(job['Record Added'] || job['Updated Time']);
+  const postedDate = formatPostedDate(job['Updated Time'] || job['Record Added']);
 
   const captureAndShare = async () => {
     if (!cardRef.current) return;
@@ -37,7 +38,11 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       if (!blob) return;
       const file = new File([blob], `Job_${job['Order ID']}.png`, { type: 'image/png' });
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: `Tuition Job: ${job['Order ID']}` });
+        await navigator.share({ 
+            files: [file], 
+            title: `Tuition Job: ${job['Order ID']}`,
+            text: `New job requirement from DoAble India. ID: ${job['Order ID']}`
+        });
       } else {
         const link = document.createElement('a');
         link.download = `Job_${job['Order ID']}.png`;
@@ -51,144 +56,141 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
     }
   };
 
+  const openMap = () => {
+    const dest = encodeURIComponent(`${resi}, ${location}`);
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}`, '_blank');
+  };
+
   const generateWhatsAppLink = () => {
     const orderId = job['Order ID'] || 'N/A';
-    return `https://wa.me/91${phone}?text=${encodeURIComponent(orderId)}`;
+    const genderReq = (job.Gender || 'Any').toLowerCase();
+    
+    let tutorIntro = "I am a qualified tutor";
+    if(genderReq.includes('male') && !genderReq.includes('female')) tutorIntro = "I am a professional Male Tutor";
+    if(genderReq.includes('female')) tutorIntro = "I am a professional Female Tutor";
+
+    const message = `Hello Sir/Ma'am,\n\nExtremely interested in applying for *Order ID: ${orderId}*.\n\n${tutorIntro} and I have carefully reviewed all the requirements. The preferred student time (${job.time || 'Flexible'}), duration (${(job as any).duration || '1 hr'}), and the schedule (${job.days || 'Regular'}) match my availability. \n\nI am also comfortable traveling to the residency area at *${resi}, ${location}*.\n\nKindly allow me a chance to provide a *Demo Class* to prove my teaching skills. Waiting for your positive response!\n\nThank you.`;
+    
+    return `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
   };
 
   return (
     <div 
       ref={cardRef}
-      className="w-full bg-white dark:bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 flex flex-col relative animate-fade-down mb-6"
+      className="job-card w-full h-auto bg-white dark:bg-slate-900 rounded-[20px] overflow-hidden shadow-[0_8px_20px_rgba(0,0,0,0.06)] border-[1.5px] border-slate-200 dark:border-slate-800 flex flex-col relative animate-fade-down mb-6 transition-all duration-400"
     >
-      {/* 1. Card Header - Sky Blue Theme */}
+      {/* 1. Card Top - City Dynamic Theme */}
       <div 
-        className="p-8 sm:p-10 text-center relative shrink-0"
+        className="card-top p-[18px] text-center relative shrink-0 text-white"
         style={{ background: theme.grad }}
       >
-        <div className="absolute top-4 right-4 flex gap-2">
-           <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black text-white uppercase tracking-widest border border-white/20 flex items-center gap-1">
-              <CheckCircle2 size={10} /> Verified
-           </span>
-        </div>
-
         <button 
           onClick={(e) => { e.stopPropagation(); captureAndShare(); }}
-          className="absolute top-4 left-4 p-2 bg-white/20 hover:bg-white/40 rounded-xl text-white transition-colors screenshot-btn"
+          className="screenshot-btn absolute top-3 right-3 w-[35px] h-[35px] rounded-full bg-white/25 backdrop-blur-[5px] flex items-center justify-center text-white border-none cursor-pointer z-10 hover:bg-white/40 transition-colors"
         >
           <Share2 size={16} strokeWidth={3} />
         </button>
         
-        <div className="text-xl sm:text-2xl font-[900] text-white mb-1 drop-shadow-md uppercase tracking-tight line-clamp-2 px-4">
-          📍 {location}
+        <div className="hero-name text-[19px] font-[800] text-[#FFE66D] mb-[3px] drop-shadow-sm uppercase tracking-tight line-clamp-1 px-8">
+          {genderEmoji} {job.Name || 'Elite Job'}
         </div>
-        <div className="text-[10px] sm:text-[12px] font-black text-white/90 uppercase tracking-[0.2em]">
+        <div className="hero-id text-[11px] font-[600] opacity-95 uppercase tracking-widest">
           🆔 Order ID: {job['Order ID']}
         </div>
       </div>
 
-      <div className="p-6 sm:p-8 space-y-8 flex-1">
-        {/* 2. Quick Stats Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
-            <div className="text-3xl mb-1">{genderEmoji}</div>
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gender</div>
-            <div className="text-[11px] sm:text-xs font-[900]" style={{ color: theme.solid }}>{job.Gender || 'Any'}</div>
-          </div>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
-            <div className="text-3xl mb-1">📍</div>
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">City</div>
-            <div className="text-[11px] sm:text-xs font-[900]" style={{ color: theme.solid }}>{job.City}</div>
-          </div>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
-            <div className="text-3xl mb-1">🏫</div>
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Class / Board</div>
-            <div className="text-[11px] sm:text-xs font-[900] truncate w-full px-2" style={{ color: theme.solid }}>{classBoard}</div>
-          </div>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
-            <div className="text-3xl mb-1">💰</div>
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Budgeted Fee</div>
-            <div className="text-[11px] sm:text-xs font-[900]" style={{ color: theme.solid }}>{formatCurrency(job.Fee)} / Mo</div>
-          </div>
+      {/* 2. Quick Stats Grid */}
+      <div className="quick-stats grid grid-cols-2 gap-2 p-3 bg-black/5 dark:bg-white/5 border-b border-slate-100 dark:border-slate-800">
+        <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800">
+          <span className="stat-emoji text-[18px] block mb-0.5">{genderEmoji}</span>
+          <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-white">{job.Gender || 'Any'}</span>
+          <span className="stat-label text-[9px] text-slate-400 uppercase font-[800] mt-0.5">Gender</span>
         </div>
+        <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800">
+          <span className="stat-emoji text-[18px] block mb-0.5">📍</span>
+          <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-white">{location}</span>
+          <span className="stat-label text-[9px] text-slate-400 uppercase font-[800] mt-0.5">Location</span>
+        </div>
+        <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800">
+          <span className="stat-emoji text-[18px] block mb-0.5">📖</span>
+          <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-white">{classBoard}</span>
+          <span className="stat-label text-[9px] text-slate-400 uppercase font-[800] mt-0.5">Class/Board</span>
+        </div>
+        <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800">
+          <span className="stat-emoji text-[18px] block mb-0.5">💰</span>
+          <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-white">₹{formatCurrency(job.Fee || '0')}/Mo</span>
+          <span className="stat-label text-[9px] text-slate-400 uppercase font-[800] mt-0.5">Fee</span>
+        </div>
+        
+        <div className="stat-item col-span-2 bg-[#1B4B85]/5 dark:bg-[#1B4B85]/10 p-2 rounded-[14px] border border-[#1B4B85]/10 text-center">
+            <span className="stat-value text-[11px] font-[700] text-[#1B4B85] dark:text-sky-400 flex items-center justify-center gap-1.5 uppercase">
+                <Clock size={12} /> Posted On: {postedDate}
+            </span>
+        </div>
+      </div>
 
-        {/* 3. Detailed Information Blocks */}
-        <div className="space-y-8">
-           <DetailSection icon={<BookOpen size={16} className="text-primary" />} label="Required Subjects">
-              <div className="flex flex-wrap gap-2">
-                {(job.subjects || 'All Subjects').split(/[;,]/).map((s, i) => (
-                  <span key={i} className="bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border border-slate-100 dark:border-slate-700 shadow-sm">
-                    {s.trim()}
+      {/* 3. Parent Note Box */}
+      <div className="notes-box bg-[#F59E0B]/10 p-3 mx-3 mt-3 rounded-[12px] border border-dashed border-[#F59E0B]">
+          <span className="info-label text-[10px] text-[#B45309] font-[800] uppercase mb-1 block tracking-wider">📝 Parent Note</span>
+          <div className="notes-text text-[11px] text-slate-700 dark:text-slate-300 font-[500] leading-relaxed line-clamp-3">
+            {job.Notes || 'No specific requirements.'}
+          </div>
+      </div>
+
+      {/* 4. Card Content */}
+      <div className="card-content p-4 flex-1 space-y-4">
+          <div className="space-y-2">
+            <span className="info-label text-[10px] text-slate-400 font-[800] uppercase tracking-tight">Subjects we want you to teach</span>
+            <div className="tags-container flex flex-wrap gap-1.5">
+                {(job.subjects || 'General').split(/[;,]/).map((s, i) => (
+                  <span key={i} className="tag bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700 whitespace-nowrap flex items-center gap-1">
+                    📖 {s.trim()}
                   </span>
                 ))}
-              </div>
-           </DetailSection>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <span className="info-label text-[10px] text-slate-400 font-[800] uppercase tracking-tight">Where you have to take class</span>
+            <div 
+              className="residency-box bg-slate-50 dark:bg-slate-800 p-3 rounded-[12px] border-l-4 font-[500] text-[11px] text-slate-900 dark:text-white cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors shadow-sm"
+              style={{ borderLeftColor: theme.solid }}
+              onClick={openMap}
+            >
+                📍 {resi}, {location}
+                <div className="text-[9px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">Tap to check distance & route on Google Maps</div>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <span className="info-label text-[10px] text-slate-400 font-[800] uppercase tracking-tight">Schedule & Availability</span>
+            <div className="tags-container flex flex-wrap gap-1.5">
+                <span className="tag bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700">⏳ {(job as any).duration || '1 Hr/Day'}</span>
+                <span className="tag bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700">📅 {job.days || 'Discuss'}</span>
+                <span className="tag bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700">🕒 {job.time || 'Flexible'}</span>
+            </div>
+          </div>
+      </div>
 
-           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              <DetailSection icon={<Clock size={16} className="text-primary" />} label="Time Preference">
-                 <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
-                    <div className="text-sm font-black text-slate-700 dark:text-white uppercase">{job.time || 'Flexible'}</div>
-                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Teaching Hours</div>
-                 </div>
-              </DetailSection>
-
-              <DetailSection icon={<Calendar size={16} className="text-primary" />} label="Schedule">
-                 <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
-                    <div className="text-sm font-black text-slate-700 dark:text-white uppercase">{job.days || 'Regular'}</div>
-                    <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Weekly Mode</div>
-                 </div>
-              </DetailSection>
-           </div>
-
-           {job.Notes && (
-             <DetailSection icon={<Info size={16} className="text-primary" />} label="Specific Requirements">
-                <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-[32px] border border-slate-100 dark:border-slate-700 relative overflow-hidden">
-                   <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -mr-10 -mt-10" />
-                   <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium relative z-10">{job.Notes}</p>
-                </div>
-             </DetailSection>
-           )}
-
-           <div className="flex justify-between items-center text-slate-400 pt-2 px-2">
-              <div className="flex items-center gap-1.5">
-                 <Calendar size={10} />
-                 <span className="text-[9px] font-black uppercase tracking-widest">Posted: <span className="text-slate-600 dark:text-slate-300">{postedDate}</span></span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                 <Zap size={10} className="text-primary" />
-                 <span className="text-[9px] font-black uppercase tracking-widest text-primary">Priority Lead</span>
-              </div>
-           </div>
-        </div>
-
-        {/* 4. Action Buttons */}
-        <div className="pt-6 flex flex-col sm:flex-row gap-4 card-actions">
+      {/* 5. Actions */}
+      <div className="card-actions grid grid-cols-2 gap-2.5 p-4 border-t border-slate-100 dark:border-slate-800">
           <a 
-            href={`tel:91${phone}`}
-            className="flex-1 h-16 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 shadow-xl"
+            href={`tel:${phone}`} 
+            className="btn bg-white dark:bg-slate-900 px-3 py-3 rounded-xl font-[800] text-[12px] text-center border-2 transition-all active:scale-95 flex items-center justify-center gap-2"
+            style={{ color: theme.solid, borderColor: theme.solid }}
           >
-            <Phone size={18} /> Call Hub
+            📞 Call Support
           </a>
           <a 
-            href={generateWhatsAppLink()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-[1.5] h-16 rounded-2xl text-white font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3"
+            href={generateWhatsAppLink()} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="btn text-white px-3 py-3 rounded-xl font-[800] text-[12px] text-center transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg"
             style={{ background: theme.grad }}
           >
-            <MessageSquare size={18} /> Apply on WA
+            💬 Apply Now
           </a>
-        </div>
       </div>
     </div>
   );
 };
-
-const DetailSection = ({ icon, label, children }: { icon: React.ReactNode, label: string, children: React.ReactNode }) => (
-  <div className="space-y-4">
-     <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2.5 ml-1">
-        {icon} {label}
-     </label>
-     {children}
-  </div>
-);
