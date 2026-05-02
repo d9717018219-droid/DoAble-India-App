@@ -5,10 +5,30 @@
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Poppins", sans-serif;
   
-  --color-primary: #1B4B85;
-  --color-secondary: #FFE66D;
+  --color-primary: #FF6B6B;
+  --color-secondary: #4ECDC4;
+  --color-accent: #FFE66D;
+  --color-purple: #A29BFE;
   --color-dark-bg: #FFFFFF;
   --color-light-bg: #FFFFFF;
+}
+
+@keyframes smoothGlow {
+  0%, 100% { box-shadow: 0 0 15px rgba(255, 107, 107, 0.2); }
+  50% { box-shadow: 0 0 30px rgba(255, 107, 107, 0.4); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-glow {
+  animation: smoothGlow 4s ease-in-out infinite;
+}
+
+.animate-fade-down {
+  animation: fadeInDown 0.6s ease-out forwards;
 }
 
 .tag {

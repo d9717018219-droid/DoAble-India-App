@@ -81,8 +81,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts' | 'admin'>('home');
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
-  const [jobIndex, setJobIndex] = useState(0);
-  const [tutorIndex, setTutorIndex] = useState(0);
   const [themeMode] = useState<'light' | 'dark'>(localStorage.getItem('themeMode') as 'light' | 'dark' || 'light');
   const [locationBypass, setLocationBypass] = useState<string | null>(null);
   const mainScrollRef = useRef<HTMLDivElement>(null);
@@ -109,6 +107,7 @@ export default function App() {
   const [editUserType, setEditUserType] = useState<UserType | null>(localStorage.getItem('userType') as UserType);
   const [editTutorSubjects, setEditTutorSubjects] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorSubjects') || '[]'));
   const [editTutorLocations, setEditTutorLocations] = useState<string[]>(JSON.parse(localStorage.getItem('userTutorLocations') || '[]'));
+  const [editParentTutorGender, setEditParentTutorGender] = useState<string>(localStorage.getItem('parentTutorGender') || 'Any');
   const [areaSearch, setAreaSearch] = useState('');
   const [editClasses, setEditClasses] = useState<string[]>(JSON.parse(localStorage.getItem('userClasses') || '[]'));
   const [editCity, setEditCity] = useState<string>(localStorage.getItem('userCity') || 'Ghaziabad');
@@ -228,6 +227,8 @@ export default function App() {
     localStorage.setItem('userCity', editCity);
     localStorage.setItem('userTutorSubjects', JSON.stringify(editTutorSubjects));
     localStorage.setItem('userTutorLocations', JSON.stringify(editTutorLocations));
+    localStorage.setItem('parentTutorGender', editParentTutorGender);
+    
     setUserName(editName);
     setUserGender(editGender);
     setUserClasses(editClasses);
@@ -235,6 +236,12 @@ export default function App() {
     setCityFilter(editCity);
     setUserTutorSubjects(editTutorSubjects);
     setUserTutorLocations(editTutorLocations);
+
+    // Apply filters based on onboarding questions
+    if (editUserType === 'parent') {
+       if (editParentTutorGender !== 'Any') setTutorFilterGender(editParentTutorGender);
+    }
+
     setShowOnboarding(false);
     setIsSelectingCityOnly(false);
     setLocationBypass(null);
@@ -389,41 +396,6 @@ export default function App() {
     });
   }, [tutors, cityFilter, searchQuery, userClasses, userTutorSubjects, getCityValue, isClassMatch, getSubjects, locationBypass, tutorFilterID, tutorFilterName, tutorFilterGender, tutorFilterVehicle, tutorFilterExperience, tutorFilterQualification, tutorFilterTime, tutorFilterDate]);
 
-  const isFallbackTutors = useMemo(() => {
-    const strictCount = tutors.filter(t => {
-      const tutorCity = getCityValue(t);
-      const fc = cityFilter.toLowerCase().trim();
-      if (fc !== 'all' && tutorCity !== fc) return false;
-      
-      if (tutorFilterID && !t['Tutor ID']?.toString().toLowerCase().includes(tutorFilterID.toLowerCase())) return false;
-      if (tutorFilterName && !t.Name?.toLowerCase().includes(tutorFilterName.toLowerCase())) return false;
-      if (tutorFilterGender !== 'all' && t.Gender?.toLowerCase() !== tutorFilterGender.toLowerCase()) return false;
-      if (tutorFilterVehicle !== 'all') {
-        const hasVehicle = (t['Have own Vehicle'] || '').toLowerCase() === 'yes';
-        if (tutorFilterVehicle === 'yes' && !hasVehicle) return false;
-        if (tutorFilterVehicle === 'no' && hasVehicle) return false;
-      }
-      if (tutorFilterExperience && !t.Experience?.toLowerCase().includes(tutorFilterExperience.toLowerCase())) return false;
-      if (tutorFilterQualification && !t['Qualification(s)']?.toLowerCase().includes(tutorFilterQualification.toLowerCase())) return false;
-      if (tutorFilterTime !== 'all' && !t['Preferred Time']?.toLowerCase().includes(tutorFilterTime.toLowerCase())) return false;
-      if (tutorFilterDate && !t['Record Added']?.toLowerCase().includes(tutorFilterDate.toLowerCase())) return false;
-
-      if (locationBypass) {
-        return (t['Preferred Location(s)'] || '').toLowerCase().includes(locationBypass.toLowerCase());
-      }
-      const hasPrefs = userClasses.length > 0 || userTutorSubjects.length > 0;
-      if (!hasPrefs) return true;
-      if (userClasses.length > 0 && !isClassMatch(t['Preferred Class Group'], userClasses)) return false;
-      if (userTutorSubjects.length > 0) {
-        const tS = getSubjects(t);
-        const uS = userTutorSubjects.map(s => s.toLowerCase().trim());
-        if (!uS.some(us => tS.some(ts => ts === us || ts.includes(us) || us.includes(ts)))) return false;
-      }
-      return true;
-    }).length;
-    return strictCount === 0 && filteredTutors.length > 0;
-  }, [tutors, cityFilter, userClasses, userTutorSubjects, getCityValue, isClassMatch, getSubjects, filteredTutors, locationBypass, tutorFilterID, tutorFilterName, tutorFilterGender, tutorFilterVehicle, tutorFilterExperience, tutorFilterQualification, tutorFilterTime, tutorFilterDate]);
-
   const activeLeadsCount = useMemo(() => {
     return allLeads.filter(l => isCityMatch(l.City, userCity) && (l['Internal Remark'] || '').trim().toLowerCase() === 'searching').length;
   }, [allLeads, userCity, isCityMatch]);
@@ -439,9 +411,6 @@ export default function App() {
   }, [editClasses]);
 
   const cityLocations = CITY_TO_LOCATIONS_DATA[editCity] || [];
-
-  useEffect(() => { setJobIndex(0); }, [filteredJobs.length]);
-  useEffect(() => { setTutorIndex(0); }, [filteredTutors.length]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans" ref={mainScrollRef}>
@@ -480,15 +449,34 @@ export default function App() {
                 <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] shadow-2xl border border-slate-100 space-y-6 sm:space-y-8">
                   <div className="flex items-center gap-3 sm:gap-4">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-primary"><User size={20} className="sm:w-6 sm:h-6" /></div>
-                    <div><h3 className="text-lg sm:text-xl font-black text-slate-900 uppercase">Your Identity</h3><p className="text-[9px] sm:text-[10px] font-black text-primary uppercase">Update Details</p></div>
+                    <div><h3 className="text-lg sm:text-xl font-black text-slate-900 uppercase">Your Identity</h3><p className="text-[9px] sm:text-[10px] font-black text-primary uppercase">Basic Profile</p></div>
                   </div>
                   <div className="space-y-4 sm:space-y-6">
-                    <input className="w-full bg-slate-50 p-4 sm:p-5 rounded-xl sm:rounded-2xl text-sm font-black shadow-inner outline-none border border-slate-100" value={editName} onChange={e => setEditName(e.target.value)} placeholder="Your Name" />
-                    <div className="grid grid-cols-2 gap-2">
-                      {['Male', 'Female'].map(g => (
-                        <button key={g} onClick={() => setEditGender(g)} className={cn("p-4 sm:p-5 rounded-xl sm:rounded-2xl text-[9px] sm:text-[10px] font-black uppercase transition-all", editGender === g ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400")}>{g}</button>
-                      ))}
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">What is your name?</label>
+                       <input className="w-full bg-slate-50 p-4 sm:p-5 rounded-xl sm:rounded-2xl text-sm font-black shadow-inner outline-none border border-slate-100" value={editName} onChange={e => setEditName(e.target.value)} placeholder="Full Name" />
                     </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Your Gender</label>
+                       <div className="grid grid-cols-2 gap-2">
+                         {['Male', 'Female'].map(g => (
+                           <button key={g} onClick={() => setEditGender(g)} className={cn("p-4 sm:p-5 rounded-xl sm:rounded-2xl text-[9px] font-black uppercase transition-all", editGender === g ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400")}>{g}</button>
+                         ))}
+                       </div>
+                    </div>
+                    
+                    {editUserType === 'parent' && (
+                      <div className="space-y-2 pt-2">
+                         <label className="text-[10px] font-black uppercase text-primary ml-2 italic">Parent Preference Question:</label>
+                         <label className="text-[11px] font-black uppercase text-slate-600 block px-2 leading-tight">"Which gender of tutor is your child comfortable with?"</label>
+                         <div className="grid grid-cols-3 gap-2">
+                           {['Any', 'Male', 'Female'].map(g => (
+                             <button key={g} onClick={() => setEditParentTutorGender(g)} className={cn("py-3 rounded-xl text-[9px] font-black uppercase transition-all border", editParentTutorGender === g ? "bg-primary text-white border-primary" : "bg-slate-50 text-slate-400 border-slate-100")}>{g}</button>
+                           ))}
+                         </div>
+                      </div>
+                    )}
+
                     <button onClick={() => setOnboardingStep(2)} className="w-full bg-primary text-white py-4 sm:py-5 rounded-xl sm:rounded-2xl font-black text-[10px] uppercase shadow-xl">Next Step</button>
                   </div>
                 </motion.div>
@@ -498,12 +486,19 @@ export default function App() {
                 <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] shadow-2xl border border-slate-100 space-y-6 sm:space-y-8">
                   <div className="flex items-center gap-3 sm:gap-4">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-xl sm:rounded-2xl flex items-center justify-center text-primary"><Sparkles size={20} className="sm:w-6 sm:h-6" /></div>
-                    <div><h3 className="text-lg sm:text-xl font-black text-slate-900 uppercase">Select Classes</h3><p className="text-[9px] sm:text-[10px] font-black text-primary uppercase">Pick one or more</p></div>
+                    <div>
+                      <h3 className="text-lg sm:text-xl font-black text-slate-900 uppercase">
+                        {editUserType === 'parent' ? 'Child\'s Class' : 'Select Classes'}
+                      </h3>
+                      <p className="text-[9px] sm:text-[10px] font-black text-primary uppercase">
+                        {editUserType === 'parent' ? '"Which class group does your child belong to?"' : 'Pick one or more'}
+                      </p>
+                    </div>
                   </div>
                   <div className="space-y-4 sm:space-y-6">
                     <div className="flex flex-wrap gap-2 max-h-[30vh] overflow-y-auto p-1 sm:p-2 custom-scrollbar">
                       {CLASSES_LIST.map(c => (
-                        <button key={c} onClick={() => setEditClasses(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])} className={cn("px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-[9px] sm:text-[10px] font-black uppercase transition-all", editClasses.includes(c) ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{c}</button>
+                        <button key={c} onClick={() => setEditClasses(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c])} className={cn("px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-[9px] font-black uppercase transition-all", editClasses.includes(c) ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{c}</button>
                       ))}
                     </div>
                     <button onClick={() => {
@@ -917,10 +912,9 @@ export default function App() {
               ) : activeTab === 'jobs' ? (
                 filteredJobs.length > 0 ? (
                   filteredJobs.map((job) => (
-                    <JobCard 
-                      key={(job as any).id || job['Order ID']} 
-                      job={job} 
-                    />
+                    <div key={(job as any).id || job['Order ID']} className="h-full min-h-[85vh] w-full snap-start snap-always shrink-0">
+                      <JobCard job={job} />
+                    </div>
                   ))
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center p-10 text-center">
@@ -932,10 +926,9 @@ export default function App() {
               ) : (
                 filteredTutors.length > 0 ? (
                   filteredTutors.map((tutor) => (
-                    <TutorCard 
-                      key={(tutor as any).id || tutor['Tutor ID']} 
-                      tutor={tutor} 
-                    />
+                    <div key={(tutor as any).id || tutor['Tutor ID']} className="h-full min-h-[85vh] w-full snap-start snap-always shrink-0">
+                      <TutorCard tutor={tutor} />
+                    </div>
                   ))
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center p-10 text-center">
@@ -1039,6 +1032,12 @@ export default function App() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Dynamic Preferences / Onboarding Steps (Internal Overlay Logic) */}
+      <AnimatePresence>
+        {/* Placeholder for future internal preference screens */}
+      </AnimatePresence>
+
     </div>
   );
 }
