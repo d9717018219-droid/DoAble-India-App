@@ -6,9 +6,12 @@
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#ffffff",
-  "theme_color": "#2563EB",
+  "theme_color": "#f5f6fa",
   "scope": "/",
-  "categories": ["education", "productivity"],
+  "categories": [
+    "education",
+    "productivity"
+  ],
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3233/3233483.png",
@@ -35,14 +38,24 @@
       "short_name": "Jobs",
       "description": "Browse active tuition jobs",
       "url": "/?tab=jobs",
-      "icons": [{ "src": "https://cdn-icons-png.flaticon.com/512/3233/3233483.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "https://cdn-icons-png.flaticon.com/512/3233/3233483.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Find Tutors",
       "short_name": "Tutors",
       "description": "Browse available tutors",
       "url": "/?tab=tutors",
-      "icons": [{ "src": "https://cdn-icons-png.flaticon.com/512/3233/3233483.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "https://cdn-icons-png.flaticon.com/512/3233/3233483.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ]
 }
