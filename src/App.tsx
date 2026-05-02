@@ -519,11 +519,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 font-sans" ref={mainScrollRef}>
-      {/* Simplified 2-Step Onboarding / Preferences */}
+      {/* Onboarding / Preferences Modal - Simplified Single Screen with Pick Lists */}
       <AnimatePresence>
         {showOnboarding && (
           <div className="fixed inset-0 z-[10000] bg-white flex flex-col items-center justify-center p-4 sm:p-10 overflow-y-auto pr-2 custom-scrollbar">
-            {isPreferenceMode && (
+            {(isPreferenceMode || userType) && (
               <button 
                 onClick={() => setShowOnboarding(false)}
                 className="absolute top-6 right-6 p-4 bg-slate-100 rounded-2xl text-slate-400 hover:text-slate-900 transition-colors"
@@ -532,86 +532,74 @@ export default function App() {
               </button>
             )}
             
-            <div className="w-full max-w-2xl space-y-10 sm:space-y-12 py-10">
-              {onboardingStep === 0 && (
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
-                  <div className="text-center space-y-4">
-                    <div className="w-20 h-20 bg-primary text-white rounded-[32px] flex items-center justify-center shadow-2xl shadow-primary/30 mx-auto transform -rotate-6">
-                      <Zap size={40} className="animate-pulse" />
-                    </div>
-                    <div className="space-y-2">
-                      <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tighter uppercase">Identify Your Role</h1>
-                      <p className="text-slate-400 text-[10px] sm:text-xs font-black uppercase tracking-[0.3em]">Tailoring your DoAbLe experience</p>
-                    </div>
+            <div className="w-full max-w-lg space-y-10 sm:space-y-12 py-10">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+                <div className="text-center space-y-4">
+                  <div className="w-16 h-16 bg-primary text-white rounded-[24px] flex items-center justify-center shadow-2xl shadow-primary/30 mx-auto transform -rotate-6">
+                    <Zap size={32} className="animate-pulse" />
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <button 
-                      onClick={() => selectUserType('parent')} 
-                      className="group relative bg-slate-50 p-8 rounded-[40px] flex flex-col items-start gap-6 border-2 border-transparent hover:border-primary/20 hover:bg-white hover:shadow-2xl transition-all duration-500 text-left overflow-hidden"
-                    >
-                      <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-500">
-                        <User size={32} className="text-primary/60" />
-                      </div>
-                      <div className="space-y-2">
-                        <span className="text-xs font-black uppercase tracking-widest text-primary">I'm a Parent</span>
-                        <h3 className="text-2xl font-black text-slate-900 uppercase leading-none">Find a Mentor</h3>
-                        <p className="text-slate-400 text-xs font-medium leading-relaxed">Discover top-tier educators for your child's academic growth.</p>
-                      </div>
-                      <div className="absolute top-4 right-8 text-4xl opacity-5 group-hover:opacity-10 transition-opacity font-black">01</div>
-                    </button>
-
-                    <button 
-                      onClick={() => selectUserType('teacher')} 
-                      className="group relative bg-slate-900 text-white p-8 rounded-[40px] flex flex-col items-start gap-6 border-2 border-transparent hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 text-left overflow-hidden"
-                    >
-                      <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                        <GraduationCap size={32} className="text-primary" />
-                      </div>
-                      <div className="space-y-2">
-                        <span className="text-xs font-black uppercase tracking-widest text-primary">I'm a Tutor</span>
-                        <h3 className="text-2xl font-black text-white uppercase leading-none">Find a Job</h3>
-                        <p className="text-white/40 text-xs font-medium leading-relaxed">Join our elite network of educators and unlock premium teaching leads.</p>
-                      </div>
-                      <div className="absolute top-4 right-8 text-4xl opacity-10 transition-opacity font-black">02</div>
-                    </button>
+                  <div className="space-y-1">
+                    <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tighter uppercase">Application Setup</h1>
+                    <p className="text-slate-400 text-[9px] font-black uppercase tracking-[0.3em]">Configure your DoAbLe experience</p>
                   </div>
+                </div>
 
-                  {isPreferenceMode && (
-                    <div className="text-center pt-4">
-                       <button onClick={() => setShowOnboarding(false)} className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors">← Exit Preferences</button>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-
-              {onboardingStep === 1 && (
-                <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white p-8 sm:p-12 rounded-[56px] shadow-2xl border border-slate-100 space-y-10 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16" />
-                  <div className="flex items-center gap-5 relative z-10">
-                    <div className="w-16 h-16 bg-primary/10 rounded-[24px] flex items-center justify-center text-primary shadow-inner"><MapPin size={32} /></div>
-                    <div>
-                      <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Your Territory</h3>
-                      <p className="text-[10px] font-black text-primary uppercase tracking-widest">Select Primary City</p>
-                    </div>
-                  </div>
-                  <div className="space-y-8 relative z-10">
+                <div className="bg-slate-50 dark:bg-slate-800 p-8 rounded-[40px] space-y-8 border border-slate-100 dark:border-slate-700 shadow-xl">
+                  {/* 1. Role Selection Dropdown */}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest flex items-center gap-2">
+                       <User size={14} className="text-primary" /> Select Your Role (Pick List)
+                    </label>
                     <div className="relative">
-                       <input type="text" placeholder="Search your city..." value={areaSearch} onChange={e => setAreaSearch(e.target.value)} className="w-full bg-slate-50 p-6 pl-14 rounded-3xl text-sm font-bold outline-none border border-slate-100 focus:border-primary focus:bg-white transition-all shadow-sm" />
-                       <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-300" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 max-h-[35vh] overflow-y-auto p-2 custom-scrollbar">
-                      {dynamicCities.filter(c => c.toLowerCase().includes(areaSearch.toLowerCase())).map(city => (
-                        <button key={city} onClick={() => setEditCity(city)} className={cn("p-5 rounded-2xl text-[10px] font-black uppercase transition-all border shadow-sm active:scale-95", editCity === city ? "bg-primary text-white border-primary shadow-xl shadow-primary/20 scale-[1.02]" : "bg-slate-50 text-slate-400 border-slate-100 hover:border-primary/30")}>{city}</button>
-                      ))}
-                    </div>
-                    <div className="pt-4 space-y-4">
-                      <button onClick={completeOnboarding} className="w-full bg-slate-900 text-white py-6 rounded-[28px] font-black text-xs uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all">Establish Preference</button>
-                      <button onClick={() => setOnboardingStep(0)} className="w-full py-4 rounded-2xl font-black text-[10px] text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors flex items-center justify-center gap-2">← Back to Role Selection</button>
+                      <select 
+                        value={editUserType || ''} 
+                        onChange={e => setEditUserType(e.target.value as UserType)}
+                        className="w-full bg-white dark:bg-slate-900 p-5 pl-14 rounded-2xl text-sm font-black outline-none border-2 border-transparent focus:border-primary transition-all appearance-none cursor-pointer shadow-sm"
+                      >
+                        <option value="" disabled>Choose your role...</option>
+                        <option value="parent">👨 Parent (Find a Mentor)</option>
+                        <option value="teacher">🎓 Tutor (Find a Job)</option>
+                      </select>
+                      <User size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" />
+                      <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300 text-xs">▼</div>
                     </div>
                   </div>
-                </motion.div>
-              )}
+
+                  {/* 2. City Selection Dropdown */}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest flex items-center gap-2">
+                       <MapPin size={14} className="text-primary" /> Select Primary City (Pick List)
+                    </label>
+                    <div className="relative">
+                      <select 
+                        value={editCity} 
+                        onChange={e => setEditCity(e.target.value)}
+                        className="w-full bg-white dark:bg-slate-900 p-5 pl-14 rounded-2xl text-sm font-black outline-none border-2 border-transparent focus:border-primary transition-all appearance-none cursor-pointer shadow-sm"
+                      >
+                        {CITIES_LIST.map(city => <option key={city} value={city}>{city}</option>)}
+                      </select>
+                      <MapPin size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" />
+                      <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300 text-xs">▼</div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
+                    <button 
+                      onClick={completeOnboarding} 
+                      disabled={!editUserType}
+                      className={cn(
+                        "w-full py-6 rounded-[28px] font-black text-xs uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all",
+                        editUserType ? "bg-slate-900 text-white" : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
+                      )}
+                    >
+                      Establish Preference
+                    </button>
+                    {(isPreferenceMode || userType) && (
+                       <button onClick={() => setShowOnboarding(false)} className="w-full py-4 mt-2 rounded-2xl font-black text-[10px] text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors flex items-center justify-center gap-2">← Discard Changes</button>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
         )}
