@@ -27,7 +27,7 @@ service cloud.firestore {
       return resource.data;
     }
 
-    // JOBS COLLECTION
+    // JOBS COLLECTION (Legacy/Alternative)
     match /jobs/{jobId} {
       function isValidJob(data) {
         return data.keys().hasAll(['orderId', 'city', 'postedAt', 'authorId']) &&
@@ -37,17 +37,16 @@ service cloud.firestore {
                data.authorId == request.auth.uid;
       }
 
-      allow read: if true; // Publicly readable for now so users can see jobs
-      
+      allow read: if true;
       allow create: if isSignedIn() && isAdmin() && isValidId(jobId) && isValidJob(incoming()) && 
                     incoming().postedAt == request.time;
-                    
-      allow update: if isSignedIn() && isAdmin() && isValidJob(incoming()) &&
-                    incoming().diff(existing()).affectedKeys().hasOnly(['subject', 'area', 'classBoard', 'fee', 'gender', 'notes', 'phoneNumber']) &&
-                    incoming().postedAt == existing().postedAt &&
-                    incoming().authorId == existing().authorId;
-                    
-      allow delete: if isSignedIn() && isAdmin();
+      allow update, delete: if isSignedIn() && isAdmin();
+    }
+
+    // LEADS COLLECTION (Current)
+    match /leads/{leadId} {
+      allow read: if true;
+      allow create, update, delete: if isSignedIn() && isAdmin();
     }
 
     // ALERTS COLLECTION

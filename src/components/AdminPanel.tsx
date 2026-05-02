@@ -164,10 +164,10 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
           <div className="space-y-4 text-[11px] font-bold text-slate-500 leading-relaxed">
               <p>You can connect your other apps to this alert module via Firebase SDK.</p>
               <div className="bg-white p-4 rounded-xl border border-slate-100 font-mono text-[9px] overflow-x-auto whitespace-pre">
-{`// Add document to "alerts" collation
+{`// Add document to "alerts" collection
 const alert = {
   message: "Hi from API",
-  city: "${targetCity}",
+  city: "\${targetCity}",
   type: "info",
   sender: "External App",
   timestamp: serverTimestamp()

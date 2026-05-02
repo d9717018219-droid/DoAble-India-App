@@ -50,26 +50,26 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
     >
       {/* Header */}
       <div 
-        className="p-8 text-center text-white relative flex flex-col justify-center items-center overflow-hidden"
+        className="p-6 sm:p-8 text-center text-white relative flex flex-col justify-center items-center overflow-hidden"
         style={{ background: tutorTheme.grad }}
       >
         <div className="absolute top-[-20%] right-[-10%] w-32 h-32 bg-white/10 rounded-full blur-2xl" />
         
-        <h2 className="text-[24px] font-extrabold text-[#FFD700] mb-2 drop-shadow-sm truncate w-full px-2">
+        <h2 className="text-xl sm:text-[24px] font-extrabold text-[#FFD700] mb-1 sm:mb-2 drop-shadow-sm truncate w-full px-2">
           ✨ {toProperCase(tutor['Name']) || 'Tutor'}
         </h2>
-        <div className="text-[11px] font-bold opacity-90 tracking-widest uppercase">
+        <div className="text-[10px] sm:text-[11px] font-bold opacity-90 tracking-widest uppercase">
           🆔 Tutor ID: {tutor['Tutor ID'] || 'N/A'}
         </div>
         
-        <div className="mt-4 flex gap-2 justify-center flex-wrap">
+        <div className="mt-3 sm:mt-4 flex gap-2 justify-center flex-wrap">
           {verified && (
-            <span className="bg-[#10B981] text-white px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest border border-white/20">
+            <span className="bg-[#10B981] text-white px-2.5 py-1 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-widest border border-white/20">
               ✅ Verified
             </span>
           )}
           <span 
-            className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-widest shadow-sm"
+            className="px-2.5 py-1 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-widest shadow-sm"
             style={{ background: statusInfo.color, color: 'white' }}
           >
             {statusInfo.label}
@@ -78,35 +78,35 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
       </div>
 
       {/* Quick Stats Grid */}
-      <div className="grid grid-cols-2 gap-2 p-4 bg-[#F8F9FA] border-b-2 border-[#F0F0F0]">
-        <div className="stat-item">
-          <div className="text-2xl mb-1">🎂</div>
-          <div className="text-[14px] font-bold text-primary">{tutor['Age'] || '–'}</div>
-          <div className="text-[10px] text-slate-400 uppercase font-bold">Age</div>
+      <div className="grid grid-cols-2 gap-1.5 sm:gap-2 p-3 sm:p-4 bg-[#F8F9FA] border-b-2 border-[#F0F0F0]">
+        <div className="stat-item p-2 sm:p-2.5">
+          <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">🎂</div>
+          <div className="text-xs sm:text-[14px] font-bold text-primary">{tutor['Age'] || '–'}</div>
+          <div className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-black">Age</div>
         </div>
-        <div className="stat-item">
-          <div className="text-2xl mb-1">👥</div>
-          <div className="text-[14px] font-bold text-primary">{displayGender}</div>
-          <div className="text-[10px] text-slate-400 uppercase font-bold">Gender</div>
+        <div className="stat-item p-2 sm:p-2.5">
+          <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">👥</div>
+          <div className="text-xs sm:text-[14px] font-bold text-primary">{displayGender}</div>
+          <div className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-black">Gender</div>
         </div>
-        <div className="stat-item">
-          <div className="text-2xl mb-1">📍</div>
-          <div className="text-[14px] font-bold text-primary">{(tutor['Preferred City'] || 'India').substring(0, 10)}</div>
-          <div className="text-[10px] text-slate-400 uppercase font-bold">City</div>
+        <div className="stat-item p-2 sm:p-2.5">
+          <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">📍</div>
+          <div className="text-xs sm:text-[14px] font-bold text-primary">{(tutor['Preferred City'] || 'India').substring(0, 10)}</div>
+          <div className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-black">City</div>
         </div>
-        <div className="stat-item">
-          <div className="text-2xl mb-1">💰</div>
-          <div className="text-[14px] font-bold text-primary">{(tutor['Fee/Month'] || '₹200').split('(')[0].trim().substring(0, 8)}</div>
-          <div className="text-[10px] text-slate-400 uppercase font-bold">Fee</div>
+        <div className="stat-item p-2 sm:p-2.5">
+          <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">💰</div>
+          <div className="text-xs sm:text-[14px] font-bold text-primary">{(tutor['Fee/Month'] || '₹200').split('(')[0].trim().substring(0, 8)}</div>
+          <div className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-black">Fee</div>
         </div>
       </div>
 
       {/* Card Content */}
-      <div className="p-5 space-y-5 flex-1">
+      <div className="p-4 sm:p-5 space-y-4 sm:space-y-5 flex-1">
         {tutor['About'] && (
-          <div className="bg-[#F0F9FF] p-4 rounded-xl border-l-[4px] border-[#4ECDC4]">
-            <div className="text-[10px] font-black text-[#4ECDC4] uppercase mb-1.5 tracking-widest">ℹ️ About Me</div>
-            <div className="text-[12px] text-slate-600 font-bold leading-relaxed space-y-2">
+          <div className="bg-[#F0F9FF] p-3 sm:p-4 rounded-xl border-l-[4px] border-[#4ECDC4]">
+            <div className="text-[9px] sm:text-[10px] font-black text-[#4ECDC4] uppercase mb-1 sm:mb-1.5 tracking-widest">ℹ️ About Me</div>
+            <div className="text-[11px] sm:text-[12px] text-slate-600 font-bold leading-relaxed space-y-1.5">
               {tutor['About'].split('\n').map((para, i) => (
                 <p key={i}>{para.trim()}</p>
               ))}
@@ -115,11 +115,11 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
         )}
 
         {tutor['Qualification(s)'] && (
-          <div className="space-y-2">
-            <div className="text-[10px] uppercase font-black text-slate-400 tracking-wider">🎓 Qualification</div>
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="text-[9px] sm:text-[10px] uppercase font-black text-slate-400 tracking-wider">🎓 Qualification</div>
             <div className="flex flex-wrap gap-1.5">
               {tutor['Qualification(s)'].split(',').map((q, i) => (
-                <span key={i} className="px-3 py-1.5 rounded-xl bg-blue-50 text-[11px] font-bold text-blue-600 border border-blue-100 hover:bg-blue-100 transition-colors flex items-center gap-1.5">
+                <span key={i} className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-blue-50 text-[10px] sm:text-[11px] font-bold text-blue-600 border border-blue-100 hover:bg-blue-100 transition-colors flex items-center gap-1.5">
                   🎓 {q.trim()}
                 </span>
               ))}
@@ -128,11 +128,22 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
         )}
 
         {tutor['Experience'] && (
-          <div className="space-y-2">
-            <div className="text-[10px] uppercase font-black text-slate-400 tracking-wider">📚 Experience</div>
-            <div className="text-[13px] font-bold text-slate-700 bg-slate-50 p-3 rounded-2xl border border-slate-100">{tutor['Experience']}</div>
+          <div className="space-y-1.5 sm:space-y-2">
+            <div className="text-[9px] sm:text-[10px] uppercase font-black text-slate-400 tracking-wider">📚 Experience</div>
+            <div className="text-[12px] sm:text-[13px] font-bold text-slate-700 bg-slate-50 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-100">{tutor['Experience']}</div>
           </div>
         )}
+
+        <div className="space-y-1.5 sm:space-y-2">
+          <label className="text-[9px] sm:text-[10px] uppercase font-black text-slate-400 tracking-wider flex items-center gap-1.5">📚 Expert Subjects</label>
+          <div className="flex flex-wrap gap-1.5">
+            {(tutor['Preferred Subject(s)'] || '').split(';').map((s, i) => s.trim() && (
+              <span key={i} className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-pink-50 text-[10px] sm:text-[11px] font-bold text-pink-600 border border-pink-100 hover:scale-105 transition-transform flex items-center gap-1.5">
+                📖 {s.trim()}
+              </span>
+            ))}
+          </div>
+        </div>
 
         {tutor['School Exp.'] && (
           <div className="space-y-2">
@@ -145,16 +156,6 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
           </div>
         )}
 
-        <div className="space-y-2">
-          <label className="text-[10px] uppercase font-black text-slate-400 tracking-wider flex items-center gap-1.5">📚 Expert Subjects</label>
-          <div className="flex flex-wrap gap-1.5">
-            {(tutor['Preferred Subject(s)'] || '').split(';').map((s, i) => s.trim() && (
-              <span key={i} className="px-3 py-1.5 rounded-xl bg-pink-50 text-[11px] font-bold text-pink-600 border border-pink-100 hover:scale-105 transition-transform flex items-center gap-1.5">
-                📖 {s.trim()}
-              </span>
-            ))}
-          </div>
-        </div>
         {tutor['Preferred Class Group'] && (
           <div className="space-y-2">
             <div className="text-[10px] uppercase font-black text-slate-400 tracking-wider">📖 Class Group</div>

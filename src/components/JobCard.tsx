@@ -67,103 +67,109 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
     >
       {/* Card Top / Header */}
       <div 
-        className="p-[18px] text-center relative"
+        className="p-4 sm:p-[18px] text-center relative"
         style={{ background: theme.grad }}
       >
         <button 
           onClick={(e) => { e.stopPropagation(); captureAndShare(); }}
-          className="absolute top-3 right-3 p-2 bg-white/20 hover:bg-white/40 rounded-xl text-white transition-colors screenshot-btn active:scale-90"
+          className="absolute top-2 sm:top-3 right-2 sm:right-3 p-1.5 sm:p-2 bg-white/20 hover:bg-white/40 rounded-lg sm:rounded-xl text-white transition-colors screenshot-btn active:scale-90"
           title="Share as Image"
         >
-          <Share2 size={18} strokeWidth={3} />
+          <Share2 size={16} className="sm:w-[18px] sm:h-[18px]" strokeWidth={3} />
         </button>
-        <div className="text-[19px] font-[800] text-[#FFE66D] mb-[3px]">{genderEmoji} {job.Name || 'Student'}</div>
-        <div className="text-[11px] font-[600] text-white opacity-95">🆔 Order ID: {job['Order ID']}</div>
+        <div className="text-lg sm:text-[19px] font-[800] text-[#FFE66D] mb-0.5 sm:mb-[3px] truncate px-8">{genderEmoji} {job.Name || 'Student'}</div>
+        <div className="text-[10px] sm:text-[11px] font-[600] text-white opacity-95">🆔 Order ID: {job['Order ID']}</div>
       </div>
 
       {/* Quick Stats Grid */}
-      <div className="grid grid-cols-2 gap-2 p-4 bg-[#F8F9FA] border-b-2 border-[#F0F0F0]">
-        <div className="stat-item min-w-0">
-          <div className="text-2xl mb-1">{genderEmoji}</div>
-          <div className="text-[14px] font-bold text-primary truncate px-1">{job.Gender || 'Any'}</div>
-          <div className="text-[10px] text-slate-400 uppercase font-bold">Gender</div>
+      <div className="grid grid-cols-2 gap-1.5 sm:gap-2 p-3 sm:p-4 bg-[#F8F9FA] border-b-2 border-[#F0F0F0]">
+        <div className="stat-item min-w-0 p-2 sm:p-2.5">
+          <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">{genderEmoji}</div>
+          <div className="text-xs sm:text-[14px] font-bold text-primary truncate px-1">{job.Gender || 'Any'}</div>
+          <div className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-black">Gender</div>
         </div>
-        <div className="stat-item min-w-0">
-          <div className="text-2xl mb-1">📍</div>
-          <div className="text-[14px] font-bold text-primary truncate px-1" title={location}>{location}</div>
-          <div className="text-[10px] text-slate-400 uppercase font-bold">Location</div>
+        <div className="stat-item min-w-0 p-2 sm:p-2.5">
+          <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">📍</div>
+          <div className="text-xs sm:text-[14px] font-bold text-primary truncate px-1" title={location}>{location}</div>
+          <div className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-black">Location</div>
         </div>
-        <div className="stat-item min-w-0">
-          <div className="text-2xl mb-1">📖</div>
-          <div className="text-[14px] font-bold text-primary truncate px-1" title={classBoard}>{classBoard}</div>
-          <div className="text-[10px] text-slate-400 uppercase font-bold">Class/Board</div>
+        <div className="stat-item min-w-0 p-2 sm:p-2.5">
+          <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">📖</div>
+          <div className="text-xs sm:text-[14px] font-bold text-primary truncate px-1" title={classBoard}>{classBoard}</div>
+          <div className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-black">Class/Board</div>
         </div>
-        <div className="stat-item min-w-0">
-          <div className="text-2xl mb-1">💰</div>
-          <div className="text-[14px] font-bold text-primary truncate px-1">₹{formatCurrency(job.Fee)}/Mo</div>
-          <div className="text-[10px] text-slate-400 uppercase font-bold">Fee</div>
+        <div className="stat-item min-w-0 p-2 sm:p-2.5">
+          <div className="text-xl sm:text-2xl mb-0.5 sm:mb-1">💰</div>
+          <div className="text-xs sm:text-[14px] font-bold text-primary truncate px-1">₹{formatCurrency(job.Fee)}/Mo</div>
+          <div className="text-[9px] sm:text-[10px] text-slate-400 uppercase font-black">Fee</div>
         </div>
         
         <div 
-          className="col-span-2 p-2.5 rounded-xl text-center bg-white border border-[#E8E8E8]"
+          className="col-span-2 p-2 sm:p-2.5 rounded-xl text-center bg-white border border-[#E8E8E8]"
         >
-          <span className="text-[11px] font-bold flex items-center justify-center gap-1 text-primary">
+          <span className="text-[10px] sm:text-[11px] font-bold flex items-center justify-center gap-1 text-primary">
             🕒 Posted On: {formatPostedDate(job['Updated Time'])}
           </span>
         </div>
       </div>
 
       {/* Parent Note */}
-      <div className="bg-[#FFE66D]/10 p-4 mx-4 my-4 rounded-xl border border-dashed border-[#F59E0B]">
-        <span className="text-[10px] font-black uppercase text-[#B45309] block mb-1.5 tracking-widest">📝 Parent Note</span>
-        <div className="text-[12px] font-bold text-slate-700 leading-relaxed italic">
+      <div className="bg-[#FFE66D]/10 p-3 sm:p-4 mx-3 sm:mx-4 my-3 sm:my-4 rounded-xl border border-dashed border-[#F59E0B]">
+        <span className="text-[9px] sm:text-[10px] font-black uppercase text-[#B45309] block mb-1 sm:mb-1.5 tracking-widest">📝 Parent Note</span>
+        <div className="text-[11px] sm:text-[12px] font-bold text-slate-700 leading-relaxed italic">
           {job.Notes || 'No specific requirements.'}
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="p-4 flex-1">
-        <label className="text-[10px] uppercase font-black text-slate-400 mb-2 block tracking-wider">Subjects we want you to teach</label>
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          {(job.subjects || 'General').split(',').map((s, i) => (
-            <span key={i} className="px-3 py-1.5 rounded-xl bg-blue-50 text-[11px] font-extrabold text-blue-600 border border-blue-100 flex items-center gap-2 hover:bg-blue-100 transition-colors">
-              📖 {s.trim()}
+      <div className="p-4 flex-1 space-y-4">
+        <div>
+          <label className="text-[9px] sm:text-[10px] uppercase font-black text-slate-400 mb-1.5 block tracking-wider">Subjects we want you to teach</label>
+          <div className="flex flex-wrap gap-1.5">
+            {(job.subjects || 'General').split(',').map((s, i) => (
+              <span key={i} className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg sm:rounded-xl bg-blue-50 text-[10px] sm:text-[11px] font-extrabold text-blue-600 border border-blue-100 flex items-center gap-1.5 hover:bg-blue-100 transition-colors">
+                📖 {s.trim()}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <label className="text-[9px] sm:text-[10px] uppercase font-black text-slate-400 mb-1.5 block tracking-wider">Where you have to take class</label>
+          <div 
+            className="residency-box"
+            style={{ borderLeftColor: theme.solid }}
+            onClick={() => {
+              const dest = encodeURIComponent(`${job.residency || 'Student Home'}, ${location}`);
+              window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}`, '_blank');
+            }}
+          >
+            📍 {job.residency || 'Student Home Address'}, {location}
+            <div className="text-[8px] sm:text-[9px] text-slate-400 mt-1 uppercase font-black">Tap to check distance & route on Google Maps</div>
+          </div>
+        </div>
+
+        <div>
+          <label className="text-[9px] sm:text-[10px] uppercase font-black text-slate-400 mb-1.5 block tracking-wider">Schedule & Availability</label>
+          <div className="flex flex-wrap gap-1.5">
+            <span className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl bg-amber-50 text-[10px] sm:text-[11px] font-extrabold text-amber-600 border border-amber-100 flex items-center gap-1.5 hover:bg-amber-100 transition-colors shadow-sm">
+              ⏳ {job.duration || '1 Hr/Day'}
             </span>
-          ))}
-        </div>
-
-        <label className="text-[10px] uppercase font-black text-slate-400 mb-2 block tracking-wider">Where you have to take class</label>
-        <div 
-          className="residency-box mb-4"
-          style={{ borderLeftColor: theme.solid }}
-          onClick={() => {
-            const dest = encodeURIComponent(`${job.residency || 'Student Home'}, ${location}`);
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}`, '_blank');
-          }}
-        >
-          📍 {job.residency || 'Student Home Address'}, {location}
-          <div className="text-[9px] text-slate-400 mt-1 uppercase font-bold text-[8px]">Tap to check distance & route on Google Maps</div>
-        </div>
-
-        <label className="text-[10px] uppercase font-black text-slate-400 mb-2 block tracking-wider">Schedule & Availability</label>
-        <div className="flex flex-wrap gap-1.5">
-          <span className="px-3 py-2 rounded-xl bg-amber-50 text-[11px] font-extrabold text-amber-600 border border-amber-100 flex items-center gap-2 hover:bg-amber-100 transition-colors shadow-sm">
-            ⏳ {job.duration || '1 Hr/Day'}
-          </span>
-          <span className="px-3 py-2 rounded-xl bg-rose-50 text-[11px] font-extrabold text-rose-600 border border-rose-100 flex items-center gap-2 hover:bg-rose-100 transition-colors shadow-sm">
-            📅 {job.days || 'Discuss'}
-          </span>
-          <span className="px-3 py-2 rounded-xl bg-indigo-50 text-[11px] font-extrabold text-indigo-600 border border-indigo-100 flex items-center gap-2 hover:bg-indigo-100 transition-colors shadow-sm">
-            🕒 {job.time || 'Flexible'}
-          </span>
+            <span className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl bg-rose-50 text-[10px] sm:text-[11px] font-extrabold text-rose-600 border border-rose-100 flex items-center gap-1.5 hover:bg-rose-100 transition-colors shadow-sm">
+              📅 {job.days || 'Discuss'}
+            </span>
+            <span className="px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg sm:rounded-xl bg-indigo-50 text-[10px] sm:text-[11px] font-extrabold text-indigo-600 border border-indigo-100 flex items-center gap-1.5 hover:bg-indigo-100 transition-colors shadow-sm">
+              🕒 {job.time || 'Flexible'}
+            </span>
+          </div>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="card-actions grid grid-cols-2 gap-3 p-4 border-t border-slate-100">
+      <div className="card-actions grid grid-cols-2 gap-3 p-4 border-t border-slate-100 bg-slate-50/50">
         <a 
           href={`tel:${phone}`}
-          className="p-3 rounded-xl font-extrabold text-[12px] text-center transition-colors border-2"
+          className="p-3 rounded-xl font-black text-[11px] sm:text-[12px] uppercase text-center transition-all border-2 active:scale-95"
           style={{ color: theme.solid, borderColor: theme.solid }}
         >
           📞 Call Support
@@ -172,8 +178,8 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           href={generateWhatsAppLink()}
           target="_blank"
           rel="noopener noreferrer"
-          className="p-3 rounded-xl font-extrabold text-[12px] text-center transition-transform text-white shadow-lg active:scale-95"
-          style={{ background: theme.grad, boxShadow: `0 10px 20px ${theme.solid}30` }}
+          className="p-3 rounded-xl font-black text-[11px] sm:text-[12px] uppercase text-center transition-transform text-white shadow-lg active:scale-95"
+          style={{ background: theme.grad, boxShadow: `0 8px 16px ${theme.solid}30` }}
         >
           💬 Apply Now
         </a>
