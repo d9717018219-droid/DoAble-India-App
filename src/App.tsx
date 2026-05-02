@@ -665,18 +665,59 @@ export default function App() {
                 <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender Requirement</label><div className="flex gap-2">{[{l:'All', v:'all'}, {l:'👨 Male', v:'male'}, {l:'👩 Female', v:'female'}].map(g => (<button key={g.v} onClick={() => { setTutorFilterGender(g.v); resetCounts(); }} className={cn("flex-1 py-3 rounded-xl text-[10px] font-black uppercase border transition-all", tutorFilterGender === g.v ? "bg-slate-900 text-white" : "bg-slate-50 dark:bg-slate-800 text-slate-400")}>{g.l}</button>))}</div></div>
 
                 {/* 4. Classes & Subjects */}
-                <div className="space-y-4">
-                   <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Class Group & Subjects</label>
-                   <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-3xl space-y-4">
-                      <div className="flex flex-wrap gap-2 max-h-[15vh] overflow-y-auto custom-scrollbar pr-2">
-                        {CLASSES_LIST.map(c => (<button key={c} onClick={() => { setUserClasses(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]); resetCounts(); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase border transition-all", userClasses.includes(c) ? "bg-slate-900 text-white" : "bg-white dark:bg-slate-700 text-slate-400")}>{c}</button>))}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Class Group (Pick List)</label>
+                    <div className="relative">
+                      <select 
+                        value={userClasses[0] || 'all'} 
+                        onChange={e => { const val = e.target.value; setUserClasses(val === 'all' ? [] : [val]); setUserTutorSubjects([]); resetCounts(); }}
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 pl-12 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                      >
+                        <option value="all">All Classes</option>
+                        {CLASSES_LIST.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                      <GraduationCap size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-[10px]">▼</div>
+                    </div>
+                  </div>
+
+                  {userClasses.length > 0 && (
+                    <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-300">
+                      <div className="flex justify-between items-center px-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400">Subjects for {userClasses[0]} (Multipick)</label>
+                        {userTutorSubjects.length > 0 && <button onClick={() => { setUserTutorSubjects([]); resetCounts(); }} className="text-[9px] font-black uppercase text-rose-500 hover:text-rose-600 transition-colors">Clear All</button>}
                       </div>
-                      {userClasses.length > 0 && (
-                        <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex flex-wrap gap-2 max-h-[20vh] overflow-y-auto custom-scrollbar pr-2">
-                           {subjectsForSelectedClasses.map(s => (<button key={s} onClick={() => { setUserTutorSubjects(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]); resetCounts(); }} className={cn("px-4 py-2 rounded-xl text-[9px] font-black uppercase border transition-all", userTutorSubjects.includes(s) ? "bg-primary text-white border-primary" : "bg-white dark:bg-slate-700 text-slate-400")}>{s}</button>))}
+                      <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-[32px] space-y-4 border border-slate-100 dark:border-slate-700 shadow-inner">
+                        <div className="flex flex-wrap gap-2 max-h-[30vh] overflow-y-auto custom-scrollbar pr-2">
+                           <button 
+                             onClick={() => { setUserTutorSubjects([]); resetCounts(); }} 
+                             className={cn("px-5 py-3 rounded-xl text-[10px] font-black uppercase transition-all border shadow-sm", userTutorSubjects.length === 0 ? "bg-slate-900 text-white border-slate-900" : "bg-white dark:bg-slate-700 text-slate-400 border-slate-100 dark:border-slate-600 hover:border-primary/50")}
+                           >
+                             📚 All Subjects
+                           </button>
+                           {subjectsForSelectedClasses.map(s => {
+                             const isActive = userTutorSubjects.includes(s);
+                             return (
+                               <button 
+                                 key={s} 
+                                 onClick={() => { setUserTutorSubjects(prev => isActive ? prev.filter(x => x !== s) : [...prev, s]); resetCounts(); }} 
+                                 className={cn("px-5 py-3 rounded-xl text-[10px] font-black uppercase transition-all border flex items-center gap-2 shadow-sm active:scale-95", isActive ? "bg-primary text-white border-primary shadow-primary/20" : "bg-white dark:bg-slate-700 text-slate-400 border-slate-100 dark:border-slate-600 hover:border-primary/50")}
+                               >
+                                 {isActive ? <CheckCircle size={12} strokeWidth={4} /> : <div className="w-3 h-3 rounded-full border-2 border-slate-200 dark:border-slate-500" />}
+                                 {s}
+                               </button>
+                             );
+                           })}
                         </div>
-                      )}
-                   </div>
+                        {userTutorSubjects.length > 0 && (
+                          <div className="pt-3 border-t border-slate-200 dark:border-slate-700">
+                             <p className="text-[9px] font-black text-primary uppercase text-center tracking-[0.1em]">{userTutorSubjects.length} Subjects Selected</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {activeTab === 'tutors' && (
