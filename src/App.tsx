@@ -275,26 +275,34 @@ export default function App() {
   };
 
   const completeOnboarding = () => {
-    localStorage.setItem('userType', editUserType || userType || '');
+    const finalRole = editUserType || userType;
+    
+    localStorage.setItem('userType', finalRole || '');
     localStorage.setItem('userCity', editCity);
     localStorage.removeItem('userClasses');
     localStorage.removeItem('userTutorSubjects');
     
-    setUserType(editUserType || userType);
+    setUserType(finalRole);
     setUserCity(editCity);
     setCityFilter(editCity);
     setUserClasses([]);
     setUserTutorSubjects([]);
+    setSelectedLocalities([]);
     
     resetCounts();
-    setLocationBypass(null);
     setShowOnboarding(false);
     setIsSelectingCityOnly(false);
 
-    const resolved = editUserType || userType;
-    if (resolved === 'parent') setActiveTab('tutors');
-    else if (resolved === 'teacher') setActiveTab('jobs');
-    else setActiveTab('home');
+    // Explicit redirection based on role
+    if (finalRole === 'parent') {
+      setActiveTab('tutors');
+    } else if (finalRole === 'teacher') {
+      setActiveTab('jobs');
+    } else {
+      setActiveTab('home');
+    }
+    
+    window.scrollTo(0, 0);
   };
 
   const getSubjects = useCallback((t: TutorProfile) => {
