@@ -34,6 +34,20 @@ export function getCityPhone(city: string | undefined) {
   return "9971969197";
 }
 
+export function getJobTheme() {
+  return { 
+    grad: 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%)', // Sky Blue
+    solid: '#0ea5e9' 
+  };
+}
+
+export function getTutorTheme() {
+  return { 
+    grad: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)', // Light Orange
+    solid: '#f97316' 
+  };
+}
+
 export function getCityTheme(city: string | undefined) {
   const cityName = (city || 'Default').trim();
   

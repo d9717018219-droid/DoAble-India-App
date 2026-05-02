@@ -1,7 +1,7 @@
 import React from 'react';
-import { Phone, MessageSquare, User, GraduationCap, Zap, Calendar, BookOpen, Clock, MapPin, Car, Info, Library } from 'lucide-react';
+import { Phone, MessageSquare, User, GraduationCap, Zap, Calendar, BookOpen, Clock, MapPin, Library, Share2, CheckCircle2, Info } from 'lucide-react';
 import { TutorProfile } from '../types';
-import { cn } from '../utils';
+import { cn, getTutorTheme } from '../utils';
 
 interface TutorCardProps {
   tutor: TutorProfile;
@@ -10,7 +10,8 @@ interface TutorCardProps {
 export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   if (!tutor) return null;
 
-  // Robust Data Accessors - Priority Mapping
+  const tutorTheme = getTutorTheme();
+  
   const getValue = (keys: string[], fallback: string = '–') => {
     for (const key of keys) {
       const val = (tutor as any)[key];
@@ -32,12 +33,11 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   const nameRaw = getValue(['Name', 'name', 'fullName', 'Full Name'], 'Premium Tutor').toString();
   const name = toProperCase(nameRaw);
   const tutorId = getValue(['Tutor ID', 'tutorId', 'id', 'ID'], 'N/A').toString();
-  const age = getValue(['Age', 'age'], '–').toString();
   const genderRaw = getValue(['Gender', 'gender'], '–').toString().trim();
   const displayGender = genderRaw && genderRaw.toLowerCase() !== 'null' ? genderRaw : '–';
   
   const cityFull = getValue(['Preferred City', 'preferredCity', 'City', 'city'], 'India').toString();
-  const cityShort = cityFull.substring(0, 10);
+  const cityShort = cityFull.substring(0, 15);
   
   const feeRaw = getValue(['Fee/Month', 'feeMonth', 'Fee', 'fee'], '₹200').toString();
   const getFee = (f: string) => {
@@ -54,27 +54,12 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   const experienceRaw = getValue(['Experience', 'experience', 'Exp'], 'Fresher').toString();
   const schoolExpRaw = getValue(['School Exp.', 'schoolExp', 'School Experience'], '').toString();
   const subjectsRaw = getValue(['Preferred Subject(s)', 'preferredSubjects', 'subjects', 'Subjects'], '').toString();
-  const classGroupRaw = getValue(['Preferred Class Group', 'preferredClassGroup', 'classGroup', 'Class'], 'All Classes').toString();
   const modeRaw = getValue(['Mode of Teaching', 'modeOfTeaching', 'Mode'], 'All Days').toString();
   const timeRaw = getValue(['Preferred Time', 'preferredTime', 'Time'], '').toString();
   const locationRaw = getValue(['Preferred Location(s)', 'preferredLocations', 'locations', 'Location'], '').toString();
   const addressRaw = getValue(['Address', 'address'], 'Hindi / English').toString();
   const vehicleRaw = getValue(['Have own Vehicle', 'haveOwnVehicle', 'Vehicle'], 'No').toString();
   const updatedRaw = getValue(['Record Added', 'recordAdded', 'Added On', 'Created At', 'Updated Time'], 'Recently').toString();
-
-  const getCityColor = (cityName: string) => {
-    const colors = [
-        '#C92A2A', '#E03131', '#F03E3E', '#FA5252', '#FD7E14', '#D63031', '#E84C3D', '#F1664F', '#0B7285', '#087E8B', '#0C8599', '#00862A', '#2B8A3E', '#40C057', '#5F3DC4', '#6741D9', '#7950F2', '#E8590C', '#F76707', '#FF6B35', '#B92E04', '#1566C0', '#1971C2', '#1C7ED6', '#C2103D', '#D6336C', '#E64980', '#4C0A86', '#5F3DC4', '#7950F2'
-    ];
-    let hash = 0;
-    const cityStr = (cityName || 'India').toString();
-    for (let i = 0; i < cityStr.length; i++) {
-        hash = cityStr.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return colors[Math.abs(hash) % colors.length];
-  };
-
-  const cityColor = getCityColor(cityFull);
 
   const cleanAndFormatAbout = (text: string) => {
     if (!text) return ['No details available.'];
@@ -105,7 +90,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
 
   const status = getStatusBadge(statusRaw);
   const paragraphs = cleanAndFormatAbout(aboutRaw);
-  const subjectList = subjectsRaw.toString().split(';').map((s: string) => s.trim()).filter(Boolean);
+  const subjectList = subjectsRaw.toString().split(/[;,]/).map((s: string) => s.trim()).filter(Boolean);
   const locationList = locationRaw.toString().split(/[;,]/).map((l: string) => l.trim()).filter(Boolean);
   
   const getTimes = (times: string) => {
@@ -122,178 +107,162 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   };
 
   return (
-    <div className="tutor-card w-full h-auto bg-white dark:bg-slate-900 flex flex-col relative sm:rounded-[24px] overflow-hidden sm:shadow-lg sm:border border-slate-200 dark:border-slate-800 mb-4">
-      {/* 1. Identity & Header Mapping */}
+    <div className="tutor-card w-full h-auto bg-white dark:bg-slate-900 flex flex-col relative sm:rounded-[32px] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 mb-6 animate-fade-up">
+      {/* Card Header - Light Orange Theme */}
       <div 
-        className="card-top p-6 sm:p-10 text-center text-white relative flex flex-col justify-center items-center overflow-hidden shrink-0"
-        style={{ background: `linear-gradient(135deg, ${cityColor} 0%, ${cityColor}99 100%)` }}
+        className="p-8 sm:p-10 text-center relative shrink-0"
+        style={{ background: tutorTheme.grad }}
       >
-        <div className="relative z-10 w-full">
-            <div className="space-y-0.5">
-                <h2 className="text-lg sm:text-2xl font-black text-[#FFD700] mb-0.5 drop-shadow-sm truncate w-full px-2 font-display">
-                  ✨ {name}
-                </h2>
-                <div className="flex gap-3 justify-center text-[10px] sm:text-[12px] font-black opacity-90 tracking-widest uppercase">
-                   <span>🆔 Tutor ID: {tutorId}</span>
-                </div>
-                <div className="flex gap-2 justify-center mt-2 flex-wrap">
-                    {verified && (
-                      <span className="bg-[#10B981] text-white px-2 py-0.5 rounded-full text-[9px] font-bold shadow-md">✅ Verified Badge</span>
-                    )}
-                    <span className="text-white px-2 py-0.5 rounded-full text-[9px] font-bold shadow-md" style={{ background: status.color }}>
-                      {status.emoji} {status.label}
-                    </span>
-                </div>
-            </div>
+        <div className="absolute top-4 right-4 flex gap-2">
+           {verified && (
+             <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black text-white uppercase tracking-widest border border-white/20 flex items-center gap-1">
+                <CheckCircle2 size={10} /> Verified
+             </span>
+           )}
+           <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black text-white uppercase tracking-widest border border-white/20 flex items-center gap-1">
+              {status.emoji} {status.label}
+           </span>
         </div>
-      </div>
 
-      {/* 2. Quick Stats Grid (4-Box Section) */}
-      <div className="grid grid-cols-2 gap-2 p-3 bg-[#F8F9FA] dark:bg-[#3D3D3D] border-b border-[#F0F0F0] dark:border-[#444444]">
-          <StatBox emoji="🎂" label="Age" value={age} />
-          <StatBox emoji="👥" label="Gender" value={displayGender} />
-          <StatBox emoji="📍" label="City" value={cityShort} />
-          <StatBox emoji="💰" label="Fee" value={getFee(feeRaw)} />
-      </div>
-
-      {/* 3. Detailed Information Blocks */}
-      <div className="p-4 sm:p-6 space-y-8 pb-24">
+        <button className="absolute top-4 left-4 p-2 bg-white/20 hover:bg-white/40 rounded-xl text-white transition-colors">
+          <Share2 size={16} strokeWidth={3} />
+        </button>
         
-        {/* About Me Section */}
-        <div className="bg-linear-to-br from-[#F0F9FF] to-[#FCE7F3] dark:bg-[#3D3D3D] p-4 rounded-xl border-l-4 border-[#4ECDC4]">
-            <div className="text-[10px] text-[#4ECDC4] uppercase font-black tracking-widest flex items-center gap-2 mb-1.5">
-               <Info size={12} /> ℹ️ ABOUT ME
-            </div>
-            <div className="text-[13px] text-slate-600 dark:text-slate-300 space-y-2 leading-relaxed font-medium">
-               {paragraphs.map((p, i) => <p key={i}>{p}</p>)}
-            </div>
+        <div className="text-2xl sm:text-4xl font-[900] text-white mb-1 drop-shadow-md uppercase tracking-tight">
+          🎓 {name}
+        </div>
+        <div className="text-[10px] sm:text-[14px] font-black text-white/90 uppercase tracking-[0.2em]">
+          🆔 Tutor ID: {tutorId}
+        </div>
+      </div>
+
+      <div className="p-6 sm:p-8 space-y-8 flex-1">
+        {/* Quick Stats Grid */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
+            <div className="text-3xl mb-1">👥</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gender</div>
+            <div className="text-sm font-[900]" style={{ color: tutorTheme.solid }}>{displayGender}</div>
+          </div>
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
+            <div className="text-3xl mb-1">📍</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">City</div>
+            <div className="text-sm font-[900]" style={{ color: tutorTheme.solid }}>{cityShort}</div>
+          </div>
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
+            <div className="text-3xl mb-1">🏛️</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Education</div>
+            <div className="text-sm font-[900] truncate w-full px-2" style={{ color: tutorTheme.solid }}>{qualificationRaw}</div>
+          </div>
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
+            <div className="text-3xl mb-1">💰</div>
+            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Exp. Fee</div>
+            <div className="text-sm font-[900]" style={{ color: tutorTheme.solid }}>{getFee(feeRaw)} / Mo</div>
+          </div>
         </div>
 
-        {/* Qualification & Experience */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-           <Section label="Qualification" icon={<GraduationCap size={14} className="text-blue-500" />}>
-              <div className="flex flex-wrap gap-1.5">
-                 {qualificationRaw.split(',').map((q, i) => q.trim() && (
-                    <span key={i} className="tag-qualification text-[10px] bg-blue-50 text-blue-600 px-2 py-1 rounded-lg border border-blue-100 font-bold">{q.trim()}</span>
-                 ))}
-              </div>
-           </Section>
-           <Section label="Experience" icon={<Library size={14} className="text-purple-500" />}>
-              <div className="flex flex-wrap gap-1.5">
-                 <span className="tag-experience text-[10px] bg-purple-50 text-purple-600 px-2 py-1 rounded-lg border border-purple-100 font-bold">{experienceRaw}</span>
-                 {schoolExpRaw && schoolExpRaw !== 'No' && schoolExpRaw !== 'null' && <span className="tag-school text-[10px] bg-amber-50 text-amber-600 px-2 py-1 rounded-lg border border-amber-100 font-bold">🏫 {schoolExpRaw} School Exp</span>}
-              </div>
-           </Section>
-        </div>
-
-        {/* Expert Subjects & Class Group */}
+        {/* Detailed Information Blocks */}
         <div className="space-y-8">
-          <Section label="Expert Subjects" icon={<BookOpen size={14} className="text-emerald-500" />}>
-             <div className="flex flex-wrap gap-1.5">
-                {subjectList.length > 0 ? subjectList.map((s, i) => (
-                  <span key={i} className="tag text-[10px] bg-emerald-50 text-emerald-600 px-2 py-1 rounded-lg border border-emerald-100 font-bold">📖 {s}</span>
-                )) : <span className="text-slate-400 text-[10px] italic">Not updated</span>}
-             </div>
-          </Section>
+          <DetailSection icon={<BookOpen size={16} className="text-primary" />} label="Expert Subjects">
+            <div className="flex flex-wrap gap-2">
+              {subjectList.map((s, i) => (
+                <span key={i} className="bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border border-slate-100 dark:border-slate-700 shadow-sm">
+                  {s}
+                </span>
+              ))}
+            </div>
+          </DetailSection>
 
-          <Section label="Class Group" icon={<BookOpen size={14} className="text-sky-500" />}>
-             <div className="flex flex-wrap gap-1.5">
-                {classGroupRaw.split(',').map((cls, i) => cls.trim() && (
-                   <span key={i} className="tag-class text-[10px] bg-sky-50 text-sky-600 px-2 py-1 rounded-lg border border-sky-100 font-bold">{cls.trim()}</span>
-                ))}
-             </div>
-          </Section>
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <DetailSection icon={<Zap size={16} className="text-primary" />} label="Experience">
+               <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                  <div className="text-sm font-black text-slate-700 dark:text-white uppercase">{experienceRaw}</div>
+                  <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Total expertise</div>
+                  {schoolExpRaw && schoolExpRaw.toLowerCase() !== 'no' && (
+                    <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 flex items-center gap-2">
+                       <Library size={12} className="text-primary" />
+                       <span className="text-[10px] font-black text-primary uppercase">School Exp: {schoolExpRaw}</span>
+                    </div>
+                  )}
+               </div>
+            </DetailSection>
 
-        {/* Available Days & Time */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-           <Section label="Available Days" icon={<Calendar size={14} className="text-rose-500" />}>
-              <div className="flex flex-wrap gap-1.5">
-                 {modeRaw.split(',').map((day, i) => day.trim() && (
-                    <span key={i} className="tag-days text-[10px] bg-rose-50 text-rose-600 px-2 py-1 rounded-lg border border-rose-100 font-bold">{day.trim()}</span>
-                 ))}
-              </div>
-           </Section>
-           <Section label="Available Time" icon={<Clock size={14} className="text-orange-500" />}>
-              <div className="flex flex-wrap gap-1.5">
-                 {timeList.length > 0 ? timeList.map((t, i) => (
-                    <span key={i} className="tag-time text-[10px] bg-orange-50 text-orange-600 px-2 py-1 rounded-lg border border-orange-100 font-bold">🕐 {t}</span>
-                 )) : <span className="text-slate-400 text-[10px] italic">Flexible</span>}
-              </div>
-           </Section>
-        </div>
+            <DetailSection icon={<Clock size={16} className="text-primary" />} label="Availability">
+               <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                  <div className="flex flex-wrap gap-1.5">
+                    {timeList.length > 0 ? timeList.map((t, i) => (
+                      <span key={i} className="text-[10px] font-black text-slate-700 dark:text-slate-200 uppercase">{t}{i < timeList.length - 1 ? ' • ' : ''}</span>
+                    )) : <span className="text-[10px] font-black text-slate-400 uppercase">Not Specified</span>}
+                  </div>
+                  <div className="mt-2 flex items-center gap-2">
+                     <Calendar size={12} className="text-slate-400" />
+                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{modeRaw}</span>
+                  </div>
+               </div>
+            </DetailSection>
+          </div>
 
-        {/* Teaching Localities */}
-        <Section label="Teaching Localities" icon={<MapPin size={14} className="text-slate-500" />}>
-           <div className="flex flex-wrap gap-1.5">
-              {locationList.length > 0 ? locationList.map((loc, i) => (
-                <span key={i} className="tag bg-white border-slate-200 text-slate-600 text-[10px] px-2 py-1 rounded-lg border shadow-sm font-bold">📍 {loc}</span>
-              )) : <span className="text-slate-400 text-[10px] italic">City Wide</span>}
-           </div>
-        </Section>
+          <DetailSection icon={<MapPin size={16} className="text-primary" />} label="Target Territories">
+            <div className="flex flex-wrap gap-2">
+              {locationList.map((l, i) => (
+                <span key={i} className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-1.5 rounded-lg text-[9px] font-bold border border-slate-100 dark:border-slate-700">
+                  {l}
+                </span>
+              ))}
+            </div>
+          </DetailSection>
 
-        {/* 4. Footer & Additional Metadata */}
-        <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-4">
-           <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-2 text-slate-400">
-                 <MessageSquare size={14} />
-                 <div className="flex flex-col">
-                    <span className="text-[7px] font-black uppercase">Communication</span>
-                    <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">{addressRaw || 'Hindi / English'}</span>
-                 </div>
+          {aboutRaw && (
+            <DetailSection icon={<Info size={16} className="text-primary" />} label="Professional Summary">
+              <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-[32px] border border-slate-100 dark:border-slate-700 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -mr-10 -mt-10" />
+                <div className="space-y-4 relative z-10">
+                  {paragraphs.map((para, i) => (
+                    <p key={i} className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                      {para}
+                    </p>
+                  ))}
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-slate-400">
-                 <Car size={14} />
-                 <div className="flex flex-col">
-                    <span className="text-[7px] font-black uppercase">Own Vehicle</span>
-                    <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300">{vehicleRaw}</span>
-                 </div>
-              </div>
-           </div>
-           
-           <div className="flex justify-between items-center text-slate-400 pt-2">
+            </DetailSection>
+          )}
+
+           <div className="flex justify-between items-center text-slate-400 pt-2 px-2">
               <div className="flex items-center gap-1.5">
                  <Calendar size={10} />
-                 <span className="text-[9px] font-black uppercase tracking-widest">Last Updated: <span className="text-slate-600 dark:text-slate-300">{updatedRaw}</span></span>
+                 <span className="text-[9px] font-black uppercase tracking-widest">Last Update: <span className="text-slate-600 dark:text-slate-300">{updatedRaw}</span></span>
               </div>
               <div className="flex items-center gap-1.5">
                  <Zap size={10} className="text-primary" />
-                 <span className="text-[9px] font-black uppercase tracking-widest text-primary">Active Profile</span>
+                 <span className="text-[9px] font-black uppercase tracking-widest text-primary">Active Expert</span>
               </div>
            </div>
         </div>
-      </div>
 
-      {/* 5. Action Buttons (Links) */}
-      <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 shrink-0">
-        <a 
-          href="tel:9971969197"
-          className="bg-linear-to-br from-[#FF6B6B] to-[#FF7675] text-white p-3.5 rounded-xl font-black text-[11px] uppercase tracking-widest text-center shadow-md active:scale-95 transition-all flex items-center justify-center gap-2"
-        >
-          <Phone size={16} /> Call Now
-        </a>
-        <a 
-          href={generateWhatsAppLink()}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-[#25D366] text-white p-3.5 rounded-xl font-black text-[11px] uppercase tracking-widest text-center shadow-md active:scale-95 transition-all flex items-center justify-center gap-2"
-        >
-          <MessageSquare size={16} /> WhatsApp
-        </a>
+        {/* Action Buttons */}
+        <div className="pt-6 flex flex-col sm:flex-row gap-4 card-actions">
+          <a 
+            href={`tel:919717018219`}
+            className="flex-1 h-16 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 shadow-xl"
+          >
+            <Phone size={18} /> Call Now
+          </a>
+          <a 
+            href={generateWhatsAppLink()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-[1.5] h-16 rounded-2xl text-white font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3"
+            style={{ background: tutorTheme.grad }}
+          >
+            <MessageSquare size={18} /> Connect on WA
+          </a>
+        </div>
       </div>
     </div>
   );
 };
 
-const StatBox = ({ emoji, label, value }: { emoji: string, label: string, value: any }) => (
-  <div className="bg-white dark:bg-[#2D2D2D] p-3 rounded-xl border border-[#E8E8E8] dark:border-[#444444] text-center flex flex-col items-center justify-center gap-1 shadow-sm">
-    <div className="text-xl mb-0.5">{emoji}</div>
-    <div className="text-[13px] font-black text-[#FF6B6B] truncate w-full px-1">{value || '–'}</div>
-    <div className="text-[9px] text-[#999] uppercase font-black tracking-tight">{label}</div>
-  </div>
-);
-
-const Section = ({ label, icon, children }: { label: string, icon: React.ReactNode, children: React.ReactNode }) => (
+const DetailSection = ({ icon, label, children }: { icon: React.ReactNode, label: string, children: React.ReactNode }) => (
   <div className="space-y-4">
      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2.5 ml-1">
         {icon} {label}

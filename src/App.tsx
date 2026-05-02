@@ -628,9 +628,9 @@ export default function App() {
                 <button onClick={() => setShowFilterDrawer(false)} className="p-4 bg-slate-100 rounded-2xl text-slate-400"><X size={20} /></button>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pr-2">
-                <button onClick={() => { setCityFilter('all'); setLocationBypass(null); resetCounts(); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase", cityFilter === 'all' ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400")}>All Cities</button>
+                <button onClick={() => { setCityFilter('all'); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase", cityFilter === 'all' ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400")}>All Cities</button>
                 {dynamicCities.map(c => (
-                  <button key={c} onClick={() => { setCityFilter(c); setLocationBypass(null); resetCounts(); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate", cityFilter === c ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{c}</button>
+                  <button key={c} onClick={() => { setCityFilter(c); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate", cityFilter === c ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{c}</button>
                 ))}
               </div>
             </motion.div>
