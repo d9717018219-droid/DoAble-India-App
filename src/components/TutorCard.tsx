@@ -10,18 +10,19 @@ interface TutorCardProps {
 export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   if (!tutor) return null;
 
-  // Robust Data Accessors
+  // Robust Data Accessors - Priority Mapping
   const getValue = (keys: string[], fallback: string = '–') => {
     for (const key of keys) {
-      if (tutor[key as keyof TutorProfile] !== undefined && tutor[key as keyof TutorProfile] !== null && tutor[key as keyof TutorProfile] !== '') {
-        return tutor[key as keyof TutorProfile];
+      const val = (tutor as any)[key];
+      if (val !== undefined && val !== null && val !== '') {
+        return val;
       }
     }
     return fallback;
   };
 
-  const name = getValue(['Name', 'name', 'fullName'], 'Premium Tutor').toString();
-  const tutorId = getValue(['Tutor ID', 'tutorId', 'id'], 'N/A').toString();
+  const name = getValue(['Name', 'name', 'fullName', 'Full Name'], 'Premium Tutor').toString();
+  const tutorId = getValue(['Tutor ID', 'tutorId', 'id', 'ID'], 'N/A').toString();
   const age = getValue(['Age', 'age'], '–').toString();
   const genderRaw = getValue(['Gender', 'gender'], '–').toString().trim();
   const displayGender = genderRaw && genderRaw.toLowerCase() !== 'null' ? genderRaw : '–';
@@ -29,18 +30,28 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   const feeRaw = getValue(['Fee/Month', 'feeMonth', 'Fee', 'fee'], '₹200').toString();
   const verified = getValue(['Verified', 'verified'], 'No').toString().toLowerCase().trim() === 'yes';
   const statusRaw = getValue(['Status', 'status'], 'Active').toString();
-  const aboutRaw = getValue(['About', 'about', 'Notes'], '');
-  const qualificationRaw = getValue(['Qualification(s)', 'qualifications', 'Qualification'], 'Not Specified').toString();
-  const experienceRaw = getValue(['Experience', 'experience'], 'Fresher').toString();
-  const schoolExpRaw = getValue(['School Exp.', 'schoolExp'], '').toString();
-  const subjectsRaw = getValue(['Preferred Subject(s)', 'preferredSubjects', 'subjects'], '').toString();
-  const classGroupRaw = getValue(['Preferred Class Group', 'preferredClassGroup', 'classGroup'], 'All Classes').toString();
-  const modeRaw = getValue(['Mode of Teaching', 'modeOfTeaching'], 'All Days').toString();
-  const timeRaw = getValue(['Preferred Time', 'preferredTime'], '').toString();
-  const locationRaw = getValue(['Preferred Location(s)', 'preferredLocations', 'locations'], '').toString();
+  const aboutRaw = getValue(['About', 'about', 'Notes', 'remarks'], '');
+  const qualificationRaw = getValue(['Qualification(s)', 'qualifications', 'Qualification', 'Education'], 'Not Specified').toString();
+  const experienceRaw = getValue(['Experience', 'experience', 'Exp'], 'Fresher').toString();
+  const schoolExpRaw = getValue(['School Exp.', 'schoolExp', 'School Experience'], '').toString();
+  const subjectsRaw = getValue(['Preferred Subject(s)', 'preferredSubjects', 'subjects', 'Subjects'], '').toString();
+  const classGroupRaw = getValue(['Preferred Class Group', 'preferredClassGroup', 'classGroup', 'Class'], 'All Classes').toString();
+  const modeRaw = getValue(['Mode of Teaching', 'modeOfTeaching', 'Mode'], 'All Days').toString();
+  const timeRaw = getValue(['Preferred Time', 'preferredTime', 'Time'], '').toString();
+  const locationRaw = getValue(['Preferred Location(s)', 'preferredLocations', 'locations', 'Location'], '').toString();
   const addressRaw = getValue(['Address', 'address'], 'Hindi / English').toString();
-  const vehicleRaw = getValue(['Have own Vehicle', 'haveOwnVehicle'], 'No').toString();
-  const updatedRaw = getValue(['Record Added', 'recordAdded', 'Updated Time'], 'Recently').toString();
+  const vehicleRaw = getValue(['Have own Vehicle', 'haveOwnVehicle', 'Vehicle'], 'No').toString();
+  
+  // CRITICAL: Robust key check for "Record Added"
+  const updatedRaw = getValue([
+    'Record Added', 
+    'recordAdded', 
+    'Added On', 
+    'Created At', 
+    'Record added', 
+    'Updated Time', 
+    'timestamp'
+  ], 'Recently').toString();
 
   const getCityColor = (cityName: string) => {
     const colors = [
@@ -65,13 +76,13 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   };
 
   const getFee = (f: string) => {
-    if (f === '0' || f === '–') return 'Flexible';
-    const s = f.split('(')[0].trim();
+    if (f === '0' || f === '–' || !f) return 'Flexible';
+    const s = f.toString().split('(')[0].trim();
     return s.startsWith('₹') ? s : `₹${s}`;
   };
 
   const cleanAndFormatAbout = (text: string) => {
-    if (!text) return ['No details.'];
+    if (!text) return ['No details available.'];
     let cleaned = text.replace(/\*/g, '').replace(/"/g, '').trim();
     let words = cleaned.split(/\s+/);
     if (words.length > 300) words = words.slice(0, 300);
@@ -92,26 +103,27 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
 
   const getTimes = (times: string) => {
     if (!times) return [];
-    if (times.startsWith('[')) {
+    const tStr = times.toString();
+    if (tStr.startsWith('[')) {
       try {
-        const parsed = JSON.parse(times);
+        const parsed = JSON.parse(tStr);
         if (Array.isArray(parsed)) return parsed;
       } catch (e) {}
     }
-    return times.split(/[;,]/).map((t: string) => t.trim()).filter(Boolean);
+    return tStr.split(/[;,]/).map((t: string) => t.trim()).filter(Boolean);
   };
 
   const getStatusBadge = (s: string) => {
-    const lowS = s.toLowerCase();
-    if (lowS === 'active' || !lowS) return { label: 'Active', color: '#10B981', emoji: '✅' };
+    const lowS = s.toString().toLowerCase();
+    if (lowS === 'active' || !lowS || lowS === 'searching') return { label: 'Active', color: '#10B981', emoji: '✅' };
     if (lowS === 'not available' || lowS === 'busy') return { label: 'Busy', color: '#FBBF24', emoji: '⏸️' };
     return { label: 'Suspended', color: '#EF5350', emoji: '🚫' };
   };
 
   const status = getStatusBadge(statusRaw);
   const paragraphs = cleanAndFormatAbout(aboutRaw);
-  const subjectList = subjectsRaw.split(/[;,]/).map((s: string) => s.trim()).filter(Boolean);
-  const locationList = locationRaw.split(/[;,]/).map((l: string) => l.trim()).filter(Boolean);
+  const subjectList = subjectsRaw.toString().split(/[;,]/).map((s: string) => s.trim()).filter(Boolean);
+  const locationList = locationRaw.toString().split(/[;,]/).map((l: string) => l.trim()).filter(Boolean);
   const timeList = getTimes(timeRaw);
 
   const generateWhatsAppLink = () => {
@@ -122,7 +134,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
 
   return (
     <div className="tutor-card w-full h-auto bg-white dark:bg-slate-900 flex flex-col relative sm:rounded-[24px] overflow-hidden sm:shadow-lg sm:border border-slate-200 dark:border-slate-800 mb-4">
-      {/* Header - Optimized */}
+      {/* Header - Compact & Vivid */}
       <div 
         className="card-top p-6 sm:p-10 text-center text-white relative flex flex-col justify-center items-center overflow-hidden shrink-0"
         style={{ background: `linear-gradient(135deg, ${cityColor} 0%, ${cityColor}99 100%)` }}
@@ -137,9 +149,9 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
                 </div>
                 <div className="flex gap-2 justify-center mt-2 flex-wrap">
                     {verified && (
-                      <span className="bg-[#10B981] text-white px-2.5 py-0.5 rounded-full text-[9px] font-bold shadow-md">✅ Verified</span>
+                      <span className="bg-[#10B981] text-white px-2 py-0.5 rounded-full text-[9px] font-bold shadow-md">✅ Verified</span>
                     )}
-                    <span className="text-white px-2.5 py-0.5 rounded-full text-[9px] font-bold shadow-md" style={{ background: status.color }}>
+                    <span className="text-white px-2 py-0.5 rounded-full text-[9px] font-bold shadow-md" style={{ background: status.color }}>
                       {status.emoji} {status.label}
                     </span>
                 </div>
@@ -147,7 +159,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
         </div>
       </div>
 
-      {/* Stats Grid - Stable */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-2 p-3 bg-[#F8F9FA] dark:bg-[#3D3D3D] border-b border-[#F0F0F0] dark:border-[#444444]">
           <StatBox emoji="🎂" label="Age" value={age} />
           <StatBox emoji="👥" label="Gender" value={displayGender} />
@@ -155,10 +167,10 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
           <StatBox emoji="💰" label="Fee" value={getFee(feeRaw)} />
       </div>
 
-      {/* Content */}
+      {/* Content Area */}
       <div className="p-4 sm:p-6 space-y-8 pb-24">
         
-        {/* About Me */}
+        {/* About Me Section */}
         <div className="bg-linear-to-br from-[#F0F9FF] to-[#FCE7F3] dark:bg-[#3D3D3D] p-4 rounded-xl border-l-4 border-[#4ECDC4]">
             <div className="text-[10px] text-[#4ECDC4] uppercase font-black tracking-widest flex items-center gap-2 mb-1.5">
                <Info size={12} /> ABOUT
@@ -173,14 +185,14 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
            <Section label="Education" icon={<GraduationCap size={14} className="text-primary" />}>
               <div className="flex flex-wrap gap-1.5">
                  {qualificationRaw.split(',').map((q, i) => q.trim() && (
-                    <span key={i} className="tag-qualification text-[10px]">{q.trim()}</span>
+                    <span key={i} className="tag-qualification text-[10px] bg-blue-50 text-blue-600 px-2 py-1 rounded-lg border border-blue-100">{q.trim()}</span>
                  ))}
               </div>
            </Section>
            <Section label="Experience" icon={<Zap size={14} className="text-primary" />}>
               <div className="flex flex-wrap gap-1.5">
-                 <span className="tag-experience text-[10px]">{experienceRaw}</span>
-                 {schoolExpRaw && schoolExpRaw !== 'No' && schoolExpRaw !== 'null' && <span className="tag-school text-[10px]">🏫 {schoolExpRaw} School</span>}
+                 <span className="tag-experience text-[10px] bg-rose-50 text-rose-600 px-2 py-1 rounded-lg border border-rose-100">{experienceRaw}</span>
+                 {schoolExpRaw && schoolExpRaw !== 'No' && schoolExpRaw !== 'null' && <span className="tag-school text-[10px] bg-amber-50 text-amber-600 px-2 py-1 rounded-lg border border-amber-100">🏫 {schoolExpRaw} School</span>}
               </div>
            </Section>
         </div>
@@ -190,7 +202,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
           <Section label="Expert Subjects" icon={<BookOpen size={14} className="text-primary" />}>
              <div className="flex flex-wrap gap-1.5">
                 {subjectList.length > 0 ? subjectList.map((s, i) => (
-                  <span key={i} className="tag text-[10px]">📖 {s}</span>
+                  <span key={i} className="tag text-[10px] bg-emerald-50 text-emerald-600 px-2 py-1 rounded-lg border border-emerald-100 font-bold">📖 {s}</span>
                 )) : <span className="text-slate-400 text-[10px] italic">Not updated</span>}
              </div>
           </Section>
@@ -198,23 +210,35 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
           <Section label="Class Groups" icon={<GraduationCap size={14} className="text-primary" />}>
              <div className="flex flex-wrap gap-1.5">
                 {classGroupRaw.split(',').map((cls, i) => cls.trim() && (
-                   <span key={i} className="tag-class text-[10px]">{cls.trim()}</span>
+                   <span key={i} className="tag-class text-[10px] bg-purple-50 text-purple-600 px-2 py-1 rounded-lg border border-purple-100">{cls.trim()}</span>
                 ))}
              </div>
           </Section>
         </div>
 
-        {/* Localities */}
+        {/* Localities Area */}
         <Section label="Teaching Localities" icon={<MapPin size={14} className="text-primary" />}>
            <div className="flex flex-wrap gap-1.5">
               {locationList.length > 0 ? locationList.map((loc, i) => (
-                <span key={i} className="tag bg-white border-slate-200 text-slate-600 text-[10px]">📍 {loc}</span>
+                <span key={i} className="tag bg-white border-slate-200 text-slate-600 text-[10px] px-2 py-1 rounded-lg border shadow-sm">📍 {loc}</span>
               )) : <span className="text-slate-400 text-[10px] italic">City Wide</span>}
            </div>
         </Section>
+
+        {/* Footer: Record Added Field (Corrected) */}
+        <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-slate-400">
+           <div className="flex items-center gap-1.5">
+              <Calendar size={10} />
+              <span className="text-[9px] font-black uppercase tracking-widest">Record Added: <span className="text-slate-600 dark:text-slate-300">{updatedRaw}</span></span>
+           </div>
+           <div className="flex items-center gap-1.5">
+              <Zap size={10} className="text-primary" />
+              <span className="text-[9px] font-black uppercase tracking-widest text-primary">Active Profile</span>
+           </div>
+        </div>
       </div>
 
-      {/* Action Dock - Relative to Card */}
+      {/* Action Dock */}
       <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 shrink-0">
         <a 
           href="tel:9971969197"

@@ -178,8 +178,9 @@ export default function App() {
   // ─── Robust Date Parser ──────────────────────────────────────────
   const parseDate = useCallback((dateStr: string | undefined): number => {
     if (!dateStr) return 0;
+    const s = dateStr.toString().trim();
     // Handle DD/MM/YY or DD/MM/YYYY or YYYY-MM-DD formats
-    const parts = dateStr.split(/[\/\-\s:]/);
+    const parts = s.split(/[\/\-\s:]/);
     if (parts.length >= 3) {
       let day, month, year;
       if (parts[0].length === 4) {
@@ -187,19 +188,21 @@ export default function App() {
         year = parseInt(parts[0]);
         month = parseInt(parts[1]) - 1;
         day = parseInt(parts[2]);
-      } else {
-        // DD/MM/YY
+      } else if (parts[2].length === 4 || parts[2].length === 2) {
+        // DD/MM/YY or DD/MM/YYYY
         day = parseInt(parts[0]);
         month = parseInt(parts[1]) - 1;
         year = parseInt(parts[2]);
         if (year < 100) year += 2000;
+      } else {
+        return new Date(s).getTime() || 0;
       }
       const hour = parts[3] ? parseInt(parts[3]) : 0;
       const min = parts[4] ? parseInt(parts[4]) : 0;
       const date = new Date(year, month, day, hour, min);
       if (!isNaN(date.getTime())) return date.getTime();
     }
-    const native = new Date(dateStr).getTime();
+    const native = new Date(s).getTime();
     return isNaN(native) ? 0 : native;
   }, []);
 
@@ -227,8 +230,8 @@ export default function App() {
       // Tutor sorting: 'Record Added' DESC
       const rawTutors: TutorProfile[] = tutorsJson.data || [];
       rawTutors.sort((a, b) => {
-        const ta = parseDate((a as any)['Record Added']);
-        const tb = parseDate((b as any)['Record Added']);
+        const ta = parseDate((a as any)['Record Added'] || (a as any).recordAdded || (a as any)['Updated Time']);
+        const tb = parseDate((b as any)['Record Added'] || (b as any).recordAdded || (b as any)['Updated Time']);
         return tb - ta;
       });
       setTutors(rawTutors);
@@ -280,9 +283,10 @@ export default function App() {
   };
 
   const getSubjects = useCallback((t: TutorProfile) => {
-    return (t['Preferred Subject(s)'] || '').toString().split(';').join(',').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    const raw = (t['Preferred Subject(s)'] || (t as any).preferredSubjects || (t as any).subjects || '').toString();
+    return raw.split(/[;,]/).map(s => s.trim().toLowerCase()).filter(Boolean);
   }, []);
-  const getCityValue = useCallback((t: TutorProfile) => (t['Preferred City'] || 'Ghaziabad').toString().trim().toLowerCase(), []);
+  const getCityValue = useCallback((t: TutorProfile) => (t['Preferred City'] || (t as any).preferredCity || (t as any).City || (t as any).city || 'India').toString().trim().toLowerCase(), []);
   const isCityMatch = useCallback((city: string | undefined, filter: string) => {
     if (!city) return false;
     if (filter.toLowerCase() === 'all') return true;
@@ -308,24 +312,8 @@ export default function App() {
     return Array.from(unique.values());
   }, [leads, firestoreLeads]);
 
-  const cityJobLocationBreakdown = useMemo(() => {
-    const cityJobs = allLeads.filter(l => {
-      const remark = (l['Internal Remark'] || '').trim().toLowerCase();
-      return remark === 'searching' && isCityMatch(l.City, cityFilter);
-    });
-    const counts = new Map<string, number>();
-    cityJobs.forEach(j => {
-      const locs = (j.Locations || '').split(',').map(s => s.trim()).filter(Boolean);
-      const primary = locs[0] || j.City || '';
-      if (primary) counts.set(primary, (counts.get(primary) || 0) + 1);
-    });
-    return Array.from(counts.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
-  }, [allLeads, cityFilter, isCityMatch]);
-
   const filteredJobs = useMemo(() => {
-    return allLeads.filter(l => {
+    const jobs = allLeads.filter(l => {
       const remark = (l['Internal Remark'] || '').trim().toLowerCase();
       if (remark !== 'searching') return false;
       if (locationBypass) {
@@ -334,7 +322,7 @@ export default function App() {
       if (!isCityMatch(l.City, cityFilter)) return false;
       if (searchQuery) {
         const sl = searchQuery.toLowerCase();
-        if (!( l.Name?.toLowerCase().includes(sl) || l.subjects?.toLowerCase().includes(sl) || l['Order ID']?.toLowerCase().includes(sl))) return false;
+        if (!( l.Name?.toLowerCase().includes(sl) || (l.subjects || '').toLowerCase().includes(sl) || l['Order ID']?.toLowerCase().includes(sl))) return false;
       }
       if (userTutorLocations.length > 0 && !isLocationMatch(l.Locations, userTutorLocations)) return false;
       if (userTutorSubjects.length > 0) {
@@ -343,12 +331,13 @@ export default function App() {
       }
       return true;
     });
+    return jobs;
   }, [allLeads, cityFilter, searchQuery, userTutorLocations, userTutorSubjects, isCityMatch, isLocationMatch, locationBypass]);
 
   const filteredTutors = useMemo(() => {
     return tutors.filter(t => {
       if (!t) return false;
-      const tutorCity = (t['Preferred City'] || t.preferredCity || 'India').toString().toLowerCase().trim();
+      const tutorCity = getCityValue(t);
       const fc = cityFilter.toLowerCase().trim();
       
       // Robust City Match (Relaxed)
@@ -356,38 +345,38 @@ export default function App() {
         if (!tutorCity.includes(fc) && !fc.includes(tutorCity)) return false;
       }
 
-      const tID = (t['Tutor ID'] || t.tutorId || '').toString().toLowerCase();
+      const tID = (t['Tutor ID'] || (t as any).tutorId || (t as any).id || '').toString().toLowerCase();
       if (tutorFilterID && !tID.includes(tutorFilterID.toLowerCase())) return false;
       
-      const tName = (t.Name || t.name || '').toString().toLowerCase();
+      const tName = (t.Name || (t as any).name || '').toString().toLowerCase();
       if (tutorFilterName && !tName.includes(tutorFilterName.toLowerCase())) return false;
 
-      const tGender = (t.Gender || t.gender || 'any').toString().toLowerCase();
+      const tGender = (t.Gender || (t as any).gender || 'any').toString().toLowerCase().trim();
       if (tutorFilterGender !== 'all' && tGender !== tutorFilterGender.toLowerCase()) return false;
 
       if (tutorFilterVehicle !== 'all') {
-        const vRaw = (t['Have own Vehicle'] || t.haveOwnVehicle || '').toString().toLowerCase();
+        const vRaw = (t['Have own Vehicle'] || (t as any).haveOwnVehicle || '').toString().toLowerCase();
         const hasVehicle = vRaw.includes('yes') || vRaw === 'y';
         if (tutorFilterVehicle === 'yes' && !hasVehicle) return false;
         if (tutorFilterVehicle === 'no' && hasVehicle) return false;
       }
 
       if (tutorFilterExperience !== 'all') {
-         const exp = (t.Experience || t.experience || '').toString().toLowerCase();
+         const exp = (t.Experience || (t as any).experience || '').toString().toLowerCase();
          if (tutorFilterExperience === 'fresher' && !exp.includes('fresher') && !exp.includes('0')) return false;
          if (tutorFilterExperience === '1-3' && !exp.includes('1') && !exp.includes('2') && !exp.includes('3')) return false;
          if (tutorFilterExperience === '3-5' && !exp.includes('3') && !exp.includes('4') && !exp.includes('5')) return false;
          if (tutorFilterExperience === '5+' && !exp.includes('5') && !exp.includes('6') && !exp.includes('more') && !exp.includes('10')) return false;
       }
 
-      const tQual = (t['Qualification(s)'] || t.qualifications || '').toString().toLowerCase();
+      const tQual = (t['Qualification(s)'] || (t as any).qualifications || '').toString().toLowerCase();
       if (tutorFilterQualification !== 'all' && !tQual.includes(tutorFilterQualification.toLowerCase())) return false;
       
-      const tTime = (t['Preferred Time'] || t.preferredTime || '').toString().toLowerCase();
+      const tTime = (t['Preferred Time'] || (t as any).preferredTime || '').toString().toLowerCase();
       if (tutorFilterTime !== 'all' && !tTime.includes(tutorFilterTime.toLowerCase())) return false;
 
       if (tutorFilterDate !== 'all') {
-         const added = parseDate(t['Record Added'] || t.recordAdded);
+         const added = parseDate(t['Record Added'] || (t as any).recordAdded);
          const diffDays = (Date.now() - added) / (1000 * 3600 * 24);
          if (tutorFilterDate === '7' && diffDays > 7) return false;
          if (tutorFilterDate === '30' && diffDays > 30) return false;
@@ -395,19 +384,19 @@ export default function App() {
       }
 
       if (locationBypass) {
-        const tLocs = (t['Preferred Location(s)'] || t.preferredLocations || '').toString().toLowerCase();
+        const tLocs = (t['Preferred Location(s)'] || (t as any).preferredLocations || '').toString().toLowerCase();
         if (!tLocs.includes(locationBypass.toLowerCase())) return false;
       }
 
       if (searchQuery) {
         const sl = searchQuery.toLowerCase();
-        const tSubj = (t['Preferred Subject(s)'] || t.subjects || '').toString().toLowerCase();
+        const tSubj = (t['Preferred Subject(s)'] || (t as any).subjects || '').toString().toLowerCase();
         if (!(tName.includes(sl) || tID.includes(sl) || tSubj.includes(sl))) return false;
       }
       
       const hasPrefs = userClasses.length > 0 || userTutorSubjects.length > 0;
       if (hasPrefs) {
-        const tClass = (t['Preferred Class Group'] || t.classGroup || '').toString();
+        const tClass = (t['Preferred Class Group'] || (t as any).classGroup || '').toString();
         if (userClasses.length > 0 && !isClassMatch(tClass, userClasses)) return false;
         
         if (userTutorSubjects.length > 0) {
@@ -433,16 +422,25 @@ export default function App() {
 
   const dynamicCities = useMemo(() => {
     const citySet = new Set<string>(CITIES_LIST);
-    tutors.forEach(t => { const c = getCityValue(t); if (c) citySet.add(c.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')); });
-    allLeads.forEach(l => { if (l.City) citySet.add(l.City.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')); });
+    tutors.forEach(t => { 
+      const c = (t['Preferred City'] || (t as any).preferredCity || (t as any).City || (t as any).city || '').toString().trim();
+      if (c && c.toLowerCase() !== 'india') {
+        citySet.add(c.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
+      }
+    });
+    allLeads.forEach(l => { 
+      if (l.City && l.City.toLowerCase() !== 'india') {
+        citySet.add(l.City.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
+      }
+    });
     return Array.from(citySet).sort();
-  }, [tutors, allLeads, getCityValue]);
+  }, [tutors, allLeads]);
 
   const cityLocations = useMemo(() => {
     const locSet = new Set<string>(CITY_TO_LOCATIONS_DATA[editCity] || []);
     tutors.forEach(t => {
       if (getCityValue(t) === editCity.toLowerCase()) {
-        const locs = (t['Preferred Location(s)'] || '').toString().split(/[;,]/).map(s => s.trim()).filter(Boolean);
+        const locs = (t['Preferred Location(s)'] || (t as any).preferredLocations || '').toString().split(/[;,]/).map(s => s.trim()).filter(Boolean);
         locs.forEach(l => locSet.add(l));
       }
     });
@@ -948,7 +946,7 @@ export default function App() {
                   </span>
                   <div className="flex gap-2">
                     {(locationBypass || tutorFilterID || tutorFilterName || tutorFilterGender !== 'all' || tutorFilterVehicle !== 'all' || tutorFilterExperience !== 'all' || tutorFilterQualification !== 'all' || tutorFilterTime !== 'all' || tutorFilterDate !== 'all') && (
-                      <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience('all'); setTutorFilterQualification('all'); setTutorFilterTime('all'); setTutorFilterDate('all'); setUserClasses([]); setUserTutorSubjects([]); }} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear</button>
+                      <button onClick={() => { setLocationBypass(null); setTutorFilterID(''); setTutorFilterName(''); setTutorFilterGender('all'); setTutorFilterVehicle('all'); setTutorFilterExperience('all'); setTutorFilterQualification('all'); setTutorFilterTime('all'); setTutorFilterDate('all'); setUserClasses([]); setUserTutorSubjects([]); setVisibleTutorsCount(10); }} className="bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-[9px] font-black uppercase">Clear All</button>
                     )}
                     <button onClick={() => setShowTutorFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary shadow-sm"><Filter size={14} strokeWidth={3} /></button>
                   </div>
@@ -956,7 +954,7 @@ export default function App() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 px-2 sm:px-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 px-2 sm:px-0 pb-10">
               {loading ? (
                 <div className="col-span-full py-40 text-center">
                   <Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" />
@@ -992,7 +990,7 @@ export default function App() {
                 <>
                   {filteredTutors.slice(0, visibleTutorsCount).map((tutor) => (
                     <TutorCard 
-                      key={(tutor as any).id || tutor['Tutor ID']} 
+                      key={(tutor as any).id || (tutor as any)['Tutor ID']} 
                       tutor={tutor} 
                     />
                   ))}
