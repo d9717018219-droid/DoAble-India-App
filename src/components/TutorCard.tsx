@@ -1,7 +1,7 @@
 import React from 'react';
 import { Phone, MessageSquare, User, GraduationCap, Zap, Calendar, BookOpen, Clock, MapPin, Library, Share2, CheckCircle2, Info } from 'lucide-react';
 import { TutorProfile } from '../types';
-import { cn, getCityTheme } from '../utils';
+import { cn } from '../utils';
 
 interface TutorCardProps {
   tutor: TutorProfile;
@@ -29,15 +29,14 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
         .join(' ');
   };
 
-  const cityFull = getValue(['Preferred City', 'preferredCity', 'City', 'city'], 'India').toString();
-  const tutorTheme = getCityTheme(cityFull);
-
   const nameRaw = getValue(['Name', 'name', 'fullName', 'Full Name'], 'Premium Tutor').toString();
   const name = toProperCase(nameRaw);
   const tutorId = getValue(['Tutor ID', 'tutorId', 'id', 'ID'], 'N/A').toString();
+  const age = getValue(['Age', 'age'], '–').toString();
   const genderRaw = getValue(['Gender', 'gender'], '–').toString().trim();
   const displayGender = genderRaw && genderRaw.toLowerCase() !== 'null' ? genderRaw : '–';
   
+  const cityFull = getValue(['Preferred City', 'preferredCity', 'City', 'city'], 'India').toString();
   const cityShort = cityFull.substring(0, 15);
   
   const feeRaw = getValue(['Fee/Month', 'feeMonth', 'Fee', 'fee'], '₹200').toString();
@@ -55,6 +54,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   const experienceRaw = getValue(['Experience', 'experience', 'Exp'], 'Fresher').toString();
   const schoolExpRaw = getValue(['School Exp.', 'schoolExp', 'School Experience'], '').toString();
   const subjectsRaw = getValue(['Preferred Subject(s)', 'preferredSubjects', 'subjects', 'Subjects'], '').toString();
+  const classGroupRaw = getValue(['Preferred Class Group', 'preferredClassGroup', 'classGroup', 'Class'], 'All Classes').toString();
   const modeRaw = getValue(['Mode of Teaching', 'modeOfTeaching', 'Mode'], 'All Days').toString();
   const timeRaw = getValue(['Preferred Time', 'preferredTime', 'Time'], '').toString();
   const locationRaw = getValue(['Preferred Location(s)', 'preferredLocations', 'locations', 'Location'], '').toString();
@@ -62,8 +62,31 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   const vehicleRaw = getValue(['Have own Vehicle', 'haveOwnVehicle', 'Vehicle'], 'No').toString();
   const updatedRaw = getValue(['Record Added', 'recordAdded', 'Added On', 'Created At', 'Updated Time'], 'Recently').toString();
 
+  const getCityColor = (cityName: string) => {
+    const colors = [
+        '#C92A2A', '#E03131', '#F03E3E', '#FA5252', '#FD7E7E',
+        '#D63031', '#E84C3D', '#F1664F', '#F7746D', '#FB9088',
+        '#0B7285', '#087E8B', '#0C8599', '#0F8CA9', '#189BA0',
+        '#00862A', '#2B8A3E', '#40C057', '#51CF66', '#69DB7C',
+        '#5F3DC4', '#6741D9', '#7950F2', '#845EF7', '#9775FA',
+        '#E8590C', '#F76707', '#FF6B35', '#FD7E14', '#FF9C3D',
+        '#B92E04', '#C92A2A', '#D9380E', '#E67700', '#F59F00',
+        '#1566C0', '#1971C2', '#1C7ED6', '#1C92D2', '#339AF0',
+        '#C2103D', '#D6336C', '#E64980', '#F06595', '#F783AC',
+        '#4C0A86', '#5F3DC4', '#7950F2', '#845EF7', '#9775FA'
+    ];
+    let hash = 0;
+    const cityStr = (cityName || 'India').toString();
+    for (let i = 0; i < cityStr.length; i++) {
+        hash = cityStr.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+  const cityColor = getCityColor(cityFull);
+
   const cleanAndFormatAbout = (text: string) => {
-    if (!text) return ['No details available.'];
+    if (!text) return null;
     let cleaned = text.replace(/\*/g, '').replace(/"/g, '').trim();
     let words = cleaned.split(/\s+/);
     if (words.length > 300) words = words.slice(0, 300);
@@ -79,13 +102,13 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
         }
     });
     if (currentPara) paragraphs.push(currentPara.trim());
-    return paragraphs.length > 0 ? paragraphs : [cleaned];
+    return paragraphs;
   };
 
   const getStatusBadge = (s: string) => {
     const lowS = s.toString().toLowerCase().trim();
-    if (lowS === 'active' || !lowS || lowS === 'searching') return { label: 'Active', color: '#10B981', emoji: '✅' };
-    if (lowS === 'not available' || lowS === 'busy' || lowS === 'no') return { label: 'Not Available', color: '#FBBF24', emoji: '⏸️' };
+    if (lowS === 'active' || lowS === 'searching') return { label: 'Active', color: '#10B981', emoji: '✅' };
+    if (lowS === 'not available' || lowS === 'busy' || lowS === 'no') return { label: 'Not Available', color: '#FBBF24', emoji: '⏸️', textColor: '#333' };
     return { label: 'Suspended', color: '#EF5350', emoji: '🚫' };
   };
 
@@ -108,166 +131,205 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   };
 
   return (
-    <div className="tutor-card w-full h-auto bg-white dark:bg-slate-900 flex flex-col relative sm:rounded-[32px] overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 mb-6 animate-fade-up">
-      {/* Card Header - Light Orange Theme */}
+    <div className="tutor-card w-full h-auto bg-white dark:bg-slate-900 rounded-[20px] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-400 border-2 border-transparent hover:translate-y-[-15px] hover:scale-[1.02] hover:shadow-[0_30px_60px_rgba(255,107,107,0.2)] hover:border-[#FF6B6B] flex flex-col relative animate-fade-up mb-6">
+      {/* ─── TOP SECTION ─── */}
       <div 
-        className="p-8 sm:p-10 text-center relative shrink-0"
-        style={{ background: tutorTheme.grad }}
+        className="card-top p-6 sm:p-10 text-center text-white relative flex flex-col justify-center items-center overflow-hidden shrink-0"
+        style={{ background: `linear-gradient(135deg, ${cityColor} 0%, ${cityColor}99 100%)` }}
       >
-        <div className="absolute top-4 right-4 flex gap-2">
-           {verified && (
-             <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black text-white uppercase tracking-widest border border-white/20 flex items-center gap-1">
-                <CheckCircle2 size={10} /> Verified
-             </span>
-           )}
-           <span className="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black text-white uppercase tracking-widest border border-white/20 flex items-center gap-1">
-              {status.emoji} {status.label}
-           </span>
-        </div>
-
-        <button className="absolute top-4 left-4 p-2 bg-white/20 hover:bg-white/40 rounded-xl text-white transition-colors">
-          <Share2 size={16} strokeWidth={3} />
-        </button>
-        
-        <div className="text-xl sm:text-2xl font-[900] text-white mb-1 drop-shadow-md uppercase tracking-tight line-clamp-1 px-4">
-          🎓 {name}
-        </div>
-        <div className="text-[10px] sm:text-[12px] font-black text-white/90 uppercase tracking-[0.2em]">
-          🆔 Tutor ID: {tutorId}
+        <div className="relative z-10 w-full">
+            <div className="space-y-0.5">
+                <h2 className="text-xl sm:text-2xl font-black text-[#FFD700] mb-0.5 drop-shadow-sm truncate w-full px-2" style={{ textShadow: '0 4px 15px rgba(0, 0, 0, 0.2)' }}>
+                  ✨ {name}
+                </h2>
+                <div className="flex gap-3 justify-center text-[10px] sm:text-[12px] font-black opacity-90 tracking-widest uppercase">
+                   <span>🆔 Tutor ID: {tutorId}</span>
+                </div>
+                <div className="flex gap-2 justify-center mt-2 flex-wrap">
+                    {verified && (
+                      <span className="bg-[#10B981] text-white px-3 py-1 rounded-full text-[11px] font-bold shadow-md">✅ Verified</span>
+                    )}
+                    <span className="text-white px-3 py-1 rounded-full text-[11px] font-bold shadow-md" style={{ background: status.color, color: status.textColor || 'white' }}>
+                      {status.emoji} {status.label}
+                    </span>
+                </div>
+            </div>
         </div>
       </div>
 
-      <div className="p-6 sm:p-8 space-y-8 flex-1">
-        {/* Quick Stats Grid */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
-            <div className="text-3xl mb-1">👥</div>
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gender</div>
-            <div className="text-[11px] sm:text-xs font-[900]" style={{ color: tutorTheme.solid }}>{displayGender}</div>
+      {/* ─── QUICK STATS ─── */}
+      <div className="quick-stats grid grid-cols-2 gap-2.5 p-4 bg-[#F8F9FA] dark:bg-[#3D3D3D] border-b-2 border-[#F0F0F0] dark:border-[#444444]">
+          <div className="stat-item bg-white dark:bg-[#2D2D2D] p-2.5 rounded-xl text-center border border-[#E8E8E8] dark:border-[#444444] transition-all duration-300">
+              <div className="stat-emoji text-2xl mb-1">🎂</div>
+              <div className="stat-value text-sm font-bold text-[#FF6B6B]">{age}</div>
+              <div className="stat-label text-[10px] text-[#999] uppercase mt-0.5">Age</div>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
-            <div className="text-3xl mb-1">📍</div>
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">City</div>
-            <div className="text-[11px] sm:text-xs font-[900]" style={{ color: tutorTheme.solid }}>{cityShort}</div>
+          <div className="stat-item bg-white dark:bg-[#2D2D2D] p-2.5 rounded-xl text-center border border-[#E8E8E8] dark:border-[#444444] transition-all duration-300">
+              <div className="stat-emoji text-2xl mb-1">👥</div>
+              <div className="stat-value text-sm font-bold text-[#FF6B6B]">{displayGender}</div>
+              <div className="stat-label text-[10px] text-[#999] uppercase mt-0.5">Gender</div>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
-            <div className="text-3xl mb-1">🏛️</div>
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Education</div>
-            <div className="text-[11px] sm:text-xs font-[900] truncate w-full px-2" style={{ color: tutorTheme.solid }}>{qualificationRaw}</div>
+          <div className="stat-item bg-white dark:bg-[#2D2D2D] p-2.5 rounded-xl text-center border border-[#E8E8E8] dark:border-[#444444] transition-all duration-300">
+              <div className="stat-emoji text-2xl mb-1">📍</div>
+              <div className="stat-value text-sm font-bold text-[#FF6B6B]">{cityShort}</div>
+              <div className="stat-label text-[10px] text-[#999] uppercase mt-0.5">City</div>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-[24px] border border-slate-100 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-1">
-            <div className="text-3xl mb-1">💰</div>
-            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Exp. Fee</div>
-            <div className="text-[11px] sm:text-xs font-[900]" style={{ color: tutorTheme.solid }}>{getFee(feeRaw)} / Mo</div>
+          <div className="stat-item bg-white dark:bg-[#2D2D2D] p-2.5 rounded-xl text-center border border-[#E8E8E8] dark:border-[#444444] transition-all duration-300">
+              <div className="stat-emoji text-2xl mb-1">💰</div>
+              <div className="stat-value text-sm font-bold text-[#FF6B6B]">{getFee(feeRaw).substring(0, 10)}</div>
+              <div className="stat-label text-[10px] text-[#999] uppercase mt-0.5">Fee</div>
           </div>
-        </div>
+      </div>
 
-        {/* Detailed Information Blocks */}
-        <div className="space-y-8">
-          <DetailSection icon={<BookOpen size={16} className="text-primary" />} label="Expert Subjects">
-            <div className="flex flex-wrap gap-2">
-              {subjectList.map((s, i) => (
-                <span key={i} className="bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider border border-slate-100 dark:border-slate-700 shadow-sm">
-                  {s}
-                </span>
-              ))}
-            </div>
-          </DetailSection>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-            <DetailSection icon={<Zap size={16} className="text-primary" />} label="Experience">
-               <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
-                  <div className="text-sm font-black text-slate-700 dark:text-white uppercase">{experienceRaw}</div>
-                  <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Total expertise</div>
-                  {schoolExpRaw && schoolExpRaw.toLowerCase() !== 'no' && (
-                    <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 flex items-center gap-2">
-                       <Library size={12} className="text-primary" />
-                       <span className="text-[10px] font-black text-primary uppercase">School Exp: {schoolExpRaw}</span>
-                    </div>
-                  )}
-               </div>
-            </DetailSection>
-
-            <DetailSection icon={<Clock size={16} className="text-primary" />} label="Availability">
-               <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
-                  <div className="flex flex-wrap gap-1.5">
-                    {timeList.length > 0 ? timeList.map((t, i) => (
-                      <span key={i} className="text-[10px] font-black text-slate-700 dark:text-slate-200 uppercase">{t}{i < timeList.length - 1 ? ' • ' : ''}</span>
-                    )) : <span className="text-[10px] font-black text-slate-400 uppercase">Not Specified</span>}
-                  </div>
-                  <div className="mt-2 flex items-center gap-2">
-                     <Calendar size={12} className="text-slate-400" />
-                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{modeRaw}</span>
-                  </div>
-               </div>
-            </DetailSection>
-          </div>
-
-          <DetailSection icon={<MapPin size={16} className="text-primary" />} label="Target Territories">
-            <div className="flex flex-wrap gap-2">
-              {locationList.map((l, i) => (
-                <span key={i} className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-1.5 rounded-lg text-[9px] font-bold border border-slate-100 dark:border-slate-700">
-                  {l}
-                </span>
-              ))}
-            </div>
-          </DetailSection>
-
-          {aboutRaw && (
-            <DetailSection icon={<Info size={16} className="text-primary" />} label="Professional Summary">
-              <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-[32px] border border-slate-100 dark:border-slate-700 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-primary/5 rounded-full -mr-10 -mt-10" />
-                <div className="space-y-4 relative z-10">
-                  {paragraphs.map((para, i) => (
-                    <p key={i} className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                      {para}
-                    </p>
-                  ))}
+      {/* ─── CONTENT ─── */}
+      <div className="card-content p-5 flex-1 space-y-4">
+          {paragraphs && (
+            <div className="about-card bg-gradient-to-br from-[#F0F9FF] to-[#FCE7F3] dark:bg-[#3D3D3D] p-3.5 rounded-xl border-l-4 border-[#4ECDC4]">
+                <div className="about-label text-[10px] text-[#4ECDC4] font-bold uppercase">ℹ️ About Me</div>
+                <div className="about-text text-[12px] text-[#2C3E50] dark:text-[#E0E0E0] mt-1.5 leading-relaxed space-y-2">
+                    {paragraphs.map((p, i) => <p key={i}>{p}</p>)}
                 </div>
-              </div>
-            </DetailSection>
+            </div>
           )}
 
-           <div className="flex justify-between items-center text-slate-400 pt-2 px-2">
-              <div className="flex items-center gap-1.5">
-                 <Calendar size={10} />
-                 <span className="text-[9px] font-black uppercase tracking-widest">Last Update: <span className="text-slate-600 dark:text-slate-300">{updatedRaw}</span></span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                 <Zap size={10} className="text-primary" />
-                 <span className="text-[9px] font-black uppercase tracking-widest text-primary">Active Expert</span>
-              </div>
-           </div>
-        </div>
+          {qualificationRaw && (
+            <div className="info-block">
+                <div className="info-label text-[10px] text-[#999] uppercase font-bold mb-1.5 tracking-wider">🎓 Qualification</div>
+                <div className="tags-container flex flex-wrap gap-1.5">
+                    {qualificationRaw.split(',').map((q, i) => q.trim() && (
+                      <span key={i} className="tag-qualification bg-gradient-to-br from-[#E7F5FF] to-[#F0E7FF] text-[#1971C2] px-3 py-1.5 rounded-full text-[11px] font-semibold border border-[#1971C2]/20 hover:from-[#1971C2] hover:to-[#1C7ED6] hover:text-white hover:scale-110 transition-all duration-300">
+                        {q.trim()}
+                      </span>
+                    ))}
+                </div>
+            </div>
+          )}
 
-        {/* Action Buttons */}
-        <div className="pt-6 flex flex-col sm:flex-row gap-4 card-actions">
-          <a 
-            href={`tel:919717018219`}
-            className="flex-1 h-16 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 shadow-xl"
-          >
-            <Phone size={18} /> Call Now
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+             {experienceRaw && (
+               <div className="info-block">
+                   <div className="info-label text-[10px] text-[#999] uppercase font-bold mb-1.5 tracking-wider">📚 Experience</div>
+                   <div className="tags-container flex flex-wrap gap-1.5">
+                       <span className="tag-experience bg-gradient-to-br from-[#F0F9FF] to-[#F3E5F5] text-[#9C36B5] px-3 py-1.5 rounded-full text-[11px] font-semibold border border-[#9C36B5]/20 hover:from-[#9C36B5] hover:to-[#CE5DE8] hover:text-white hover:scale-110 transition-all duration-300">
+                         {experienceRaw}
+                       </span>
+                   </div>
+               </div>
+             )}
+             {schoolExpRaw && (
+               <div className="info-block">
+                   <div className="info-label text-[10px] text-[#999] uppercase font-bold mb-1.5 tracking-wider">🏫 School Experience</div>
+                   <div className="tags-container flex flex-wrap gap-1.5">
+                       <span className="tag-school bg-gradient-to-br from-[#FEF3C7] to-[#FED7AA] text-[#B45309] px-3 py-1.5 rounded-full text-[11px] font-semibold border border-[#B45309]/20 hover:from-[#B45309] hover:to-[#92400E] hover:text-white hover:scale-110 transition-all duration-300">
+                         {schoolExpRaw}
+                       </span>
+                   </div>
+               </div>
+             )}
+          </div>
+
+          {subjectList.length > 0 && (
+            <div className="info-block">
+                <div className="info-label text-[10px] text-[#999] uppercase font-bold mb-1.5 tracking-wider">📚 Expert Subjects</div>
+                <div className="tags-container flex flex-wrap gap-1.5">
+                    {subjectList.map((s, i) => (
+                      <span key={i} className="tag bg-gradient-to-br from-[#E3F2FD] to-[#F3E5F5] text-[#FF6B6B] px-3 py-1.5 rounded-full text-[11px] font-semibold border border-[#FF6B6B]/20 hover:from-[#FF6B6B] hover:to-[#FF7675] hover:text-white hover:scale-110 transition-all duration-300">
+                        {s}
+                      </span>
+                    ))}
+                </div>
+            </div>
+          )}
+
+          {classGroupRaw && (
+            <div className="info-block">
+                <div className="info-label text-[10px] text-[#999] uppercase font-bold mb-1.5 tracking-wider">📖 Class Group</div>
+                <div className="tags-container flex flex-wrap gap-1.5">
+                    {classGroupRaw.split(',').map((cls, i) => cls.trim() && (
+                      <span key={i} className="tag-class bg-gradient-to-br from-[#E0F2FE] to-[#F0E7FF] text-[#0284C7] px-3 py-1.5 rounded-full text-[11px] font-semibold border border-[#0284C7]/20 hover:from-[#0284C7] hover:to-[#0369A1] hover:text-white hover:scale-110 transition-all duration-300">
+                        {cls.trim()}
+                      </span>
+                    ))}
+                </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+             {modeRaw && (
+               <div className="info-block">
+                   <div className="info-label text-[10px] text-[#999] uppercase font-bold mb-1.5 tracking-wider">📅 Available Days</div>
+                   <div className="tags-container flex flex-wrap gap-1.5">
+                       {modeRaw.split(',').map((day, i) => day.trim() && (
+                         <span key={i} className="tag-days bg-gradient-to-br from-[#F3E5F5] to-[#FCE7F3] text-[#D6336C] px-3 py-1.5 rounded-full text-[11px] font-semibold border border-[#D6336C]/20 hover:from-[#D6336C] hover:to-[#E64980] hover:text-white hover:scale-110 transition-all duration-300">
+                           {day.trim()}
+                         </span>
+                       ))}
+                   </div>
+               </div>
+             )}
+             <div className="info-block">
+                 <div className="info-label text-[10px] text-[#999] uppercase font-bold mb-1.5 tracking-wider">⏰ Available Time</div>
+                 <div className="tags-container flex flex-wrap gap-1.5">
+                     {timeList.length > 0 ? timeList.map((time, i) => (
+                       <span key={i} className="tag-time bg-gradient-to-br from-[#FFF3E0] to-[#F3E5F5] text-[#FF9800] px-3 py-1.5 rounded-full text-[11px] font-semibold border border-[#FF9800]/20 hover:from-[#FF9800] hover:to-[#FF7043] hover:text-white hover:scale-110 transition-all duration-300">
+                         🕐 {time}
+                       </span>
+                     )) : <span className="info-value text-[13px] text-[#2C3E50] dark:text-[#E0E0E0]">—</span>}
+                 </div>
+             </div>
+          </div>
+
+          {locationList.length > 0 && (
+            <div className="info-block">
+                <div className="info-label text-[10px] text-[#999] uppercase font-bold mb-1.5 tracking-wider">📍 Teaching Localities</div>
+                <div className="tags-container flex flex-wrap gap-1.5">
+                    {locationList.map((loc, i) => (
+                      <span key={i} className="tag bg-gradient-to-br from-[#E3F2FD] to-[#F3E5F5] text-[#FF6B6B] px-3 py-1.5 rounded-full text-[11px] font-semibold border border-[#FF6B6B]/20 hover:from-[#FF6B6B] hover:to-[#FF7675] hover:text-white hover:scale-110 transition-all duration-300">
+                        {loc}
+                      </span>
+                    ))}
+                </div>
+            </div>
+          )}
+
+          <div className="space-y-3 pt-2">
+              <div className="info-block">
+                  <div className="info-label text-[10px] text-[#999] uppercase font-bold tracking-wider">💬 Communication</div>
+                  <div className="info-value text-[13px] text-[#2C3E50] dark:text-[#E0E0E0] font-medium">{addressRaw || 'Hindi/English'}</div>
+              </div>
+
+              <div className="info-block">
+                  <div className="info-label text-[10px] text-[#999] uppercase font-bold tracking-wider">🚗 Own Vehicle</div>
+                  <div className="info-value text-[13px] text-[#2C3E50] dark:text-[#E0E0E0] font-medium">{vehicleRaw || 'No'}</div>
+              </div>
+
+              <div className="info-block">
+                  <div className="info-label text-[10px] text-[#999] uppercase font-bold tracking-wider">📅 Last Updated</div>
+                  <div className="info-value text-[13px] text-[#2C3E50] dark:text-[#E0E0E0] font-medium">{updatedRaw || 'Recently'}</div>
+              </div>
+
+              <div className="info-block">
+                  <div className="info-label text-[10px] text-[#999] uppercase font-bold tracking-wider">✅ Status</div>
+                  <div className="info-value mt-1">
+                      {verified ? (
+                        <span className="bg-[#10B981] text-white px-3 py-1.5 rounded-full text-[11px] font-bold inline-block shadow-md">✅ Verified</span>
+                      ) : (
+                        <span className="bg-[#EF5350] text-white px-3 py-1.5 rounded-full text-[11px] font-bold inline-block shadow-md">⏳ Pending</span>
+                      )}
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      {/* ─── ACTIONS ─── */}
+      <div className="card-actions grid grid-cols-2 gap-2.5 p-4 bg-gradient-to-br from-[#F8FAFC] to-[#F0F4F8] dark:from-[#3D3D3D] dark:to-[#3D3D3D] border-t-2 border-[#E8EEF5] dark:border-[#444444]">
+          <a href="tel:9971969197" className="btn btn-call bg-gradient-to-br from-[#FF6B6B] to-[#FF7675] text-white px-4 py-3 rounded-xl font-bold text-[13px] text-center shadow-[0_8px_15px_rgba(255,107,107,0.3)] hover:translate-y-[-3px] hover:shadow-[0_12px_25px_rgba(255,107,107,0.4)] transition-all duration-300 flex items-center justify-center gap-2">
+            📞 Call
           </a>
-          <a 
-            href={generateWhatsAppLink()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-[1.5] h-16 rounded-2xl text-white font-black text-xs uppercase tracking-widest shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3"
-            style={{ background: tutorTheme.grad }}
-          >
-            <MessageSquare size={18} /> Connect on WA
+          <a href={generateWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="btn btn-whatsapp bg-gradient-to-br from-[#4ECDC4] to-[#00B894] text-white px-4 py-3 rounded-xl font-bold text-[13px] text-center shadow-[0_8px_15px_rgba(78,205,196,0.3)] hover:translate-y-[-3px] hover:shadow-[0_12px_25px_rgba(78,205,196,0.4)] transition-all duration-300 flex items-center justify-center gap-2">
+            💬 Chat
           </a>
-        </div>
       </div>
     </div>
   );
 };
-
-const DetailSection = ({ icon, label, children }: { icon: React.ReactNode, label: string, children: React.ReactNode }) => (
-  <div className="space-y-4">
-     <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2.5 ml-1">
-        {icon} {label}
-     </label>
-     {children}
-  </div>
-);
