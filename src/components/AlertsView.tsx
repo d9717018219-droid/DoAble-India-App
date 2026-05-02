@@ -5,7 +5,8 @@ import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 import { Alert, UserType } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, Play, Volume2, Settings, X, MessageSquare, Phone, Mail, CreditCard, ChevronRight, Share2 } from 'lucide-react';
-import { cn, getCityTheme } from '../utils';
+import { cn } from '../utils';
+import { CITIES_LIST, CLASSES_LIST } from '../constants';
 
 import { createChat } from '@n8n/chat';
 import '@n8n/chat/style.css';
@@ -15,6 +16,10 @@ interface AlertsViewProps {
   userGender?: string | null;
   userClasses?: string[];
   userType?: UserType | null;
+  setUserCity: (city: string) => void;
+  setUserGender: (gender: string | null) => void;
+  setUserClasses: (classes: string[]) => void;
+  setUserType: (type: UserType | null) => void;
   isAdminUser?: boolean;
   onAdminClick?: () => void;
   currentUser?: any;
@@ -23,7 +28,11 @@ interface AlertsViewProps {
   setShowFormModal: (show: boolean) => void;
 }
 
-const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, userType, isAdminUser, onAdminClick, currentUser, handleSignIn, showFormModal, setShowFormModal }) => {
+const AlertsView: React.FC<AlertsViewProps> = ({ 
+  city, userGender, userClasses, userType, 
+  setUserCity, setUserGender, setUserClasses, setUserType,
+  isAdminUser, onAdminClick, currentUser, handleSignIn, showFormModal, setShowFormModal 
+}) => {
   const [activeTab, setActiveTab] = useState<'feed' | 'support' | 'setup'>('feed');
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +45,16 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
   );
 
   const celestialTone = { name: 'Celestial Goal', url: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3' };
+
+  const updatePreference = (key: string, value: any) => {
+    localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+    switch(key) {
+      case 'userCity': setUserCity(value); break;
+      case 'userGender': setUserGender(value); break;
+      case 'userClasses': setUserClasses(value); break;
+      case 'userType': setUserType(value as UserType); break;
+    }
+  };
 
   const tutorFormIframe = `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;"></iframe>`;
   const parentFormIframe = `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>`;
@@ -490,43 +509,113 @@ const AlertsView: React.FC<AlertsViewProps> = ({ city, userGender, userClasses, 
           </div>
         ) : activeTab === 'setup' ? (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-6">
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-8">
                <div className="pb-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <div>
-                    <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Account Actions</h4>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Quick Management</p>
+                    <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">App Settings</h4>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Preferences & Notifications</p>
+                  </div>
+                  <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                    <Settings size={20} />
                   </div>
                </div>
 
-               <div className="space-y-4">
-                  {/* Pay Now Button - Green */}
-                  <a 
-                    href="https://zohosecurepay.in/checkout/i9db4wt2-verz1l6gn6ogo/Make-a-secure-payment-now" 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="w-full bg-[#059669] text-white p-6 rounded-[24px] flex items-center justify-between group active:scale-95 transition-all shadow-xl shadow-emerald-500/20"
-                  >
-                    <div className="text-left">
-                      <span className="text-[10px] font-black uppercase tracking-widest opacity-80 block mb-1">Fee & Registration</span>
-                      <span className="text-lg font-black uppercase tracking-tight">Pay Now</span>
+               <div className="space-y-6">
+                  {/* Notification Section */}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Receive Notifications</label>
+                    <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                       <div className="flex items-center gap-3">
+                          <div className={cn("w-3 h-3 rounded-full", permission === 'granted' ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-slate-300")} />
+                          <span className="text-xs font-black text-slate-700 dark:text-slate-200 uppercase">
+                             {permission === 'granted' ? 'Alerts Enabled' : 'Alerts Disabled'}
+                          </span>
+                       </div>
+                       {permission !== 'granted' && (
+                         <button onClick={requestPermission} className="bg-primary text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all">Enable</button>
+                       )}
                     </div>
-                    <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <CreditCard size={20} strokeWidth={3} />
-                    </div>
-                  </a>
+                  </div>
 
-                  <div className="pt-4 text-center">
+                  {/* Pick Lists for Preferences */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {/* Role Selection (Nature) */}
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Nature (I am...)</label>
+                      <select 
+                        value={userType || ''} 
+                        onChange={e => updatePreference('userType', e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                      >
+                        <option value="" disabled>Select Role...</option>
+                        <option value="parent">👨 I'm a Parent</option>
+                        <option value="teacher">🎓 I'm a Tutor</option>
+                      </select>
+                    </div>
+
+                    {/* City Selection */}
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Primary City</label>
+                      <select 
+                        value={city} 
+                        onChange={e => updatePreference('userCity', e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                      >
+                        {CITIES_LIST.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {/* Gender Selection */}
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Gender Preference</label>
+                      <select 
+                        value={userGender || 'any'} 
+                        onChange={e => updatePreference('userGender', e.target.value === 'any' ? null : e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                      >
+                        <option value="any">All Genders</option>
+                        <option value="Male">Male Only</option>
+                        <option value="Female">Female Only</option>
+                      </select>
+                    </div>
+
+                    {/* Class Group Selection */}
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Target Class Group</label>
+                      <select 
+                        value={userClasses?.[0] || 'All'} 
+                        onChange={e => updatePreference('userClasses', e.target.value === 'All' ? [] : [e.target.value])}
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                      >
+                        <option value="All">All Classes</option>
+                        {CLASSES_LIST.map(c => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <a 
+                      href="https://zohosecurepay.in/checkout/i9db4wt2-verz1l6gn6ogo/Make-a-secure-payment-now" 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="w-full bg-[#059669] text-white p-5 rounded-2xl flex items-center justify-between group active:scale-95 transition-all shadow-lg"
+                    >
+                      <span className="text-[11px] font-black uppercase tracking-widest">Registration Fee / Payment</span>
+                      <CreditCard size={18} strokeWidth={3} />
+                    </a>
+                  </div>
+
+                  <div className="text-center">
                     <button 
                       onClick={() => {
-                        if (isAdminUser && onAdminClick) {
-                          onAdminClick();
-                        } else if (handleSignIn) {
-                          handleSignIn();
-                        }
+                        if (isAdminUser && onAdminClick) onAdminClick();
+                        else if (handleSignIn) handleSignIn();
                       }}
-                      className="text-[9px] font-bold text-slate-300 dark:text-slate-700 uppercase tracking-widest hover:text-slate-400 transition-colors"
+                      className="text-[9px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-widest hover:text-slate-400 transition-colors"
                     >
-                      System Settings
+                      System Management
                     </button>
                   </div>
                </div>

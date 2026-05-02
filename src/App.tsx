@@ -925,13 +925,13 @@ export default function App() {
       <main className="container mx-auto p-0 sm:p-[10px] max-w-[1200px] pb-32">
         {activeTab === 'home' && (
           <div className="space-y-12 py-6 flex flex-col items-center px-4 sm:px-0">
-            {/* 1. Elite Hero Section */}
+            {/* 1. Elite Hero Section - Neat and Clean */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full min-h-[45vh] sm:min-h-[450px] p-8 sm:p-20 rounded-[48px] sm:rounded-[64px] relative overflow-hidden shadow-2xl border border-white/10 mesh-gradient flex items-center">
               <div className="absolute inset-0 bg-black/15 backdrop-blur-[1px] z-0" />
               <div className="relative z-10 space-y-10 sm:space-y-12 w-full">
                  <div className="space-y-6">
                     <h3 className="text-4xl sm:text-7xl font-[900] text-white tracking-tighter leading-[1.05]">Discovery Made<br/><span className="inline-block border-r-4 border-white/90 pr-2 text-transparent bg-clip-text bg-gradient-to-r from-[#FFE66D] to-white" style={{ animation: 'typewriterBlink 1s step-end infinite' }}>Simple & Live</span></h3>
-                    <p className="text-white/85 text-sm sm:text-xl font-medium leading-[1.6] max-w-2xl">Connect with elite educators and premium teaching opportunities across <span className="text-white font-black underline decoration-[#FFE66D] decoration-4 underline-offset-8">{userCity}</span>. No more searching, just discovery.</p>
+                    <p className="text-white/85 text-sm sm:text-xl font-medium leading-[1.6] max-w-2xl">Connect with elite educators and premium teaching opportunities. No more searching, just discovery.</p>
                  </div>
                  <div className="flex flex-col sm:flex-row gap-5">
                     <button 
@@ -948,53 +948,27 @@ export default function App() {
                     </button>
                  </div>
               </div>
-              <button 
-                onClick={() => { setIsPreferenceMode(true); setShowOnboarding(true); }}
-                className="absolute top-8 right-8 p-4 bg-white/10 backdrop-blur-md rounded-2xl text-white hover:bg-white/20 transition-all group"
-                title="App Preferences"
-              >
-                <Settings size={20} className="group-hover:rotate-90 transition-transform duration-500" />
-              </button>
             </motion.div>
-
-            {/* 2. Latest Jobs Carousel */}
-            <section className="w-full space-y-6">
-               <div className="flex justify-between items-end px-2">
-                  <div>
-                    <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Fresh Leads</h2>
-                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Latest requirements in {userCity}</p>
-                  </div>
-                  <button onClick={() => setActiveTab('jobs')} className="flex items-center gap-2 text-xs font-black text-primary uppercase group">View All Portal <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" /></button>
-               </div>
-               <div className="flex gap-6 overflow-x-auto pb-8 custom-scrollbar px-2 -mx-2">
-                  {allLeads.slice(0, 5).map((job) => (
-                    <div key={(job as any).id || job['Order ID']} className="min-w-[320px] sm:min-w-[400px] scale-[0.98] hover:scale-100 transition-transform duration-500">
-                       <JobCard job={job} />
-                    </div>
-                  ))}
-               </div>
-            </section>
-
-            {/* 3. Featured Tutors Carousel */}
-            <section className="w-full space-y-6">
-               <div className="flex justify-between items-end px-2">
-                  <div>
-                    <h2 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Featured Experts</h2>
-                    <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Elite educators ready to mentor</p>
-                  </div>
-                  <button onClick={() => setActiveTab('tutors')} className="flex items-center gap-2 text-xs font-black text-primary uppercase group">Find More Experts <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" /></button>
-               </div>
-               <div className="flex gap-6 overflow-x-auto pb-8 custom-scrollbar px-2 -mx-2">
-                  {tutors.slice(0, 5).map((tutor) => (
-                    <div key={(tutor as any).id || (tutor as any)['Tutor ID']} className="min-w-[320px] sm:min-w-[400px] scale-[0.98] hover:scale-100 transition-transform duration-500">
-                       <TutorCard tutor={tutor} />
-                    </div>
-                  ))}
-               </div>
-            </section>
           </div>
         )}
-        {activeTab === 'alerts' && <AlertsView city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} isAdminUser={isAdminUser} onAdminClick={() => setActiveTab('admin')} currentUser={currentUser} handleSignIn={handleSignIn} showFormModal={showFormModal} setShowFormModal={setShowFormModal} />}
+        {activeTab === 'alerts' && (
+          <AlertsView 
+            city={userCity || 'All'} 
+            userGender={userGender} 
+            userClasses={userClasses} 
+            userType={userType} 
+            setUserCity={setUserCity}
+            setUserGender={setUserGender}
+            setUserClasses={setUserClasses}
+            setUserType={setUserType}
+            isAdminUser={isAdminUser} 
+            onAdminClick={() => setActiveTab('admin')} 
+            currentUser={currentUser} 
+            handleSignIn={handleSignIn} 
+            showFormModal={showFormModal} 
+            setShowFormModal={setShowFormModal} 
+          />
+        )}
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}
         {(activeTab === 'jobs' || activeTab === 'tutors') && (
           <div className="flex flex-col space-y-4">
