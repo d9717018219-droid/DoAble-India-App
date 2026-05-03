@@ -8,7 +8,7 @@ import { collection, onSnapshot, query, where, orderBy, limit, addDoc, serverTim
 import { db, auth, auth as firebaseAuth } from './firebase';
 import { handleFirestoreError, OperationType } from './lib/firestore-errors';
 import { User as FirebaseUser, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion';
 import { JobLead, TutorProfile, Alert, UserType } from './types';
 import { JobCard } from './components/JobCard';
 import { TutorCard } from './components/TutorCard';
@@ -610,7 +610,7 @@ export default function App() {
                         onChange={e => setEditCity(e.target.value)}
                         className="w-full bg-white dark:bg-slate-900 p-5 pl-14 rounded-2xl text-sm font-black outline-none border-2 border-transparent focus:border-primary transition-all appearance-none cursor-pointer shadow-sm"
                       >
-                        {CITIES_LIST.map(city => <option key={city} value={city}>{city}</option>)}
+                        {['Ghaziabad', 'Noida', 'Delhi', 'Gurgaon', 'Faridabad'].map(city => <option key={city} value={city}>{city}</option>)}
                       </select>
                       <MapPin size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" />
                       <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300 text-xs">▼</div>

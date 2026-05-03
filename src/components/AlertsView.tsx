@@ -3,7 +3,7 @@ import { collection, query, where, orderBy, onSnapshot, limit } from 'firebase/f
 import { db } from '../firebase';
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 import { Alert, UserType } from '../types';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion';
 import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, X, MessageSquare, Phone, Mail, ChevronRight } from 'lucide-react';
 import { cn } from '../utils';
 
