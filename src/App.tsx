@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check, Sun, Cloud, Moon } from 'lucide-react';
+import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User as UserIcon, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check, Sun, Cloud, Moon, Menu } from 'lucide-react';
 import { collection, onSnapshot, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, auth, auth as firebaseAuth } from './firebase';
 import { handleFirestoreError, OperationType } from './lib/firestore-errors';
 import { User as FirebaseUser, onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { JobLead, TutorProfile, Alert, UserType } from './types';
 import { JobCard } from './components/JobCard';
 import { TutorCard } from './components/TutorCard';
@@ -148,6 +148,7 @@ export default function App() {
   const [editUserType, setEditUserType] = useState<UserType | null>(localStorage.getItem('userType') as UserType);
   const [editCity, setEditCity] = useState<string>(localStorage.getItem('userCity') || 'Ghaziabad');
   const [isPreferenceMode, setIsPreferenceMode] = useState(false);
+  const [showMenuDrawer, setShowMenuDrawer] = useState(false);
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
@@ -955,8 +956,12 @@ export default function App() {
       </AnimatePresence>
 
       <header className={cn("p-[20px_16px] sm:p-[30px_20px] text-center border-b relative transition-all duration-500 overflow-hidden", userCity ? "text-white border-transparent" : "bg-white border-slate-50")} style={userCity ? { background: getCityTheme(userCity).grad } : {}}>
-        <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-10">{currentUser && <button onClick={() => firebaseAuth.signOut()} className="text-white/70 hover:text-white transition-colors"><LogOut size={18} className="sm:w-5 sm:h-5" /></button>}</div>
-        <h1 className="text-[24px] sm:text-[32px] font-[900] tracking-tighter relative z-10">
+        <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-10">
+          <button onClick={() => { playTapSound(); setShowMenuDrawer(true); }} className="p-3 bg-white/10 backdrop-blur-xl rounded-2xl text-white border border-white/20 hover:bg-white/20 transition-all active:scale-95 shadow-xl">
+            <Menu size={22} strokeWidth={3} />
+          </button>
+        </div>
+        <h1 className="text-[24px] sm:text-[32px] font-[900] tracking-tighter relative z-10 pr-12">
           {activeTab === 'home' && (<div className="flex flex-col items-center"><span className="truncate max-w-[280px] sm:max-w-none">{userName ? `Welcome, ${userName}` : (userType === 'teacher' ? 'Welcome, Educator' : (userType === 'parent' ? 'Welcome, Parent' : 'DoAble India'))}</span><span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] opacity-80 mt-1 animate-pulse">{getDynamicGreeting()}</span></div>)}
           {activeTab === 'jobs' && 'Jobs Portal'}{activeTab === 'tutors' && 'Expert Tutors'}{activeTab === 'alerts' && 'Broadcasts'}
         </h1>
@@ -1066,6 +1071,76 @@ export default function App() {
           color: #0FE8F2 !important;
         }
       `}</style>
+
+      {/* Menu Drawer */}
+      <AnimatePresence>
+        {showMenuDrawer && (
+          <div className="fixed inset-0 z-[11000] flex justify-end">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowMenuDrawer(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+            <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="relative bg-white dark:bg-slate-900 w-full max-w-[320px] h-full shadow-2xl flex flex-col overflow-hidden">
+               <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                  <div className="space-y-0.5">
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">My Account</h3>
+                    <p className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">Profile & Settings</p>
+                  </div>
+                  <button onClick={() => setShowMenuDrawer(false)} className="p-3 bg-white dark:bg-slate-800 rounded-2xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm"><X size={20} strokeWidth={3} /></button>
+               </div>
+
+               <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                  <div className="flex flex-col items-center gap-4 py-4">
+                     <div className="w-20 h-20 bg-primary/10 rounded-[32px] flex items-center justify-center text-primary border-2 border-primary/20 shadow-xl">
+                        <UserIcon size={36} strokeWidth={2.5} />
+                     </div>
+                     <div className="text-center">
+                        <h4 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-tight">{userName || 'User Account'}</h4>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{userType === 'teacher' ? '💎 Elite Educator' : '👨 Premium Parent'}</p>
+                     </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+                       <input type="text" value={userName || ''} onChange={e => { const val = e.target.value; setUserName(val); localStorage.setItem('userName', val); }} placeholder="Enter your name..."
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 focus:border-primary transition-all text-slate-900 dark:text-[#0FE8F2]" />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">My Role</label>
+                       <select value={userType || ''} onChange={e => { const val = e.target.value as UserType; setUserType(val); localStorage.setItem('userType', val); }}
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all text-slate-900 dark:text-[#0FE8F2]">
+                         <option value="parent">👨 Parent</option>
+                         <option value="teacher">🎓 Tutor</option>
+                       </select>
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gender Preference</label>
+                       <select value={userGender || 'any'} onChange={e => { const val = e.target.value === 'any' ? null : e.target.value; setUserGender(val); if(val) localStorage.setItem('userGender', val); else localStorage.removeItem('userGender'); }}
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all text-slate-900 dark:text-[#0FE8F2]">
+                         <option value="any">All Genders</option><option value="Male">Male</option><option value="Female">Female</option>
+                       </select>
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Base City</label>
+                       <select value={userCity} onChange={e => { const val = e.target.value; setUserCity(val); localStorage.setItem('userCity', val); }}
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all text-slate-900 dark:text-[#0FE8F2]">
+                         {['Ghaziabad', 'Noida', 'Delhi', 'Gurgaon', 'Faridabad'].map(c => <option key={c} value={c}>{c}</option>)}
+                       </select>
+                    </div>
+                  </div>
+               </div>
+
+               <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                  <a href="https://zohosecurepay.in/checkout/i9db4wt2-verz1l6gn6ogo/Make-a-secure-payment-now" target="_blank" rel="noreferrer" className="w-full bg-[#059669] text-white py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg"><CreditCard size={16} strokeWidth={3} /><span className="text-[10px] font-black uppercase tracking-widest">Make Payment</span></a>
+                  {currentUser ? (
+                    <button onClick={() => { playTapSound(); firebaseAuth.signOut(); setShowMenuDrawer(false); }} className="w-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all"><LogOut size={16} strokeWidth={3} /><span className="text-[10px] font-black uppercase tracking-widest">Sign Out</span></button>
+                  ) : (
+                    <button onClick={() => { playTapSound(); handleSignIn(); setShowMenuDrawer(false); }} className="w-full bg-slate-900 dark:bg-primary text-white py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all"><UserIcon size={16} strokeWidth={3} /><span className="text-[10px] font-black uppercase tracking-widest">Sign In with Google</span></button>
+                  )}
+                  <p className="text-[8px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-[0.3em] text-center">DoAble India Premium</p>
+               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Form Modal */}
       <AnimatePresence>

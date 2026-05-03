@@ -3,10 +3,9 @@ import { collection, query, where, orderBy, onSnapshot, limit } from 'firebase/f
 import { db } from '../firebase';
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 import { Alert, UserType } from '../types';
-import { motion, AnimatePresence } from 'motion/react';
-import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, Play, Volume2, Settings, X, MessageSquare, Phone, Mail, CreditCard, ChevronRight, Share2, User as UserIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, X, MessageSquare, Phone, Mail, ChevronRight } from 'lucide-react';
 import { cn } from '../utils';
-import { CITIES_LIST, CLASSES_LIST } from '../constants';
 
 import { createChat } from '@n8n/chat';
 import '@n8n/chat/style.css';
@@ -16,22 +15,15 @@ interface AlertsViewProps {
   userGender?: string | null;
   userClasses?: string[];
   userType?: UserType | null;
-  setUserCity: (city: string) => void;
-  setUserGender: (gender: string | null) => void;
-  setUserClasses: (classes: string[]) => void;
-  setUserType: (type: UserType | null) => void;
   isAdminUser?: boolean;
   onAdminClick?: () => void;
   currentUser?: any;
   handleSignIn?: () => void;
   showFormModal: boolean;
   setShowFormModal: (show: boolean) => void;
-  userName?: string | null;
-  setUserName: (name: string | null) => void;
 }
 
-// ─── Haptic-like tap sound & vibrate ───────────────────────────────
-const TAP_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'; // Apple-style Tock
+const TAP_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3';
 let tapAudio: HTMLAudioElement | null = null;
 try {
   tapAudio = new Audio(TAP_SOUND_URL);
@@ -53,25 +45,13 @@ function playTapSound() {
 
 const AlertsView: React.FC<AlertsViewProps> = ({ 
   city, userGender, userClasses, userType, 
-  setUserCity, setUserGender, setUserClasses, setUserType,
-  isAdminUser, onAdminClick, currentUser, handleSignIn, showFormModal, setShowFormModal,
-  userName, setUserName
+  isAdminUser, onAdminClick, currentUser, handleSignIn, showFormModal, setShowFormModal
 }) => {
-  const [activeTab, setActiveTab] = useState<'feed' | 'support' | 'setup'>('feed');
+  const [activeTab, setActiveTab] = useState<'feed' | 'support'>('feed');
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTone, setSelectedTone] = useState('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3'); 
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const domAudioRef = React.useRef<HTMLAudioElement | null>(null);
-
-  // Hardened Permission State
-  const [permission, setPermission] = useState<NotificationPermission>(() => {
-    try {
-      return ('Notification' in window) ? Notification.permission : 'denied';
-    } catch (e) {
-      return 'denied';
-    }
-  });
 
   const ALERT_JINGLE = 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3';
 
@@ -107,24 +87,11 @@ const AlertsView: React.FC<AlertsViewProps> = ({
     } catch (e) {}
   };
 
-  const updatePreference = (key: string, value: any) => {
-    try {
-      const storageValue = (value === null || value === undefined) ? '' : (typeof value === 'string' ? value : JSON.stringify(value));
-      localStorage.setItem(key, storageValue);
-      
-      if (key === 'userCity' && setUserCity) setUserCity(value);
-      if (key === 'userGender' && setUserGender) setUserGender(value);
-      if (key === 'userClasses' && setUserClasses) setUserClasses(value);
-      if (key === 'userType' && setUserType) setUserType(value as UserType);
-      if (key === 'userName' && setUserName) setUserName(value);
-    } catch (e) {}
-  };
-
   const tutorFormIframe = `<iframe aria-label='Tutor Onboarding Form' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/UpdateForm/formperma/5q6-EFWKiWGtqhyYNfjqMGyCYXXst3OOPqOmQCD7yT8?zf_enablecamera=true' allow="camera;"></iframe>`;
   const parentFormIframe = `<iframe aria-label='Share Your Requirement' frameborder="0" style="height:600px;width:100%;border:none;" src='https://forms.doableindia.com/info2701/form/ShareRequirement/formperma/Y-6ujBL2ntI_ufnw8JPcHpyFOAGHButgY6SigoCfs6o' allow="geolocation;" allowfullscreen="true"></iframe>`;
 
   useEffect(() => {
-    if (activeTab === 'support' || activeTab === 'setup') {
+    if (activeTab === 'support') {
       try {
         if (domAudioRef.current) {
           domAudioRef.current.pause();
@@ -132,9 +99,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
         }
       } catch (e) {}
       setIsPlaying(null);
-    }
 
-    if (activeTab === 'support') {
       const initChat = () => {
         const container = document.getElementById('n8n-chat-container');
         if (container && container.innerHTML === '') {
@@ -173,20 +138,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({
         p.then(() => setIsPlaying(url)).catch(() => setIsPlaying(null));
       }
     } catch (e) {}
-  };
-
-  const playPreview = (url: string) => {
-    if (isPlaying === url) {
-      try {
-        if (domAudioRef.current) {
-          domAudioRef.current.pause();
-          domAudioRef.current.currentTime = 0;
-        }
-      } catch (e) {}
-      setIsPlaying(null);
-      return;
-    }
-    playSound(url, 0.7);
   };
 
   useEffect(() => {
@@ -231,15 +182,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({
         new Notification(`New Alert: ${alert.sender || 'City Update'}`, { body: alert.message });
       }
     }
-  };
-
-  const requestPermission = async () => {
-    if (!('Notification' in window)) return;
-    try {
-      const result = await Notification.requestPermission();
-      setPermission(result);
-      if (result === 'granted') playSound(selectedTone, 0.3);
-    } catch (e) {}
   };
 
   useEffect(() => {
@@ -287,21 +229,16 @@ const AlertsView: React.FC<AlertsViewProps> = ({
     }
   };
 
-  const renderMessage = (text: string) => {
-    if (!text) return null;
-    return text; // Simplified for stability
-  };
-
   const JobAlertCard = ({ alert, isNew }: { alert: Alert, isNew: boolean }) => {
     const orderIdMatch = alert.message.match(/Order ID:\s*(\d+)/i);
     const orderId = orderIdMatch ? orderIdMatch[1] : 'N/A';
     return (
-      <div className="bg-white rounded-[12px] overflow-hidden shadow-sm border border-[#eee] mb-4 p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-[12px] overflow-hidden shadow-sm border border-[#eee] dark:border-slate-800 mb-4 p-4">
         <div className="flex justify-between items-center mb-2">
           <span className="text-[#e11d48] font-black text-[11px] uppercase">Job Alert | {orderId}</span>
           <button onClick={() => hideAlert(alert.id)} className="text-slate-400"><X size={14} /></button>
         </div>
-        <div className="text-sm font-bold text-slate-700 whitespace-pre-wrap">{alert.message}</div>
+        <div className="text-sm font-bold text-slate-700 dark:text-slate-200 whitespace-pre-wrap">{alert.message}</div>
       </div>
     );
   };
@@ -323,8 +260,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
         <div className="bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-[22px] flex gap-1 border border-slate-200 dark:border-slate-800">
           {[
             { id: 'feed', label: 'Feed', icon: Bell },
-            { id: 'support', label: 'Support', icon: MessageSquare },
-            { id: 'setup', label: 'Settings', icon: Settings }
+            { id: 'support', label: 'Support', icon: MessageSquare }
             ].map((tab) => (
             <button key={tab.id} onClick={() => { unlockAudio(); playTapSound(); setActiveTab(tab.id as any); }}
               className={cn("flex-1 flex items-center justify-center gap-2 py-3 rounded-[16px] text-[10px] font-black uppercase transition-all", activeTab === tab.id ? "bg-primary text-white" : "text-slate-400")}>
@@ -339,67 +275,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({
         {activeTab === 'support' ? (
           <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border-2 border-slate-100 dark:border-slate-800 shadow-sm">
              <div id="n8n-chat-container" className="w-full h-[600px] rounded-[32px] overflow-hidden bg-slate-50" />
-          </div>
-        ) : activeTab === 'setup' ? (
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border-2 border-slate-100 dark:border-slate-800 shadow-sm">
-               <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
-                  <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">App Settings</h4>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Personal Preferences</p>
-               </div>
-               
-               <div className="space-y-6 mt-8">
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Full Name</label>
-                    <input 
-                      type="text" 
-                      value={userName || ''} 
-                      onChange={e => updatePreference('userName', e.target.value)} 
-                      placeholder="Enter your name..."
-                      className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 focus:border-primary transition-all text-slate-900 dark:text-[#0FE8F2]" 
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Nature</label>
-                      <select 
-                        value={userType || ''} 
-                        onChange={e => updatePreference('userType', e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
-                      >
-                        <option value="" disabled>Select Role...</option>
-                        <option value="parent">👨 Parent</option>
-                        <option value="teacher">🎓 Tutor</option>
-                      </select>
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Primary City</label>
-                      <select 
-                        value={city || 'All'} 
-                        onChange={e => updatePreference('userCity', e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
-                      >
-                        <option value="Ghaziabad">Ghaziabad</option>
-                        <option value="Noida">Noida</option>
-                        <option value="Delhi">Delhi</option>
-                        <option value="Gurgaon">Gurgaon</option>
-                        <option value="Faridabad">Faridabad</option>
-                        <option value="All">All Cities</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
-                    <a 
-                      href="https://zohosecurepay.in/checkout/i9db4wt2-verz1l6gn6ogo/Make-a-secure-payment-now" 
-                      target="_blank" 
-                      rel="noreferrer"
-                      className="w-full bg-[#059669] text-white p-5 rounded-2xl flex items-center justify-between group active:scale-95 transition-all shadow-lg"
-                    >
-                      <span className="text-[11px] font-black uppercase tracking-widest">Registration Fee / Payment</span>
-                    </a>
-                  </div>
-               </div>
           </div>
         ) : (
           <div className="space-y-4">
@@ -423,6 +298,30 @@ const AlertsView: React.FC<AlertsViewProps> = ({
           </div>
         )}
       </div>
+
+      {/* Form Modal */}
+      <AnimatePresence>
+        {showFormModal && (
+          <div className="fixed inset-0 z-[6000] flex items-center justify-center p-4 sm:p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFormModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">{userType === 'teacher' ? 'Tutor Registration' : 'Requirement Details'}</h3>
+                  <p className="text-[10px] font-black text-primary uppercase tracking-widest">DoAble India Official Form</p>
+                </div>
+                <button onClick={() => setShowFormModal(false)} className="p-3 bg-white dark:bg-slate-800 rounded-2xl text-slate-400 hover:text-slate-900 dark:hover:white transition-colors shadow-sm"><X size={20} strokeWidth={3} /></button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-2 bg-white">
+                <div dangerouslySetInnerHTML={{ __html: userType === 'teacher' ? tutorFormIframe : parentFormIframe }} />
+              </div>
+              <div className="p-4 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 text-center">
+                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">Secure connection established with doableindia.com</p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
