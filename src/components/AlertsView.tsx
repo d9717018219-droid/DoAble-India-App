@@ -279,15 +279,24 @@ const AlertsView: React.FC<AlertsViewProps> = ({
               transition={{ duration: 0.3 }}
               className="space-y-6"
             >
-              {/* 1. n8n AI Chat (On Top) */}
-              <div className="bg-white dark:bg-slate-900 p-2 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-xl overflow-hidden min-h-[500px]">
-                <div id="n8n-chat-container" className="w-full h-[500px] rounded-[32px] overflow-hidden bg-slate-50/50 dark:bg-slate-900" />
+              {/* 1. n8n AI Chat (Main Interface) */}
+              <div className="bg-white dark:bg-slate-900 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-xl overflow-hidden min-h-[550px] flex flex-col">
+                <div className="p-6 border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20 flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                    <MessageSquare size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-white">AI Support Agent</h3>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Active & Ready to help</p>
+                  </div>
+                </div>
+                <div id="n8n-chat-container" className="flex-1 w-full bg-slate-50/30 dark:bg-slate-900 h-[500px]" />
               </div>
 
-              {/* Quick Actions (The Fix for non-clickable text) */}
+              {/* Quick Actions (Integrated Buttons) */}
               <div className="space-y-3">
                 <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Select a Topic</label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 gap-2">
                   {[
                     { label: 'Getting Less Leads 📉', msg: 'I am getting less leads' },
                     { label: 'Not getting Alerts 🔔', msg: 'I am not getting alerts' },
@@ -301,67 +310,12 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                           chatInstanceRef.current.sendMessage(action.msg);
                         }
                       }}
-                      className="flex items-center justify-center p-3 bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all text-[10px] font-black uppercase text-slate-600 dark:text-slate-300 hover:border-primary/30"
+                      className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-[0.98] transition-all text-[11px] font-black uppercase text-slate-700 dark:text-slate-300 hover:border-primary/30"
                     >
                       {action.label}
+                      <ChevronRight size={14} className="text-slate-300" />
                     </button>
                   ))}
-                </div>
-              </div>
-
-              {/* 2. Traditional Support (Email, WhatsApp, Call) */}
-              <div className="grid grid-cols-1 gap-3">
-                <a href="mailto:info@doableindia.com" className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500"><Mail size={24} /></div>
-                    <div><span className="block text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">Email Support</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">info@doableindia.com</span></div>
-                  </div>
-                  <ChevronRight size={16} className="text-slate-300" />
-                </a>
-                <a href={`https://wa.me/919873965489?text=Hello%20DoAble%20Team`} target="_blank" rel="noreferrer" className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500"><MessageSquare size={24} /></div>
-                    <div><span className="block text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">WhatsApp Chat</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Instant Support</span></div>
-                  </div>
-                  <ChevronRight size={16} className="text-slate-300" />
-                </a>
-                <a href="tel:+919971969197" className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500"><Phone size={24} /></div>
-                    <div><span className="block text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">Call Helpline</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">9 AM - 6 PM</span></div>
-                  </div>
-                  <ChevronRight size={16} className="text-slate-300" />
-                </a>
-              </div>
-
-              {/* 3. Social Hub (At the bottom) */}
-              <div className="bg-white dark:bg-slate-900 p-6 rounded-[32px] border-2 border-slate-50 dark:border-slate-800 shadow-sm">
-                <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-[0.2em] text-center">Connect with DoAble Social</label>
-                <div className="grid grid-cols-4 gap-4">
-                  <a href="https://instagram.com/doableindia" target="_blank" rel="noreferrer" onClick={() => playTapSound()} className="flex flex-col items-center gap-2 group">
-                    <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500 group-hover:scale-110 group-active:scale-95 transition-all">
-                      <Instagram size={24} />
-                    </div>
-                    <span className="text-[8px] font-black uppercase tracking-tighter text-slate-500 dark:text-slate-400">Instagram</span>
-                  </a>
-                  <a href="https://facebook.com/doableindia" target="_blank" rel="noreferrer" onClick={() => playTapSound()} className="flex flex-col items-center gap-2 group">
-                    <div className="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 group-active:scale-95 transition-all">
-                      <Facebook size={24} />
-                    </div>
-                    <span className="text-[8px] font-black uppercase tracking-tighter text-slate-500 dark:text-slate-400">Facebook</span>
-                  </a>
-                  <a href="https://linkedin.com/company/doableindia" target="_blank" rel="noreferrer" onClick={() => playTapSound()} className="flex flex-col items-center gap-2 group">
-                    <div className="w-12 h-12 bg-sky-700/10 rounded-2xl flex items-center justify-center text-sky-700 group-hover:scale-110 group-active:scale-95 transition-all">
-                      <Linkedin size={24} />
-                    </div>
-                    <span className="text-[8px] font-black uppercase tracking-tighter text-slate-500 dark:text-slate-400">LinkedIn</span>
-                  </a>
-                  <a href="https://x.com/doableindia" target="_blank" rel="noreferrer" onClick={() => playTapSound()} className="flex flex-col items-center gap-2 group">
-                    <div className="w-12 h-12 bg-slate-900/10 dark:bg-white/10 rounded-2xl flex items-center justify-center text-slate-900 dark:text-white group-hover:scale-110 group-active:scale-95 transition-all">
-                      <Twitter size={24} />
-                    </div>
-                    <span className="text-[8px] font-black uppercase tracking-tighter text-slate-500 dark:text-slate-400">X (Twitter)</span>
-                  </a>
                 </div>
               </div>
             </motion.div>

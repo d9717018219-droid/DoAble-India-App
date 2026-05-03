@@ -651,8 +651,8 @@ export default function App() {
 
 function NavButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
   return (
-    <button onClick={onClick} className={cn("flex flex-col items-center gap-1 py-3 px-5 rounded-2xl transition-all duration-300 active:scale-110", active ? "bg-white text-slate-900 shadow-lg" : "text-white/40 hover:text-white")}>
-      {icon}<span className="text-[9px] font-black uppercase tracking-widest">{label}</span>
+    <button onClick={onClick} className={cn("flex-1 flex flex-col items-center gap-1 py-2.5 px-1 rounded-2xl transition-all duration-300 active:scale-110", active ? "bg-white text-slate-900 shadow-lg" : "text-white/40 hover:text-white")}>
+      {icon}<span className="text-[8px] font-black uppercase tracking-tighter">{label}</span>
     </button>
   );
 }
