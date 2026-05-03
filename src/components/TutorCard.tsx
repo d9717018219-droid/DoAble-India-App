@@ -184,9 +184,9 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
       {/* ─── CONTENT ─── */}
       <div className="card-content p-5 flex-1 space-y-4">
           {paragraphs && (
-            <div className="about-card bg-gradient-to-br from-[#F0F9FF] to-[#FCE7F3] dark:bg-[#3D3D3D] p-3.5 rounded-xl border-l-4 border-[#4ECDC4]">
+            <div className="about-card bg-gradient-to-br from-[#F0F9FF] to-[#FCE7F3] dark:from-slate-800 dark:to-slate-900 p-3.5 rounded-xl border-l-4 border-[#4ECDC4] shadow-sm">
                 <div className="about-label text-[10px] text-[#4ECDC4] font-bold uppercase">ℹ️ About Me</div>
-                <div className="about-text text-[12px] text-[#2C3E50] dark:text-[#E0E0E0] mt-1.5 leading-relaxed space-y-2">
+                <div className="about-text text-[12px] text-[#2C3E50] dark:text-slate-200 mt-1.5 leading-relaxed space-y-2 font-medium">
                     {paragraphs.map((p, i) => <p key={i}>{p}</p>)}
                 </div>
             </div>
