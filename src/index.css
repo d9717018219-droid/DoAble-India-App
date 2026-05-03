@@ -269,6 +269,22 @@ body {
   height: 44px !important;
 }
 
+/* ═══════════════ BRANDING REMOVAL ═══════════════ */
+/* Hide all n8n branding, footers, and links */
+#support-chat-mount .n8n-chat-window-footer,
+#support-chat-mount .n8n-chat-window-footer-text,
+#support-chat-mount a[href*="n8n"],
+#support-chat-mount .n8n-chat-powered-by,
+.n8n-chat-powered-by {
+  display: none !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* Hide the floating launcher bubble */
 .n8n-chat-launcher, .n8n-chat-toggle {
   display: none !important;
