@@ -542,31 +542,77 @@ export default function App() {
       </AnimatePresence>
 
       <header className={cn("p-[20px_16px] sm:p-[30px_20px] text-center border-b relative transition-all duration-500 overflow-hidden", userCity ? "text-white border-transparent" : "bg-white border-slate-50")} style={userCity ? { background: getCityTheme(userCity).grad } : {}}>
+        {/* Animated Background Elements */}
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
+          transition={{ duration: 8, repeat: Infinity }}
+          className="absolute -top-10 -left-10 w-40 h-40 bg-white rounded-full blur-3xl pointer-events-none"
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.3, 1], opacity: [0.05, 0.15, 0.05] }}
+          transition={{ duration: 10, repeat: Infinity, delay: 1 }}
+          className="absolute -bottom-10 -right-10 w-50 h-50 bg-accent rounded-full blur-3xl pointer-events-none"
+        />
+
         <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-10">{currentUser && <button onClick={() => firebaseAuth.signOut()} className="text-white/70 hover:text-white transition-colors"><LogOut size={18} /></button>}</div>
-        <h1 className="text-[24px] sm:text-[32px] font-[900] tracking-tighter relative z-10">
-          {activeTab === 'home' && (<div className="flex flex-col items-center"><span className="truncate max-w-[280px] sm:max-w-none">{userName ? `Welcome, ${userName}` : (userType === 'teacher' ? 'Welcome, Educator' : (userType === 'parent' ? 'Welcome, Parent' : 'DoAble India'))}</span><span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] opacity-80 mt-1 animate-pulse">{getDynamicGreeting()}</span></div>)}
+        <motion.h1 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          key={activeTab}
+          className="text-[24px] sm:text-[32px] font-[900] tracking-tighter relative z-10"
+        >
+          {activeTab === 'home' && (<div className="flex flex-col items-center"><span className="truncate max-w-[280px] sm:max-w-none">{userName ? `Welcome, ${userName}` : (userType === 'teacher' ? 'Welcome, Educator' : (userType === 'parent' ? 'Welcome, Parent' : 'DoAble India'))}</span><span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] opacity-80 mt-1">{getDynamicGreeting()}</span></div>)}
           {activeTab === 'jobs' && 'Jobs Portal'}{activeTab === 'tutors' && 'Expert Tutors'}{activeTab === 'alerts' && 'Broadcasts'}
-        </h1>
-        <div className="flex items-center justify-center gap-2 sm:gap-3 mt-3 relative z-10">
+        </motion.h1>
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="flex items-center justify-center gap-2 sm:gap-3 mt-3 relative z-10"
+        >
           <div className="bg-white/15 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10"><span className="text-[9px] font-black uppercase text-white">{activeLeadsCount} Jobs</span></div>
           <div className="bg-white/15 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10"><span className="text-[9px] font-black uppercase text-white">{activeTutorsCount} Tutors</span></div>
-        </div>
+        </motion.div>
       </header>
 
       <main className="container mx-auto p-0 sm:p-[10px] max-w-[1200px] pb-32">
         {activeTab === 'home' && (
           <div className="space-y-12 py-6 flex flex-col items-center px-4 sm:px-0">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full min-h-[45vh] sm:min-h-[450px] p-8 sm:p-20 rounded-[48px] sm:rounded-[64px] relative overflow-hidden shadow-2xl border border-white/10 mesh-gradient flex items-center">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }} 
+              animate={{ opacity: 1, scale: 1 }} 
+              className="w-full min-h-[45vh] sm:min-h-[450px] p-8 sm:p-20 rounded-[48px] sm:rounded-[64px] relative overflow-hidden shadow-2xl border border-white/10 mesh-gradient flex items-center"
+            >
               <div className="absolute inset-0 bg-black/15 backdrop-blur-[1px] z-0" />
               <div className="relative z-10 space-y-10 w-full">
                  <div className="space-y-6 text-center sm:text-left">
-                    <h3 className="text-4xl sm:text-7xl font-[900] text-white tracking-tighter leading-[1.05]">Discovery Made<br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFE66D] to-white">Simple & Live</span></h3>
-                    <p className="text-white/85 text-sm sm:text-xl font-medium leading-[1.6] max-w-2xl">Connect with elite educators and premium teaching opportunities.</p>
+                    <motion.h3 
+                      initial={{ x: -30, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 0.2 }}
+                      className="text-4xl sm:text-7xl font-[900] text-white tracking-tighter leading-[1.05]"
+                    >
+                      Discovery Made<br/>
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFE66D] to-white">Simple & Live</span>
+                    </motion.h3>
+                    <motion.p 
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="text-white/85 text-sm sm:text-xl font-medium leading-[1.6] max-w-2xl"
+                    >
+                      Connect with elite educators and premium teaching opportunities.
+                    </motion.p>
                  </div>
-                 <div className="flex flex-col sm:flex-row gap-5">
+                 <motion.div 
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    className="flex flex-col sm:flex-row gap-5"
+                 >
                     <button onClick={() => { playTapSound(); setFormType('teacher'); setShowFormModal(true); }} className="bg-[#FFE66D] text-slate-900 px-10 py-6 rounded-[28px] font-[900] text-sm uppercase flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all group"><GraduationCap size={22} /> Become a Tutor</button>
                     <button onClick={() => { playTapSound(); setFormType('parent'); setShowFormModal(true); }} className="bg-white/10 backdrop-blur-xl text-white border-2 border-white/30 px-10 py-6 rounded-[28px] font-[900] text-sm uppercase flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all group"><Sparkles size={20} className="text-[#FFE66D]" /> Book Free Trial</button>
-                 </div>
+                 </motion.div>
               </div>
             </motion.div>
           </div>
