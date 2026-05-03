@@ -168,29 +168,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({
     }
   }, [activeTab]);
 
-  const notifyUser = (alert: Alert) => {
-    if (hiddenAlertIds.includes(alert.id)) return;
-    const matchesGender = !alert.gender || alert.gender === 'Any' || alert.gender === userGender;
-    const matchesClass = !alert.targetClass || alert.targetClass === 'All' || (userClasses && userClasses.includes(alert.targetClass));
-    const matchesUserType = !alert.targetUserType || alert.targetUserType === 'all' || alert.targetUserType === userType;
-    if (!matchesGender || !matchesClass || !matchesUserType) return;
-
-    if (domAudioRef.current) {
-      domAudioRef.current.src = ALERT_JINGLE;
-      domAudioRef.current.play().catch(() => {});
-    }
-
-    if ('Notification' in window && Notification.permission === 'granted') {
-      try {
-        navigator.serviceWorker.ready.then(registration => {
-          registration.showNotification(`Alert: ${alert.sender || 'Update'}`, { body: alert.message, icon: '/vite.svg', tag: alert.id });
-        });
-      } catch (e) {
-        new Notification(`Alert: ${alert.sender || 'Update'}`, { body: alert.message });
-      }
-    }
-  };
-
   useEffect(() => {
     setLoading(true);
     const q = query(collection(db, 'alerts'), where('city', 'in', [city || 'All', 'All']), orderBy('timestamp', 'desc'), limit(20));
@@ -220,13 +197,13 @@ const AlertsView: React.FC<AlertsViewProps> = ({
     }
   };
 
-  if (loading) return <div className="py-20 text-center text-slate-400">Loading signals...</div>;
+  if (loading) return <div className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px] animate-pulse">Synchronizing Signals...</div>;
 
   return (
     <div className="space-y-4 pb-24">
       <audio ref={domAudioRef} onEnded={() => setIsPlaying(null)} className="hidden" preload="auto" crossOrigin="anonymous" />
       <header className="px-6 py-6 flex items-center justify-between">
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">Broadcasts</h2>
+          <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">Broadcasts</h2>
           <div className="bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20"><span className="text-[9px] font-black text-emerald-600 uppercase">Live</span></div>
       </header>
 
@@ -248,10 +225,37 @@ const AlertsView: React.FC<AlertsViewProps> = ({
 
       <div className="px-6 space-y-4">
         {activeTab === 'support' ? (
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border-2 border-slate-100 dark:border-slate-800 shadow-sm"><div id="n8n-chat-container" className="w-full h-[600px] rounded-[32px] overflow-hidden bg-slate-50" /></div>
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            <div className="grid grid-cols-1 gap-3">
+              <a href={`https://wa.me/919873965489?text=Hello%20DoAble%20Team`} target="_blank" rel="noreferrer" className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500"><MessageSquare size={24} /></div>
+                  <div><span className="block text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">WhatsApp Chat</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Instant Support</span></div>
+                </div>
+                <ChevronRight size={16} className="text-slate-300" />
+              </a>
+              <a href="tel:+919971969197" className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500"><Phone size={24} /></div>
+                  <div><span className="block text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">Call Helpline</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">9 AM - 6 PM</span></div>
+                </div>
+                <ChevronRight size={16} className="text-slate-300" />
+              </a>
+              <a href="mailto:info@doableindia.com" className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500"><Mail size={24} /></div>
+                  <div><span className="block text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">Email Support</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">info@doableindia.com</span></div>
+                </div>
+                <ChevronRight size={16} className="text-slate-300" />
+              </a>
+            </div>
+            <div className="bg-white dark:bg-slate-900 p-2 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-xl overflow-hidden">
+               <div id="n8n-chat-container" className="w-full h-[500px] rounded-[32px] overflow-hidden bg-slate-50/50 dark:bg-slate-900" />
+            </div>
+          </div>
         ) : activeTab === 'setup' ? (
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 space-y-6">
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-8">
+            <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-sm space-y-8">
                <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
                   <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">App Settings</h4>
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Preferences & Notifications</p>
@@ -260,7 +264,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Receive Notifications</label>
                     <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                       <span className="text-xs font-black uppercase">{permission === 'granted' ? 'Enabled' : 'Disabled'}</span>
+                       <span className="text-xs font-black uppercase text-slate-700 dark:text-slate-200">{permission === 'granted' ? 'Enabled' : 'Disabled'}</span>
                        {permission !== 'granted' && <button onClick={requestPermission} className="bg-primary text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase">Enable</button>}
                     </div>
                   </div>
@@ -271,6 +275,12 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Nature</label><select value={userType || ''} onChange={e => updatePreference('userType', e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="parent">👨 Parent</option><option value="teacher">🎓 Tutor</option></select></div>
                     <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">City</label><select value={city || 'All'} onChange={e => updatePreference('userCity', e.target.value)} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="Ghaziabad">Ghaziabad</option><option value="Noida">Noida</option><option value="Delhi">Delhi</option><option value="Gurgaon">Gurgaon</option><option value="Faridabad">Faridabad</option><option value="All">All Cities</option></select></div>
+                  </div>
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <a href="https://zohosecurepay.in/checkout/i9db4wt2-verz1l6gn6ogo/Make-a-secure-payment-now" target="_blank" rel="noreferrer" className="w-full bg-[#059669] text-white p-5 rounded-2xl flex items-center justify-between group active:scale-95 transition-all shadow-lg"><span className="text-[11px] font-black uppercase tracking-widest">Registration Fee / Payment</span><CreditCard size={18} strokeWidth={3} /></a>
+                  </div>
+                  <div className="text-center">
+                    <button onClick={() => { if (isAdminUser && onAdminClick) onAdminClick(); else if (handleSignIn) handleSignIn(); }} className="text-[9px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-widest hover:text-slate-400 transition-colors">System Management</button>
                   </div>
                </div>
             </div>
@@ -283,8 +293,8 @@ const AlertsView: React.FC<AlertsViewProps> = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
-            {alerts.length === 0 ? <div className="py-20 text-center text-slate-400">No alerts found.</div> : 
+          <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            {alerts.length === 0 ? <div className="py-20 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">No alerts found.</div> : 
               alerts.filter(a => !hiddenAlertIds.includes(a.id)).map((alert) => (
                 <div key={alert.id} className={cn("p-6 rounded-[32px] border-2 shadow-sm relative", getBg(alert.type))}>
                   <div className="flex gap-4">
