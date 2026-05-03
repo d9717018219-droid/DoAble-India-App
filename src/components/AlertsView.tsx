@@ -3,7 +3,7 @@ import { collection, query, where, orderBy, onSnapshot, limit } from 'firebase/f
 import { db } from '../firebase';
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 import { Alert, UserType } from '../types';
-import { motion, AnimatePresence } from 'motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, X, MessageSquare, Phone, Mail, ChevronRight } from 'lucide-react';
 import { cn } from '../utils';
 
@@ -21,6 +21,10 @@ interface AlertsViewProps {
   handleSignIn?: () => void;
   showFormModal: boolean;
   setShowFormModal: (show: boolean) => void;
+  setUserCity: (city: string) => void;
+  setUserGender: (gender: string | null) => void;
+  setUserClasses: (classes: string[]) => void;
+  setUserType: (type: UserType | null) => void;
 }
 
 const TAP_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3';
@@ -174,8 +178,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
           registration.showNotification(`New Alert: ${alert.sender || 'City Update'}`, {
             body: alert.message,
             icon: '/vite.svg',
-            tag: alert.id,
-            renotify: true
+            tag: alert.id
           });
         });
       } catch (e) {
@@ -229,7 +232,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
     }
   };
 
-  const JobAlertCard = ({ alert, isNew }: { alert: Alert, isNew: boolean }) => {
+  const JobAlertCard = ({ alert }: any) => {
     const orderIdMatch = alert.message.match(/Order ID:\s*(\d+)/i);
     const orderId = orderIdMatch ? orderIdMatch[1] : 'N/A';
     return (
@@ -280,7 +283,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
           <div className="space-y-4">
             {allFilteredAlerts.length === 0 ? <div className="py-20 text-center text-slate-400">No alerts found.</div> : 
               allFilteredAlerts.map((alert) => {
-                if (alert.message.toLowerCase().includes('order id')) return <JobAlertCard key={alert.id} alert={alert} isNew={false} />;
+                if (alert.message.toLowerCase().includes('order id')) return <JobAlertCard key={alert.id} alert={alert} />;
                 return (
                   <div key={alert.id} className={cn("p-6 rounded-[32px] border-2 shadow-sm relative", getBg(alert.type))}>
                     <div className="flex gap-4">
@@ -299,7 +302,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({
         )}
       </div>
 
-      {/* Form Modal */}
       <AnimatePresence>
         {showFormModal && (
           <div className="fixed inset-0 z-[6000] flex items-center justify-center p-4 sm:p-6">
