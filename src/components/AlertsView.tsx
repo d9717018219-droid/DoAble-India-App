@@ -4,7 +4,7 @@ import { db } from '../firebase';
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 import { Alert, UserType } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, Play, Volume2, Settings, X, MessageSquare, Phone, Mail, CreditCard, ChevronRight, Share2, User } from 'lucide-react';
+import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, Play, Volume2, Settings, X, MessageSquare, Phone, Mail, CreditCard, ChevronRight, Share2, UserCircle } from 'lucide-react';
 import { cn } from '../utils';
 import { CITIES_LIST, CLASSES_LIST } from '../constants';
 
@@ -107,13 +107,19 @@ const AlertsView: React.FC<AlertsViewProps> = ({
   );
 
   const updatePreference = (key: string, value: any) => {
-    localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+    try {
+      const storageValue = (value === null || value === undefined) ? '' : (typeof value === 'string' ? value : JSON.stringify(value));
+      localStorage.setItem(key, storageValue);
+    } catch (e) {
+      console.error('Storage update failed:', e);
+    }
+
     switch(key) {
-      case 'userCity': setUserCity(value); break;
-      case 'userGender': setUserGender(value); break;
-      case 'userClasses': setUserClasses(value); break;
-      case 'userType': setUserType(value as UserType); break;
-      case 'userName': setUserName(value); break;
+      case 'userCity': if (setUserCity) setUserCity(value); break;
+      case 'userGender': if (setUserGender) setUserGender(value); break;
+      case 'userClasses': if (setUserClasses) setUserClasses(value); break;
+      case 'userType': if (setUserType) setUserType(value as UserType); break;
+      case 'userName': if (setUserName) setUserName(value); break;
     }
   };
 
@@ -124,11 +130,15 @@ const AlertsView: React.FC<AlertsViewProps> = ({
   useEffect(() => {
     if (activeTab === 'support' || activeTab === 'setup') {
       // Stop long jingle if user switches to these tabs
-      if (domAudioRef.current) {
-        domAudioRef.current.pause();
-        domAudioRef.current.currentTime = 0;
-        setIsPlaying(null);
+      try {
+        if (domAudioRef.current) {
+          domAudioRef.current.pause();
+          domAudioRef.current.currentTime = 0;
+        }
+      } catch (e) {
+        console.error('Audio pause failed:', e);
       }
+      setIsPlaying(null);
     }
 
     if (activeTab === 'support') {
@@ -631,7 +641,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                         placeholder="Enter your name..."
                         className="w-full bg-slate-50 dark:bg-slate-800 p-4 pl-12 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 focus:border-primary transition-all text-slate-900 dark:text-[#0FE8F2] placeholder:text-slate-400 dark:placeholder:text-slate-600"
                       />
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600" size={18} />
+                      <UserCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600" size={18} />
                     </div>
                   </div>
 
