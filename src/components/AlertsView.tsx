@@ -167,8 +167,8 @@ const AlertsView: React.FC<AlertsViewProps> = ({
           
           container.innerHTML = ''; 
           try {
-            chatInstanceRef.current = (window as any).chatInstance = createChat({
-              target: '#n8n-chat-container',
+            const chatInstance = createChat({
+              target: container,
               mode: 'fullscreen',
               showWelcomeScreen: false,
               webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
@@ -187,6 +187,17 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                 },
               },
             });
+
+            chatInstanceRef.current = chatInstance;
+
+            // Small delay to ensure DOM is ready then force open
+            setTimeout(() => {
+              if (chatInstance && typeof chatInstance.toggle === 'function') {
+                chatInstance.toggle(true);
+              } else if (chatInstance && typeof chatInstance.open === 'function') {
+                chatInstance.open();
+              }
+            }, 100);
 
             console.log('n8n Chat initialized successfully');
           } catch (err) {

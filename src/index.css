@@ -156,36 +156,45 @@
   @apply absolute top-3 right-3 w-9 h-9 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center text-white border-none cursor-pointer z-10 transition-transform active:scale-95;
 }
 
-/* Ensure embedded n8n chat takes full space of its container */
-#n8n-chat-container .n8n-chat-window {
+/* Ensure embedded n8n chat takes full space of its container and is NOT a popup */
+#n8n-chat-container {
   position: relative !important;
+  overflow: hidden !important;
+  min-height: 600px !important;
+}
+
+#n8n-chat-container .n8n-chat-window {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
   width: 100% !important;
-  height: 600px !important;
+  height: 100% !important;
+  margin: 0 !important;
   right: auto !important;
   bottom: auto !important;
   box-shadow: none !important;
   border-radius: 0 !important;
   border: none !important;
-  top: 0 !important;
-  left: 0 !important;
   z-index: 1 !important;
+  display: flex !important;
 }
 
-/* Hide the n8n launcher bubble/icon completely */
+/* Hide the n8n launcher bubble/icon everywhere to prevent confusion */
 .n8n-chat-launcher {
   display: none !important;
 }
 
-/* Ensure the chat window is always visible and doesn't animate from corner */
-.n8n-chat-window-closed {
-  display: block !important;
+/* Force the chat window to be open and visible when inside the container */
+#n8n-chat-container .n8n-chat-window-closed {
+  display: flex !important;
   opacity: 1 !important;
   visibility: visible !important;
   transform: none !important;
 }
 
-/* Fix for n8n internal header shadow if any */
-.n8n-chat-window-header {
-  border-bottom: 1px solid rgba(0,0,0,0.05) !important;
-  box-shadow: none !important;
+/* Fix for n8n internal components to use full height */
+#n8n-chat-container .n8n-chat-window-content {
+  height: 100% !important;
 }
