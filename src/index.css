@@ -160,8 +160,32 @@
 #n8n-chat-container .n8n-chat-window {
   position: relative !important;
   width: 100% !important;
-  height: 100% !important;
+  height: 600px !important;
   right: auto !important;
   bottom: auto !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+  top: 0 !important;
+  left: 0 !important;
+  z-index: 1 !important;
+}
+
+/* Hide the n8n launcher bubble/icon completely */
+.n8n-chat-launcher {
+  display: none !important;
+}
+
+/* Ensure the chat window is always visible and doesn't animate from corner */
+.n8n-chat-window-closed {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+/* Fix for n8n internal header shadow if any */
+.n8n-chat-window-header {
+  border-bottom: 1px solid rgba(0,0,0,0.05) !important;
   box-shadow: none !important;
 }

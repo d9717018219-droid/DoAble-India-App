@@ -167,9 +167,15 @@ const AlertsView: React.FC<AlertsViewProps> = ({
           
           container.innerHTML = ''; 
           try {
-            chatInstanceRef.current = createChat({
+            chatInstanceRef.current = (window as any).chatInstance = createChat({
               target: '#n8n-chat-container',
+              mode: 'fullscreen',
+              showWelcomeScreen: false,
               webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
+              initialMessages: [
+                'Hi there! 👋 How can DoAble India help you today?',
+                'Type your query below to get started.',
+              ],
               i18n: {
                 en: { 
                   title: 'DoAble Support', 
@@ -180,13 +186,11 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                   closeButtonTooltip: 'Close' 
                 },
               },
-              initialMessages: [
-                'Hi there! 👋 How can DoAble India help you today?',
-                'Select a topic from below quick actions or type your query:',
-              ],
             });
+
+            console.log('n8n Chat initialized successfully');
           } catch (err) {
-            console.error('Failed to initialize n8n chat:', err);
+            console.error('n8n Chat initialization failed:', err);
           }
         } else if (retryCount < maxRetries) {
           retryCount++;
@@ -279,44 +283,9 @@ const AlertsView: React.FC<AlertsViewProps> = ({
               transition={{ duration: 0.3 }}
               className="space-y-6"
             >
-              {/* 1. n8n AI Chat (Main Interface) */}
-              <div className="bg-white dark:bg-slate-900 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-xl overflow-hidden min-h-[550px] flex flex-col">
-                <div className="p-6 border-b border-slate-50 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/20 flex items-center gap-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
-                    <MessageSquare size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-black uppercase tracking-tight text-slate-900 dark:text-white">AI Support Agent</h3>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Active & Ready to help</p>
-                  </div>
-                </div>
-                <div id="n8n-chat-container" className="flex-1 w-full bg-slate-50/30 dark:bg-slate-900 h-[500px]" />
-              </div>
-
-              {/* Quick Actions (Integrated Buttons) */}
-              <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Select a Topic</label>
-                <div className="grid grid-cols-1 gap-2">
-                  {[
-                    { label: 'Getting Less Leads 📉', msg: 'I am getting less leads' },
-                    { label: 'Not getting Alerts 🔔', msg: 'I am not getting alerts' },
-                    { label: 'Need Callback 📞', msg: 'I need a callback' }
-                  ].map((action) => (
-                    <button
-                      key={action.msg}
-                      onClick={() => {
-                        playTapSound();
-                        if (chatInstanceRef.current && typeof chatInstanceRef.current.sendMessage === 'function') {
-                          chatInstanceRef.current.sendMessage(action.msg);
-                        }
-                      }}
-                      className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-[0.98] transition-all text-[11px] font-black uppercase text-slate-700 dark:text-slate-300 hover:border-primary/30"
-                    >
-                      {action.label}
-                      <ChevronRight size={14} className="text-slate-300" />
-                    </button>
-                  ))}
-                </div>
+              {/* n8n AI Chat (Main Interface) */}
+              <div className="bg-white dark:bg-slate-900 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-xl overflow-hidden min-h-[600px] flex flex-col">
+                <div id="n8n-chat-container" className="flex-1 w-full bg-slate-50/30 dark:bg-slate-900 min-h-[600px]" />
               </div>
             </motion.div>
           ) : activeTab === 'setup' ? (
