@@ -26,6 +26,8 @@ interface AlertsViewProps {
   handleSignIn?: () => void;
   showFormModal: boolean;
   setShowFormModal: (show: boolean) => void;
+  userName?: string | null;
+  setUserName: (name: string | null) => void;
 }
 
 // ─── Haptic-like tap sound & vibrate ───────────────────────────────
@@ -47,7 +49,8 @@ function playTapSound() {
 const AlertsView: React.FC<AlertsViewProps> = ({ 
   city, userGender, userClasses, userType, 
   setUserCity, setUserGender, setUserClasses, setUserType,
-  isAdminUser, onAdminClick, currentUser, handleSignIn, showFormModal, setShowFormModal 
+  isAdminUser, onAdminClick, currentUser, handleSignIn, showFormModal, setShowFormModal,
+  userName, setUserName
 }) => {
   const [activeTab, setActiveTab] = useState<'feed' | 'support' | 'setup'>('feed');
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -110,6 +113,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
       case 'userGender': setUserGender(value); break;
       case 'userClasses': setUserClasses(value); break;
       case 'userType': setUserType(value as UserType); break;
+      case 'userName': setUserName(value); break;
     }
   };
 
@@ -616,6 +620,21 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                     </div>
                   </div>
 
+                  {/* Personalization Section */}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Full Name (For Personal Welcome)</label>
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        value={userName || ''} 
+                        onChange={e => updatePreference('userName', e.target.value)}
+                        placeholder="Enter your name..."
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 pl-12 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 focus:border-primary transition-all text-slate-900 dark:text-[#0FE8F2] placeholder:text-slate-400 dark:placeholder:text-slate-600"
+                      />
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600" size={18} />
+                    </div>
+                  </div>
+
                   {/* Pick Lists for Preferences */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {/* Role Selection (Nature) */}
@@ -624,7 +643,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                       <select 
                         value={userType || ''} 
                         onChange={e => updatePreference('userType', e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                       >
                         <option value="" disabled>Select Role...</option>
                         <option value="parent">👨 I'm a Parent</option>
@@ -638,7 +657,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                       <select 
                         value={city} 
                         onChange={e => updatePreference('userCity', e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                       >
                         {CITIES_LIST.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
@@ -652,7 +671,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                       <select 
                         value={userGender || 'any'} 
                         onChange={e => updatePreference('userGender', e.target.value === 'any' ? null : e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                       >
                         <option value="any">All Genders</option>
                         <option value="Male">Male Only</option>
@@ -666,7 +685,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                       <select 
                         value={userClasses?.[0] || 'All'} 
                         onChange={e => updatePreference('userClasses', e.target.value === 'All' ? [] : [e.target.value])}
-                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                       >
                         <option value="All">All Classes</option>
                         {CLASSES_LIST.map(c => <option key={c} value={c}>{c}</option>)}

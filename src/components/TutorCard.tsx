@@ -161,22 +161,22 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
       <div className="quick-stats grid grid-cols-2 gap-2.5 p-4 bg-[#F8F9FA] dark:bg-[#3D3D3D] border-b-2 border-[#F0F0F0] dark:border-[#444444]">
           <div className="stat-item bg-white dark:bg-[#2D2D2D] p-2.5 rounded-xl text-center border border-[#E8E8E8] dark:border-[#444444] transition-all duration-300">
               <div className="stat-emoji text-2xl mb-1">🎂</div>
-              <div className="stat-value text-sm font-bold text-[#FF6B6B]">{age}</div>
+              <div className="stat-value text-sm font-bold text-[#FF6B6B] dark:text-[#0FE8F2]">{age}</div>
               <div className="stat-label text-[10px] text-[#999] uppercase mt-0.5">Age</div>
           </div>
           <div className="stat-item bg-white dark:bg-[#2D2D2D] p-2.5 rounded-xl text-center border border-[#E8E8E8] dark:border-[#444444] transition-all duration-300">
               <div className="stat-emoji text-2xl mb-1">👥</div>
-              <div className="stat-value text-sm font-bold text-[#FF6B6B]">{displayGender}</div>
+              <div className="stat-value text-sm font-bold text-[#FF6B6B] dark:text-[#0FE8F2]">{displayGender}</div>
               <div className="stat-label text-[10px] text-[#999] uppercase mt-0.5">Gender</div>
           </div>
           <div className="stat-item bg-white dark:bg-[#2D2D2D] p-2.5 rounded-xl text-center border border-[#E8E8E8] dark:border-[#444444] transition-all duration-300">
               <div className="stat-emoji text-2xl mb-1">📍</div>
-              <div className="stat-value text-sm font-bold text-[#FF6B6B]">{cityShort}</div>
+              <div className="stat-value text-sm font-bold text-[#FF6B6B] dark:text-[#0FE8F2]">{cityShort}</div>
               <div className="stat-label text-[10px] text-[#999] uppercase mt-0.5">City</div>
           </div>
           <div className="stat-item bg-white dark:bg-[#2D2D2D] p-2.5 rounded-xl text-center border border-[#E8E8E8] dark:border-[#444444] transition-all duration-300">
               <div className="stat-emoji text-2xl mb-1">💰</div>
-              <div className="stat-value text-sm font-bold text-[#FF6B6B]">{getFee(feeRaw).substring(0, 10)}</div>
+              <div className="stat-value text-sm font-bold text-[#FF6B6B] dark:text-[#0FE8F2]">{getFee(feeRaw).substring(0, 10)}</div>
               <div className="stat-label text-[10px] text-[#999] uppercase mt-0.5">Fee</div>
           </div>
       </div>

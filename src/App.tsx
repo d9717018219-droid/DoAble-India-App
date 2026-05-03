@@ -684,7 +684,7 @@ export default function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">{activeTab === 'tutors' ? 'Tutor ID / Name' : 'Order ID / Subject'}</label>
-                    <input type="text" placeholder={activeTab === 'tutors' ? "Search ID or Name..." : "Search ID or Subject..."} value={searchQuery} onChange={e => { setSearchQuery(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700" />
+                    <input type="text" placeholder={activeTab === 'tutors' ? "Search ID or Name..." : "Search ID or Subject..."} value={searchQuery} onChange={e => { setSearchQuery(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]" />
                   </div>
                 </div>
 
@@ -750,7 +750,7 @@ export default function App() {
                   <select 
                     value={tutorFilterGender} 
                     onChange={e => { setTutorFilterGender(e.target.value); resetCounts(); }}
-                    className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                    className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                   >
                     <option value="all">Any Gender</option>
                     <option value="male">👨 Male</option>
@@ -823,7 +823,7 @@ export default function App() {
                         <select 
                           value={tutorFilterTime} 
                           onChange={e => { setTutorFilterTime(e.target.value); resetCounts(); }}
-                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                         >
                           <option value="all">Any Time</option>
                           <option value="Morning">Morning</option>
@@ -838,7 +838,7 @@ export default function App() {
                         <select 
                           value={tutorFilterDay} 
                           onChange={e => { setTutorFilterDay(e.target.value); resetCounts(); }}
-                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                         >
                           <option value="all">Any Days</option>
                           <option value="Weekdays">Weekdays</option>
@@ -853,7 +853,7 @@ export default function App() {
                       <select 
                         value={tutorFilterFee} 
                         onChange={e => { setTutorFilterFee(e.target.value); resetCounts(); }}
-                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                       >
                         <option value="all">Any Fee</option>
                         <option value="0-300">₹0-300</option>
@@ -870,7 +870,7 @@ export default function App() {
                         <select 
                           value={tutorFilterExperience} 
                           onChange={e => { setTutorFilterExperience(e.target.value); resetCounts(); }}
-                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                         >
                           <option value="all">Any Experience</option>
                           <option value="fresher">Fresher (0 years)</option>
@@ -886,7 +886,7 @@ export default function App() {
                         <select 
                           value={tutorFilterSchoolExp} 
                           onChange={e => { setTutorFilterSchoolExp(e.target.value); resetCounts(); }}
-                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                         >
                           <option value="all">Any</option>
                           <option value="yes">With School Experience</option>
@@ -902,7 +902,7 @@ export default function App() {
                         <select 
                           value={tutorFilterVehicle} 
                           onChange={e => { setTutorFilterVehicle(e.target.value); resetCounts(); }}
-                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                         >
                           <option value="all">Any</option>
                           <option value="yes">Has Own Vehicle</option>
@@ -916,7 +916,7 @@ export default function App() {
                         <select 
                           value={tutorFilterDate} 
                           onChange={e => { setTutorFilterDate(e.target.value); resetCounts(); }}
-                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                          className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                         >
                           <option value="all">Anytime</option>
                           <option value="7">Last 7 Days</option>
@@ -933,7 +933,7 @@ export default function App() {
                       <select 
                         value={tutorFilterStatus} 
                         onChange={e => { setTutorFilterStatus(e.target.value); resetCounts(); }}
-                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                       >
                         <option value="all">Any Status</option>
                         <option value="active">✅ Active</option>
@@ -1011,6 +1011,8 @@ export default function App() {
             handleSignIn={handleSignIn} 
             showFormModal={showFormModal} 
             setShowFormModal={setShowFormModal} 
+            userName={userName}
+            setUserName={setUserName}
           />
         )}
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}
@@ -1057,6 +1059,13 @@ export default function App() {
         @keyframes typewriterBlink { 0%, 100% { border-color: rgba(255,255,255,0.8); } 50% { border-color: transparent; } }
         @keyframes mesh { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .mesh-gradient { background: linear-gradient(-45deg, #22c55e, #3b82f6, #10b981, #2563eb); background-size: 400% 400%; animation: mesh 15s ease infinite; }
+        
+        /* Dark Mode Filter Value Color */
+        .dark select, 
+        .dark input[type="text"],
+        .dark .stat-value {
+          color: #0FE8F2 !important;
+        }
       `}</style>
 
       {/* Form Modal */}
