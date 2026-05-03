@@ -78,8 +78,13 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [cityFilter, setCityFilter] = useState('all');
+  const [cityFilter, setCityFilter] = useState(localStorage.getItem('lastSelectedCity') || 'all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Persist City Filter
+  useEffect(() => {
+    localStorage.setItem('lastSelectedCity', cityFilter);
+  }, [cityFilter]);
   const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts' | 'admin'>('home');
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
@@ -484,7 +489,9 @@ export default function App() {
                             <button
                               key={cls}
                               onClick={() => {
-                                setUserClasses(prev => isSelected ? prev.filter(x => x !== cls) : [...prev, cls]);
+                                const nextClasses = isSelected ? userClasses.filter(x => x !== cls) : [...userClasses, cls];
+                                setUserClasses(nextClasses);
+                                localStorage.setItem('userClasses', JSON.stringify(nextClasses));
                                 resetCounts();
                               }}
                               className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-primary text-white border-primary" : "bg-white dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700")}
@@ -495,6 +502,31 @@ export default function App() {
                         })}
                       </div>
                     </div>
+
+                    {userClasses.length > 0 && (
+                      <div className="space-y-4">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Subjects (Matching Selection)</label>
+                        <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                           {Array.from(new Set(userClasses.flatMap(c => CLASS_SUBJECTS_DATA[c] || []))).sort().map(subj => {
+                             const isSelected = userTutorSubjects.includes(subj);
+                             return (
+                               <button
+                                 key={subj}
+                                 onClick={() => {
+                                   const nextSubjs = isSelected ? userTutorSubjects.filter(x => x !== subj) : [...userTutorSubjects, subj];
+                                   setUserTutorSubjects(nextSubjs);
+                                   localStorage.setItem('userTutorSubjects', JSON.stringify(nextSubjs));
+                                   resetCounts();
+                                 }}
+                                 className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-[#0FE8F2] text-slate-900 border-[#0FE8F2]" : "bg-white dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700")}
+                               >
+                                 {subj}
+                               </button>
+                             );
+                           })}
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
                 
