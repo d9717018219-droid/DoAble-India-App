@@ -12,17 +12,7 @@ interface SupportViewProps {
 
 const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 0 }) => {
   const chatInstanceRef = useRef<any>(null);
-  const [isChatActive, setIsChatActive] = useState(false);
-  const [pulse, setPulse] = useState(0);
   const userCity = localStorage.getItem('userCity') || 'Ghaziabad';
-
-  // Weather-app like slow breathing effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPulse(p => (p + 1) % 360);
-    }, 50);
-    return () => clearInterval(interval);
-  }, []);
 
   const chatCallbackRef = useCallback((node: HTMLDivElement | null) => {
     if (node) {
@@ -34,8 +24,8 @@ const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 
           showWelcomeScreen: false,
           webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
           initialMessages: [
-            'Hi there! 👋 How can DoAble India help you today?',
-            'Tell me your query below, and I will try to solve it for you.',
+            'Hi there! 👋 Welcome to DoAble India Support.',
+            'How can we help you today? Please type your query below.',
           ],
           i18n: {
             en: { 
@@ -43,7 +33,7 @@ const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 
               subtitle: '', 
               footer: '', 
               getStarted: 'Start Chatting', 
-              inputPlaceholder: 'Type your query here...', 
+              inputPlaceholder: 'Type your message here...', 
               closeButtonTooltip: 'Close' 
             },
           },
@@ -54,7 +44,7 @@ const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 
             if (typeof chatInstanceRef.current.open === 'function') chatInstanceRef.current.open();
             else if (typeof chatInstanceRef.current.toggle === 'function') chatInstanceRef.current.toggle(true);
           }
-        }, 500);
+        }, 300);
       } catch (error) {
         console.error('Failed to init n8n chat:', error);
       }
@@ -70,123 +60,82 @@ const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 
 
   return (
     <div className="flex flex-col p-4 pb-24 sm:p-6 space-y-6">
-      {/* ─── STANDARD PAGE HEADER ─── */}
-      {!isChatActive && (
-        <motion.div 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-4"
-        >
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter uppercase">Support Concierge</h2>
-              <div className="flex items-center gap-2 mt-1">
-                <MapPin size={12} className="text-primary" />
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">You are in <span className="text-primary">{userCity}</span></p>
-              </div>
+      {/* ─── ENHANCED SOLID HEADER ─── */}
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-slate-900 rounded-[32px] p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden"
+      >
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px] -mr-32 -mt-32" />
+        
+        <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 mb-2">
+               <div className="bg-primary/20 p-2 rounded-xl border border-primary/30">
+                 <MessageSquare size={20} className="text-primary" />
+               </div>
+               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Live Concierge</span>
             </div>
-            
-            <div className="flex gap-2">
-              <div className="bg-slate-100 px-4 py-2 rounded-2xl border border-slate-200">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-black text-slate-900">{jobsCount}</span>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Live Jobs</span>
-                </div>
-              </div>
-              <div className="bg-slate-100 px-4 py-2 rounded-2xl border border-slate-200">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-black text-slate-900">{tutorsCount}</span>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Experts</span>
-                </div>
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tighter uppercase leading-none">Support Center</h2>
+            <div className="flex items-center gap-2 mt-2">
+              <MapPin size={12} className="text-slate-400" />
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Ops / <span className="text-white">{userCity}</span></p>
+            </div>
+          </div>
+          
+          <div className="flex gap-3">
+            <div className="bg-white/5 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10 min-w-[100px]">
+              <span className="block text-2xl font-black leading-none">{jobsCount}</span>
+              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Live Jobs</span>
+            </div>
+            <div className="bg-white/5 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10 min-w-[100px]">
+              <span className="block text-2xl font-black leading-none">{tutorsCount}</span>
+              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Experts</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ─── SOLID CHAT INTERFACE ─── */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white rounded-[40px] border-2 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden h-[calc(100vh-280px)] min-h-[500px] flex flex-col relative"
+      >
+        <div className="sticky top-0 z-10 px-8 py-5 bg-slate-900 flex items-center justify-between border-b border-white/10">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-primary">
+              <Sparkles size={20} strokeWidth={2.5} />
+            </div>
+            <div>
+              <h3 className="text-xs font-black tracking-widest text-white uppercase">Secure AI Assistant</h3>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                 <p className="text-[8px] font-bold text-emerald-400 uppercase tracking-tighter">Connection Encrypted</p>
               </div>
             </div>
           </div>
-        </motion.div>
-      )}
+          <div className="bg-white/10 px-3 py-1.5 rounded-lg border border-white/10">
+             <p className="text-[9px] font-black text-white/60 uppercase tracking-widest">v4.0.2</p>
+          </div>
+        </div>
 
-      <AnimatePresence mode="wait">
-        {!isChatActive ? (
-          <motion.div
-            key="trigger"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            onClick={() => setIsChatActive(true)}
-            className="group relative overflow-hidden rounded-[32px] p-8 text-white shadow-xl cursor-pointer"
-            style={{ 
-              background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-            }}
-          >
-            {/* Ambient Background Elements */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <motion.div 
-                animate={{ 
-                  scale: [1, 1.2, 1],
-                  opacity: [0.2, 0.4, 0.2],
-                }}
-                transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -top-20 -right-20 w-64 h-64 bg-primary/20 rounded-full blur-[60px]" 
-              />
-            </div>
+        <div 
+          id="support-chat-mount" 
+          ref={chatCallbackRef}
+          className="flex-1 w-full bg-white relative" 
+        />
+      </motion.div>
 
-            <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div className="flex items-center gap-6">
-                <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-500 shadow-xl border border-white/10">
-                  <MessageSquare size={32} strokeWidth={2.5} />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-2xl font-black tracking-tight uppercase leading-none">How can we<br/><span className="text-primary">help you?</span></h3>
-                  <p className="text-slate-400 text-sm font-medium">Tap to start secure session</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-bold uppercase tracking-widest text-primary group-hover:mr-2 transition-all duration-300">Open Chat</span>
-                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center group-hover:bg-accent transition-colors duration-300 shadow-lg shadow-primary/25">
-                  <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="chat"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-[40px] border border-slate-100 shadow-2xl overflow-hidden h-[calc(100vh-180px)] min-h-[500px] flex flex-col relative"
-          >
-            <div className="sticky top-0 z-10 px-8 py-5 bg-slate-50/80 backdrop-blur-md flex items-center justify-between border-b border-slate-100">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-inner">
-                  <MessageSquare size={24} strokeWidth={2.5} />
-                </div>
-                <div>
-                  <h3 className="text-sm font-black tracking-tight text-slate-900 uppercase">Interactive Concierge</h3>
-                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">AI Powered Assistant</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="hidden sm:flex bg-emerald-500/10 px-4 py-1.5 rounded-full border border-emerald-500/20 items-center gap-2">
-                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                   <p className="text-[9px] font-black text-emerald-600 uppercase tracking-tighter">Connection Active</p>
-                </div>
-                <button 
-                  onClick={() => setIsChatActive(false)}
-                  className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-
-            <div 
-              id="support-chat-mount" 
-              ref={chatCallbackRef}
-              className="flex-1 w-full bg-white relative" 
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Footer Branding Override */}
+      <div className="text-center py-2 opacity-30">
+        <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-900 flex items-center justify-center gap-2">
+           <ShieldCheck size={10} className="text-primary" /> DoAble India Secure Core Protocol
+        </p>
+      </div>
+    </div>
+  );
+};
 
       {/* Footer Branding Override */}
       <div className="text-center py-4 opacity-30">
