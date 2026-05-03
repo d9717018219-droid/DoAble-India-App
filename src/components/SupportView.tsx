@@ -59,7 +59,7 @@ const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 
   }, []);
 
   return (
-    <div className="flex flex-col p-4 pb-24 sm:p-6 space-y-6">
+    <div className="flex flex-col p-2 pt-0 pb-24 sm:p-6 sm:pt-2 space-y-4">
       {/* ─── ENHANCED SOLID HEADER ─── */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
@@ -82,17 +82,6 @@ const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Ops / <span className="text-white">{userCity}</span></p>
             </div>
           </div>
-          
-          <div className="flex gap-3">
-            <div className="bg-white/5 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10 min-w-[100px]">
-              <span className="block text-2xl font-black leading-none">{jobsCount}</span>
-              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Live Jobs</span>
-            </div>
-            <div className="bg-white/5 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10 min-w-[100px]">
-              <span className="block text-2xl font-black leading-none">{tutorsCount}</span>
-              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Experts</span>
-            </div>
-          </div>
         </div>
       </motion.div>
 
@@ -100,7 +89,7 @@ const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-[40px] border-2 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden h-[calc(100vh-280px)] min-h-[500px] flex flex-col relative"
+        className="bg-white rounded-[40px] border-2 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden h-[calc(100vh-220px)] min-h-[550px] flex flex-col relative"
       >
         <div className="sticky top-0 z-10 px-8 py-5 bg-slate-900 flex items-center justify-between border-b border-white/10">
           <div className="flex items-center gap-4">
