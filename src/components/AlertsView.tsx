@@ -178,12 +178,12 @@ const AlertsView: React.FC<AlertsViewProps> = ({
               ],
               i18n: {
                 en: { 
-                  title: 'DoAble Support', 
-                  subtitle: 'AI Assistant', 
-                  footer: 'Support Desk', 
-                  getStarted: 'Start Chatting', 
-                  inputPlaceholder: 'Type your query here...', 
-                  closeButtonTooltip: 'Close' 
+                  title: 'Support Agent', 
+                  subtitle: 'Ready to listen', 
+                  footer: '', 
+                  getStarted: 'I need help', 
+                  inputPlaceholder: 'Tell us how we can help...', 
+                  closeButtonTooltip: 'Minimize' 
                 },
               },
             });
@@ -295,8 +295,38 @@ const AlertsView: React.FC<AlertsViewProps> = ({
               className="space-y-6"
             >
               {/* n8n AI Chat (Main Interface) */}
-              <div className="bg-white dark:bg-slate-900 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-xl overflow-hidden min-h-[600px] flex flex-col">
-                <div id="n8n-chat-container" className="flex-1 w-full bg-slate-50/30 dark:bg-slate-900 min-h-[600px]" />
+              <div className="bg-white dark:bg-slate-900 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-2xl overflow-hidden min-h-[650px] flex flex-col transition-all duration-500 ease-in-out">
+                {/* Premium Support Header */}
+                <div className="p-7 border-b border-slate-50 dark:border-slate-800 bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-800/50 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-inner">
+                      <MessageSquare size={24} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white uppercase">Support Desk</h3>
+                      <div className="flex items-center gap-2">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Available 24*7</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right hidden sm:block">
+                    <p className="text-[10px] font-black text-primary uppercase tracking-tighter">Ask your queries</p>
+                    <p className="text-[9px] font-medium text-slate-400 italic">We are here to help you</p>
+                  </div>
+                </div>
+
+                {/* Emotional Tagline */}
+                <div className="px-7 py-3 bg-primary/5 dark:bg-primary/10 border-b border-primary/10">
+                   <p className="text-[11px] font-medium text-primary/80 dark:text-primary-light italic text-center">
+                     "Tell us what's on your mind. We'll do our best to solve your problems with care."
+                   </p>
+                </div>
+
+                <div id="n8n-chat-container" className="flex-1 w-full bg-white dark:bg-slate-900 min-h-[500px]" />
               </div>
             </motion.div>
           ) : activeTab === 'setup' ? (
