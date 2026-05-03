@@ -253,6 +253,15 @@ export default function App() {
         const jLocs = (l.Locations || '').toLowerCase();
         if (!selectedLocalities.some(loc => jLocs.includes(loc.toLowerCase()))) return false;
       }
+      
+      // Preference Filters
+      if (userGender && userGender !== 'any' && (l.Gender || '').toLowerCase() !== 'any' && (l.Gender || '').toLowerCase() !== userGender.toLowerCase()) return false;
+      
+      if (userClasses.length > 0) {
+        const jClass = (l.Class || l.subjects || '').toLowerCase();
+        if (!userClasses.some(uc => jClass.includes(uc.toLowerCase()))) return false;
+      }
+
       if (searchQuery) {
         const sl = searchQuery.toLowerCase();
         const jSubj = (l.subjects || '').toLowerCase();
@@ -262,28 +271,56 @@ export default function App() {
       }
       return true;
     });
-  }, [allLeads, cityFilter, searchQuery, selectedLocalities]);
+  }, [allLeads, cityFilter, searchQuery, selectedLocalities, userGender, userClasses]);
 
   const filteredTutors = useMemo(() => {
     return tutors.filter(t => {
       const cityVal = (t['Preferred City'] || (t as any).preferredCity || (t as any).City || (t as any).city || 'India').toString().toLowerCase();
       if (!isCityMatch(cityVal, cityFilter)) return false;
 
+      // Precision Filters
       if (tutorFilterID && !(t['Tutor ID'] || (t as any).tutorId || '').toString().toLowerCase().includes(tutorFilterID.toLowerCase())) return false;
       if (tutorFilterName && !(t['Full Name'] || (t as any).fullName || '').toString().toLowerCase().includes(tutorFilterName.toLowerCase())) return false;
       
-      if (tutorFilterGender !== 'all' && (t.Gender || (t as any).gender || '').toString().toLowerCase() !== tutorFilterGender.toLowerCase()) return false;
-      if (tutorFilterVehicle !== 'all' && (t['Own Vehicle'] || (t as any).ownVehicle || '').toString().toLowerCase() !== tutorFilterVehicle.toLowerCase()) return false;
+      const tGender = (t.Gender || (t as any).gender || '').toString().toLowerCase();
+      if (tutorFilterGender !== 'all' && tGender !== tutorFilterGender.toLowerCase()) return false;
       
+      const tVehicle = (t['Own Vehicle'] || (t as any).ownVehicle || '').toString().toLowerCase();
+      if (tutorFilterVehicle !== 'all' && tVehicle !== tutorFilterVehicle.toLowerCase()) return false;
+
+      const tExp = parseInt((t['Teaching Experience'] || (t as any).experience || '0').toString());
+      if (tutorFilterExperience !== 'all') {
+        const filterExp = parseInt(tutorFilterExperience);
+        if (filterExp === 5 && tExp < 5) return false;
+        if (filterExp === 3 && (tExp < 3 || tExp >= 5)) return false;
+        if (filterExp === 1 && (tExp < 1 || tExp >= 3)) return false;
+        if (filterExp === 0 && tExp >= 1) return false;
+      }
+
+      const tQual = (t.Qualification || (t as any).qualification || '').toString().toLowerCase();
+      if (tutorFilterQualification !== 'all' && !tQual.includes(tutorFilterQualification)) return false;
+
+      const tTime = (t['Preferred Timing'] || (t as any).preferredTiming || '').toString().toLowerCase();
+      if (tutorFilterTime !== 'all' && !tTime.includes(tutorFilterTime.toLowerCase())) return false;
+
+      const tStatus = (t.Status || (t as any).status || '').toString().toLowerCase();
+      if (tutorFilterStatus !== 'all' && !tStatus.includes(tutorFilterStatus.toLowerCase())) return false;
+
+      if (userClasses.length > 0) {
+        const tClass = (t['Preferred Class Group'] || (t as any).classGroup || '').toString().toLowerCase();
+        if (!userClasses.some(uc => tClass.includes(uc.toLowerCase()))) return false;
+      }
+
       if (searchQuery) {
         const sl = searchQuery.toLowerCase();
         const tName = (t['Full Name'] || (t as any).fullName || '').toString().toLowerCase();
         const tID = (t['Tutor ID'] || (t as any).tutorId || '').toString().toLowerCase();
-        if (!(tName.includes(sl) || tID.includes(sl))) return false;
+        const tSubj = (t['Preferred Subject(s)'] || (t as any).preferredSubjects || '').toString().toLowerCase();
+        if (!(tName.includes(sl) || tID.includes(sl) || tSubj.includes(sl))) return false;
       }
       return true;
     });
-  }, [tutors, cityFilter, searchQuery, tutorFilterID, tutorFilterName, tutorFilterGender, tutorFilterVehicle]);
+  }, [tutors, cityFilter, searchQuery, tutorFilterID, tutorFilterName, tutorFilterGender, tutorFilterVehicle, tutorFilterExperience, tutorFilterQualification, tutorFilterTime, tutorFilterStatus, userClasses]);
 
   const activeLeadsCount = filteredJobs.length;
   const activeTutorsCount = filteredTutors.length;
@@ -373,20 +410,98 @@ export default function App() {
             <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-t-[48px] p-8 space-y-6 max-h-[90vh] overflow-y-auto pr-2 custom-scrollbar">
               <div className="flex justify-between items-center sticky top-0 bg-white dark:bg-slate-900 z-10 pb-4 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-4">
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase">Precision Filters</h3>
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Precision Filters</h3>
+                  <div className="bg-primary/10 px-3 py-1 rounded-xl border border-primary/20"><span className="text-[11px] font-black text-primary uppercase">{activeTab === 'tutors' ? activeTutorsCount : activeLeadsCount} Matches</span></div>
                 </div>
                 <button onClick={() => setShowAdvancedFilterDrawer(false)} className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-400"><X size={20} /></button>
               </div>
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Search ID or Name</label>
-                  <input type="text" placeholder="Search..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]" />
+
+              <div className="space-y-8 py-4 pr-2">
+                {/* 1. Search */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">{activeTab === 'tutors' ? 'Tutor ID' : 'Order ID'}</label>
+                    <input type="text" placeholder="Search ID..." value={activeTab === 'tutors' ? tutorFilterID : searchQuery} onChange={e => { activeTab === 'tutors' ? setTutorFilterID(e.target.value) : setSearchQuery(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]" />
+                  </div>
+                  {activeTab === 'tutors' && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Name Search</label>
+                      <input type="text" placeholder="Search Name..." value={tutorFilterName} onChange={e => { setTutorFilterName(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]" />
+                    </div>
+                  )}
+                  {activeTab === 'jobs' && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Job Subject / Board</label>
+                      <input type="text" placeholder="e.g. Maths, CBSE..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]" />
+                    </div>
+                  )}
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender</label><select value={tutorFilterGender} onChange={e => { setTutorFilterGender(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
-                  <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Vehicle</label><select value={tutorFilterVehicle} onChange={e => { setTutorFilterVehicle(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+
+                {activeTab === 'jobs' && cityFilter !== 'all' && cityLocations.length > 0 && (
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Specific Areas in {cityFilter}</label>
+                    <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                      {cityLocations.map(loc => {
+                        const isSelected = selectedLocalities.includes(loc);
+                        return (
+                          <button
+                            key={loc}
+                            onClick={() => {
+                              setSelectedLocalities(prev => isSelected ? prev.filter(x => x !== loc) : [...prev, loc]);
+                              resetCounts();
+                            }}
+                            className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-primary text-white border-primary" : "bg-white dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700")}
+                          >
+                            {loc}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'tutors' && (
+                  <>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender</label><select value={tutorFilterGender} onChange={e => { setTutorFilterGender(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Own Vehicle</label><select value={tutorFilterVehicle} onChange={e => { setTutorFilterVehicle(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Experience</label><select value={tutorFilterExperience} onChange={e => { setTutorFilterExperience(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any Exp</option><option value="0">Fresher</option><option value="1">1-2 Yrs</option><option value="3">3-5 Yrs</option><option value="5">5+ Yrs</option></select></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Qualification</label><select value={tutorFilterQualification} onChange={e => { setTutorFilterQualification(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any</option><option value="graduate">Graduate</option><option value="postgraduate">Post-Graduate</option></select></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Shift</label><select value={tutorFilterTime} onChange={e => { setTutorFilterTime(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any Time</option><option value="Morning">Morning</option><option value="Afternoon">Afternoon</option><option value="Evening">Evening</option></select></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Status</label><select value={tutorFilterStatus} onChange={e => { setTutorFilterStatus(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any Status</option><option value="active">✅ Active</option><option value="suspended">🚫 Suspended</option></select></div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Target Class Group</label>
+                      <div className="flex flex-wrap gap-2">
+                        {CLASSES_LIST.map(cls => {
+                          const isSelected = userClasses.includes(cls);
+                          return (
+                            <button
+                              key={cls}
+                              onClick={() => {
+                                setUserClasses(prev => isSelected ? prev.filter(x => x !== cls) : [...prev, cls]);
+                                resetCounts();
+                              }}
+                              className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-primary text-white border-primary" : "bg-white dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700")}
+                            >
+                              {cls}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </>
+                )}
+                
+                <div className="pt-6 flex gap-3 sticky bottom-0 bg-white dark:bg-slate-900 pb-2">
+                  <button onClick={clearFilters} className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest active:scale-95 transition-all">Clear</button>
+                  <button onClick={() => setShowAdvancedFilterDrawer(false)} className="flex-[2] bg-primary text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">Apply</button>
                 </div>
-                <button onClick={() => setShowAdvancedFilterDrawer(false)} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl">Apply Filters</button>
               </div>
             </motion.div>
           </div>
