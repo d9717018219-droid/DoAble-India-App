@@ -197,10 +197,31 @@ export default function App() {
     return () => window.removeEventListener('beforeinstallprompt', handler as any);
   }, []);
 
-  // Handle Notifications Permission & Sync Job IDs
+  // Handle Notifications Permission, Sync Job IDs & Periodic Sync
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
       setTimeout(() => { Notification.requestPermission(); }, 5000);
+    }
+    
+    // Register Periodic Sync for background polling
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then(async (registration) => {
+        try {
+          if ('periodicSync' in registration) {
+            // @ts-ignore
+            const status = await navigator.permissions.query({ name: 'periodic-background-sync' });
+            if (status.state === 'granted') {
+              // @ts-ignore
+              await registration.periodicSync.register('check-updates', {
+                minInterval: 15 * 60 * 1000 // 15 minutes
+              });
+              console.log('Periodic Sync registered');
+            }
+          }
+        } catch (e) {
+          console.error('Periodic Sync registration failed:', e);
+        }
+      });
     }
   }, []);
 

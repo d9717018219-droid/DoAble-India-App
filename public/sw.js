@@ -1,9 +1,9 @@
 /**
- * DoAble India - Smart Spy Service Worker
- * Handles background polling for Alerts and Job Leads
+ * DoAble India - Smart Spy & Robust Push Service Worker
+ * Handles real-time Push (Firebase) and Background Polling (Periodic Sync)
  */
 
-const CACHE_NAME = 'doable-spy-v1';
+const CACHE_NAME = 'doable-spy-v2';
 const ALERTS_API = 'https://doableindia.com/api_data_copy.php';
 const JOBS_API = 'https://doableindia.com/api_data.php';
 
@@ -13,22 +13,38 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
-  // Start polling when activated
-  startPolling();
 });
 
-// Polling Logic
-async function startPolling() {
-  console.log('Smart Spy: Polling started');
-  // Initial check
-  checkForUpdates();
-  
-  // Set interval for periodic checks
-  setInterval(() => {
-    checkForUpdates();
-  }, 15 * 60 * 1000); // Every 15 minutes
-}
+// 1. Real-time Push Handler (For Firebase Admin/FCM)
+self.addEventListener('push', (event) => {
+  if (!(self.Notification && self.Notification.permission === 'granted')) return;
 
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'DoAble Alert';
+  const options = {
+    body: data.body || 'New update available.',
+    icon: '/logo.png',
+    badge: '/logo.png',
+    vibrate: [200, 100, 200],
+    data: {
+      url: data.url || (data.title?.toLowerCase().includes('job') ? '/jobs' : '/alerts')
+    },
+    actions: [{ action: 'open', title: 'View Now' }]
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// 2. Periodic Background Sync (For "Smart Spy" Polling when app is closed)
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'check-updates') {
+    event.waitUntil(checkForUpdates());
+  }
+});
+
+// Fallback: If Periodic Sync isn't supported, we try to keep a limited interval
+// but browsers WILL kill this after ~30s of app closure.
+// Periodic Sync is the only real way for background polling.
 async function checkForUpdates() {
   try {
     const [alertsData, jobsData] = await Promise.all([
@@ -43,8 +59,8 @@ async function checkForUpdates() {
     if (alertsData.length > 0) {
       const latestAlert = alertsData[0];
       const currentAlertId = latestAlert.id || latestAlert['Order ID'] || latestAlert['Tutor ID'];
-      if (currentAlertId && currentAlertId !== lastAlertId) {
-        showNotification('📢 DoAble Admin Alert', {
+      if (currentAlertId && currentAlertId.toString() !== lastAlertId) {
+        await showNotification('📢 DoAble Admin Alert', {
           body: latestAlert.message || latestAlert.About || 'New update from Admin',
           data: { url: '/alerts' }
         });
@@ -56,8 +72,8 @@ async function checkForUpdates() {
     if (jobsData.length > 0) {
       const latestJob = jobsData[0];
       const currentJobId = latestJob.id || latestJob['Order ID'];
-      if (currentJobId && currentJobId !== lastJobId) {
-        showNotification('🆕 New Job Lead Near You', {
+      if (currentJobId && currentJobId.toString() !== lastJobId) {
+        await showNotification('🆕 New Job Lead Near You', {
           body: `${latestJob.Subject || 'New Job'} in ${latestJob.Location || latestJob.Area || 'your area'}`,
           data: { url: '/jobs' }
         });
@@ -81,7 +97,7 @@ async function showNotification(title, config) {
   return self.registration.showNotification(title, options);
 }
 
-// Simple ID Persistence using Cache API
+// persistence using Cache API
 async function getLastId(key) {
   const cache = await caches.open(CACHE_NAME);
   const response = await cache.match('/' + key);
@@ -90,33 +106,29 @@ async function getLastId(key) {
 }
 
 async function saveLastId(key, id) {
+  if (!id) return;
   const cache = await caches.open(CACHE_NAME);
   await cache.put('/' + key, new Response(id.toString()));
 }
 
-// Interaction Handler
+// 3. Interaction Handler
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  
-  const urlToOpen = event.notification.data.url || '/';
+  const urlToOpen = event.notification.data?.url || '/';
   
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      // If a window is already open, navigate it
       for (let client of windowClients) {
         if (client.url.includes(urlToOpen) && 'focus' in client) {
           return client.focus();
         }
       }
-      // Otherwise open a new window
-      if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
-      }
+      if (clients.openWindow) return clients.openWindow(urlToOpen);
     })
   );
 });
 
-// Listen for messages from the app to sync IDs
+// Message listener for manual sync from App
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SYNC_IDS') {
     if (event.data.lastAlertId) saveLastId('last_alert_id', event.data.lastAlertId);
