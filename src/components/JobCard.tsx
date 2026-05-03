@@ -101,22 +101,22 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
 
       {/* 2. Quick Stats Grid */}
       <div className="quick-stats grid grid-cols-2 gap-2 p-3 bg-slate-50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
-        <div className="stat-item bg-white dark:bg-slate-800 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800 shadow-sm">
           <span className="stat-emoji text-[18px] block mb-0.5">{genderEmoji}</span>
           <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-slate-100">{job.Gender || 'Any'}</span>
           <span className="stat-label text-[9px] text-slate-400 dark:text-slate-500 uppercase font-[800] mt-0.5">Gender</span>
         </div>
-        <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800">
+        <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800 shadow-sm">
           <span className="stat-emoji text-[18px] block mb-0.5">📍</span>
           <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-slate-100">{location}</span>
           <span className="stat-label text-[9px] text-slate-400 dark:text-slate-500 uppercase font-[800] mt-0.5">Location</span>
         </div>
-        <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800">
+        <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800 shadow-sm">
           <span className="stat-emoji text-[18px] block mb-0.5">📖</span>
           <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-slate-100">{classBoard}</span>
           <span className="stat-label text-[9px] text-slate-400 dark:text-slate-500 uppercase font-[800] mt-0.5">Class/Board</span>
         </div>
-        <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800">
+        <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800 shadow-sm">
           <span className="stat-emoji text-[18px] block mb-0.5">💰</span>
           <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-slate-100">₹{formatCurrency(job.Fee || '0')}/Mo</span>
           <span className="stat-label text-[9px] text-slate-400 dark:text-slate-500 uppercase font-[800] mt-0.5">Fee</span>
