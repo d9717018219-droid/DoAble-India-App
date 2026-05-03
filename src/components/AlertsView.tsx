@@ -167,10 +167,10 @@ const AlertsView: React.FC<AlertsViewProps> = ({
           
           container.innerHTML = ''; 
           try {
+            console.log('Attempting to initialize n8n Chat...');
             chatInstanceRef.current = createChat({
               target: '#n8n-chat-container',
               mode: 'fullscreen',
-              showWelcomeScreen: false,
               webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
               initialMessages: [
                 'Hi there! 👋 How can DoAble India help you today?',
@@ -181,19 +181,24 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                   title: 'Support Desk', 
                   subtitle: 'Available 24*7', 
                   footer: '', 
-                  getStarted: 'Ask a query', 
-                  inputPlaceholder: 'Tell us your query here...', 
-                  closeButtonTooltip: 'Minimize' 
+                  getStarted: 'Start Chatting', 
+                  inputPlaceholder: 'Type your query here...', 
+                  closeButtonTooltip: 'Close' 
                 },
               },
             });
 
-            // Small delay to ensure the SDK has time to mount before forcing open
+            // Delay to ensure DOM injection
             setTimeout(() => {
-              if (chatInstanceRef.current && typeof chatInstanceRef.current.open === 'function') {
-                chatInstanceRef.current.open();
+              if (chatInstanceRef.current) {
+                if (typeof chatInstanceRef.current.open === 'function') {
+                   chatInstanceRef.current.open();
+                } else if (typeof chatInstanceRef.current.toggle === 'function') {
+                   chatInstanceRef.current.toggle(true);
+                }
+                console.log('n8n Chat open/toggle called');
               }
-            }, 300);
+            }, 500);
 
             console.log('n8n Chat initialized successfully');
           } catch (err) {

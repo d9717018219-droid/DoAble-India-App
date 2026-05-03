@@ -175,8 +175,6 @@
   z-index: 1 !important;
   display: flex !important;
   flex-direction: column !important;
-  visibility: visible !important;
-  opacity: 1 !important;
 }
 
 /* Hide n8n internal header since we have a custom premium one */
@@ -192,14 +190,13 @@
   pointer-events: none !important;
 }
 
-/* Force the chat window to be open and visible when inside the container */
+/* Ensure the chat window is visible and doesn't get stuck minimized */
 #n8n-chat-container .n8n-chat-window-closed, 
 #n8n-chat-container .n8n-chat-window-minimized {
   display: flex !important;
   opacity: 1 !important;
   visibility: visible !important;
   transform: none !important;
-  position: relative !important;
 }
 
 /* Fix for n8n internal components to use full height */
