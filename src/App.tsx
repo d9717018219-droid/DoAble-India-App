@@ -197,12 +197,8 @@ export default function App() {
     return () => window.removeEventListener('beforeinstallprompt', handler as any);
   }, []);
 
-  // Handle Notifications Permission, Sync Job IDs & Periodic Sync
+  // Handle Sync Job IDs & Periodic Sync
   useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      setTimeout(() => { Notification.requestPermission(); }, 5000);
-    }
-    
     // Register Periodic Sync for background polling
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then(async (registration) => {
