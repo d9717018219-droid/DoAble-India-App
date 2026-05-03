@@ -52,12 +52,12 @@ const AlertsView: React.FC<AlertsViewProps> = ({
   const [activeTab, setActiveTab] = useState<'feed' | 'support' | 'setup'>('feed');
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTone, setSelectedTone] = useState('https://assets.mixkit.co/active_storage/sfx/1013/1013-preview.mp3'); // New 10s Melodic Jingle
+  const [selectedTone, setSelectedTone] = useState('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'); // Professional Success Jingle
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const domAudioRef = React.useRef<HTMLAudioElement | null>(null);
 
-  // New Jingle Constant
-  const ALERT_JINGLE = 'https://assets.mixkit.co/active_storage/sfx/1013/1013-preview.mp3';
+  // New Jingle Constant - High Quality Success Jingle
+  const ALERT_JINGLE = 'https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3';
 
   // Local hiding state
   const [hiddenAlertIds, setHiddenAlertIds] = useState<string[]>(() => {
@@ -683,7 +683,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                   </div>
                   <div>
                     <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">System Notification</h4>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Alert Tone: Melodic Jingle (10s)</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Alert Tone: DoAble Premium Branded</p>
                   </div>
                </div>
                <button
