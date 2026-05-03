@@ -442,7 +442,7 @@ export default function App() {
                   )}
                 </div>
 
-                {activeTab === 'jobs' && cityFilter !== 'all' && cityLocations.length > 0 && (
+                {cityFilter !== 'all' && cityLocations.length > 0 && (
                   <div className="space-y-4">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Specific Areas in {cityFilter}</label>
                     <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">

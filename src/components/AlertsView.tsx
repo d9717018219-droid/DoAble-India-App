@@ -161,14 +161,20 @@ const AlertsView: React.FC<AlertsViewProps> = ({
             },
             initialMessages: [
               'Hi there! 👋 How can DoAble India help you today?',
-              'Choose a topic below or type your query:',
-              '• Getting Less Leads 📉\n• Not getting Alerts 🔔\n• Need Callback 📞'
+              'Select a topic or type below:',
+              '1️⃣ Getting Less Leads 📉',
+              '2️⃣ Not getting Alerts 🔔',
+              '3️⃣ Need Callback 📞'
             ],
           });
         }
       };
       const timeoutId = setTimeout(initChat, 100);
-      return () => clearTimeout(timeoutId);
+      return () => {
+        clearTimeout(timeoutId);
+        const container = document.getElementById('n8n-chat-container');
+        if (container) container.innerHTML = ''; // Cleanup to prevent glitches
+      };
     }
   }, [activeTab]);
 
