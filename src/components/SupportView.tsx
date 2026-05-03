@@ -14,6 +14,7 @@ const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 
   const chatInstanceRef = useRef<any>(null);
   const [isChatActive, setIsChatActive] = useState(false);
   const [pulse, setPulse] = useState(0);
+  const userCity = localStorage.getItem('userCity') || 'Ghaziabad';
 
   // Weather-app like slow breathing effect
   useEffect(() => {
@@ -69,6 +70,40 @@ const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 
 
   return (
     <div className="flex flex-col p-4 pb-24 sm:p-6 space-y-6">
+      {/* ─── STANDARD PAGE HEADER ─── */}
+      {!isChatActive && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-4"
+        >
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tighter uppercase">Support Concierge</h2>
+              <div className="flex items-center gap-2 mt-1">
+                <MapPin size={12} className="text-primary" />
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">You are in <span className="text-primary">{userCity}</span></p>
+              </div>
+            </div>
+            
+            <div className="flex gap-2">
+              <div className="bg-slate-100 px-4 py-2 rounded-2xl border border-slate-200">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-black text-slate-900">{jobsCount}</span>
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Live Jobs</span>
+                </div>
+              </div>
+              <div className="bg-slate-100 px-4 py-2 rounded-2xl border border-slate-200">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-black text-slate-900">{tutorsCount}</span>
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Experts</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       <AnimatePresence mode="wait">
         {!isChatActive ? (
           <motion.div
@@ -100,13 +135,13 @@ const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 
                   <MessageSquare size={32} strokeWidth={2.5} />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-2xl font-black tracking-tight uppercase">Support Concierge</h3>
-                  <p className="text-slate-400 text-sm font-medium">How can we help you today? Tap to start.</p>
+                  <h3 className="text-2xl font-black tracking-tight uppercase leading-none">How can we<br/><span className="text-primary">help you?</span></h3>
+                  <p className="text-slate-400 text-sm font-medium">Tap to start secure session</p>
                 </div>
               </div>
               
               <div className="flex items-center gap-4">
-                <span className="text-sm font-bold uppercase tracking-widest text-primary group-hover:mr-2 transition-all duration-300">Start Chat</span>
+                <span className="text-sm font-bold uppercase tracking-widest text-primary group-hover:mr-2 transition-all duration-300">Open Chat</span>
                 <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center group-hover:bg-accent transition-colors duration-300 shadow-lg shadow-primary/25">
                   <ArrowRight size={24} className="group-hover:translate-x-1 transition-transform" />
                 </div>
