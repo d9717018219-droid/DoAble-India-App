@@ -128,16 +128,6 @@ const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 
       </motion.div>
 
       {/* Footer Branding Override */}
-      <div className="text-center py-2 opacity-30">
-        <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-900 flex items-center justify-center gap-2">
-           <ShieldCheck size={10} className="text-primary" /> DoAble India Secure Core Protocol
-        </p>
-      </div>
-    </div>
-  );
-};
-
-      {/* Footer Branding Override */}
       <div className="text-center py-4 opacity-30">
         <p className="text-[8px] font-black uppercase tracking-[0.5em] text-slate-900 flex items-center justify-center gap-2">
            <Heart size={10} className="text-primary fill-primary" /> DoAble India Secure Core
