@@ -29,17 +29,17 @@ interface AlertsViewProps {
 }
 
 // ─── Haptic-like tap sound & vibrate ───────────────────────────────
-const TAP_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3';
+const TAP_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'; // Apple-style Tock
 const tapAudio = new Audio(TAP_SOUND_URL);
 tapAudio.load();
 
 function playTapSound() {
   try {
     tapAudio.currentTime = 0;
-    tapAudio.volume = 0.3;
+    tapAudio.volume = 0.4;
     tapAudio.play().catch(() => {});
     if ('vibrate' in navigator) {
-      navigator.vibrate(20);
+      navigator.vibrate(15);
     }
   } catch {}
 }
@@ -52,12 +52,22 @@ const AlertsView: React.FC<AlertsViewProps> = ({
   const [activeTab, setActiveTab] = useState<'feed' | 'support' | 'setup'>('feed');
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTone, setSelectedTone] = useState('https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'); // Professional Success Jingle
+  const [selectedTone, setSelectedTone] = useState('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3'); // Glassy Crystal Chime
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const domAudioRef = React.useRef<HTMLAudioElement | null>(null);
 
-  // New Jingle Constant - High Quality Success Jingle
-  const ALERT_JINGLE = 'https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3';
+  // Apple-style Crystal Chime (Premium & Clean)
+  const ALERT_JINGLE = 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3';
+
+  // Audio Unlock for iOS (Must be triggered by user gesture)
+  const unlockAudio = () => {
+    if (domAudioRef.current) {
+      domAudioRef.current.play().then(() => {
+        domAudioRef.current?.pause();
+        if (domAudioRef.current) domAudioRef.current.currentTime = 0;
+      }).catch(() => {});
+    }
+  };
 
   // Local hiding state
   const [hiddenAlertIds, setHiddenAlertIds] = useState<string[]>(() => {
@@ -454,13 +464,13 @@ const AlertsView: React.FC<AlertsViewProps> = ({
       <div className="px-6">
         <div className="bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-[22px] flex gap-1 border border-slate-200 dark:border-slate-800">
           {[
-            { id: 'feed', label: 'Live Feed', icon: Bell, activeColor: 'bg-white dark:bg-slate-700' },
+            { id: 'feed', label: 'Live Feed', icon: Bell, activeColor: 'bg-primary !text-white' },
             { id: 'support', label: 'Support Hub', icon: MessageSquare, activeColor: 'bg-rose-500 !text-white' },
             { id: 'setup', label: 'Settings', icon: Settings, activeColor: 'bg-white dark:bg-slate-700' }
-          ].map((tab) => (
+            ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => { playTapSound(); setActiveTab(tab.id as any); }}
+              onClick={() => { unlockAudio(); playTapSound(); setActiveTab(tab.id as any); }}
               className={cn(
                 "flex-1 flex items-center justify-center gap-2 py-3 rounded-[16px] text-[10px] font-black uppercase tracking-widest transition-all",
                 activeTab === tab.id 
@@ -683,7 +693,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                   </div>
                   <div>
                     <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">System Notification</h4>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Alert Tone: DoAble Premium Branded</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Alert Tone: Apple-Style Premium Crystal</p>
                   </div>
                </div>
                <button

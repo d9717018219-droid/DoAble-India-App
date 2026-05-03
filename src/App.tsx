@@ -48,7 +48,7 @@ function getDynamicGreeting(): string {
 }
 
 // ─── Haptic-like tap sound & vibrate ───────────────────────────────
-const TAP_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3';
+const TAP_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'; // Crisp Apple-style "Tock"
 // Pre-load audio
 const tapAudio = new Audio(TAP_SOUND_URL);
 tapAudio.load();
@@ -56,10 +56,10 @@ tapAudio.load();
 function playTapSound() {
   try {
     tapAudio.currentTime = 0;
-    tapAudio.volume = 0.3;
+    tapAudio.volume = 0.4;
     tapAudio.play().catch(() => {});
     if ('vibrate' in navigator) {
-      navigator.vibrate(20);
+      navigator.vibrate(15); // Shorter, crisper vibration
     }
   } catch {}
 }
