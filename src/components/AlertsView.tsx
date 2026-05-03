@@ -150,15 +150,19 @@ const AlertsView: React.FC<AlertsViewProps> = ({
     }
 
     if (activeTab === 'support') {
+      let retryCount = 0;
+      const maxRetries = 5;
+
       const initChat = () => {
         const container = document.getElementById('n8n-chat-container');
         if (container) {
-          // Force clear any previous content to ensure fresh init
+          // If already has content, don't re-init unless we have to
+          if (container.innerHTML !== '' && chatInstanceRef.current) return;
+          
           container.innerHTML = ''; 
           try {
             chatInstanceRef.current = createChat({
               target: '#n8n-chat-container',
-              mode: 'fullscreen',
               webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
               i18n: {
                 en: { 
@@ -175,12 +179,17 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                 'Select a topic from below quick actions or type your query:',
               ],
             });
+            console.log('n8n Chat initialized successfully');
           } catch (err) {
             console.error('Failed to initialize n8n chat:', err);
           }
+        } else if (retryCount < maxRetries) {
+          retryCount++;
+          setTimeout(initChat, 200);
         }
       };
-      const timeoutId = setTimeout(initChat, 300); // Increased delay for animations
+
+      const timeoutId = setTimeout(initChat, 500); 
       return () => {
         clearTimeout(timeoutId);
         if (chatInstanceRef.current) {
