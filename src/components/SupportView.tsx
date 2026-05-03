@@ -63,10 +63,10 @@ const SupportView: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-2xl overflow-hidden h-[calc(100vh-180px)] min-h-[500px] flex flex-col"
+        className="bg-white rounded-[32px] border border-slate-100 shadow-2xl overflow-hidden h-[calc(100vh-180px)] min-h-[500px] flex flex-col"
       >
         {/* Sleek Integrated Header */}
-        <div className="sticky top-0 z-10 px-6 py-4 bg-slate-900 dark:bg-slate-800 flex items-center justify-between border-b border-white/5">
+        <div className="sticky top-0 z-10 px-6 py-4 bg-slate-900 flex items-center justify-between border-b border-white/5">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary shadow-lg">
               <MessageSquare size={20} strokeWidth={2.5} />
@@ -91,7 +91,7 @@ const SupportView: React.FC = () => {
         <div 
           id="support-chat-mount" 
           ref={chatCallbackRef}
-          className="flex-1 w-full bg-slate-50/50 dark:bg-slate-950/50 relative" 
+          className="flex-1 w-full bg-slate-50/50 relative" 
         />
       </motion.div>
     </div>

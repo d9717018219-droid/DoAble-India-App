@@ -15,34 +15,26 @@
   --color-green: #00B894;
   --color-dark-bg: #FFFFFF;
   --color-light-bg: #FFFFFF;
+  --dark-mode: class;
 }
 
 /* Force Light Mode - Disable Dark Mode Preferences */
 :root {
   background-color: #FFFFFF !important;
+  color: #1e293b !important;
   color-scheme: light !important;
 }
 
+body {
+  background-color: #FFFFFF !important;
+  color: #1e293b !important;
+}
+
+/* Brute force override for any potential browser auto-dark triggers */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-light-bg: #FFFFFF !important;
-    --color-dark-bg: #FFFFFF !important;
-    background-color: #FFFFFF !important;
+    color-scheme: light !important;
   }
-  
-  body {
-    background-color: #FFFFFF !important;
-    color: #1e293b !important;
-  }
-
-  /* Override Tailwind dark mode classes globally */
-  .dark\:bg-slate-900 { background-color: #FFFFFF !important; }
-  .dark\:bg-slate-800 { background-color: #f8fafc !important; }
-  .dark\:bg-slate-950 { background-color: #FFFFFF !important; }
-  .dark\:text-white { color: #1e293b !important; }
-  .dark\:border-slate-800 { border-color: #f1f5f9 !important; }
-  .dark\:bg-white\/10 { background-color: rgba(0,0,0,0.05) !important; }
-  .dark\:from-slate-900 { background-image: linear-gradient(to bottom right, #FFFFFF, #f8fafc) !important; }
 }
 
 @keyframes fadeInDown {

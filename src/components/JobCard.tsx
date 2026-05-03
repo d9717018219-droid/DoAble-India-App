@@ -40,7 +40,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       const canvas = await html2canvas(cardRef.current, {
         useCORS: true,
         scale: 3,
-        backgroundColor: document.body.classList.contains('dark') ? '#0f172a' : '#ffffff'
+        backgroundColor: '#ffffff'
       });
       const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png', 1.0));
       if (!blob) return;
@@ -85,7 +85,7 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   return (
     <div 
       ref={cardRef}
-      className="job-card w-full h-auto bg-white dark:bg-slate-900 rounded-[20px] overflow-hidden shadow-[0_8px_20px_rgba(0,0,0,0.06)] border-[1.5px] border-slate-200 dark:border-slate-800 flex flex-col relative animate-fade-down mb-6 transition-all duration-400"
+      className="job-card w-full h-auto bg-white rounded-[20px] overflow-hidden shadow-[0_8px_20px_rgba(0,0,0,0.06)] border-[1.5px] border-slate-200 flex flex-col relative animate-fade-down mb-6 transition-all duration-400"
     >
       {/* 1. Card Top - City Dynamic Theme */}
       <div 
@@ -108,39 +108,39 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       </div>
 
       {/* 2. Quick Stats Grid */}
-      <div className="quick-stats grid grid-cols-2 gap-2 p-3 bg-slate-50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
-        <div className="stat-item bg-white dark:bg-slate-800/50 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="quick-stats grid grid-cols-2 gap-2 p-3 bg-slate-50 border-b border-slate-100">
+        <div className="stat-item bg-white p-[10px_8px] rounded-[14px] text-center border border-slate-200 shadow-sm">
           <span className="stat-emoji text-[18px] block mb-0.5">{genderEmoji}</span>
-          <span className="stat-value text-[12px] font-[700] block truncate text-[#2A7A3E] dark:text-[#0FE8F2]">{job.Gender || 'Any'}</span>
-          <span className="stat-label text-[9px] text-slate-400 dark:text-slate-500 uppercase font-[800] mt-0.5">Gender</span>
+          <span className="stat-value text-[12px] font-[700] block truncate text-[#2A7A3E]">{job.Gender || 'Any'}</span>
+          <span className="stat-label text-[9px] text-slate-400 uppercase font-[800] mt-0.5">Gender</span>
         </div>
-        <div className="stat-item bg-white dark:bg-slate-800/50 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="stat-item bg-white p-[10px_8px] rounded-[14px] text-center border border-slate-200 shadow-sm">
           <span className="stat-emoji text-[18px] block mb-0.5">📍</span>
-          <span className="stat-value text-[12px] font-[700] block truncate text-[#2A7A3E] dark:text-[#0FE8F2]">{location}</span>
-          <span className="stat-label text-[9px] text-slate-400 dark:text-slate-500 uppercase font-[800] mt-0.5">Location</span>
+          <span className="stat-value text-[12px] font-[700] block truncate text-[#2A7A3E]">{location}</span>
+          <span className="stat-label text-[9px] text-slate-400 uppercase font-[800] mt-0.5">Location</span>
         </div>
-        <div className="stat-item bg-white dark:bg-slate-800/50 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="stat-item bg-white p-[10px_8px] rounded-[14px] text-center border border-slate-200 shadow-sm">
           <span className="stat-emoji text-[18px] block mb-0.5">📖</span>
-          <span className="stat-value text-[12px] font-[700] block truncate text-[#2A7A3E] dark:text-[#0FE8F2]">{classBoard}</span>
-          <span className="stat-label text-[9px] text-slate-400 dark:text-slate-500 uppercase font-[800] mt-0.5">Class/Board</span>
+          <span className="stat-value text-[12px] font-[700] block truncate text-[#2A7A3E]">{classBoard}</span>
+          <span className="stat-label text-[9px] text-slate-400 uppercase font-[800] mt-0.5">Class/Board</span>
         </div>
-        <div className="stat-item bg-white dark:bg-slate-800/50 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="stat-item bg-white p-[10px_8px] rounded-[14px] text-center border border-slate-200 shadow-sm">
           <span className="stat-emoji text-[18px] block mb-0.5">💰</span>
-          <span className="stat-value text-[12px] font-[700] block truncate text-[#2A7A3E] dark:text-[#0FE8F2]">₹{formatCurrency(job.Fee || '0')}/Mo</span>
-          <span className="stat-label text-[9px] text-slate-400 dark:text-slate-500 uppercase font-[800] mt-0.5">Fee</span>
+          <span className="stat-value text-[12px] font-[700] block truncate text-[#2A7A3E]">₹{formatCurrency(job.Fee || '0')}/Mo</span>
+          <span className="stat-label text-[9px] text-slate-400 uppercase font-[800] mt-0.5">Fee</span>
         </div>
         
-        <div className="stat-item col-span-2 bg-[#1B4B85]/5 dark:bg-sky-500/10 p-2 rounded-[14px] border border-[#1B4B85]/10 dark:border-sky-500/20 text-center">
-            <span className="stat-value text-[11px] font-[700] text-[#1B4B85] dark:text-sky-400 flex items-center justify-center gap-1.5 uppercase">
+        <div className="stat-item col-span-2 bg-[#1B4B85]/5 p-2 rounded-[14px] border border-[#1B4B85]/10 text-center">
+            <span className="stat-value text-[11px] font-[700] text-[#1B4B85] flex items-center justify-center gap-1.5 uppercase">
                 <Clock size={12} /> Posted On: {postedDate}
             </span>
         </div>
       </div>
 
       {/* 3. Parent Note Box */}
-      <div className="notes-box bg-[#F59E0B]/10 dark:bg-amber-500/10 p-3 mx-3 mt-3 rounded-[12px] border border-dashed border-[#F59E0B] dark:border-amber-500/50">
-          <span className="info-label text-[10px] text-[#B45309] dark:text-amber-400 font-[800] uppercase mb-1 block tracking-wider">📝 Parent Note</span>
-          <div className="notes-text text-[11px] text-slate-700 dark:text-slate-200 font-[500] leading-relaxed line-clamp-3">
+      <div className="notes-box bg-[#F59E0B]/10 p-3 mx-3 mt-3 rounded-[12px] border border-dashed border-[#F59E0B]">
+          <span className="info-label text-[10px] text-[#B45309] font-[800] uppercase mb-1 block tracking-wider">📝 Parent Note</span>
+          <div className="notes-text text-[11px] text-slate-700 font-[500] leading-relaxed line-clamp-3">
             {job.Notes || 'No specific requirements.'}
           </div>
       </div>
@@ -148,10 +148,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       {/* 4. Card Content */}
       <div className="card-content p-4 flex-1 space-y-4">
           <div className="space-y-2">
-            <span className="info-label text-[10px] text-slate-400 dark:text-slate-500 font-[800] uppercase tracking-tight">Subjects we want you to teach</span>
+            <span className="info-label text-[10px] text-slate-400 font-[800] uppercase tracking-tight">Subjects we want you to teach</span>
             <div className="tags-container flex flex-wrap gap-1.5">
                 {(job.subjects || 'General').split(/[;,]/).map((s, i) => (
-                  <span key={i} className="tag bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700 whitespace-nowrap flex items-center gap-1">
+                  <span key={i} className="tag bg-slate-50 text-slate-900 px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 whitespace-nowrap flex items-center gap-1">
                     📖 {s.trim()}
                   </span>
                 ))}
@@ -159,32 +159,32 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           </div>
           
           <div className="space-y-2">
-            <span className="info-label text-[10px] text-slate-400 dark:text-slate-500 font-[800] uppercase tracking-tight">Where you have to take class</span>
+            <span className="info-label text-[10px] text-slate-400 font-[800] uppercase tracking-tight">Where you have to take class</span>
             <div 
-              className="residency-box bg-slate-50 dark:bg-slate-800/50 p-3 rounded-[12px] border-l-4 font-[500] text-[11px] text-slate-900 dark:text-slate-100 cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors shadow-sm"
+              className="residency-box bg-slate-50 p-3 rounded-[12px] border-l-4 font-[500] text-[11px] text-slate-900 cursor-pointer hover:bg-black/5 transition-colors shadow-sm"
               style={{ borderLeftColor: theme.solid }}
               onClick={openMap}
             >
                 📍 {resi}, {location}
-                <div className="text-[9px] text-slate-400 dark:text-slate-500 mt-1 uppercase font-bold tracking-tighter">Tap to check distance & route on Google Maps</div>
+                <div className="text-[9px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">Tap to check distance & route on Google Maps</div>
             </div>
           </div>
           
           <div className="space-y-2">
-            <span className="info-label text-[10px] text-slate-400 dark:text-slate-500 font-[800] uppercase tracking-tight">Schedule & Availability</span>
+            <span className="info-label text-[10px] text-slate-400 font-[800] uppercase tracking-tight">Schedule & Availability</span>
             <div className="tags-container flex flex-wrap gap-1.5">
-                <span className="tag bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700">⏳ {(job as any).duration || '1 Hr/Day'}</span>
-                <span className="tag bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700">📅 {job.days || 'Discuss'}</span>
-                <span className="tag bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700">🕒 {job.time || 'Flexible'}</span>
+                <span className="tag bg-slate-50 text-slate-900 px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200">⏳ {(job as any).duration || '1 Hr/Day'}</span>
+                <span className="tag bg-slate-50 text-slate-900 px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200">📅 {job.days || 'Discuss'}</span>
+                <span className="tag bg-slate-50 text-slate-900 px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200">🕒 {job.time || 'Flexible'}</span>
             </div>
           </div>
       </div>
 
       {/* 5. Actions */}
-      <div className="card-actions grid grid-cols-2 gap-2.5 p-4 border-t border-slate-100 dark:border-slate-800">
+      <div className="card-actions grid grid-cols-2 gap-2.5 p-4 border-t border-slate-100">
           <a 
             href={`tel:${phone}`} 
-            className="btn bg-white dark:bg-slate-900 px-3 py-3 rounded-xl font-[800] text-[12px] text-center border-2 transition-all active:scale-95 flex items-center justify-center gap-2"
+            className="btn bg-white px-3 py-3 rounded-xl font-[800] text-[12px] text-center border-2 transition-all active:scale-95 flex items-center justify-center gap-2"
             style={{ color: theme.solid, borderColor: theme.solid }}
           >
             📞 Call Support

@@ -89,7 +89,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts' | 'admin' | 'support'>('home');
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
-  const [themeMode] = useState<'light' | 'dark'>(localStorage.getItem('themeMode') as 'light' | 'dark' || 'light');
   const [selectedLocalities, setSelectedLocalities] = useState<string[]>([]);
   const [visibleJobsCount, setVisibleJobsCount] = useState(10);
   const [visibleTutorsCount, setVisibleTutorsCount] = useState(10);
@@ -108,6 +107,7 @@ export default function App() {
   const [tutorFilterFee, setTutorFilterFee] = useState('all');
   const [tutorFilterStatus, setTutorFilterStatus] = useState('all');
   const [tutorFilterSchoolExp, setTutorFilterSchoolExp] = useState('all');
+  const [citySearchQuery, setCitySearchQuery] = useState('');
 
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('userType'));
   const [showFormModal, setShowFormModal] = useState(false);
@@ -141,11 +141,6 @@ export default function App() {
     setCityFilter('all');
     resetCounts();
   }, [resetCounts]);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', themeMode === 'dark');
-    localStorage.setItem('themeMode', themeMode);
-  }, [themeMode]);
 
   useEffect(() => {
     const unsubAuth = onAuthStateChanged(firebaseAuth, (user) => {
@@ -248,8 +243,10 @@ export default function App() {
     const combined = [...firestoreLeads, ...leads];
     const unique = new Map<string, JobLead>();
     combined.forEach(l => { const id = l['Order ID'] || (l as any).id; if (id && !unique.has(id)) unique.set(id, l); });
-    return Array.from(unique.values());
-  }, [leads, firestoreLeads]);
+    return Array.from(unique.values()).sort((a, b) => 
+      parseDate(b['Record Added'] || b['Updated Time']) - parseDate(a['Record Added'] || a['Updated Time'])
+    );
+  }, [leads, firestoreLeads, parseDate]);
 
   const filteredJobs = useMemo(() => {
     return allLeads.filter(l => {
@@ -350,7 +347,7 @@ export default function App() {
   }, [cityFilter]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 font-sans" ref={mainScrollRef}>
+    <div className="min-h-screen bg-white font-sans" ref={mainScrollRef}>
       <AnimatePresence>
         {showOnboarding && (
           <div className="fixed inset-0 z-[10000] bg-white flex flex-col items-center justify-center p-4 overflow-y-auto">
@@ -361,11 +358,11 @@ export default function App() {
                   <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">Application Setup</h1>
                 </div>
 
-                <div className="bg-slate-50 dark:bg-slate-800 p-8 rounded-[40px] space-y-8 border border-slate-100 dark:border-slate-700 shadow-xl">
+                <div className="bg-slate-50 p-8 rounded-[40px] space-y-8 border border-slate-100 shadow-xl">
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest flex items-center gap-2"><LucideUser size={14} className="text-primary" /> Select Role</label>
                     <div className="relative">
-                      <select value={editUserType || ''} onChange={e => setEditUserType(e.target.value as UserType)} className="w-full bg-white dark:bg-slate-900 p-5 pl-14 rounded-2xl text-sm font-black outline-none border-2 border-transparent focus:border-primary appearance-none cursor-pointer shadow-sm">
+                      <select value={editUserType || ''} onChange={e => setEditUserType(e.target.value as UserType)} className="w-full bg-white p-5 pl-14 rounded-2xl text-sm font-black outline-none border-2 border-transparent focus:border-primary appearance-none cursor-pointer shadow-sm">
                         <option value="" disabled>Choose your role...</option>
                         <option value="parent">👨 Parent</option>
                         <option value="teacher">🎓 Tutor</option>
@@ -377,8 +374,8 @@ export default function App() {
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest flex items-center gap-2"><MapPin size={14} className="text-primary" /> Select City</label>
                     <div className="relative">
-                      <select value={editCity} onChange={e => setEditCity(e.target.value)} className="w-full bg-white dark:bg-slate-900 p-5 pl-14 rounded-2xl text-sm font-black outline-none border-2 border-transparent focus:border-primary appearance-none cursor-pointer shadow-sm">
-                        {CITIES_LIST.map(city => <option key={city} value={city}>{city}</option>)}
+                      <select value={editCity} onChange={e => setEditCity(e.target.value)} className="w-full bg-white p-5 pl-14 rounded-2xl text-sm font-black outline-none border-2 border-transparent focus:border-primary appearance-none cursor-pointer shadow-sm">
+                        {dynamicCities.map(city => <option key={city} value={city}>{city}</option>)}
                       </select>
                       <MapPin size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" />
                       <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300 text-xs">▼</div>
@@ -396,13 +393,49 @@ export default function App() {
         {showFilterDrawer && (
           <div className="fixed inset-0 z-[9000] flex items-end justify-center">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFilterDrawer(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-t-[48px] p-8 space-y-8 max-h-[85vh] overflow-y-auto pr-2 custom-scrollbar">
-              <div className="flex justify-between items-center"><h3 className="text-xl font-black text-slate-900 dark:text-white uppercase">Switch City</h3><button onClick={() => setShowFilterDrawer(false)} className="p-4 bg-slate-100 rounded-2xl text-slate-400"><X size={20} /></button></div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                <button onClick={() => { setCityFilter('all'); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase transition-all", cityFilter === 'all' ? "bg-slate-900 dark:bg-[#0FE8F2]/10 text-white dark:text-[#0FE8F2]" : "bg-slate-100 dark:bg-slate-800 text-slate-400")}>All Cities</button>
-                {dynamicCities.slice(0, 100).map(c => (
-                  <button key={c} onClick={() => { setCityFilter(c); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate transition-all", cityFilter === c ? "bg-primary text-white dark:text-[#0FE8F2]" : "bg-slate-100 dark:bg-slate-800 text-slate-400")}>{c}</button>
-                ))}
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="relative bg-white w-full max-w-2xl rounded-t-[48px] p-8 space-y-8 max-h-[85vh] overflow-y-auto pr-2 custom-scrollbar">
+              <div className="flex justify-between items-center sticky top-0 bg-white z-10 pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-4">
+                  <h3 className="text-xl font-black text-slate-900 uppercase">Switch City</h3>
+                  <div className="bg-primary/10 px-3 py-1 rounded-xl border border-primary/20">
+                    <span className="text-[11px] font-black text-primary uppercase">{dynamicCities.length} Cities</span>
+                  </div>
+                </div>
+                <button onClick={() => { setShowFilterDrawer(false); setCitySearchQuery(''); }} className="p-4 bg-slate-100 rounded-2xl text-slate-400"><X size={20} /></button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    placeholder="Search your city..." 
+                    value={citySearchQuery}
+                    onChange={(e) => setCitySearchQuery(e.target.value)}
+                    className="w-full bg-slate-50 p-5 pl-14 rounded-2xl text-sm font-bold outline-none border border-slate-100 focus:border-primary transition-all"
+                  />
+                  <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" />
+                  {citySearchQuery && (
+                    <button onClick={() => setCitySearchQuery('')} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500">
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pb-10">
+                  <button onClick={() => { setCityFilter('all'); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); setCitySearchQuery(''); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase transition-all", cityFilter === 'all' ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400")}>0. All Cities</button>
+                  {dynamicCities
+                    .filter(c => c.toLowerCase().includes(citySearchQuery.toLowerCase()))
+                    .map((c, idx) => (
+                      <button 
+                        key={c} 
+                        onClick={() => { setCityFilter(c); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); setCitySearchQuery(''); }} 
+                        className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate transition-all text-left flex items-center gap-2", cityFilter === c ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}
+                      >
+                        <span className="opacity-50 shrink-0">{idx + 1}.</span>
+                        <span className="truncate">{c}</span>
+                      </button>
+                    ))}
+                </div>
               </div>
             </motion.div>
           </div>
@@ -413,13 +446,13 @@ export default function App() {
         {showAdvancedFilterDrawer && (
           <div className="fixed inset-0 z-[9000] flex items-end justify-center">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAdvancedFilterDrawer(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-t-[48px] p-8 space-y-6 max-h-[90vh] overflow-y-auto pr-2 custom-scrollbar">
-              <div className="flex justify-between items-center sticky top-0 bg-white dark:bg-slate-900 z-10 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="relative bg-white w-full max-w-2xl rounded-t-[48px] p-8 space-y-6 max-h-[90vh] overflow-y-auto pr-2 custom-scrollbar">
+              <div className="flex justify-between items-center sticky top-0 bg-white z-10 pb-4 border-b border-slate-100">
                 <div className="flex items-center gap-4">
-                  <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Precision Filters</h3>
+                  <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Precision Filters</h3>
                   <div className="bg-primary/10 px-3 py-1 rounded-xl border border-primary/20"><span className="text-[11px] font-black text-primary uppercase">{activeTab === 'tutors' ? activeTutorsCount : activeLeadsCount} Matches</span></div>
                 </div>
-                <button onClick={() => setShowAdvancedFilterDrawer(false)} className="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-400"><X size={20} /></button>
+                <button onClick={() => setShowAdvancedFilterDrawer(false)} className="p-4 bg-slate-100 rounded-2xl text-slate-400"><X size={20} /></button>
               </div>
 
               <div className="space-y-8 py-4 pr-2">
@@ -427,18 +460,18 @@ export default function App() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">{activeTab === 'tutors' ? 'Tutor ID' : 'Order ID'}</label>
-                    <input type="text" placeholder="Search ID..." value={activeTab === 'tutors' ? tutorFilterID : searchQuery} onChange={e => { activeTab === 'tutors' ? setTutorFilterID(e.target.value) : setSearchQuery(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]" />
+                    <input type="text" placeholder="Search ID..." value={activeTab === 'tutors' ? tutorFilterID : searchQuery} onChange={e => { activeTab === 'tutors' ? setTutorFilterID(e.target.value) : setSearchQuery(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100" />
                   </div>
                   {activeTab === 'tutors' && (
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Name Search</label>
-                      <input type="text" placeholder="Search Name..." value={tutorFilterName} onChange={e => { setTutorFilterName(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]" />
+                      <input type="text" placeholder="Search Name..." value={tutorFilterName} onChange={e => { setTutorFilterName(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100" />
                     </div>
                   )}
                   {activeTab === 'jobs' && (
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Job Subject / Board</label>
-                      <input type="text" placeholder="e.g. Maths, CBSE..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]" />
+                      <input type="text" placeholder="e.g. Maths, CBSE..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100" />
                     </div>
                   )}
                 </div>
@@ -456,7 +489,7 @@ export default function App() {
                               setSelectedLocalities(prev => isSelected ? prev.filter(x => x !== loc) : [...prev, loc]);
                               resetCounts();
                             }}
-                            className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-primary text-white border-primary" : "bg-white dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700")}
+                            className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-primary text-white border-primary" : "bg-white text-slate-500 border-slate-100")}
                           >
                             {loc}
                           </button>
@@ -469,16 +502,16 @@ export default function App() {
                 {activeTab === 'tutors' && (
                   <>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender</label><select value={tutorFilterGender} onChange={e => { setTutorFilterGender(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
-                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Own Vehicle</label><select value={tutorFilterVehicle} onChange={e => { setTutorFilterVehicle(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender</label><select value={tutorFilterGender} onChange={e => { setTutorFilterGender(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Own Vehicle</label><select value={tutorFilterVehicle} onChange={e => { setTutorFilterVehicle(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any</option><option value="yes">Yes</option><option value="no">No</option></select></div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Experience</label><select value={tutorFilterExperience} onChange={e => { setTutorFilterExperience(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any Exp</option><option value="0">Fresher</option><option value="1">1-2 Yrs</option><option value="3">3-5 Yrs</option><option value="5">5+ Yrs</option></select></div>
-                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Qualification</label><select value={tutorFilterQualification} onChange={e => { setTutorFilterQualification(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any</option><option value="graduate">Graduate</option><option value="postgraduate">Post-Graduate</option></select></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Experience</label><select value={tutorFilterExperience} onChange={e => { setTutorFilterExperience(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any Exp</option><option value="0">Fresher</option><option value="1">1-2 Yrs</option><option value="3">3-5 Yrs</option><option value="5">5+ Yrs</option></select></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Qualification</label><select value={tutorFilterQualification} onChange={e => { setTutorFilterQualification(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any</option><option value="graduate">Graduate</option><option value="postgraduate">Post-Graduate</option></select></div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Shift</label><select value={tutorFilterTime} onChange={e => { setTutorFilterTime(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any Time</option><option value="Morning">Morning</option><option value="Afternoon">Afternoon</option><option value="Evening">Evening</option></select></div>
-                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Status</label><select value={tutorFilterStatus} onChange={e => { setTutorFilterStatus(e.target.value); resetCounts(); }} className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 dark:text-[#0FE8F2]"><option value="all">Any Status</option><option value="active">✅ Active</option><option value="suspended">🚫 Suspended</option></select></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Shift</label><select value={tutorFilterTime} onChange={e => { setTutorFilterTime(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any Time</option><option value="Morning">Morning</option><option value="Afternoon">Afternoon</option><option value="Evening">Evening</option></select></div>
+                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Status</label><select value={tutorFilterStatus} onChange={e => { setTutorFilterStatus(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any Status</option><option value="active">✅ Active</option><option value="suspended">🚫 Suspended</option></select></div>
                     </div>
 
                     <div className="space-y-4">
@@ -495,7 +528,7 @@ export default function App() {
                                 localStorage.setItem('userClasses', JSON.stringify(nextClasses));
                                 resetCounts();
                               }}
-                              className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-primary text-white border-primary" : "bg-white dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700")}
+                              className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-primary text-white border-primary" : "bg-white text-slate-500 border-slate-100")}
                             >
                               {cls}
                             </button>
@@ -519,7 +552,7 @@ export default function App() {
                                    localStorage.setItem('userTutorSubjects', JSON.stringify(nextSubjs));
                                    resetCounts();
                                  }}
-                                 className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-[#0FE8F2] text-slate-900 border-[#0FE8F2]" : "bg-white dark:bg-slate-800 text-slate-500 border-slate-100 dark:border-slate-700")}
+                                 className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-[#0FE8F2] text-slate-900 border-[#0FE8F2]" : "bg-white text-slate-500 border-slate-100")}
                                >
                                  {subj}
                                </button>
@@ -531,8 +564,8 @@ export default function App() {
                   </>
                 )}
                 
-                <div className="pt-6 flex gap-3 sticky bottom-0 bg-white dark:bg-slate-900 pb-2">
-                  <button onClick={clearFilters} className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest active:scale-95 transition-all">Clear</button>
+                <div className="pt-6 flex gap-3 sticky bottom-0 bg-white pb-2">
+                  <button onClick={clearFilters} className="flex-1 bg-slate-100 text-slate-900 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest active:scale-95 transition-all">Clear</button>
                   <button onClick={() => setShowAdvancedFilterDrawer(false)} className="flex-[2] bg-primary text-white py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">Apply</button>
                 </div>
               </div>
@@ -633,14 +666,14 @@ export default function App() {
         )}
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}        {(activeTab === 'jobs' || activeTab === 'tutors') && (
           <div className="flex flex-col space-y-4">
-              <div className="sticky top-0 z-40 py-2 bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100 dark:border-slate-800">
-                <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-4">
-                  <span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500 dark:text-[#0FE8F2]">
+              <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100">
+                <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-4">
+                  <span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500">
                     {cityFilter !== 'all' ? `📍 ${cityFilter}` : (activeTab === 'jobs' ? 'Searching Jobs' : 'Expert Tutors')}
                   </span>
                   <div className="flex gap-2">
-                    <button onClick={() => setShowFilterDrawer(true)} className="bg-white dark:bg-slate-900 p-3 rounded-xl text-primary shadow-sm"><MapPin size={14} /></button>
-                    <button onClick={() => setShowAdvancedFilterDrawer(true)} className="bg-white dark:bg-slate-900 p-3 rounded-xl text-primary shadow-sm"><Filter size={14} /></button>
+                    <button onClick={() => setShowFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary shadow-sm"><MapPin size={14} /></button>
+                    <button onClick={() => setShowAdvancedFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary shadow-sm"><Filter size={14} /></button>
                   </div>
                 </div>
               </div>
@@ -675,7 +708,7 @@ export default function App() {
         {showFormModal && (
           <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowFormModal(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
-            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="relative bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden flex flex-col h-[85vh]">
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="relative bg-white w-full max-w-2xl rounded-[32px] shadow-2xl overflow-hidden flex flex-col h-[85vh]">
               <div className="p-6 border-b flex justify-between items-center bg-slate-50/50">
                 <h3 className="text-lg font-black uppercase">{formType === 'teacher' ? 'Tutor Registration' : 'Requirement Details'}</h3>
                 <button onClick={() => setShowFormModal(false)} className="p-3 bg-white rounded-2xl text-slate-400 shadow-sm"><X size={20} strokeWidth={3} /></button>

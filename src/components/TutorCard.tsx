@@ -131,7 +131,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   };
 
   return (
-    <div className="tutor-card w-full h-auto bg-white dark:bg-slate-900 rounded-[20px] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-400 border-2 border-transparent hover:translate-y-[-15px] hover:scale-[1.02] hover:shadow-[0_30px_60px_rgba(255,107,107,0.2)] hover:border-[#FF6B6B] flex flex-col relative animate-fade-up mb-6">
+    <div className="tutor-card w-full h-auto bg-white rounded-[20px] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-400 border-2 border-transparent hover:translate-y-[-15px] hover:scale-[1.02] hover:shadow-[0_30px_60px_rgba(255,107,107,0.2)] hover:border-[#FF6B6B] flex flex-col relative animate-fade-up mb-6">
       {/* ─── TOP SECTION ─── */}
       <div 
         className="card-top p-6 sm:p-10 text-center text-white relative flex flex-col justify-center items-center overflow-hidden shrink-0"
@@ -158,25 +158,25 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
       </div>
 
       {/* ─── QUICK STATS ─── */}
-      <div className="quick-stats grid grid-cols-2 gap-2.5 p-4 bg-[#F8F9FA] dark:bg-[#3D3D3D] border-b-2 border-[#F0F0F0] dark:border-[#444444]">
-          <div className="stat-item bg-white dark:bg-[#2D2D2D] p-2.5 rounded-xl text-center border border-[#E8E8E8] dark:border-[#444444] transition-all duration-300">
+      <div className="quick-stats grid grid-cols-2 gap-2.5 p-4 bg-[#F8F9FA] border-b-2 border-[#F0F0F0]">
+          <div className="stat-item bg-white p-2.5 rounded-xl text-center border border-[#E8E8E8] transition-all duration-300">
               <div className="stat-emoji text-2xl mb-1">🎂</div>
-              <div className="stat-value text-sm font-bold text-[#FF6B6B] dark:text-[#0FE8F2]">{age}</div>
+              <div className="stat-value text-sm font-bold text-[#FF6B6B]">{age}</div>
               <div className="stat-label text-[10px] text-[#999] uppercase mt-0.5">Age</div>
           </div>
-          <div className="stat-item bg-white dark:bg-[#2D2D2D] p-2.5 rounded-xl text-center border border-[#E8E8E8] dark:border-[#444444] transition-all duration-300">
+          <div className="stat-item bg-white p-2.5 rounded-xl text-center border border-[#E8E8E8] transition-all duration-300">
               <div className="stat-emoji text-2xl mb-1">👥</div>
-              <div className="stat-value text-sm font-bold text-[#FF6B6B] dark:text-[#0FE8F2]">{displayGender}</div>
+              <div className="stat-value text-sm font-bold text-[#FF6B6B]">{displayGender}</div>
               <div className="stat-label text-[10px] text-[#999] uppercase mt-0.5">Gender</div>
           </div>
-          <div className="stat-item bg-white dark:bg-[#2D2D2D] p-2.5 rounded-xl text-center border border-[#E8E8E8] dark:border-[#444444] transition-all duration-300">
+          <div className="stat-item bg-white p-2.5 rounded-xl text-center border border-[#E8E8E8] transition-all duration-300">
               <div className="stat-emoji text-2xl mb-1">📍</div>
-              <div className="stat-value text-sm font-bold text-[#FF6B6B] dark:text-[#0FE8F2]">{cityShort}</div>
+              <div className="stat-value text-sm font-bold text-[#FF6B6B]">{cityShort}</div>
               <div className="stat-label text-[10px] text-[#999] uppercase mt-0.5">City</div>
           </div>
-          <div className="stat-item bg-white dark:bg-[#2D2D2D] p-2.5 rounded-xl text-center border border-[#E8E8E8] dark:border-[#444444] transition-all duration-300">
+          <div className="stat-item bg-white p-2.5 rounded-xl text-center border border-[#E8E8E8] transition-all duration-300">
               <div className="stat-emoji text-2xl mb-1">💰</div>
-              <div className="stat-value text-sm font-bold text-[#FF6B6B] dark:text-[#0FE8F2]">{getFee(feeRaw).substring(0, 10)}</div>
+              <div className="stat-value text-sm font-bold text-[#FF6B6B]">{getFee(feeRaw).substring(0, 10)}</div>
               <div className="stat-label text-[10px] text-[#999] uppercase mt-0.5">Fee</div>
           </div>
       </div>
@@ -184,9 +184,9 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
       {/* ─── CONTENT ─── */}
       <div className="card-content p-5 flex-1 space-y-4">
           {paragraphs && (
-            <div className="about-card bg-gradient-to-br from-[#F0F9FF] to-[#FCE7F3] dark:from-slate-800 dark:to-slate-900 p-3.5 rounded-xl border-l-4 border-[#4ECDC4] shadow-sm">
+            <div className="about-card bg-gradient-to-br from-[#F0F9FF] to-[#FCE7F3] p-3.5 rounded-xl border-l-4 border-[#4ECDC4] shadow-sm">
                 <div className="about-label text-[10px] text-[#4ECDC4] font-bold uppercase">ℹ️ About Me</div>
-                <div className="about-text text-[12px] text-[#2C3E50] dark:text-slate-200 mt-1.5 leading-relaxed space-y-2 font-medium">
+                <div className="about-text text-[12px] text-[#2C3E50] mt-1.5 leading-relaxed space-y-2 font-medium">
                     {paragraphs.map((p, i) => <p key={i}>{p}</p>)}
                 </div>
             </div>
@@ -274,7 +274,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
                        <span key={i} className="tag-time bg-gradient-to-br from-[#FFF3E0] to-[#F3E5F5] text-[#FF9800] px-3 py-1.5 rounded-full text-[11px] font-semibold border border-[#FF9800]/20 hover:from-[#FF9800] hover:to-[#FF7043] hover:text-white hover:scale-110 transition-all duration-300">
                          🕐 {time}
                        </span>
-                     )) : <span className="info-value text-[13px] text-[#2C3E50] dark:text-[#E0E0E0]">—</span>}
+                     )) : <span className="info-value text-[13px] text-[#2C3E50]">—</span>}
                  </div>
              </div>
           </div>
@@ -295,17 +295,17 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
           <div className="space-y-3 pt-2">
               <div className="info-block">
                   <div className="info-label text-[10px] text-[#999] uppercase font-bold tracking-wider">💬 Communication</div>
-                  <div className="info-value text-[13px] text-[#2C3E50] dark:text-[#E0E0E0] font-medium">{addressRaw || 'Hindi/English'}</div>
+                  <div className="info-value text-[13px] text-[#2C3E50] font-medium">{addressRaw || 'Hindi/English'}</div>
               </div>
 
               <div className="info-block">
                   <div className="info-label text-[10px] text-[#999] uppercase font-bold tracking-wider">🚗 Own Vehicle</div>
-                  <div className="info-value text-[13px] text-[#2C3E50] dark:text-[#E0E0E0] font-medium">{vehicleRaw || 'No'}</div>
+                  <div className="info-value text-[13px] text-[#2C3E50] font-medium">{vehicleRaw || 'No'}</div>
               </div>
 
               <div className="info-block">
                   <div className="info-label text-[10px] text-[#999] uppercase font-bold tracking-wider">📅 Last Updated</div>
-                  <div className="info-value text-[13px] text-[#2C3E50] dark:text-[#E0E0E0] font-medium">{updatedRaw || 'Recently'}</div>
+                  <div className="info-value text-[13px] text-[#2C3E50] font-medium">{updatedRaw || 'Recently'}</div>
               </div>
 
               <div className="info-block">
@@ -322,7 +322,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
       </div>
 
       {/* ─── ACTIONS ─── */}
-      <div className="card-actions grid grid-cols-2 gap-2.5 p-4 bg-gradient-to-br from-[#F8FAFC] to-[#F0F4F8] dark:from-[#3D3D3D] dark:to-[#3D3D3D] border-t-2 border-[#E8EEF5] dark:border-[#444444]">
+      <div className="card-actions grid grid-cols-2 gap-2.5 p-4 bg-gradient-to-br from-[#F8FAFC] to-[#F0F4F8] border-t-2 border-[#E8EEF5]">
           <a href="tel:9971969197" className="btn btn-call bg-gradient-to-br from-[#FF6B6B] to-[#FF7675] text-white px-4 py-3 rounded-xl font-bold text-[13px] text-center shadow-[0_8px_15px_rgba(255,107,107,0.3)] hover:translate-y-[-3px] hover:shadow-[0_12px_25px_rgba(255,107,107,0.4)] transition-all duration-300 flex items-center justify-center gap-2">
             📞 Call
           </a>
