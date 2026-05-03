@@ -341,33 +341,63 @@ const AlertsView: React.FC<AlertsViewProps> = ({
              <div id="n8n-chat-container" className="w-full h-[600px] rounded-[32px] overflow-hidden bg-slate-50" />
           </div>
         ) : activeTab === 'setup' ? (
-          <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-8">
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border-2 border-slate-100 dark:border-slate-800 shadow-sm">
                <div className="pb-4 border-b border-slate-100 dark:border-slate-800">
                   <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">App Settings</h4>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Personal Preferences</p>
                </div>
-               <div className="space-y-6">
+               
+               <div className="space-y-6 mt-8">
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Full Name</label>
-                    <input type="text" value={userName || ''} onChange={e => updatePreference('userName', e.target.value)} placeholder="Enter your name..."
-                      className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 focus:border-primary transition-all text-slate-900 dark:text-[#0FE8F2]" />
+                    <input 
+                      type="text" 
+                      value={userName || ''} 
+                      onChange={e => updatePreference('userName', e.target.value)} 
+                      placeholder="Enter your name..."
+                      className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 focus:border-primary transition-all text-slate-900 dark:text-[#0FE8F2]" 
+                    />
                   </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="space-y-3">
                       <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Nature</label>
-                      <select value={userType || ''} onChange={e => updatePreference('userType', e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 focus:border-primary transition-all dark:text-[#0FE8F2]">
+                      <select 
+                        value={userType || ''} 
+                        onChange={e => updatePreference('userType', e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
+                      >
                         <option value="" disabled>Select Role...</option>
                         <option value="parent">👨 Parent</option>
                         <option value="teacher">🎓 Tutor</option>
                       </select>
                     </div>
                     <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">City</label>
-                      <select value={city || 'All'} onChange={e => updatePreference('userCity', e.target.value)}
-                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 focus:border-primary transition-all dark:text-[#0FE8F2]">
-                        {(CITIES_LIST || []).map(c => <option key={c} value={c}>{c}</option>)}
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Primary City</label>
+                      <select 
+                        value={city || 'All'} 
+                        onChange={e => updatePreference('userCity', e.target.value)}
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
+                      >
+                        <option value="Ghaziabad">Ghaziabad</option>
+                        <option value="Noida">Noida</option>
+                        <option value="Delhi">Delhi</option>
+                        <option value="Gurgaon">Gurgaon</option>
+                        <option value="Faridabad">Faridabad</option>
+                        <option value="All">All Cities</option>
                       </select>
                     </div>
+                  </div>
+
+                  <div className="pt-8 border-t border-slate-100 dark:border-slate-800">
+                    <a 
+                      href="https://zohosecurepay.in/checkout/i9db4wt2-verz1l6gn6ogo/Make-a-secure-payment-now" 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="w-full bg-[#059669] text-white p-5 rounded-2xl flex items-center justify-between group active:scale-95 transition-all shadow-lg"
+                    >
+                      <span className="text-[11px] font-black uppercase tracking-widest">Registration Fee / Payment</span>
+                    </a>
                   </div>
                </div>
           </div>
