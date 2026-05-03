@@ -21,6 +21,14 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   const phone = getCityPhone(job.City);
   const postedDate = formatPostedDate(job['Updated Time'] || job['Record Added']);
 
+  const formatJobName = (name: string) => {
+    if (!name) return 'Elite Job';
+    // Remove " Ji" suffix (case-insensitive)
+    let cleaned = name.replace(/\s+[Jj][Ii]\s*$/, '').trim();
+    // Convert to Title Case
+    return cleaned.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  };
+
   const captureAndShare = async () => {
     if (!cardRef.current) return;
     const actions = cardRef.current.querySelector('.card-actions');
@@ -91,8 +99,8 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           <Share2 size={16} strokeWidth={3} />
         </button>
         
-        <div className="hero-name text-[19px] font-[800] text-[#FFE66D] mb-[3px] drop-shadow-sm uppercase tracking-tight line-clamp-1 px-8">
-          {genderEmoji} {job.Name || 'Elite Job'}
+        <div className="hero-name text-[19px] font-[800] text-[#FFE66D] mb-[3px] drop-shadow-sm tracking-tight line-clamp-1 px-8">
+          {genderEmoji} {formatJobName(job.Name)}
         </div>
         <div className="hero-id text-[11px] font-[600] opacity-95 uppercase tracking-widest">
           🆔 Order ID: {job['Order ID']}
