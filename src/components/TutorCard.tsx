@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, MessageSquare, User, GraduationCap, Zap, Calendar, BookOpen, Clock, MapPin, Library, Share2, CheckCircle2, Info } from 'lucide-react';
+import { Phone, MessageSquare, GraduationCap, Zap, Calendar, BookOpen, Clock, MapPin, Library, Share2, CheckCircle2, Info } from 'lucide-react';
 import { TutorProfile } from '../types';
 import { cn } from '../utils';
 

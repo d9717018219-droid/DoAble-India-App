@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User as UserIcon, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check, Sun, Cloud, Moon, Menu } from 'lucide-react';
+import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User as LucideUser, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check, Sun, Cloud, Moon, Menu } from 'lucide-react';
 import { collection, onSnapshot, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, auth, auth as firebaseAuth } from './firebase';
 import { handleFirestoreError, OperationType } from './lib/firestore-errors';
@@ -582,7 +582,7 @@ export default function App() {
                   {/* 1. Role Selection Dropdown */}
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest flex items-center gap-2">
-                       <User size={14} className="text-primary" /> Select Your Role (Pick List)
+                       <LucideUser size={14} className="text-primary" /> Select Your Role (Pick List)
                     </label>
                     <div className="relative">
                       <select 
@@ -594,7 +594,7 @@ export default function App() {
                         <option value="parent">👨 Parent (Find a Mentor)</option>
                         <option value="teacher">🎓 Tutor (Find a Job)</option>
                       </select>
-                      <User size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" />
+                      <LucideUser size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" />
                       <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300 text-xs">▼</div>
                     </div>
                   </div>
@@ -1089,7 +1089,7 @@ export default function App() {
                <div className="flex-1 overflow-y-auto p-6 space-y-8">
                   <div className="flex flex-col items-center gap-4 py-4">
                      <div className="w-20 h-20 bg-primary/10 rounded-[32px] flex items-center justify-center text-primary border-2 border-primary/20 shadow-xl">
-                        <UserIcon size={36} strokeWidth={2.5} />
+                        <LucideUser size={36} strokeWidth={2.5} />
                      </div>
                      <div className="text-center">
                         <h4 className="text-base font-black text-slate-900 dark:text-white uppercase tracking-tight">{userName || 'User Account'}</h4>
@@ -1133,7 +1133,7 @@ export default function App() {
                   {currentUser ? (
                     <button onClick={() => { playTapSound(); firebaseAuth.signOut(); setShowMenuDrawer(false); }} className="w-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all"><LogOut size={16} strokeWidth={3} /><span className="text-[10px] font-black uppercase tracking-widest">Sign Out</span></button>
                   ) : (
-                    <button onClick={() => { playTapSound(); handleSignIn(); setShowMenuDrawer(false); }} className="w-full bg-slate-900 dark:bg-primary text-white py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all"><UserIcon size={16} strokeWidth={3} /><span className="text-[10px] font-black uppercase tracking-widest">Sign In with Google</span></button>
+                    <button onClick={() => { playTapSound(); handleSignIn(); setShowMenuDrawer(false); }} className="w-full bg-slate-900 dark:bg-primary text-white py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all"><LucideUser size={16} strokeWidth={3} /><span className="text-[10px] font-black uppercase tracking-widest">Sign In with Google</span></button>
                   )}
                   <p className="text-[8px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-[0.3em] text-center">DoAble India Premium</p>
                </div>

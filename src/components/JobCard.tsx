@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { MapPin, BookOpen, Clock, Calendar, Phone, MessageSquare, Share2, CheckCircle2, Zap, Info, User } from 'lucide-react';
+import { MapPin, BookOpen, Clock, Calendar, Phone, MessageSquare, Share2, CheckCircle2, Zap, Info } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { JobLead } from '../types';
 import { cn, formatCurrency, formatPostedDate, getCityPhone, getCityTheme } from '../utils';
