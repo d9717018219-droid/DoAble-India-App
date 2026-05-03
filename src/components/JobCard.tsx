@@ -100,29 +100,29 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       </div>
 
       {/* 2. Quick Stats Grid */}
-      <div className="quick-stats grid grid-cols-2 gap-2 p-3 bg-black/5 dark:bg-white/5 border-b border-slate-100 dark:border-slate-800">
-        <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800">
+      <div className="quick-stats grid grid-cols-2 gap-2 p-3 bg-slate-50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800">
+        <div className="stat-item bg-white dark:bg-slate-800 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-700 shadow-sm">
           <span className="stat-emoji text-[18px] block mb-0.5">{genderEmoji}</span>
-          <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-white">{job.Gender || 'Any'}</span>
-          <span className="stat-label text-[9px] text-slate-400 uppercase font-[800] mt-0.5">Gender</span>
+          <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-slate-100">{job.Gender || 'Any'}</span>
+          <span className="stat-label text-[9px] text-slate-400 dark:text-slate-500 uppercase font-[800] mt-0.5">Gender</span>
         </div>
         <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800">
           <span className="stat-emoji text-[18px] block mb-0.5">📍</span>
-          <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-white">{location}</span>
-          <span className="stat-label text-[9px] text-slate-400 uppercase font-[800] mt-0.5">Location</span>
+          <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-slate-100">{location}</span>
+          <span className="stat-label text-[9px] text-slate-400 dark:text-slate-500 uppercase font-[800] mt-0.5">Location</span>
         </div>
         <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800">
           <span className="stat-emoji text-[18px] block mb-0.5">📖</span>
-          <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-white">{classBoard}</span>
-          <span className="stat-label text-[9px] text-slate-400 uppercase font-[800] mt-0.5">Class/Board</span>
+          <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-slate-100">{classBoard}</span>
+          <span className="stat-label text-[9px] text-slate-400 dark:text-slate-500 uppercase font-[800] mt-0.5">Class/Board</span>
         </div>
         <div className="stat-item bg-white dark:bg-slate-900 p-[10px_8px] rounded-[14px] text-center border border-slate-200 dark:border-slate-800">
           <span className="stat-emoji text-[18px] block mb-0.5">💰</span>
-          <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-white">₹{formatCurrency(job.Fee || '0')}/Mo</span>
-          <span className="stat-label text-[9px] text-slate-400 uppercase font-[800] mt-0.5">Fee</span>
+          <span className="stat-value text-[12px] font-[700] block truncate text-slate-900 dark:text-slate-100">₹{formatCurrency(job.Fee || '0')}/Mo</span>
+          <span className="stat-label text-[9px] text-slate-400 dark:text-slate-500 uppercase font-[800] mt-0.5">Fee</span>
         </div>
         
-        <div className="stat-item col-span-2 bg-[#1B4B85]/5 dark:bg-[#1B4B85]/10 p-2 rounded-[14px] border border-[#1B4B85]/10 text-center">
+        <div className="stat-item col-span-2 bg-[#1B4B85]/5 dark:bg-sky-500/10 p-2 rounded-[14px] border border-[#1B4B85]/10 dark:border-sky-500/20 text-center">
             <span className="stat-value text-[11px] font-[700] text-[#1B4B85] dark:text-sky-400 flex items-center justify-center gap-1.5 uppercase">
                 <Clock size={12} /> Posted On: {postedDate}
             </span>
@@ -130,9 +130,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       </div>
 
       {/* 3. Parent Note Box */}
-      <div className="notes-box bg-[#F59E0B]/10 p-3 mx-3 mt-3 rounded-[12px] border border-dashed border-[#F59E0B]">
-          <span className="info-label text-[10px] text-[#B45309] font-[800] uppercase mb-1 block tracking-wider">📝 Parent Note</span>
-          <div className="notes-text text-[11px] text-slate-700 dark:text-slate-300 font-[500] leading-relaxed line-clamp-3">
+      <div className="notes-box bg-[#F59E0B]/10 dark:bg-amber-500/10 p-3 mx-3 mt-3 rounded-[12px] border border-dashed border-[#F59E0B] dark:border-amber-500/50">
+          <span className="info-label text-[10px] text-[#B45309] dark:text-amber-400 font-[800] uppercase mb-1 block tracking-wider">📝 Parent Note</span>
+          <div className="notes-text text-[11px] text-slate-700 dark:text-slate-200 font-[500] leading-relaxed line-clamp-3">
             {job.Notes || 'No specific requirements.'}
           </div>
       </div>
@@ -140,10 +140,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       {/* 4. Card Content */}
       <div className="card-content p-4 flex-1 space-y-4">
           <div className="space-y-2">
-            <span className="info-label text-[10px] text-slate-400 font-[800] uppercase tracking-tight">Subjects we want you to teach</span>
+            <span className="info-label text-[10px] text-slate-400 dark:text-slate-500 font-[800] uppercase tracking-tight">Subjects we want you to teach</span>
             <div className="tags-container flex flex-wrap gap-1.5">
                 {(job.subjects || 'General').split(/[;,]/).map((s, i) => (
-                  <span key={i} className="tag bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700 whitespace-nowrap flex items-center gap-1">
+                  <span key={i} className="tag bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700 whitespace-nowrap flex items-center gap-1">
                     📖 {s.trim()}
                   </span>
                 ))}
@@ -151,23 +151,23 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
           </div>
           
           <div className="space-y-2">
-            <span className="info-label text-[10px] text-slate-400 font-[800] uppercase tracking-tight">Where you have to take class</span>
+            <span className="info-label text-[10px] text-slate-400 dark:text-slate-500 font-[800] uppercase tracking-tight">Where you have to take class</span>
             <div 
-              className="residency-box bg-slate-50 dark:bg-slate-800 p-3 rounded-[12px] border-l-4 font-[500] text-[11px] text-slate-900 dark:text-white cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors shadow-sm"
+              className="residency-box bg-slate-50 dark:bg-slate-800/50 p-3 rounded-[12px] border-l-4 font-[500] text-[11px] text-slate-900 dark:text-slate-100 cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors shadow-sm"
               style={{ borderLeftColor: theme.solid }}
               onClick={openMap}
             >
                 📍 {resi}, {location}
-                <div className="text-[9px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">Tap to check distance & route on Google Maps</div>
+                <div className="text-[9px] text-slate-400 dark:text-slate-500 mt-1 uppercase font-bold tracking-tighter">Tap to check distance & route on Google Maps</div>
             </div>
           </div>
           
           <div className="space-y-2">
-            <span className="info-label text-[10px] text-slate-400 font-[800] uppercase tracking-tight">Schedule & Availability</span>
+            <span className="info-label text-[10px] text-slate-400 dark:text-slate-500 font-[800] uppercase tracking-tight">Schedule & Availability</span>
             <div className="tags-container flex flex-wrap gap-1.5">
-                <span className="tag bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700">⏳ {(job as any).duration || '1 Hr/Day'}</span>
-                <span className="tag bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700">📅 {job.days || 'Discuss'}</span>
-                <span className="tag bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700">🕒 {job.time || 'Flexible'}</span>
+                <span className="tag bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700">⏳ {(job as any).duration || '1 Hr/Day'}</span>
+                <span className="tag bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700">📅 {job.days || 'Discuss'}</span>
+                <span className="tag bg-slate-50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 px-2.5 py-1.5 rounded-[10px] text-[11px] font-[600] border border-slate-200 dark:border-slate-700">🕒 {job.time || 'Flexible'}</span>
             </div>
           </div>
       </div>
