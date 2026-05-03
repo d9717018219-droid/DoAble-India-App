@@ -85,7 +85,7 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('lastSelectedCity', cityFilter);
   }, [cityFilter]);
-  const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts' | 'admin'>('home');
+  const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts' | 'admin' | 'support'>('home');
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [themeMode] = useState<'light' | 'dark'>(localStorage.getItem('themeMode') as 'light' | 'dark' || 'light');
@@ -571,16 +571,27 @@ export default function App() {
           </div>
         )}
         {activeTab === 'alerts' && (
-          <AlertsView 
-            city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType} 
+          <AlertsView
+            city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType}
             setUserCity={setUserCity} setUserGender={setUserGender} setUserClasses={setUserClasses} setUserType={setUserType}
-            isAdminUser={isAdminUser} onAdminClick={() => setActiveTab('admin')} currentUser={currentUser} 
+            isAdminUser={isAdminUser} onAdminClick={() => setActiveTab('admin')} currentUser={currentUser}
             handleSignIn={handleSignIn} showFormModal={showFormModal} setShowFormModal={setShowFormModal}
             userName={userName} setUserName={setUserName}
           />
         )}
-        {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}
-        {(activeTab === 'jobs' || activeTab === 'tutors') && (
+        {activeTab === 'support' && (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <AlertsView
+               city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType}
+               setUserCity={setUserCity} setUserGender={setUserGender} setUserClasses={setUserClasses} setUserType={setUserType}
+               isAdminUser={isAdminUser} onAdminClick={() => setActiveTab('admin')} currentUser={currentUser}
+               handleSignIn={handleSignIn} showFormModal={showFormModal} setShowFormModal={setShowFormModal}
+               userName={userName} setUserName={setUserName}
+               initialTab="support"
+             />
+          </div>
+        )}
+        {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}        {(activeTab === 'jobs' || activeTab === 'tutors') && (
           <div className="flex flex-col space-y-4">
               <div className="sticky top-0 z-40 py-2 bg-slate-50/90 dark:bg-slate-900/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100 dark:border-slate-800">
                 <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-4">
@@ -610,6 +621,7 @@ export default function App() {
           <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" />
           <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />
           <NavButton active={activeTab === 'alerts'} onClick={() => { playTapSound(); setActiveTab('alerts'); window.scrollTo(0,0); }} icon={<Bell size={20} />} label="Alerts" />
+          <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={20} />} label="Support" />
           {isAdminUser && (<button onClick={() => { playTapSound(); setActiveTab('admin'); }} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>
       </nav>

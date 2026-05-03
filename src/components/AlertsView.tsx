@@ -27,6 +27,7 @@ interface AlertsViewProps {
   setUserType: (type: UserType | null) => void;
   userName?: string | null;
   setUserName: (name: string | null) => void;
+  initialTab?: 'feed' | 'support' | 'setup';
 }
 
 const TAP_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3';
@@ -53,9 +54,9 @@ const AlertsView: React.FC<AlertsViewProps> = ({
   city, userGender, userClasses, userType, 
   isAdminUser, onAdminClick, currentUser, handleSignIn, showFormModal, setShowFormModal,
   setUserCity, setUserGender, setUserClasses, setUserType,
-  userName, setUserName
+  userName, setUserName, initialTab = 'feed'
 }) => {
-  const [activeTab, setActiveTab] = useState<'feed' | 'support' | 'setup'>('feed');
+  const [activeTab, setActiveTab] = useState<'feed' | 'support' | 'setup'>(initialTab);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
@@ -63,6 +64,11 @@ const AlertsView: React.FC<AlertsViewProps> = ({
   const chatInstanceRef = React.useRef<any>(null);
 
   const ALERT_JINGLE = 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3';
+
+  // Update activeTab if initialTab changes (e.g. when switching between Support and Alerts in parent)
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   const unlockAudio = () => {
     try {
@@ -151,7 +157,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
 
     if (activeTab === 'support') {
       let retryCount = 0;
-      const maxRetries = 5;
+      const maxRetries = 10;
 
       const initChat = () => {
         const container = document.getElementById('n8n-chat-container');
@@ -179,7 +185,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                 'Select a topic from below quick actions or type your query:',
               ],
             });
-            console.log('n8n Chat initialized successfully');
           } catch (err) {
             console.error('Failed to initialize n8n chat:', err);
           }
@@ -189,7 +194,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
         }
       };
 
-      const timeoutId = setTimeout(initChat, 500); 
+      const timeoutId = setTimeout(initChat, 300); 
       return () => {
         clearTimeout(timeoutId);
         if (chatInstanceRef.current) {
@@ -241,25 +246,27 @@ const AlertsView: React.FC<AlertsViewProps> = ({
     <div className="space-y-4 pb-24">
       <audio ref={domAudioRef} onEnded={() => setIsPlaying(null)} className="hidden" preload="auto" crossOrigin="anonymous" />
       <header className="px-6 py-6 flex items-center justify-between">
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">Broadcasts</h2>
+          <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">{activeTab === 'support' ? 'Support' : activeTab === 'setup' ? 'Settings' : 'Broadcasts'}</h2>
           <div className="bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20"><span className="text-[9px] font-black text-emerald-600 uppercase">Live</span></div>
       </header>
 
-      <div className="px-6">
-        <div className="bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-[22px] flex gap-1 border border-slate-200 dark:border-slate-800">
-          {[
-            { id: 'feed', label: 'Feed', icon: Bell },
-            { id: 'support', label: 'Support', icon: MessageSquare },
-            { id: 'setup', label: 'Settings', icon: Settings }
-            ].map((tab) => (
-            <button key={tab.id} onClick={() => { unlockAudio(); playTapSound(); setActiveTab(tab.id as any); }}
-              className={cn("flex-1 flex items-center justify-center gap-2 py-3 rounded-[16px] text-[10px] font-black uppercase transition-all", activeTab === tab.id ? "bg-primary text-white" : "text-slate-400")}>
-              <tab.icon size={14} strokeWidth={3} />
-              <span>{tab.label}</span>
-            </button>
-          ))}
+      {/* Internal Tabs are only shown if we are in Alerts or Settings mode, not when specifically in Support mode from main nav */}
+      {initialTab !== 'support' && (
+        <div className="px-6">
+          <div className="bg-slate-100 dark:bg-slate-800/50 p-1.5 rounded-[22px] flex gap-1 border border-slate-200 dark:border-slate-800">
+            {[
+              { id: 'feed', label: 'Feed', icon: Bell },
+              { id: 'setup', label: 'Settings', icon: Settings }
+              ].map((tab) => (
+              <button key={tab.id} onClick={() => { unlockAudio(); playTapSound(); setActiveTab(tab.id as any); }}
+                className={cn("flex-1 flex items-center justify-center gap-2 py-3 rounded-[16px] text-[10px] font-black uppercase transition-all", activeTab === tab.id ? "bg-primary text-white" : "text-slate-400")}>
+                <tab.icon size={14} strokeWidth={3} />
+                <span>{tab.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="px-6 space-y-4">
         <AnimatePresence mode="wait">
@@ -273,7 +280,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
               className="space-y-6"
             >
               {/* 1. n8n AI Chat (On Top) */}
-              <div className="bg-white dark:bg-slate-900 p-2 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-xl overflow-hidden">
+              <div className="bg-white dark:bg-slate-900 p-2 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-xl overflow-hidden min-h-[500px]">
                 <div id="n8n-chat-container" className="w-full h-[500px] rounded-[32px] overflow-hidden bg-slate-50/50 dark:bg-slate-900" />
               </div>
 
