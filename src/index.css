@@ -163,6 +163,8 @@
   height: 100% !important;
   display: flex !important;
   flex-direction: column !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 #support-chat-mount .n8n-chat-window {
@@ -178,43 +180,92 @@
   left: auto !important;
   right: auto !important;
   bottom: auto !important;
+  padding: 0 !important;
 }
 
-/* Ensure the chat content expands to push the input to the bottom */
-#support-chat-mount .n8n-chat-window-content {
-  flex: 1 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  height: 100% !important;
-}
-
-/* Force show the chat window if it tries to hide */
-#support-chat-mount .n8n-chat-window-closed {
-  display: flex !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: none !important;
-}
-
-/* Hide internal n8n header to avoid double headers and weird space */
+/* Hide internal n8n header completely and its space */
 #support-chat-mount .n8n-chat-window-header {
   display: none !important;
   height: 0 !important;
-  min-height: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
   border: none !important;
-  overflow: hidden !important;
 }
 
+/* Ensure the chat content expands and eliminates any top gap */
 #support-chat-mount .n8n-chat-window-content {
   flex: 1 !important;
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
   padding-top: 0 !important;
+  margin-top: 0 !important;
 }
 
 #support-chat-mount .n8n-chat-messages-list {
-  padding-top: 10px !important;
+  padding: 16px !important;
+  padding-top: 20px !important;
+  background: transparent !important;
+}
+
+/* Premium Message Bubble Styling */
+#support-chat-mount .n8n-chat-msg {
+  border-radius: 16px !important;
+  padding: 12px 16px !important;
+  font-family: var(--font-sans) !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+  margin-bottom: 16px !important;
+  max-width: 85% !important;
+}
+
+#support-chat-mount .n8n-chat-msg-user {
+  background: #2563eb !important;
+  color: white !important;
+  border-bottom-right-radius: 4px !important;
+  align-self: flex-end !important;
+}
+
+#support-chat-mount .n8n-chat-msg-bot {
+  background: white !important;
+  color: #1e293b !important;
+  border: 1px solid #f1f5f9 !important;
+  border-bottom-left-radius: 4px !important;
+  align-self: flex-start !important;
+}
+
+/* UI Refinement: Sleek Input Area */
+#support-chat-mount .chat-inputs {
+  padding: 20px !important;
+  background: white !important;
+  border-top: 1px solid #f1f5f9 !important;
+  gap: 12px !important;
+}
+
+#support-chat-mount .chat-inputs textarea {
+  border-radius: 14px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  padding: 12px 16px !important;
+  font-size: 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+#support-chat-mount .chat-inputs textarea:focus {
+  border-color: #2563eb !important;
+  background: white !important;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.05) !important;
+}
+
+#support-chat-mount .chat-inputs button {
+  background: #2563eb !important;
+  border-radius: 12px !important;
+  width: 46px !important;
+  height: 46px !important;
+}
+
+/* Hide the floating launcher bubble */
+.n8n-chat-launcher, .n8n-chat-toggle {
+  display: none !important;
 }
