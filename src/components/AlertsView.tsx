@@ -144,6 +144,57 @@ const AlertsView: React.FC<AlertsViewProps> = ({
     domAudioRef.current.play().then(() => setIsPlaying(url)).catch(() => setIsPlaying(null));
   };
 
+  // Support Chat Initialization with Callback Ref for maximum reliability
+  const chatCallbackRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      // Clear any existing content
+      node.innerHTML = '';
+      
+      try {
+        console.log('Initializing n8n support chat (callback ref)...');
+        const chatInstance = createChat({
+          target: '#n8n-chat-container',
+          mode: 'fullscreen',
+          webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
+          initialMessages: [
+            'Hi there! 👋 How can DoAble India help you today?',
+            'I am your Support Desk agent, available 24*7 to assist you.',
+          ],
+          i18n: {
+            en: { 
+              title: 'Support Desk', 
+              subtitle: 'Available 24*7', 
+              footer: '', 
+              getStarted: 'Ask your query', 
+              inputPlaceholder: 'Tell us how we can help...', 
+              closeButtonTooltip: 'Minimize' 
+            },
+          },
+        });
+
+        chatInstanceRef.current = chatInstance;
+
+        // Force open after a delay
+        setTimeout(() => {
+          if (chatInstanceRef.current) {
+            if (typeof chatInstanceRef.current.open === 'function') chatInstanceRef.current.open();
+            else if (typeof chatInstanceRef.current.toggle === 'function') chatInstanceRef.current.toggle(true);
+          }
+        }, 800);
+      } catch (error) {
+        console.error('Failed to init n8n chat:', error);
+      }
+    } else {
+      // Cleanup if needed
+      if (chatInstanceRef.current) {
+        try {
+          if (typeof chatInstanceRef.current.destroy === 'function') chatInstanceRef.current.destroy();
+        } catch (e) {}
+        chatInstanceRef.current = null;
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (activeTab === 'support' || activeTab === 'setup') {
       try {
@@ -153,70 +204,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({
         }
       } catch (e) {}
       setIsPlaying(null);
-    }
-  }, [activeTab]);
-
-  const chatContainerRef = React.useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (activeTab === 'support' && chatContainerRef.current) {
-      // Small delay to ensure the DOM is ready and animations are done
-      const timer = setTimeout(() => {
-        if (!chatContainerRef.current) return;
-        
-        // Clear previous content
-        chatContainerRef.current.innerHTML = '';
-        
-        try {
-          console.log('Initializing n8n support chat...');
-          const chatInstance = createChat({
-            target: '#n8n-chat-container',
-            mode: 'fullscreen',
-            webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
-            initialMessages: [
-              'Hi there! 👋 How can DoAble India help you today?',
-              'I am your Support Desk agent, available 24*7 to assist you.',
-            ],
-            i18n: {
-              en: { 
-                title: 'Support Desk', 
-                subtitle: 'Available 24*7', 
-                footer: '', 
-                getStarted: 'Ask your query', 
-                inputPlaceholder: 'Tell us how we can help...', 
-                closeButtonTooltip: 'Minimize' 
-              },
-            },
-          });
-
-          chatInstanceRef.current = chatInstance;
-
-          // Force open the chat window after a brief delay
-          setTimeout(() => {
-            if (chatInstanceRef.current) {
-              if (typeof chatInstanceRef.current.open === 'function') {
-                chatInstanceRef.current.open();
-              } else if (typeof chatInstanceRef.current.toggle === 'function') {
-                chatInstanceRef.current.toggle(true);
-              }
-            }
-          }, 500);
-        } catch (error) {
-          console.error('Failed to init n8n chat:', error);
-        }
-      }, 600);
-
-      return () => {
-        clearTimeout(timer);
-        if (chatInstanceRef.current) {
-          try {
-            if (typeof chatInstanceRef.current.destroy === 'function') {
-              chatInstanceRef.current.destroy();
-            }
-          } catch (e) {}
-          chatInstanceRef.current = null;
-        }
-      };
     }
   }, [activeTab]);
 
@@ -322,7 +309,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
 
                 <div 
                   id="n8n-chat-container" 
-                  ref={chatContainerRef}
+                  ref={chatCallbackRef}
                   className="flex-1 w-full bg-white dark:bg-slate-900 min-h-[500px]" 
                 />
               </div>

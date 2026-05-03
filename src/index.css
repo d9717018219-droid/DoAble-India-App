@@ -190,9 +190,8 @@
   pointer-events: none !important;
 }
 
-/* Ensure the chat window is visible and doesn't get stuck minimized */
-#n8n-chat-container .n8n-chat-window-closed, 
-#n8n-chat-container .n8n-chat-window-minimized {
+/* Ensure the chat window is visible when it is mounted */
+#n8n-chat-container .n8n-chat-window-closed {
   display: flex !important;
   opacity: 1 !important;
   visibility: visible !important;
