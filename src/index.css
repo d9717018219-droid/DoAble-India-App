@@ -161,7 +161,44 @@
   position: relative !important;
   width: 100% !important;
   height: 100% !important;
-  min-height: 500px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+#support-chat-mount .n8n-chat-window {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+}
+
+/* Ensure the chat content expands to push the input to the bottom */
+#support-chat-mount .n8n-chat-window-content {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+
+/* Force show the chat window if it tries to hide */
+#support-chat-mount .n8n-chat-window-closed {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+}
+
+/* Hide internal n8n header to avoid double headers */
+#support-chat-mount .n8n-chat-window-header {
+  display: none !important;
 }
 
 /* Hide the floating launcher bubble */
