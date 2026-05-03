@@ -595,7 +595,7 @@ export default function App() {
           className="text-[24px] sm:text-[32px] font-[900] tracking-tighter relative z-10"
         >
           {activeTab === 'home' && (<div className="flex flex-col items-center"><span className="truncate max-w-[280px] sm:max-w-none">{userName ? `Welcome, ${userName}` : (userType === 'teacher' ? 'Welcome, Educator' : (userType === 'parent' ? 'Welcome, Parent' : 'DoAble India'))}</span><span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] opacity-80 mt-1">{getDynamicGreeting()}</span></div>)}
-          {activeTab === 'jobs' && 'Jobs Portal'}{activeTab === 'tutors' && 'Expert Tutors'}{activeTab === 'alerts' && 'Broadcasts'}
+          {activeTab === 'jobs' && 'Jobs Portal'}{activeTab === 'tutors' && 'Expert Tutors'}{activeTab === 'alerts' && 'Broadcasts'}{activeTab === 'support' && 'Support Desk'}
         </motion.h1>
         <motion.div 
           initial={{ y: 20, opacity: 0 }}

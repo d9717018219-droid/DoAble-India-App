@@ -60,36 +60,6 @@ const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 
 
   return (
     <div className="flex flex-col p-4 pb-24 sm:p-6 space-y-6">
-      {/* ─── STANDARDIZED HEADER (Home Style) ─── */}
-      <div className="text-center space-y-4">
-        <motion.h2 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="text-[24px] sm:text-[32px] font-[900] tracking-tighter text-slate-900"
-        >
-          <div className="flex flex-col items-center">
-            <span className="truncate">Welcome to Support Desk</span>
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] text-slate-400 mt-1">
-              Live Human & AI Assistance
-            </span>
-          </div>
-        </motion.h2>
-
-        <motion.div 
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="flex items-center justify-center gap-2 sm:gap-3 mt-3"
-        >
-          <div className="bg-primary/10 px-3 py-1 rounded-lg border border-primary/20">
-            <span className="text-[9px] font-black uppercase text-primary">{jobsCount} Jobs Live</span>
-          </div>
-          <div className="bg-primary/10 px-3 py-1 rounded-lg border border-primary/20">
-            <span className="text-[9px] font-black uppercase text-primary">{tutorsCount} Tutors Online</span>
-          </div>
-        </motion.div>
-      </div>
-
       {/* ─── SOLID CHAT INTERFACE ─── */}
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
