@@ -152,28 +152,43 @@ const AlertsView: React.FC<AlertsViewProps> = ({
     if (activeTab === 'support') {
       const initChat = () => {
         const container = document.getElementById('n8n-chat-container');
-        if (container && container.innerHTML === '') {
-          chatInstanceRef.current = createChat({
-            target: '#n8n-chat-container',
-            mode: 'fullscreen',
-            webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
-            i18n: {
-              en: { title: 'DoAble Support', subtitle: 'AI Assistant', footer: 'Support Desk', getStarted: 'Start Chatting', inputPlaceholder: 'Type your query here...', closeButtonTooltip: 'Close' },
-            },
-            initialMessages: [
-              'Hi there! 👋 How can DoAble India help you today?',
-              'Select a topic from below quick actions or type your query:',
-            ],
-          });
+        if (container) {
+          // Force clear any previous content to ensure fresh init
+          container.innerHTML = ''; 
+          try {
+            chatInstanceRef.current = createChat({
+              target: '#n8n-chat-container',
+              mode: 'fullscreen',
+              webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
+              i18n: {
+                en: { 
+                  title: 'DoAble Support', 
+                  subtitle: 'AI Assistant', 
+                  footer: 'Support Desk', 
+                  getStarted: 'Start Chatting', 
+                  inputPlaceholder: 'Type your query here...', 
+                  closeButtonTooltip: 'Close' 
+                },
+              },
+              initialMessages: [
+                'Hi there! 👋 How can DoAble India help you today?',
+                'Select a topic from below quick actions or type your query:',
+              ],
+            });
+          } catch (err) {
+            console.error('Failed to initialize n8n chat:', err);
+          }
         }
       };
-      const timeoutId = setTimeout(initChat, 100);
+      const timeoutId = setTimeout(initChat, 300); // Increased delay for animations
       return () => {
         clearTimeout(timeoutId);
         if (chatInstanceRef.current) {
-          if (typeof chatInstanceRef.current.destroy === 'function') {
-            chatInstanceRef.current.destroy();
-          }
+          try {
+            if (typeof chatInstanceRef.current.destroy === 'function') {
+              chatInstanceRef.current.destroy();
+            }
+          } catch (e) {}
           chatInstanceRef.current = null;
         }
         const container = document.getElementById('n8n-chat-container');
