@@ -230,7 +230,37 @@ const AlertsView: React.FC<AlertsViewProps> = ({
       <div className="px-6 space-y-4">
         {activeTab === 'support' ? (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            {/* Social Hub */}
+            {/* 1. n8n AI Chat (On Top) */}
+            <div className="bg-white dark:bg-slate-900 p-2 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-xl overflow-hidden">
+               <div id="n8n-chat-container" className="w-full h-[500px] rounded-[32px] overflow-hidden bg-slate-50/50 dark:bg-slate-900" />
+            </div>
+
+            {/* 2. Traditional Support (Email, WhatsApp, Call) */}
+            <div className="grid grid-cols-1 gap-3">
+              <a href="mailto:info@doableindia.com" className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500"><Mail size={24} /></div>
+                  <div><span className="block text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">Email Support</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">info@doableindia.com</span></div>
+                </div>
+                <ChevronRight size={16} className="text-slate-300" />
+              </a>
+              <a href={`https://wa.me/919873965489?text=Hello%20DoAble%20Team`} target="_blank" rel="noreferrer" className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500"><MessageSquare size={24} /></div>
+                  <div><span className="block text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">WhatsApp Chat</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Instant Support</span></div>
+                </div>
+                <ChevronRight size={16} className="text-slate-300" />
+              </a>
+              <a href="tel:+919971969197" className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500"><Phone size={24} /></div>
+                  <div><span className="block text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">Call Helpline</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">9 AM - 6 PM</span></div>
+                </div>
+                <ChevronRight size={16} className="text-slate-300" />
+              </a>
+            </div>
+
+            {/* 3. Social Hub (At the bottom) */}
             <div className="bg-white dark:bg-slate-900 p-6 rounded-[32px] border-2 border-slate-50 dark:border-slate-800 shadow-sm">
               <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-[0.2em] text-center">Connect with DoAble Social</label>
               <div className="grid grid-cols-4 gap-4">
@@ -259,33 +289,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                   <span className="text-[8px] font-black uppercase tracking-tighter text-slate-500 dark:text-slate-400">X (Twitter)</span>
                 </a>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3">
-              <a href={`https://wa.me/919873965489?text=Hello%20DoAble%20Team`} target="_blank" rel="noreferrer" className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500"><MessageSquare size={24} /></div>
-                  <div><span className="block text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">WhatsApp Chat</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Instant Support</span></div>
-                </div>
-                <ChevronRight size={16} className="text-slate-300" />
-              </a>
-              <a href="tel:+919971969197" className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500"><Phone size={24} /></div>
-                  <div><span className="block text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">Call Helpline</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">9 AM - 6 PM</span></div>
-                </div>
-                <ChevronRight size={16} className="text-slate-300" />
-              </a>
-              <a href="mailto:info@doableindia.com" className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-500"><Mail size={24} /></div>
-                  <div><span className="block text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight">Email Support</span><span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">info@doableindia.com</span></div>
-                </div>
-                <ChevronRight size={16} className="text-slate-300" />
-              </a>
-            </div>
-            <div className="bg-white dark:bg-slate-900 p-2 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-xl overflow-hidden">
-               <div id="n8n-chat-container" className="w-full h-[500px] rounded-[32px] overflow-hidden bg-slate-50/50 dark:bg-slate-900" />
             </div>
           </div>
         ) : activeTab === 'setup' ? (

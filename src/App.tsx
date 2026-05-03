@@ -377,7 +377,7 @@ export default function App() {
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest flex items-center gap-2"><MapPin size={14} className="text-primary" /> Select City</label>
                     <div className="relative">
                       <select value={editCity} onChange={e => setEditCity(e.target.value)} className="w-full bg-white dark:bg-slate-900 p-5 pl-14 rounded-2xl text-sm font-black outline-none border-2 border-transparent focus:border-primary appearance-none cursor-pointer shadow-sm">
-                        {['Ghaziabad', 'Noida', 'Delhi', 'Gurgaon', 'Faridabad'].map(city => <option key={city} value={city}>{city}</option>)}
+                        {CITIES_LIST.map(city => <option key={city} value={city}>{city}</option>)}
                       </select>
                       <MapPin size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" />
                       <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-300 text-xs">▼</div>
