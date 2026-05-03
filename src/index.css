@@ -198,14 +198,21 @@
   display: flex !important;
   flex-direction: column !important;
   height: 100% !important;
-  padding-top: 0 !important;
-  margin-top: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 #support-chat-mount .n8n-chat-messages-list {
-  padding: 16px !important;
-  padding-top: 20px !important;
+  padding: 12px !important;
+  padding-top: 4px !important;
   background: transparent !important;
+  margin-top: 0 !important;
+}
+
+#support-chat-mount .n8n-chat {
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 /* Premium Message Bubble Styling */

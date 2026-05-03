@@ -17,6 +17,7 @@ const SupportView: React.FC = () => {
         const chatInstance = createChat({
           target: node,
           mode: 'fullscreen',
+          showWelcomeScreen: false,
           webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
           initialMessages: [
             'Hi there! 👋 How can DoAble India help you today?',
@@ -31,7 +32,8 @@ const SupportView: React.FC = () => {
               inputPlaceholder: 'Type your query here...', 
               closeButtonTooltip: 'Close' 
             },
-          },        });
+          },
+        });
 
         chatInstanceRef.current = chatInstance;
 
