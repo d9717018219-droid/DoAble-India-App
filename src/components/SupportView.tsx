@@ -59,37 +59,42 @@ const SupportView: React.FC<SupportViewProps> = ({ jobsCount = 0, tutorsCount = 
   }, []);
 
   return (
-    <div className="flex flex-col p-2 pt-0 pb-24 sm:p-6 sm:pt-2 space-y-4">
-      {/* ─── ENHANCED SOLID HEADER ─── */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-slate-900 rounded-[32px] p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden"
-      >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px] -mr-32 -mt-32" />
-        
-        <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 mb-2">
-               <div className="bg-primary/20 p-2 rounded-xl border border-primary/30">
-                 <MessageSquare size={20} className="text-primary" />
-               </div>
-               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">Live Concierge</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-black tracking-tighter uppercase leading-none">Support Center</h2>
-            <div className="flex items-center gap-2 mt-2">
-              <MapPin size={12} className="text-slate-400" />
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Global Ops / <span className="text-white">{userCity}</span></p>
-            </div>
+    <div className="flex flex-col p-4 pb-24 sm:p-6 space-y-6">
+      {/* ─── STANDARDIZED HEADER (Home Style) ─── */}
+      <div className="text-center space-y-4">
+        <motion.h2 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="text-[24px] sm:text-[32px] font-[900] tracking-tighter text-slate-900"
+        >
+          <div className="flex flex-col items-center">
+            <span className="truncate">Welcome to Support Desk</span>
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] text-slate-400 mt-1">
+              Live Human & AI Assistance
+            </span>
           </div>
-        </div>
-      </motion.div>
+        </motion.h2>
+
+        <motion.div 
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="flex items-center justify-center gap-2 sm:gap-3 mt-3"
+        >
+          <div className="bg-primary/10 px-3 py-1 rounded-lg border border-primary/20">
+            <span className="text-[9px] font-black uppercase text-primary">{jobsCount} Jobs Live</span>
+          </div>
+          <div className="bg-primary/10 px-3 py-1 rounded-lg border border-primary/20">
+            <span className="text-[9px] font-black uppercase text-primary">{tutorsCount} Tutors Online</span>
+          </div>
+        </motion.div>
+      </div>
 
       {/* ─── SOLID CHAT INTERFACE ─── */}
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-[40px] border-2 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden h-[calc(100vh-220px)] min-h-[550px] flex flex-col relative"
+        className="bg-white rounded-[40px] border-2 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden h-[calc(100vh-320px)] min-h-[500px] flex flex-col relative"
       >
         <div className="sticky top-0 z-10 px-8 py-5 bg-slate-900 flex items-center justify-between border-b border-white/10">
           <div className="flex items-center gap-4">
