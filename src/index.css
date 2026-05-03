@@ -196,12 +196,25 @@
   transform: none !important;
 }
 
-/* Hide internal n8n header to avoid double headers */
+/* Hide internal n8n header to avoid double headers and weird space */
 #support-chat-mount .n8n-chat-window-header {
   display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
 }
 
-/* Hide the floating launcher bubble */
-.n8n-chat-launcher, .n8n-chat-toggle {
-  display: none !important;
+#support-chat-mount .n8n-chat-window-content {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  padding-top: 0 !important;
+}
+
+#support-chat-mount .n8n-chat-messages-list {
+  padding-top: 10px !important;
 }
