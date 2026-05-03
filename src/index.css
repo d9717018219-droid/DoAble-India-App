@@ -198,3 +198,43 @@
 #n8n-chat-container .n8n-chat-window-content {
   height: 100% !important;
 }
+
+/* UI Refinement: Reduce input box size and padding */
+#n8n-chat-container .chat-inputs {
+  padding: 10px 16px !important;
+  background: white !important;
+  border-top: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+#n8n-chat-container .chat-inputs textarea {
+  min-height: 44px !important;
+  height: 44px !important;
+  padding: 10px 12px !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  border-radius: 12px !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  margin-bottom: 0 !important;
+}
+
+#n8n-chat-container .chat-inputs button {
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Adjust message bubble font size for better mobile fit */
+#n8n-chat-container .n8n-chat-msg {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+/* Global variable override for n8n chat */
+:root {
+  --chat--textarea--height: 44px !important;
+  --chat--spacing: 12px !important;
+}
