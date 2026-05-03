@@ -14,6 +14,7 @@ import { JobCard } from './components/JobCard';
 import { TutorCard } from './components/TutorCard';
 import AlertsView from './components/AlertsView';
 import AdminPanel from './components/AdminPanel';
+import SupportView from './components/SupportView';
 import { cn, getCityTheme } from './utils';
 import { 
   CITIES_LIST, 
@@ -581,14 +582,7 @@ export default function App() {
         )}
         {activeTab === 'support' && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <AlertsView
-               city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType}
-               setUserCity={setUserCity} setUserGender={setUserGender} setUserClasses={setUserClasses} setUserType={setUserType}
-               isAdminUser={isAdminUser} onAdminClick={() => setActiveTab('admin')} currentUser={currentUser}
-               handleSignIn={handleSignIn} showFormModal={showFormModal} setShowFormModal={setShowFormModal}
-               userName={userName} setUserName={setUserName}
-               initialTab="support"
-             />
+            <SupportView />
           </div>
         )}
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}        {(activeTab === 'jobs' || activeTab === 'tutors') && (

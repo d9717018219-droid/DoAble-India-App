@@ -156,45 +156,15 @@
   @apply absolute top-3 right-3 w-9 h-9 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center text-white border-none cursor-pointer z-10 transition-transform active:scale-95;
 }
 
-/* Ensure embedded n8n chat takes full space of its container and is NOT a popup */
-#n8n-chat-container {
-  position: relative !important;
-  overflow: hidden !important;
-  flex: 1 !important;
-  height: 100% !important;
-  background: white !important;
-}
-
-#n8n-chat-container .n8n-chat-window {
+/* Base n8n Chat Container stability */
+#support-chat-mount {
   position: relative !important;
   width: 100% !important;
   height: 100% !important;
-  margin: 0 !important;
-  right: auto !important;
-  bottom: auto !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  border: none !important;
-  z-index: 1 !important;
+  min-height: 500px !important;
 }
 
-/* Hide the n8n launcher bubble/icon/toggle everywhere */
-.n8n-chat-launcher, .n8n-chat-toggle, .n8n-chat-launcher-button {
+/* Hide the floating launcher bubble */
+.n8n-chat-launcher, .n8n-chat-toggle {
   display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
-
-/* Ensure the chat window is always visible when embedded */
-#n8n-chat-container .n8n-chat-window-closed {
-  display: flex !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: none !important;
-}
-
-/* Global variable override for n8n chat */
-:root {
-  --chat--textarea--height: 50px !important;
-  --chat--spacing: 12px !important;
 }

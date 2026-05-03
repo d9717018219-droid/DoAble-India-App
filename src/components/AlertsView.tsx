@@ -144,60 +144,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({
     domAudioRef.current.play().then(() => setIsPlaying(url)).catch(() => setIsPlaying(null));
   };
 
-  // Support Chat Initialization with Callback Ref for maximum reliability
-  const chatCallbackRef = useCallback((node: HTMLDivElement | null) => {
-    if (node) {
-      // Small delay to ensure the container is truly ready in the DOM
-      setTimeout(() => {
-        if (!node) return;
-        node.innerHTML = '';
-        
-        try {
-          console.log('Attempting clean n8n chat initialization...');
-          const chatInstance = createChat({
-            target: node,
-            mode: 'fullscreen',
-            webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
-            initialMessages: [
-              'Hi there! 👋 How can DoAble India help you today?',
-              'I am your Support Desk agent, available 24*7 to assist you.',
-            ],
-            i18n: {
-              en: { 
-                title: 'Support Desk', 
-                subtitle: 'Available 24*7', 
-                footer: '', 
-                getStarted: 'Start Chatting', 
-                inputPlaceholder: 'Type your query here...', 
-                closeButtonTooltip: 'Close' 
-              },
-            },
-          });
-
-          chatInstanceRef.current = chatInstance;
-
-          // Force open the chat window after initialization
-          setTimeout(() => {
-            if (chatInstanceRef.current && typeof chatInstanceRef.current.open === 'function') {
-               chatInstanceRef.current.open();
-               console.log('n8n Chat open command executed');
-            }
-          }, 400);
-
-        } catch (error) {
-          console.error('n8n Chat critical error:', error);
-        }
-      }, 500);
-    } else {
-      if (chatInstanceRef.current) {
-        try {
-          if (typeof chatInstanceRef.current.destroy === 'function') chatInstanceRef.current.destroy();
-        } catch (e) {}
-        chatInstanceRef.current = null;
-      }
-    }
-  }, []);
-
   useEffect(() => {
     if (activeTab === 'support' || activeTab === 'setup') {
       try {
@@ -269,55 +215,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
 
       <div className="px-6 space-y-4">
         <AnimatePresence mode="wait">
-          {activeTab === 'support' ? (
-            <motion.div 
-              key="support"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-6"
-            >
-              {/* n8n AI Chat (Main Interface) */}
-              <div className="bg-white dark:bg-slate-900 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-2xl overflow-hidden h-[calc(100vh-220px)] min-h-[500px] max-h-[700px] flex flex-col transition-all duration-500 ease-in-out">
-                {/* Premium Support Header */}
-                <div className="p-7 border-b border-slate-50 dark:border-slate-800 bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-800/50 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary shadow-inner">
-                      <MessageSquare size={24} strokeWidth={2.5} />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-black tracking-tight text-slate-900 dark:text-white uppercase">Support Desk</h3>
-                      <div className="flex items-center gap-2">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                        </span>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Available 24*7</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right hidden sm:block">
-                    <p className="text-[10px] font-black text-primary uppercase tracking-tighter">Ask your queries</p>
-                    <p className="text-[9px] font-medium text-slate-400 italic">We are here to help you</p>
-                  </div>
-                </div>
-
-                {/* Emotional Tagline */}
-                <div className="px-7 py-3 bg-primary/5 dark:bg-primary/10 border-b border-primary/10">
-                   <p className="text-[11px] font-medium text-primary/80 dark:text-primary-light italic text-center">
-                     "Tell us what's on your mind. We'll do our best to solve your problems with care."
-                   </p>
-                </div>
-
-                <div 
-                  id="n8n-chat-container" 
-                  ref={chatCallbackRef}
-                  className="flex-1 w-full bg-white dark:bg-slate-900 min-h-[500px]" 
-                />
-              </div>
-            </motion.div>
-          ) : activeTab === 'setup' ? (
+          {activeTab === 'setup' ? (
             <motion.div 
               key="setup"
               initial={{ opacity: 0, y: 10 }}
