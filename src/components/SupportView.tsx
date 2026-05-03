@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, ShieldCheck, Clock, Zap, ArrowRight, Loader2, Sparkles, GraduationCap, Briefcase, Globe, Heart, X } from 'lucide-react';
+import { MessageSquare, ShieldCheck, Clock, Zap, ArrowRight, Loader2, Sparkles, GraduationCap, Briefcase, Globe, Heart, X, MapPin } from 'lucide-react';
 import { createChat } from '@n8n/chat';
 import '@n8n/chat/style.css';
 import { cn } from '../utils';
