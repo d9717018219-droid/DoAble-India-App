@@ -56,6 +56,20 @@ const AlertsView: React.FC<AlertsViewProps> = ({
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const domAudioRef = React.useRef<HTMLAudioElement | null>(null);
 
+  // Sync Alert IDs with Service Worker
+  useEffect(() => {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller && alerts.length > 0) {
+      const latestAlert = alerts[0];
+      const alertId = latestAlert.id;
+      if (alertId) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SYNC_IDS',
+          lastAlertId: alertId.toString()
+        });
+      }
+    }
+  }, [alerts]);
+
   // Apple-style Crystal Chime (Premium & Clean)
   const ALERT_JINGLE = 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3';
 

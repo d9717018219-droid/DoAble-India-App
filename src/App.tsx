@@ -197,6 +197,26 @@ export default function App() {
     return () => window.removeEventListener('beforeinstallprompt', handler as any);
   }, []);
 
+  // Handle Notifications Permission & Sync Job IDs
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      setTimeout(() => { Notification.requestPermission(); }, 5000);
+    }
+  }, []);
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      const latestJob = firestoreLeads[0] || leads[0];
+      const jobId = latestJob?.id || latestJob?.['Order ID'];
+      if (jobId) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SYNC_IDS',
+          lastJobId: jobId.toString()
+        });
+      }
+    }
+  }, [leads, firestoreLeads]);
+
   useEffect(() => {
     loadData();
     const qLeads = query(collection(db, 'leads'), orderBy('Updated Time', 'desc'), limit(50));
