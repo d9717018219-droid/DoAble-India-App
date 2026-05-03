@@ -661,7 +661,7 @@ export default function App() {
         )}
         {activeTab === 'support' && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <SupportView />
+            <SupportView jobsCount={activeLeadsCount} tutorsCount={activeTutorsCount} />
           </div>
         )}
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}        {(activeTab === 'jobs' || activeTab === 'tutors') && (
