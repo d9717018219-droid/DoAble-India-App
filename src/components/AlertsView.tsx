@@ -167,36 +167,33 @@ const AlertsView: React.FC<AlertsViewProps> = ({
           
           container.innerHTML = ''; 
           try {
-            const chatInstance = createChat({
+            chatInstanceRef.current = createChat({
               target: '#n8n-chat-container',
               mode: 'fullscreen',
               showWelcomeScreen: false,
               webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
               initialMessages: [
                 'Hi there! 👋 How can DoAble India help you today?',
-                'Type your query below to get started.',
+                'I am your Support Desk agent, available 24*7 to assist you.',
               ],
               i18n: {
                 en: { 
-                  title: 'Support Agent', 
-                  subtitle: 'Ready to listen', 
+                  title: 'Support Desk', 
+                  subtitle: 'Available 24*7', 
                   footer: '', 
-                  getStarted: 'I need help', 
-                  inputPlaceholder: 'Tell us how we can help...', 
+                  getStarted: 'Ask a query', 
+                  inputPlaceholder: 'Tell us your query here...', 
                   closeButtonTooltip: 'Minimize' 
                 },
               },
             });
 
-            chatInstanceRef.current = chatInstance;
-
-            // Important: Force open the chat window in fullscreen mode
+            // Small delay to ensure the SDK has time to mount before forcing open
             setTimeout(() => {
-              if (chatInstance) {
-                if (typeof chatInstance.toggle === 'function') chatInstance.toggle(true);
-                else if (typeof chatInstance.open === 'function') chatInstance.open();
+              if (chatInstanceRef.current && typeof chatInstanceRef.current.open === 'function') {
+                chatInstanceRef.current.open();
               }
-            }, 500);
+            }, 300);
 
             console.log('n8n Chat initialized successfully');
           } catch (err) {
@@ -204,11 +201,11 @@ const AlertsView: React.FC<AlertsViewProps> = ({
           }
         } else if (retryCount < maxRetries) {
           retryCount++;
-          setTimeout(initChat, 200);
+          setTimeout(initChat, 300);
         }
       };
 
-      const timeoutId = setTimeout(initChat, 300); 
+      const timeoutId = setTimeout(initChat, 500); 
       return () => {
         clearTimeout(timeoutId);
         if (chatInstanceRef.current) {
