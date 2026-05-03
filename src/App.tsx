@@ -204,13 +204,13 @@ export default function App() {
       if (leadsJson.status === 'success') {
         const filteredJobs = (leadsJson.data as JobLead[])
           .filter(x => x['Internal Remark']?.trim().toLowerCase() === 'searching')
-          .sort((a, b) => parseDate(b['Record Added'] || b['Updated Time']) - parseDate(a['Record Added'] || a['Updated Time']));
+          .sort((a, b) => parseDate(b['Updated Time'] || b['Record Added']) - parseDate(a['Updated Time'] || a['Record Added']));
         setLeads(filteredJobs);
       } else {
         setLeads(leadsJson.data || []);
       }
       const rawTutors: TutorProfile[] = tutorsJson.data || [];
-      rawTutors.sort((a, b) => parseDate((b as any)['Record Added'] || (b as any)['Updated Time']) - parseDate((a as any)['Record Added'] || (a as any)['Updated Time']));
+      rawTutors.sort((a, b) => parseDate((b as any)['Updated Time'] || (b as any)['Record Added']) - parseDate((a as any)['Updated Time'] || (a as any)['Record Added']));
       setTutors(rawTutors);
     } catch (err: any) {
       setError(err.message);
@@ -244,7 +244,7 @@ export default function App() {
     const unique = new Map<string, JobLead>();
     combined.forEach(l => { const id = l['Order ID'] || (l as any).id; if (id && !unique.has(id)) unique.set(id, l); });
     return Array.from(unique.values()).sort((a, b) => 
-      parseDate(b['Record Added'] || b['Updated Time']) - parseDate(a['Record Added'] || a['Updated Time'])
+      parseDate(b['Updated Time'] || b['Record Added']) - parseDate(a['Updated Time'] || a['Record Added'])
     );
   }, [leads, firestoreLeads, parseDate]);
 
