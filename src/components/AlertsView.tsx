@@ -28,6 +28,22 @@ interface AlertsViewProps {
   setShowFormModal: (show: boolean) => void;
 }
 
+// ─── Haptic-like tap sound & vibrate ───────────────────────────────
+const TAP_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3';
+const tapAudio = new Audio(TAP_SOUND_URL);
+tapAudio.load();
+
+function playTapSound() {
+  try {
+    tapAudio.currentTime = 0;
+    tapAudio.volume = 0.3;
+    tapAudio.play().catch(() => {});
+    if ('vibrate' in navigator) {
+      navigator.vibrate(20);
+    }
+  } catch {}
+}
+
 const AlertsView: React.FC<AlertsViewProps> = ({ 
   city, userGender, userClasses, userType, 
   setUserCity, setUserGender, setUserClasses, setUserType,
@@ -36,15 +52,32 @@ const AlertsView: React.FC<AlertsViewProps> = ({
   const [activeTab, setActiveTab] = useState<'feed' | 'support' | 'setup'>('feed');
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedTone, setSelectedTone] = useState('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
+  const [selectedTone, setSelectedTone] = useState('https://assets.mixkit.co/active_storage/sfx/1013/1013-preview.mp3'); // New 10s Melodic Jingle
   const [isPlaying, setIsPlaying] = useState<string | null>(null);
   const domAudioRef = React.useRef<HTMLAudioElement | null>(null);
+
+  // New Jingle Constant
+  const ALERT_JINGLE = 'https://assets.mixkit.co/active_storage/sfx/1013/1013-preview.mp3';
+
+  // Local hiding state
+  const [hiddenAlertIds, setHiddenAlertIds] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('hiddenAlertIds') || '[]');
+    } catch {
+      return [];
+    }
+  });
+
+  const hideAlert = (id: string) => {
+    playTapSound();
+    const newHidden = [...hiddenAlertIds, id];
+    setHiddenAlertIds(newHidden);
+    localStorage.setItem('hiddenAlertIds', JSON.stringify(newHidden));
+  };
 
   const [permission, setPermission] = useState<NotificationPermission>(
     'Notification' in window ? Notification.permission : 'denied'
   );
-
-  const celestialTone = { name: 'Celestial Goal', url: 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3' };
 
   const updatePreference = (key: string, value: any) => {
     localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
@@ -61,6 +94,15 @@ const AlertsView: React.FC<AlertsViewProps> = ({
 
   // Initialize Chat when Support tab is active
   useEffect(() => {
+    if (activeTab === 'support' || activeTab === 'setup') {
+      // Stop long jingle if user switches to these tabs
+      if (domAudioRef.current) {
+        domAudioRef.current.pause();
+        domAudioRef.current.currentTime = 0;
+        setIsPlaying(null);
+      }
+    }
+
     if (activeTab === 'support') {
       const initChat = () => {
         const container = document.getElementById('n8n-chat-container');
@@ -120,7 +162,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({
       setIsPlaying(null);
       return;
     }
-    setSelectedTone(url);
     playSound(url, 0.7);
   };
 
@@ -139,6 +180,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
 
   // Filter alerts based on user preferences locally
   const allFilteredAlerts = alerts.filter(alert => {
+    if (hiddenAlertIds.includes(alert.id)) return false;
     const matchesGender = !alert.gender || alert.gender === 'Any' || alert.gender === userGender;
     const matchesClass = !alert.targetClass || alert.targetClass === 'All' || (userClasses && userClasses.includes(alert.targetClass));
     const matchesUserType = !alert.targetUserType || alert.targetUserType === 'all' || alert.targetUserType === userType;
@@ -147,13 +189,15 @@ const AlertsView: React.FC<AlertsViewProps> = ({
 
   // Sound and Notification function
   const notifyUser = (alert: Alert) => {
+    if (hiddenAlertIds.includes(alert.id)) return;
     const matchesGender = !alert.gender || alert.gender === 'Any' || alert.gender === userGender;
     const matchesClass = !alert.targetClass || alert.targetClass === 'All' || (userClasses && userClasses.includes(alert.targetClass));
     const matchesUserType = !alert.targetUserType || alert.targetUserType === 'all' || alert.targetUserType === userType;
     
     if (!matchesGender || !matchesClass || !matchesUserType) return;
 
-    playSound(selectedTone, 0.8);
+    // Use the long jingle for new alerts
+    playSound(ALERT_JINGLE, 0.8);
 
     if ('Notification' in window && Notification.permission === 'granted') {
       try {
@@ -325,7 +369,15 @@ const AlertsView: React.FC<AlertsViewProps> = ({
             <span className="text-lg">📢</span>
             <span className="text-[#e11d48] font-black text-[11px] uppercase tracking-tight">Tuition Job Alert | Order ID: {orderId}</span>
           </div>
-          {isNew && <span className="bg-primary text-white text-[7px] font-black px-1.5 py-0.5 rounded-md animate-pulse">NEW</span>}
+          <div className="flex items-center gap-2">
+            {isNew && <span className="bg-primary text-white text-[7px] font-black px-1.5 py-0.5 rounded-md animate-pulse">NEW</span>}
+            <button 
+              onClick={(e) => { e.stopPropagation(); hideAlert(alert.id); }}
+              className="p-1.5 text-slate-400 hover:text-rose-500 transition-colors"
+            >
+              <X size={14} strokeWidth={3} />
+            </button>
+          </div>
         </div>
 
         <div className="p-4 space-y-3">
@@ -408,7 +460,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => { playTapSound(); setActiveTab(tab.id as any); }}
               className={cn(
                 "flex-1 flex items-center justify-center gap-2 py-3 rounded-[16px] text-[10px] font-black uppercase tracking-widest transition-all",
                 activeTab === tab.id 
@@ -445,6 +497,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                         ? `Hello DoAble Team, I am a Tutor from ${city}. I have a query regarding available jobs/my profile. Please assist.`
                         : `Hello DoAble Team, I am a Parent from ${city}. I need help regarding a tutor for my child. Please assist.`
                     )}`}
+                    onClick={() => playTapSound()}
                     target="_blank" 
                     rel="noreferrer"
                     className="w-full flex items-center gap-4 p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-green-500/30 transition-all group"
@@ -464,6 +517,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                   {/* Call Support */}
                   <a 
                     href="tel:+919971969197"
+                    onClick={() => playTapSound()}
                     className="w-full flex items-center gap-4 p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-rose-500/30 transition-all group"
                   >
                     <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
@@ -479,6 +533,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                   {/* Email Support */}
                   <a 
                     href={`mailto:info@doableindia.com?subject=${encodeURIComponent("Support Inquiry - DoAble India")}&body=${encodeURIComponent("Hello DoAble Team,\n\n")}`}
+                    onClick={() => playTapSound()}
                     className="w-full flex items-center gap-4 p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 hover:border-blue-500/30 transition-all group"
                   >
                     <div className="w-12 h-12 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
@@ -628,15 +683,17 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                   </div>
                   <div>
                     <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">System Notification</h4>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Alert Tone: {celestialTone.name}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Alert Tone: Melodic Jingle (10s)</p>
                   </div>
                </div>
                <button
-                  onClick={() => playPreview(celestialTone.url)}
+                  onClick={() => playPreview(ALERT_JINGLE)}
                   className="mt-4 w-full bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 flex items-center justify-between active:scale-[0.98] transition-all"
                 >
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Test Notification Sound</span>
-                  {isPlaying === celestialTone.url ? (
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                    {isPlaying === ALERT_JINGLE ? 'Stop Jingle' : 'Test Alert Jingle'}
+                  </span>
+                  {isPlaying === ALERT_JINGLE ? (
                     <div className="flex gap-0.5 items-end h-3">
                       <div className="w-1 bg-primary animate-[bounce_0.6s_ease-in-out_infinite]" />
                       <div className="w-1 bg-primary animate-[bounce_0.6s_ease-in-out_0.2s_infinite]" />
@@ -657,9 +714,9 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                 className="py-24 text-center bg-slate-50 dark:bg-slate-900/50 rounded-[40px] border-2 border-dashed border-slate-200 dark:border-slate-800"
               >
                 <div className="w-20 h-20 bg-white dark:bg-slate-800 rounded-[32px] shadow-sm border border-slate-100 dark:border-slate-700 flex items-center justify-center mx-auto mb-6">
-                  <Bell className="w-10 h-10 text-slate-200 dark:text-slate-600" />
+                  <CheckCircle className="w-10 h-10 text-emerald-500" />
                 </div>
-                <h3 className="text-slate-900 dark:text-white font-black text-lg uppercase tracking-tight">Nothing to Report</h3>
+                <h3 className="text-slate-900 dark:text-white font-black text-lg uppercase tracking-tight">You're all caught up! ✨</h3>
                 <p className="text-slate-500 text-[10px] font-bold mt-2 uppercase tracking-[0.3em]">All signals are stable in {city}</p>
               </motion.div>
             ) : (
@@ -684,6 +741,14 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                         getBg(alert.type)
                       )}
                     >
+                      {/* Local Hide Button */}
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); hideAlert(alert.id); }}
+                        className="absolute top-4 right-4 z-10 p-2 text-slate-400 hover:text-rose-500 transition-colors bg-white/50 dark:bg-black/20 rounded-xl"
+                      >
+                        <X size={16} strokeWidth={3} />
+                      </button>
+
                       <div className="flex gap-5">
                         <div className="shrink-0 w-14 h-14 bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-50 dark:border-slate-700 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                           {getIcon(alert.type)}

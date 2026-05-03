@@ -1,12 +1,22 @@
 import React, { useState } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, deleteDoc, doc, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
-import { Send, Zap, AlertTriangle, Info, CheckCircle, Globe } from 'lucide-react';
+import { Send, Zap, AlertTriangle, Info, CheckCircle, Globe, Trash2 } from 'lucide-react';
 import { CITIES_LIST, CLASSES_LIST } from '../constants';
 
 interface AdminPanelProps {
   currentCity: string;
+}
+
+// ─── Haptic-like tap sound ──────────────────────────────────────────
+const TAP_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3';
+function playTapSound() {
+  try {
+    const a = new Audio(TAP_SOUND_URL);
+    a.volume = 0.3; // Subtle volume
+    a.play().catch(() => {});
+  } catch {}
 }
 
 const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
@@ -17,6 +27,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
   const [targetUserType, setTargetUserType] = useState<'parent' | 'teacher' | 'all'>('all');
   const [type, setType] = useState<'urgent' | 'info' | 'success' | 'broadcast'>('info');
   const [sending, setSending] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', msg: string } | null>(null);
 
   const citiesForAdmin = ['All', ...CITIES_LIST];
@@ -24,6 +35,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
 
   const handleSend = async () => {
     if (!message.trim()) return;
+    playTapSound();
     setSending(true);
     setStatus(null);
 
@@ -48,13 +60,59 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
     }
   };
 
+  const handleClearAll = async () => {
+    playTapSound();
+    if (!window.confirm('Are you sure you want to delete ALL broadcast alerts? This cannot be undone.')) return;
+    
+    setClearing(true);
+    setStatus(null);
+
+    try {
+      const q = query(collection(db, 'alerts'), orderBy('timestamp', 'desc'), limit(100));
+      const snapshot = await getDocs(q);
+      
+      if (snapshot.empty) {
+        setStatus({ type: 'info' as any, msg: 'No alerts found to clear.' });
+        return;
+      }
+
+      const deletePromises = snapshot.docs.map(d => deleteDoc(doc(db, 'alerts', d.id)));
+      await Promise.all(deletePromises);
+      
+      setStatus({ type: 'success', msg: `Successfully cleared ${snapshot.size} alerts.` });
+    } catch (err: any) {
+      console.error('Clear error:', err);
+      setStatus({ type: 'error', msg: 'Failed to clear alerts. Check permissions.' });
+    } finally {
+      setClearing(false);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="bg-slate-900 rounded-[32px] p-8 text-white">
-        <h2 className="text-2xl font-black tracking-tight mb-2 flex items-center gap-2">
-            <Zap className="text-amber-400" /> Admin Broadcast
-        </h2>
-        <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Send targeted alerts to users</p>
+        <div className="flex justify-between items-center mb-2">
+          <div>
+            <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
+                <Zap className="text-amber-400" /> Admin Broadcast
+            </h2>
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Send targeted alerts to users</p>
+          </div>
+          <button 
+            onClick={handleClearAll}
+            disabled={clearing}
+            className="flex items-center gap-2 px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl transition-all shadow-lg shadow-rose-900/40 active:scale-95 disabled:opacity-50"
+          >
+            {clearing ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>
+                <Trash2 size={16} />
+                <span className="text-[10px] font-black uppercase tracking-widest">Clear All</span>
+              </>
+            )}
+          </button>
+        </div>
         
         <div className="mt-8 space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -113,7 +171,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
                     ].map(t => (
                         <button 
                             key={t.id}
-                            onClick={() => setType(t.id as any)}
+                            onClick={() => { playTapSound(); setType(t.id as any); }}
                             className={`flex-1 h-10 rounded-xl border flex items-center justify-center transition-all ${type === t.id ? 'bg-white/10 border-white/40 ' + t.color : 'border-white/5 text-slate-600'}`}
                         >
                             {t.icon}
@@ -147,25 +205,6 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ currentCity }) => {
               </div>
           )}
         </div>
-      </div>
-
-      <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[32px] p-8">
-          <h3 className="text-slate-900 font-black text-sm uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Globe size={18} className="text-slate-400" /> API Integration Info
-          </h3>
-          <div className="space-y-4 text-[11px] font-bold text-slate-500 leading-relaxed">
-              <p>You can connect your other apps to this alert module via Firebase SDK.</p>
-              <div className="bg-white p-4 rounded-xl border border-slate-100 font-mono text-[9px] overflow-x-auto whitespace-pre">
-{`// Add document to "alerts" collection
-const alert = {
-  message: "Hi from API",
-  city: "\${targetCity}",
-  type: "info",
-  sender: "External App",
-  timestamp: serverTimestamp()
-};`}
-              </div>
-          </div>
       </div>
     </div>
   );

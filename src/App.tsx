@@ -47,13 +47,20 @@ function getDynamicGreeting(): string {
   return 'Good Evening 🌙';
 }
 
-// ─── Notification audio (singleton) ─────────────────────────────────
-const ALERT_TONE_URL = 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3';
-function playNotificationTone() {
+// ─── Haptic-like tap sound & vibrate ───────────────────────────────
+const TAP_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3';
+// Pre-load audio
+const tapAudio = new Audio(TAP_SOUND_URL);
+tapAudio.load();
+
+function playTapSound() {
   try {
-    const a = new Audio(ALERT_TONE_URL);
-    a.volume = 0.6;
-    a.play().catch(() => {});
+    tapAudio.currentTime = 0;
+    tapAudio.volume = 0.3;
+    tapAudio.play().catch(() => {});
+    if ('vibrate' in navigator) {
+      navigator.vibrate(20);
+    }
   } catch {}
 }
 
@@ -574,7 +581,7 @@ export default function App() {
 
                   <div className="pt-4">
                     <button 
-                      onClick={completeOnboarding} 
+                      onClick={() => { playTapSound(); completeOnboarding(); }} 
                       disabled={!editUserType}
                       className={cn(
                         "w-full py-6 rounded-[28px] font-black text-xs uppercase tracking-[0.3em] shadow-2xl active:scale-95 transition-all",
@@ -935,13 +942,13 @@ export default function App() {
                  </div>
                  <div className="flex flex-col sm:flex-row gap-5">
                     <button 
-                      onClick={() => { setFormType('teacher'); setShowFormModal(true); }} 
+                      onClick={() => { playTapSound(); setFormType('teacher'); setShowFormModal(true); }} 
                       className="bg-[#FFE66D] text-slate-900 px-10 py-6 rounded-[28px] font-[900] text-sm uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.05] active:scale-95 transition-all group"
                     >
                       <GraduationCap size={22} className="group-hover:rotate-12 transition-transform" /> Become a Tutor
                     </button>
                     <button 
-                      onClick={() => { setFormType('parent'); setShowFormModal(true); }} 
+                      onClick={() => { playTapSound(); setFormType('parent'); setShowFormModal(true); }} 
                       className="bg-white/10 backdrop-blur-xl text-white border-2 border-white/30 px-10 py-6 rounded-[28px] font-[900] text-sm uppercase flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.05] hover:bg-white hover:text-slate-900 transition-all active:scale-95 group"
                     >
                       <Sparkles size={20} className="text-[#FFE66D] group-hover:scale-125 transition-transform" /> Book Free Trial
@@ -1002,11 +1009,11 @@ export default function App() {
 
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[8000] w-[92%] max-w-[500px]">
         <div className="bg-slate-900/95 backdrop-blur-2xl rounded-[32px] p-2 flex items-center justify-between shadow-2xl border border-white/10 relative">
-          <NavButton active={activeTab === 'home'} onClick={() => { setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={20} />} label="Home" />
-          <NavButton active={activeTab === 'jobs'} onClick={() => { setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" />
-          <NavButton active={activeTab === 'tutors'} onClick={() => { setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />
-          <NavButton active={activeTab === 'alerts'} onClick={() => { setActiveTab('alerts'); window.scrollTo(0,0); }} icon={<Bell size={20} />} label="Alerts" />
-          {isAdminUser && (<button onClick={() => setActiveTab('admin')} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
+          <NavButton active={activeTab === 'home'} onClick={() => { playTapSound(); setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={20} />} label="Home" />
+          <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" />
+          <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />
+          <NavButton active={activeTab === 'alerts'} onClick={() => { playTapSound(); setActiveTab('alerts'); window.scrollTo(0,0); }} icon={<Bell size={20} />} label="Alerts" />
+          {isAdminUser && (<button onClick={() => { playTapSound(); setActiveTab('admin'); }} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>
       </nav>
       <style>{`
@@ -1037,7 +1044,7 @@ export default function App() {
 
 function NavButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
   return (
-    <button onClick={onClick} className={cn("flex flex-col items-center gap-1 py-3 px-5 rounded-2xl transition-all duration-300", active ? "bg-white text-slate-900 scale-105 shadow-lg" : "text-white/40 hover:text-white")}>
+    <button onClick={onClick} className={cn("flex flex-col items-center gap-1 py-3 px-5 rounded-2xl transition-all duration-300 active:scale-110", active ? "bg-white text-slate-900 shadow-lg" : "text-white/40 hover:text-white")}>
       {icon}<span className="text-[9px] font-black uppercase tracking-widest">{label}</span>
     </button>
   );
