@@ -649,9 +649,9 @@ export default function App() {
                 <button onClick={() => setShowFilterDrawer(false)} className="p-4 bg-slate-100 rounded-2xl text-slate-400"><X size={20} /></button>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pr-2">
-                <button onClick={() => { setCityFilter('all'); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase", cityFilter === 'all' ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400")}>All Cities</button>
+                <button onClick={() => { setCityFilter('all'); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase transition-all", cityFilter === 'all' ? "bg-slate-900 dark:bg-[#0FE8F2]/10 text-white dark:text-[#0FE8F2]" : "bg-slate-100 dark:bg-slate-800 text-slate-400")}>All Cities</button>
                 {dynamicCities.map(c => (
-                  <button key={c} onClick={() => { setCityFilter(c); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate", cityFilter === c ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}>{c}</button>
+                  <button key={c} onClick={() => { setCityFilter(c); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate transition-all", cityFilter === c ? "bg-primary text-white dark:text-[#0FE8F2]" : "bg-slate-100 dark:bg-slate-800 text-slate-400")}>{c}</button>
                 ))}
               </div>
             </motion.div>
@@ -696,7 +696,7 @@ export default function App() {
                       <select 
                         value={cityFilter} 
                         onChange={e => { setCityFilter(e.target.value); setSelectedLocalities([]); resetCounts(); }}
-                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 pl-12 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none appearance-none cursor-pointer focus:border-primary transition-all"
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                       >
                         <option value="all">All Cities</option>
                         {dynamicCities.map(c => <option key={c} value={c}>{c}</option>)}
@@ -766,7 +766,7 @@ export default function App() {
                       <select 
                         value={userClasses[0] || 'all'} 
                         onChange={e => { const val = e.target.value; setUserClasses(val === 'all' ? [] : [val]); setUserTutorSubjects([]); resetCounts(); }}
-                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 pl-12 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all"
+                        className="w-full bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100 dark:border-slate-700 appearance-none cursor-pointer focus:border-primary transition-all dark:text-[#0FE8F2]"
                       >
                         <option value="all">All Classes</option>
                         {CLASSES_LIST.map(c => <option key={c} value={c}>{c}</option>)}
@@ -786,7 +786,7 @@ export default function App() {
                         <div className="flex flex-wrap gap-2 max-h-[30vh] overflow-y-auto custom-scrollbar pr-2">
                            <button 
                              onClick={() => { setUserTutorSubjects([]); resetCounts(); }} 
-                             className={cn("px-5 py-3 rounded-xl text-[10px] font-black uppercase transition-all border shadow-sm", userTutorSubjects.length === 0 ? "bg-slate-900 text-white border-slate-900" : "bg-white dark:bg-slate-700 text-slate-400 border-slate-100 dark:border-slate-600 hover:border-primary/50")}
+                             className={cn("px-5 py-3 rounded-xl text-[10px] font-black uppercase transition-all border shadow-sm", userTutorSubjects.length === 0 ? "bg-slate-900 dark:bg-[#0FE8F2]/10 text-white dark:text-[#0FE8F2] border-slate-900 dark:border-[#0FE8F2]/20" : "bg-white dark:bg-slate-700 text-slate-400 border-slate-100 dark:border-slate-600 hover:border-primary/50")}
                            >
                              📚 All Subjects
                            </button>
@@ -1018,9 +1018,8 @@ export default function App() {
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}
         {(activeTab === 'jobs' || activeTab === 'tutors') && (
           <div className="flex flex-col space-y-4">
-            <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100">
-              <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-4">
-                <span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500">
+              <div className="bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-4">
+                <span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500 dark:text-[#0FE8F2]">
                   {cityFilter !== 'all' ? (
                     selectedLocalities.length > 0 
                       ? `📍 ${selectedLocalities.length} Areas in ${cityFilter}`
