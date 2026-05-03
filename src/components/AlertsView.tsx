@@ -4,7 +4,7 @@ import { db } from '../firebase';
 import { handleFirestoreError, OperationType } from '../lib/firestore-errors';
 import { Alert, UserType } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, X, MessageSquare, Phone, Mail, ChevronRight, Settings, User as UserIcon, CreditCard, Play, Volume2 } from 'lucide-react';
+import { Bell, Info, AlertTriangle, CheckCircle, Zap, ExternalLink, Clock, X, MessageSquare, Phone, Mail, ChevronRight, Settings, User as UserIcon, CreditCard, Play, Volume2, Instagram, Facebook, Linkedin, Twitter } from 'lucide-react';
 import { cn } from '../utils';
 
 import { createChat } from '@n8n/chat';
@@ -156,10 +156,14 @@ const AlertsView: React.FC<AlertsViewProps> = ({
             target: '#n8n-chat-container',
             mode: 'fullscreen',
             webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
-            initialMessages: ['Hi there! 👋 How can DoAble India help you today?'],
             i18n: {
               en: { title: 'DoAble Support', subtitle: 'AI Assistant', footer: 'Support Desk', getStarted: 'Start Chatting', inputPlaceholder: 'Type your query here...', closeButtonTooltip: 'Close' },
             },
+            initialMessages: [
+              'Hi there! 👋 How can DoAble India help you today?',
+              'Choose a topic below or type your query:',
+              '• Getting Less Leads 📉\n• Not getting Alerts 🔔\n• Need Callback 📞'
+            ],
           });
         }
       };
@@ -226,6 +230,37 @@ const AlertsView: React.FC<AlertsViewProps> = ({
       <div className="px-6 space-y-4">
         {activeTab === 'support' ? (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+            {/* Social Hub */}
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-[32px] border-2 border-slate-50 dark:border-slate-800 shadow-sm">
+              <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-[0.2em] text-center">Connect with DoAble Social</label>
+              <div className="grid grid-cols-4 gap-4">
+                <a href="https://instagram.com/doableindia" target="_blank" rel="noreferrer" onClick={() => playTapSound()} className="flex flex-col items-center gap-2 group">
+                  <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center text-rose-500 group-hover:scale-110 group-active:scale-95 transition-all">
+                    <Instagram size={24} />
+                  </div>
+                  <span className="text-[8px] font-black uppercase tracking-tighter text-slate-500 dark:text-slate-400">Instagram</span>
+                </a>
+                <a href="https://facebook.com/doableindia" target="_blank" rel="noreferrer" onClick={() => playTapSound()} className="flex flex-col items-center gap-2 group">
+                  <div className="w-12 h-12 bg-blue-600/10 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 group-active:scale-95 transition-all">
+                    <Facebook size={24} />
+                  </div>
+                  <span className="text-[8px] font-black uppercase tracking-tighter text-slate-500 dark:text-slate-400">Facebook</span>
+                </a>
+                <a href="https://linkedin.com/company/doableindia" target="_blank" rel="noreferrer" onClick={() => playTapSound()} className="flex flex-col items-center gap-2 group">
+                  <div className="w-12 h-12 bg-sky-700/10 rounded-2xl flex items-center justify-center text-sky-700 group-hover:scale-110 group-active:scale-95 transition-all">
+                    <Linkedin size={24} />
+                  </div>
+                  <span className="text-[8px] font-black uppercase tracking-tighter text-slate-500 dark:text-slate-400">LinkedIn</span>
+                </a>
+                <a href="https://x.com/doableindia" target="_blank" rel="noreferrer" onClick={() => playTapSound()} className="flex flex-col items-center gap-2 group">
+                  <div className="w-12 h-12 bg-slate-900/10 dark:bg-white/10 rounded-2xl flex items-center justify-center text-slate-900 dark:text-white group-hover:scale-110 group-active:scale-95 transition-all">
+                    <Twitter size={24} />
+                  </div>
+                  <span className="text-[8px] font-black uppercase tracking-tighter text-slate-500 dark:text-slate-400">X (Twitter)</span>
+                </a>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 gap-3">
               <a href={`https://wa.me/919873965489?text=Hello%20DoAble%20Team`} target="_blank" rel="noreferrer" className="flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm active:scale-95 transition-all">
                 <div className="flex items-center gap-4">
