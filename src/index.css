@@ -173,8 +173,6 @@
   width: 100% !important;
   height: 100% !important;
   margin: 0 !important;
-  right: auto !important;
-  bottom: auto !important;
   box-shadow: none !important;
   border-radius: 0 !important;
   border: none !important;
@@ -188,13 +186,16 @@
   display: none !important;
 }
 
-/* Hide the n8n launcher bubble/icon everywhere to prevent confusion */
-.n8n-chat-launcher {
+/* Hide the n8n launcher bubble/icon/toggle everywhere */
+.n8n-chat-launcher, .n8n-chat-toggle, .n8n-chat-launcher-button {
   display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
 }
 
 /* Force the chat window to be open and visible when inside the container */
-#n8n-chat-container .n8n-chat-window-closed {
+#n8n-chat-container .n8n-chat-window-closed, 
+#n8n-chat-container .n8n-chat-window-minimized {
   display: flex !important;
   opacity: 1 !important;
   visibility: visible !important;
