@@ -20,19 +20,18 @@ const SupportView: React.FC = () => {
           webhookUrl: 'https://n8n.srv1497567.hstgr.cloud/webhook/a468d691-f1fd-4cb8-b259-3aba116f45b7/chat',
           initialMessages: [
             'Hi there! 👋 How can DoAble India help you today?',
-            'I am your Support Desk agent, available 24*7 to assist you.',
+            'Tell me your query below, and I will try to solve it for you.',
           ],
           i18n: {
             en: { 
-              title: 'Support Desk', 
-              subtitle: 'Available 24*7', 
+              title: 'Support Agent', 
+              subtitle: 'Online', 
               footer: '', 
               getStarted: 'Start Chatting', 
               inputPlaceholder: 'Type your query here...', 
-              closeButtonTooltip: 'Minimize' 
+              closeButtonTooltip: 'Close' 
             },
-          },
-        });
+          },        });
 
         chatInstanceRef.current = chatInstance;
 
