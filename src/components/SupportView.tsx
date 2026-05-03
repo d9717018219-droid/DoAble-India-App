@@ -24,8 +24,8 @@ const SupportView: React.FC = () => {
           ],
           i18n: {
             en: { 
-              title: 'Support Agent', 
-              subtitle: 'Online', 
+              title: '', 
+              subtitle: '', 
               footer: '', 
               getStarted: 'Start Chatting', 
               inputPlaceholder: 'Type your query here...', 
