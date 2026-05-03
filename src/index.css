@@ -160,7 +160,8 @@
 #n8n-chat-container {
   position: relative !important;
   overflow: hidden !important;
-  min-height: 600px !important;
+  flex: 1 !important;
+  height: 100% !important;
 }
 
 #n8n-chat-container .n8n-chat-window {

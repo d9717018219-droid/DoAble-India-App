@@ -295,7 +295,7 @@ const AlertsView: React.FC<AlertsViewProps> = ({
               className="space-y-6"
             >
               {/* n8n AI Chat (Main Interface) */}
-              <div className="bg-white dark:bg-slate-900 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-2xl overflow-hidden min-h-[650px] flex flex-col transition-all duration-500 ease-in-out">
+              <div className="bg-white dark:bg-slate-900 rounded-[40px] border-2 border-slate-50 dark:border-slate-800 shadow-2xl overflow-hidden h-[calc(100vh-220px)] min-h-[500px] max-h-[700px] flex flex-col transition-all duration-500 ease-in-out">
                 {/* Premium Support Header */}
                 <div className="p-7 border-b border-slate-50 dark:border-slate-800 bg-gradient-to-br from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-800/50 flex items-center justify-between">
                   <div className="flex items-center gap-4">
