@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User as LucideUser, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check, Sun, Cloud, Moon } from 'lucide-react';
+import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User as LucideUser, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check, Sun, Cloud, Moon, Briefcase, BookText, ChevronDown } from 'lucide-react';
 import { collection, onSnapshot, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, auth, auth as firebaseAuth } from './firebase';
 import { handleFirestoreError, OperationType } from './lib/firestore-errors';
@@ -639,23 +639,70 @@ export default function App() {
           </div>
         )}
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}        {(activeTab === 'jobs' || activeTab === 'tutors') && (
-          <div className="flex flex-col space-y-4">
-              <div className="sticky top-0 z-40 py-2 bg-slate-50/90 backdrop-blur-md space-y-2 shrink-0 border-b border-slate-100">
-                <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 items-center justify-between mx-4">
-                  <span className="px-4 py-3 text-[9px] font-black uppercase text-slate-500">
-                    {cityFilter !== 'all' ? `📍 ${cityFilter}` : (activeTab === 'jobs' ? 'Searching Jobs' : 'Expert Tutors')}
+          <div className="flex flex-col space-y-4 px-5 pb-20">
+              {/* Jobs Portal Header */}
+              <div className="pt-6 pb-4 space-y-4">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <h2 className="text-[28px] font-[800] text-[#0F172A] tracking-tight">Jobs Portal</h2>
+                    <p className="text-[#64748B] text-[13px] font-[500] leading-tight max-w-[250px]">
+                      Find teaching opportunities that match your skills and passion.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button className="p-2.5 bg-white rounded-full border border-slate-100 shadow-sm relative">
+                      <Bell size={22} className="text-slate-700" />
+                      <span className="absolute top-2 right-2 w-4 h-4 bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white">3</span>
+                    </button>
+                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-100 shadow-sm">
+                      <img src="https://img.freepik.com/free-photo/young-indian-student-woman-holding-books-smiling-against-white-background_1150-13611.jpg" alt="User" className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Search Bar */}
+                <div className="flex gap-2">
+                  <div className="flex-1 bg-white border border-slate-100 rounded-[20px] px-4 py-3 flex items-center gap-2 shadow-sm focus-within:border-primary transition-colors">
+                    <Search size={18} className="text-slate-400" />
+                    <input 
+                      type="text" 
+                      placeholder="Search by job title, subject or location..." 
+                      className="bg-transparent border-none outline-none text-[13px] w-full text-slate-700 font-medium"
+                    />
+                  </div>
+                  <button onClick={() => setShowAdvancedFilterDrawer(true)} className="bg-white border border-slate-100 rounded-[20px] px-4 py-3 flex items-center gap-2 shadow-sm font-bold text-[13px] text-slate-700 active:scale-95 transition-all">
+                    <Filter size={18} className="text-slate-400" />
+                    Filters
+                  </button>
+                </div>
+
+                {/* Filter Chips */}
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                  <FilterChip label="All Jobs" icon={<Briefcase size={14} />} active />
+                  <FilterChip label="Teaching" icon={<GraduationCap size={14} />} />
+                  <FilterChip label="Subject" icon={<BookText size={14} />} />
+                  <FilterChip label="Location" icon={<MapPin size={14} />} />
+                  <FilterChip label="Salary" icon={<Zap size={14} />} />
+                </div>
+
+                {/* Status Row */}
+                <div className="flex items-center justify-between pt-2">
+                  <span className="text-[#10B981] text-[14px] font-[700] tracking-tight">
+                    {filteredJobs.length} Jobs found
                   </span>
-                  <div className="flex gap-2">
-                    <button onClick={() => setShowFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary shadow-sm"><MapPin size={14} /></button>
-                    <button onClick={() => setShowAdvancedFilterDrawer(true)} className="bg-white p-3 rounded-xl text-primary shadow-sm"><Filter size={14} /></button>
+                  <div className="flex items-center gap-1 text-slate-500 text-[13px] font-[600]">
+                    Sort by: <span className="text-[#0F172A] font-[800] flex items-center gap-0.5">Newest <ChevronDown size={14} /></span>
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 px-2 sm:px-0 pb-10">
-                {loading ? (<div className="col-span-full py-40 text-center"><Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" /></div>) : activeTab === 'jobs' ? (
-                  <>{filteredJobs.slice(0, visibleJobsCount).map((job) => (<JobCard key={(job as any).id || job['Order ID']} job={job} />))}{visibleJobsCount < filteredJobs.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleJobsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase shadow-xl active:scale-95 transition-all">Load More Jobs</button></div>)}</>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {loading ? (
+                  <div className="col-span-full py-40 text-center"><Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" /></div>
+                ) : activeTab === 'jobs' ? (
+                  <>{filteredJobs.slice(0, visibleJobsCount).map((job) => (<JobCard key={(job as any).id || job['Order ID']} job={job} />))}{visibleJobsCount < filteredJobs.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleJobsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Jobs</button></div>)}</>
                 ) : (
-                  <>{filteredTutors.slice(0, visibleTutorsCount).map((tutor) => (<TutorCard key={(tutor as any).id || (tutor as any)['Tutor ID']} tutor={tutor} />))}{visibleTutorsCount < filteredTutors.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleTutorsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase shadow-xl active:scale-95 transition-all">Load More Tutors</button></div>)}</>
+                  <>{filteredTutors.slice(0, visibleTutorsCount).map((tutor) => (<TutorCard key={(tutor as any).id || (tutor as any)['Tutor ID']} tutor={tutor} />))}{visibleTutorsCount < filteredTutors.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleTutorsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Tutors</button></div>)}</>
                 )}
               </div>
           </div>
@@ -702,7 +749,21 @@ export default function App() {
   );
 }
 
-function NavButton({ active, onClick, icon, label, activeColor = "text-primary" }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string; activeColor?: string }) {
+function FilterChip({ label, icon, active = false }: { label: string; icon: React.ReactNode; active?: boolean }) {
+  return (
+    <button className={cn(
+      "flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-bold border transition-all whitespace-nowrap active:scale-95",
+      active 
+        ? "bg-[#D1FAE5] text-[#10B981] border-[#10B981]" 
+        : "bg-white text-slate-600 border-slate-100 hover:border-slate-200"
+    )}>
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+function NavButton({ active, onClick, icon, label, activeColor }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string; activeColor: string }) {
   return (
     <button onClick={onClick} className={cn("flex-1 flex flex-col items-center gap-1 py-2 rounded-2xl transition-all duration-300 active:scale-110", active ? "bg-slate-50 " + activeColor + " shadow-inner" : "text-slate-400 hover:text-slate-600")}>
       {icon}<span className="text-[8px] font-black uppercase tracking-tighter">{label}</span>
