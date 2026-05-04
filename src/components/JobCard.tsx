@@ -3,18 +3,11 @@ import {
   MapPin, 
   ChevronRight, 
   Bookmark, 
-  Share2, 
-  Calculator, 
-  BookText, 
-  Beaker, 
-  Globe, 
-  GraduationCap,
   Clock,
   Briefcase
 } from 'lucide-react';
-import html2canvas from 'html2canvas';
 import { JobLead } from '../types';
-import { cn, formatCurrency, formatPostedDate, getCityPhone } from '../utils';
+import { cn, formatCurrency, formatPostedDate } from '../utils';
 
 interface JobCardProps {
   job: JobLead;
@@ -41,7 +34,7 @@ const getSubjectStyles = (subject: string = '', classStr: string = '') => {
   return { bg: 'bg-slate-100', emoji: '🎓' };
 };
 
-export const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
+export const JobCard: React.FC<JobCardProps> = React.memo(({ job, onClick }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const subjects = (job.subjects || 'General').split(/[;,]/)[0].trim();
   const classBoard = job['Class / Board'] || ((job.Class || '') + (job.Board ? ' (' + job.Board + ')' : '')) || 'General';
@@ -51,67 +44,71 @@ export const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
   const location = locationRaw.toString().split(/[;,]/).map(l => l.trim().split('-')[0].trim())[0];
   const postedDate = formatPostedDate(job['Updated Time'] || job['Record Added']);
   const isNew = true; // For demo matching image
+  const requiredGender = job.Gender || 'Any';
 
   return (
     <div 
       ref={cardRef}
       onClick={() => onClick(job)}
-      className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100 flex flex-col gap-4 active:scale-[0.98] transition-all cursor-pointer relative group overflow-hidden"
+      className="bg-white rounded-[22px] p-4 shadow-sm border border-slate-100 flex flex-col gap-3 active:scale-[0.98] transition-all cursor-pointer relative group overflow-hidden"
     >
-      <div className="flex items-start gap-4">
-        {/* Left Icon Box with Emoji */}
-        <div className={cn("w-[70px] h-[70px] rounded-[22px] flex-shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm text-[32px]", bg)}>
+      <div className="flex items-start gap-3">
+        {/* Left Icon Box with Emoji - Smaller */}
+        <div className={cn("w-[60px] h-[60px] rounded-[18px] flex-shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm text-[28px]", bg)}>
           {emoji}
         </div>
 
         {/* Middle Content */}
-        <div className="flex-1 space-y-1">
+        <div className="flex-1 space-y-0.5 min-w-0">
           <div className="flex items-center justify-between">
-            <span className="text-[#10B981] text-[11px] font-bold tracking-tight">Teaching Job</span>
+            <span className="text-[#10B981] text-[10px] font-bold tracking-tight">Teaching Job</span>
             {isNew && (
-              <span className="bg-[#DCFCE7] text-[#166534] px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">New</span>
+              <span className="bg-[#DCFCE7] text-[#166534] px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider">NEW</span>
             )}
           </div>
           
-          <h4 className="text-[17px] font-[800] text-[#0F172A] leading-tight tracking-tight">
+          <h4 className="text-[15px] font-[800] text-[#0F172A] leading-tight tracking-tight truncate">
             {job.Name || subjects + ' Teacher'}
           </h4>
-          <p className="text-[#64748B] text-[12px] font-[500]">{classBoard}</p>
+          <p className="text-[#64748B] text-[11px] font-[500] truncate">{classBoard}</p>
           
-          <div className="flex items-center gap-1 text-[#64748B] text-[12px] font-[500] pt-0.5">
-            <MapPin size={12} className="text-slate-400" />
-            <span>{location}</span>
+          <div className="flex items-center gap-1 text-[#64748B] text-[11px] font-[500] pt-0.5">
+            <MapPin size={10} className="text-slate-400" />
+            <span className="truncate">{location}</span>
           </div>
 
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex items-center gap-2 pt-1.5">
             <div className="bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg flex items-center gap-1">
-               <span className="text-[#0F172A] text-[11px] font-bold tracking-tight">
-                 ₹{formatCurrency(job.Fee || '0')} / Month
+               <span className="text-[#0F172A] text-[10px] font-bold tracking-tight">
+                 ₹{formatCurrency(job.Fee || '0')} / Mo
                </span>
             </div>
             <div className="bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg flex items-center gap-1">
-               <Briefcase size={10} className="text-slate-400" />
-               <span className="text-[#64748B] text-[10px] font-bold">1-3 Years Exp.</span>
+               <span className="text-[#0F172A] text-[10px] font-bold tracking-tight">
+                 {requiredGender} Required
+               </span>
             </div>
           </div>
         </div>
 
         {/* Right Action Icons */}
-        <div className="flex flex-col items-end justify-between h-[70px]">
+        <div className="flex flex-col items-end justify-between h-[60px] flex-shrink-0">
           <button className="text-slate-300 hover:text-primary transition-colors">
-            <Bookmark size={20} />
+            <Bookmark size={18} />
           </button>
           <div className="text-slate-300">
-            <ChevronRight size={20} />
+            <ChevronRight size={18} />
           </div>
         </div>
       </div>
 
-      <div className="flex justify-end pt-1">
-        <span className="text-[#94A3B8] text-[10px] font-medium flex items-center gap-1">
-          Posted: {postedDate}
+      <div className="flex justify-end border-t border-slate-50 pt-2">
+        <span className="text-[#94A3B8] text-[9px] font-medium flex items-center gap-1">
+          <Clock size={8} /> Posted: {postedDate}
         </span>
       </div>
     </div>
   );
-};
+});
+
+JobCard.displayName = 'JobCard';

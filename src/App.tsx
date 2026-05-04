@@ -175,7 +175,13 @@ export default function App() {
     loadData();
     const qLeads = query(collection(db, 'leads'), orderBy('Updated Time', 'desc'), limit(50));
     const unsub = onSnapshot(qLeads, (snap) => {
-      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as any)) as JobLead[];
+      const data = snap.docs.map(d => {
+        const item = { id: d.id, ...d.data() } as any;
+        return {
+          ...item,
+          _timestamp: parseDate(item['Updated Time'] || item['Record Added'])
+        };
+      }) as JobLead[];
       setFirestoreLeads(data);
     });
     return () => unsub();
@@ -206,22 +212,33 @@ export default function App() {
 
   const loadData = async () => {
     try {
-      setLoading(true);
+      // Don't show full loader if we already have some data
+      if (leads.length === 0 && tutors.length === 0) setLoading(true);
+      
       const [leadsRes, tutorsRes] = await Promise.all([fetch('/api/leads'), fetch('/api/tutors')]);
       const [leadsJson, tutorsJson] = await Promise.all([leadsRes.json(), tutorsRes.json()]);
+      
       if (leadsJson.status === 'success') {
-        const filteredJobs = (leadsJson.data as JobLead[])
+        const rawLeads = (leadsJson.data as JobLead[]).map(l => ({
+          ...l,
+          _timestamp: parseDate(l['Updated Time'] || l['Record Added'])
+        }));
+        
+        const filteredJobs = rawLeads
           .filter(x => x['Internal Remark']?.trim().toLowerCase() === 'searching')
-          .sort((a, b) => parseDate(b['Updated Time'] || b['Record Added']) - parseDate(a['Updated Time'] || a['Record Added']));
+          .sort((a, b) => (b as any)._timestamp - (a as any)._timestamp);
         setLeads(filteredJobs);
-      } else {
-        setLeads(leadsJson.data || []);
       }
-      const rawTutors: TutorProfile[] = tutorsJson.data || [];
-      rawTutors.sort((a, b) => parseDate((b as any)['Updated Time'] || (b as any)['Record Added']) - parseDate((a as any)['Updated Time'] || (a as any)['Record Added']));
+      
+      const rawTutors = (tutorsJson.data || []).map((t: any) => ({
+        ...t,
+        _timestamp: parseDate(t['Updated Time'] || t['Record Added'])
+      }));
+      
+      rawTutors.sort((a: any, b: any) => b._timestamp - a._timestamp);
       setTutors(rawTutors);
     } catch (err: any) {
-      setError(err.message);
+      console.error('Error loading data:', err);
     } finally {
       setLoading(false);
     }
@@ -251,10 +268,10 @@ export default function App() {
     const combined = [...firestoreLeads, ...leads];
     const unique = new Map<string, JobLead>();
     combined.forEach(l => { const id = l['Order ID'] || (l as any).id; if (id && !unique.has(id)) unique.set(id, l); });
-    return Array.from(unique.values()).sort((a, b) => 
-      parseDate(b['Updated Time'] || b['Record Added']) - parseDate(a['Updated Time'] || a['Record Added'])
+    return Array.from(unique.values()).sort((a: any, b: any) => 
+      (b._timestamp || 0) - (a._timestamp || 0)
     );
-  }, [leads, firestoreLeads, parseDate]);
+  }, [leads, firestoreLeads]);
 
   const filteredJobs = useMemo(() => {
     return allLeads.filter(l => {
@@ -638,7 +655,14 @@ export default function App() {
           </div>
         )}
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}        {(activeTab === 'jobs' || activeTab === 'tutors') && (
-          <div className="flex flex-col space-y-3 px-5 pb-20">
+          <motion.div 
+            key={activeTab}
+            initial={{ opacity: 0, x: activeTab === 'jobs' ? -10 : 10 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: activeTab === 'jobs' ? 10 : -10 }}
+            transition={{ duration: 0.3 }}
+            className="flex flex-col space-y-3 px-5 pb-20"
+          >
               {/* Jobs Portal Header */}
               <div className="pt-4 pb-2 space-y-3">
                 <div className="flex justify-between items-start">
@@ -673,15 +697,16 @@ export default function App() {
 
                 {/* Filter Chips */}
                 <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-                  <FilterChip label="All" icon={<Briefcase size={12} />} active />
-                  <FilterChip label="Teaching" icon={<GraduationCap size={12} />} />
-                  <FilterChip label="Distance" icon={<MapPin size={12} />} />
-                  <FilterChip label="Salary" icon={<Zap size={12} />} />
+                  <FilterChip label="All" icon={<Briefcase size={12} />} active={cityFilter === 'all' && !searchQuery && userClasses.length === 0} onClick={clearFilters} />
+                  <FilterChip label="Gender" icon={<LucideUser size={12} />} active={tutorFilterGender !== 'all'} onClick={() => setShowAdvancedFilterDrawer(true)} />
+                  <FilterChip label="Location" icon={<MapPin size={12} />} active={cityFilter !== 'all'} onClick={() => setShowFilterDrawer(true)} />
+                  <FilterChip label="Fee" icon={<Zap size={12} />} active={tutorFilterFee !== 'all'} onClick={() => setShowAdvancedFilterDrawer(true)} />
+                  <FilterChip label="Class" icon={<GraduationCap size={12} />} active={userClasses.length > 0} onClick={() => setShowAdvancedFilterDrawer(true)} />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {loading ? (
+                {loading && leads.length === 0 && tutors.length === 0 ? (
                   <div className="col-span-full py-40 text-center"><Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" /></div>
                 ) : activeTab === 'jobs' ? (
                   <>{filteredJobs.slice(0, visibleJobsCount).map((job) => (<JobCard key={(job as any).id || job['Order ID']} job={job} onClick={setSelectedJob} />))}{visibleJobsCount < filteredJobs.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleJobsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Jobs</button></div>)}</>
@@ -714,7 +739,7 @@ export default function App() {
                   </button>
                 </div>
               )}
-          </div>
+          </motion.div>
         )}
       </main>
 
@@ -944,9 +969,9 @@ export default function App() {
   );
 }
 
-function FilterChip({ label, icon, active = false }: { label: string; icon: React.ReactNode; active?: boolean }) {
+function FilterChip({ label, icon, active = false, onClick }: { label: string; icon: React.ReactNode; active?: boolean; onClick?: () => void }) {
   return (
-    <button className={cn(
+    <button onClick={onClick} className={cn(
       "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold border transition-all whitespace-nowrap active:scale-95",
       active 
         ? "bg-[#D1FAE5] text-[#10B981] border-[#10B981]" 

@@ -4,9 +4,7 @@ import {
   ChevronRight, 
   Briefcase, 
   Star,
-  CheckCircle2,
-  Clock,
-  BookOpen
+  CheckCircle2
 } from 'lucide-react';
 import { TutorProfile } from '../types';
 import { cn } from '../utils';
@@ -27,7 +25,7 @@ const getSubjectEmoji = (subjects: string = '') => {
   return { bg: 'bg-slate-100', emoji: '🎓' };
 };
 
-export const TutorCard: React.FC<TutorCardProps> = ({ tutor, onClick }) => {
+export const TutorCard: React.FC<TutorCardProps> = React.memo(({ tutor, onClick }) => {
   if (!tutor) return null;
 
   const getValue = (keys: string[], fallback: string = '–') => {
@@ -52,61 +50,62 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor, onClick }) => {
   return (
     <div 
       onClick={() => onClick(tutor)}
-      className="bg-white rounded-[24px] p-4 shadow-sm border border-slate-100 flex flex-col gap-4 active:scale-[0.98] transition-all cursor-pointer relative group overflow-hidden mb-4"
+      className="bg-white rounded-[22px] p-4 shadow-sm border border-slate-100 flex flex-col gap-3 active:scale-[0.98] transition-all cursor-pointer relative group overflow-hidden mb-2"
     >
-      <div className="flex items-start gap-4">
-        {/* Left Emoji Box */}
-        <div className={cn("w-[70px] h-[70px] rounded-[22px] flex-shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm text-[32px]", bg)}>
+      <div className="flex items-start gap-3">
+        {/* Left Emoji Box - Smaller */}
+        <div className={cn("w-[60px] h-[60px] rounded-[18px] flex-shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm text-[28px]", bg)}>
           {emoji}
         </div>
 
         {/* Middle Content */}
-        <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex-1 min-w-0 space-y-0.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <span className="text-primary text-[11px] font-bold tracking-tight">Premium Tutor</span>
-              {verified && <CheckCircle2 size={12} className="text-[#10B981]" fill="currentColor" />}
+              <span className="text-primary text-[10px] font-bold tracking-tight">Premium Tutor</span>
+              {verified && <CheckCircle2 size={10} className="text-[#10B981]" fill="currentColor" />}
             </div>
-            <span className="text-[#94A3B8] text-[10px] font-bold uppercase tracking-widest">ID: {tutorId}</span>
+            <span className="text-[#94A3B8] text-[9px] font-bold uppercase tracking-widest">ID: {tutorId}</span>
           </div>
           
-          <h4 className="text-[17px] font-[800] text-[#0F172A] leading-tight tracking-tight truncate">
+          <h4 className="text-[15px] font-[800] text-[#0F172A] leading-tight tracking-tight truncate">
             {name}
           </h4>
-          <p className="text-[#64748B] text-[12px] font-[500] truncate">{qual}</p>
+          <p className="text-[#64748B] text-[11px] font-[500] truncate">{qual}</p>
           
-          <div className="flex items-center gap-1 text-[#64748B] text-[12px] font-[500] pt-0.5">
-            <MapPin size={12} className="text-slate-400" />
+          <div className="flex items-center gap-1 text-[#64748B] text-[11px] font-[500] pt-0.5">
+            <MapPin size={10} className="text-slate-400" />
             <span className="truncate">{city}</span>
           </div>
 
-          <div className="flex items-center gap-2 pt-2">
+          <div className="flex items-center gap-2 pt-1.5">
             <div className="bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg flex items-center gap-1">
-               <span className="text-[#0F172A] text-[11px] font-bold tracking-tight">
+               <span className="text-[#0F172A] text-[10px] font-bold tracking-tight">
                  {fee.startsWith('₹') ? fee : `₹${fee}`}
                </span>
             </div>
             <div className="bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg flex items-center gap-1">
-               <Briefcase size={10} className="text-slate-400" />
-               <span className="text-[#64748B] text-[10px] font-bold">{exp}</span>
+               <span className="text-[#64748B] text-[10px] font-bold">{exp} Exp</span>
             </div>
           </div>
         </div>
 
         {/* Right Arrow */}
-        <div className="flex items-center justify-center h-[70px] text-slate-300">
-           <ChevronRight size={20} />
+        <div className="flex items-center justify-center h-[60px] text-slate-300 flex-shrink-0">
+           <ChevronRight size={18} />
         </div>
       </div>
 
-      <div className="flex justify-between items-center pt-1 border-t border-slate-50 mt-1">
+      <div className="flex justify-between items-center pt-2 border-t border-slate-50 mt-1">
         <div className="flex items-center gap-1.5">
-          <Star size={12} className="text-[#F59E0B] fill-[#F59E0B]" />
-          <span className="text-[11px] font-bold text-slate-700">4.8</span>
-          <span className="text-[10px] text-slate-400">(120+ reviews)</span>
+          <Star size={10} className="text-[#F59E0B] fill-[#F59E0B]" />
+          <span className="text-[10px] font-bold text-slate-700">4.8</span>
+          <span className="text-[9px] text-slate-400">(120+ reviews)</span>
         </div>
-        <span className="text-[#94A3B8] text-[10px] font-medium">Available Now</span>
+        <span className="text-[#94A3B8] text-[9px] font-medium">Available Now</span>
       </div>
     </div>
   );
-};
+});
+
+TutorCard.displayName = 'TutorCard';
