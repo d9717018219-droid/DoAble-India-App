@@ -654,13 +654,19 @@ export default function App() {
         )}
       </main>
 
-      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[8000] w-[90%] max-w-[480px]">
-        <div className="bg-slate-900/95 backdrop-blur-2xl rounded-[32px] p-2 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10">
-          <NavButton active={activeTab === 'home'} onClick={() => { playTapSound(); setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={20} strokeWidth={2.5} />} label="Home" activeColor="text-[#1B7F5C]" />
-          <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} strokeWidth={2.5} />} label="Jobs" activeColor="text-purple-500" />
-          <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} strokeWidth={2.5} />} label="Tutors" activeColor="text-emerald-500" />
-          <NavButton active={activeTab === 'alerts'} onClick={() => { playTapSound(); setActiveTab('alerts'); window.scrollTo(0,0); }} icon={<Bell size={20} strokeWidth={2.5} />} label="Alerts" activeColor="text-orange-500" />
-          <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={20} strokeWidth={2.5} />} label="Support" activeColor="text-blue-500" />
+      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[8000] w-[92%] max-w-[500px]">
+        <div className="bg-white rounded-full p-2 flex items-center justify-between shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-slate-100 relative">
+          <NavButton active={activeTab === 'home'} onClick={() => { playTapSound(); setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={22} />} label="Home" activeColor="text-[#1B7F5C]" />
+          <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={22} />} label="Jobs" activeColor="text-purple-600" />
+          <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={22} />} label="Tutors" activeColor="text-emerald-600" />
+          <NavButton 
+            active={activeTab === 'alerts'} 
+            onClick={() => { playTapSound(); setActiveTab('alerts'); window.scrollTo(0,0); }} 
+            icon={<div className="relative"><Bell size={22} /><span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-orange-500 rounded-full border border-white" /></div>} 
+            label="Alerts" 
+            activeColor="text-orange-600" 
+          />
+          <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={22} />} label="Support" activeColor="text-blue-600" />
           {isAdminUser && (<button onClick={() => { playTapSound(); setActiveTab('admin'); }} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>
       </nav>
@@ -690,7 +696,7 @@ export default function App() {
 
 function NavButton({ active, onClick, icon, label, activeColor = "text-primary" }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string; activeColor?: string }) {
   return (
-    <button onClick={onClick} className={cn("flex-1 flex flex-col items-center gap-1 py-2.5 px-1 rounded-2xl transition-all duration-300 active:scale-110", active ? "bg-white " + activeColor + " shadow-lg" : "text-white/40 hover:text-white")}>
+    <button onClick={onClick} className={cn("flex-1 flex flex-col items-center gap-1 py-2 rounded-2xl transition-all duration-300 active:scale-110", active ? "bg-slate-50 " + activeColor + " shadow-inner" : "text-slate-400 hover:text-slate-600")}>
       {icon}<span className="text-[8px] font-black uppercase tracking-tighter">{label}</span>
     </button>
   );
