@@ -86,7 +86,8 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [cityFilter, setCityFilter] = useState(localStorage.getItem('lastSelectedCity') || 'all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'newest' | 'fee_low' | 'fee_high'>('newest');
+  const [sortBy, setSortBy] = useState<'newest' | 'fee_high'>('newest');
+  const [filterSection, setFilterSection] = useState<'all' | 'localities' | 'class' | 'gender'>('all');
 
   // Persist City Filter
   useEffect(() => {
@@ -369,8 +370,6 @@ export default function App() {
     let result = [...filteredJobs];
     if (sortBy === 'newest') {
       result.sort((a, b) => (b as any)._timestamp - (a as any)._timestamp);
-    } else if (sortBy === 'fee_low') {
-      result.sort((a, b) => parseInt(a.Fee || '0') - parseInt(b.Fee || '0'));
     } else if (sortBy === 'fee_high') {
       result.sort((a, b) => parseInt(b.Fee || '0') - parseInt(a.Fee || '0'));
     }
@@ -381,12 +380,6 @@ export default function App() {
     let result = [...filteredTutors];
     if (sortBy === 'newest') {
       result.sort((a, b) => (b as any)._timestamp - (a as any)._timestamp);
-    } else if (sortBy === 'fee_low') {
-      result.sort((a, b) => {
-        const feeA = parseInt((a['Fee/Month'] || '0').replace(/[^0-9]/g, ''));
-        const feeB = parseInt((b['Fee/Month'] || '0').replace(/[^0-9]/g, ''));
-        return feeA - feeB;
-      });
     } else if (sortBy === 'fee_high') {
       result.sort((a, b) => {
         const feeA = parseInt((a['Fee/Month'] || '0').replace(/[^0-9]/g, ''));
@@ -521,36 +514,45 @@ export default function App() {
             <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} className="relative bg-white w-full max-w-2xl rounded-t-[48px] p-8 space-y-6 max-h-[90vh] overflow-y-auto pr-2 custom-scrollbar">
               <div className="flex justify-between items-center sticky top-0 bg-white z-10 pb-4 border-b border-slate-100">
                 <div className="flex items-center gap-4">
-                  <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Precision Filters</h3>
+                  <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter">
+                    {filterSection === 'all' ? 'Precision Filters' : `Filter by ${filterSection.charAt(0).toUpperCase() + filterSection.slice(1)}`}
+                  </h3>
                   <div className="bg-primary/10 px-3 py-1 rounded-xl border border-primary/20"><span className="text-[11px] font-black text-primary uppercase">{activeTab === 'tutors' ? activeTutorsCount : activeLeadsCount} Matches</span></div>
                 </div>
-                <button onClick={() => setShowAdvancedFilterDrawer(false)} className="p-4 bg-slate-100 rounded-2xl text-slate-400"><X size={20} /></button>
+                <div className="flex items-center gap-2">
+                  {filterSection !== 'all' && (
+                    <button onClick={() => setFilterSection('all')} className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase">Show All</button>
+                  )}
+                  <button onClick={() => setShowAdvancedFilterDrawer(false)} className="p-4 bg-slate-100 rounded-2xl text-slate-400"><X size={20} /></button>
+                </div>
               </div>
 
               <div className="space-y-8 py-4 pr-2">
                 {/* 1. Search */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">{activeTab === 'tutors' ? 'Tutor ID' : 'Order ID'}</label>
-                    <input type="text" placeholder="Search ID..." value={activeTab === 'tutors' ? tutorFilterID : searchQuery} onChange={e => { activeTab === 'tutors' ? setTutorFilterID(e.target.value) : setSearchQuery(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100" />
+                {filterSection === 'all' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-2">{activeTab === 'tutors' ? 'Tutor ID' : 'Order ID'}</label>
+                      <input type="text" placeholder="Search ID..." value={activeTab === 'tutors' ? tutorFilterID : searchQuery} onChange={e => { activeTab === 'tutors' ? setTutorFilterID(e.target.value) : setSearchQuery(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100" />
+                    </div>
+                    {activeTab === 'tutors' && (
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Name Search</label>
+                        <input type="text" placeholder="Search Name..." value={tutorFilterName} onChange={e => { setTutorFilterName(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100" />
+                      </div>
+                    )}
+                    {activeTab === 'jobs' && (
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Job Subject / Board</label>
+                        <input type="text" placeholder="e.g. Maths, CBSE..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100" />
+                      </div>
+                    )}
                   </div>
-                  {activeTab === 'tutors' && (
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Name Search</label>
-                      <input type="text" placeholder="Search Name..." value={tutorFilterName} onChange={e => { setTutorFilterName(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100" />
-                    </div>
-                  )}
-                  {activeTab === 'jobs' && (
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Job Subject / Board</label>
-                      <input type="text" placeholder="e.g. Maths, CBSE..." value={searchQuery} onChange={e => { setSearchQuery(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100" />
-                    </div>
-                  )}
-                </div>
+                )}
 
                 {/* 2. Localities */}
-                {cityFilter !== 'all' && cityLocations.length > 0 && (
-                  <div className="space-y-4">
+                {(filterSection === 'all' || filterSection === 'localities') && cityFilter !== 'all' && cityLocations.length > 0 && (
+                  <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Specific Areas in {cityFilter}</label>
                     <div className="flex flex-wrap gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
                       {cityLocations.map(loc => {
@@ -573,57 +575,61 @@ export default function App() {
                 )}
 
                 {/* 3. Class Group */}
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Target Class Group</label>
-                  <div className="flex flex-wrap gap-2">
-                    {CLASSES_LIST.map(cls => {
-                      const isSelected = userClasses.includes(cls);
-                      return (
-                        <button
-                          key={cls}
-                          onClick={() => {
-                            const nextClasses = isSelected ? userClasses.filter(x => x !== cls) : [...userClasses, cls];
-                            setUserClasses(nextClasses);
-                            localStorage.setItem('userClasses', JSON.stringify(nextClasses));
-                            resetCounts();
-                          }}
-                          className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-primary text-white border-primary" : "bg-white text-slate-500 border-slate-100")}
-                        >
-                          {cls}
-                        </button>
-                      );
-                    })}
+                {(filterSection === 'all' || filterSection === 'class') && (
+                  <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Target Class Group</label>
+                    <div className="flex flex-wrap gap-2">
+                      {CLASSES_LIST.map(cls => {
+                        const isSelected = userClasses.includes(cls);
+                        return (
+                          <button
+                            key={cls}
+                            onClick={() => {
+                              const nextClasses = isSelected ? userClasses.filter(x => x !== cls) : [...userClasses, cls];
+                              setUserClasses(nextClasses);
+                              localStorage.setItem('userClasses', JSON.stringify(nextClasses));
+                              resetCounts();
+                            }}
+                            className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-primary text-white border-primary" : "bg-white text-slate-500 border-slate-100")}
+                          >
+                            {cls}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* 4. Gender & Others */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender</label>
-                    <select value={tutorFilterGender} onChange={e => { setTutorFilterGender(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100">
-                      <option value="all">Any Gender</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                    </select>
-                  </div>
-                  {activeTab === 'tutors' && (
-                    <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Own Vehicle</label><select value={tutorFilterVehicle} onChange={e => { setTutorFilterVehicle(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any</option><option value="yes">Yes</option><option value="no">No</option></select></div>
-                  )}
-                  {activeTab === 'jobs' && (
+                {(filterSection === 'all' || filterSection === 'gender') && (
+                  <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-2">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Experience Required</label>
-                      <select value={tutorFilterExperience} onChange={e => { setTutorFilterExperience(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100">
-                        <option value="all">Any Experience</option>
-                        <option value="0">Fresher</option>
-                        <option value="1">1-2 Yrs</option>
-                        <option value="3">3-5 Yrs</option>
-                        <option value="5">5+ Yrs</option>
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender</label>
+                      <select value={tutorFilterGender} onChange={e => { setTutorFilterGender(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100">
+                        <option value="all">Any Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
                       </select>
                     </div>
-                  )}
-                </div>
+                    {activeTab === 'tutors' && (
+                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Own Vehicle</label><select value={tutorFilterVehicle} onChange={e => { setTutorFilterVehicle(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+                    )}
+                    {activeTab === 'jobs' && (
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Experience Required</label>
+                        <select value={tutorFilterExperience} onChange={e => { setTutorFilterExperience(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100">
+                          <option value="all">Any Experience</option>
+                          <option value="0">Fresher</option>
+                          <option value="1">1-2 Yrs</option>
+                          <option value="3">3-5 Yrs</option>
+                          <option value="5">5+ Yrs</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-                {activeTab === 'tutors' && (
+                {activeTab === 'tutors' && filterSection === 'all' && (
                   <>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Experience</label><select value={tutorFilterExperience} onChange={e => { setTutorFilterExperience(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any Exp</option><option value="0">Fresher</option><option value="1">1-2 Yrs</option><option value="3">3-5 Yrs</option><option value="5">5+ Yrs</option></select></div>
@@ -771,10 +777,10 @@ export default function App() {
                 <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
                   <FilterChip label="City" icon={<HomeIcon size={10} />} active={cityFilter !== 'all'} onClick={() => setShowFilterDrawer(true)} />
                   {cityFilter !== 'all' && (
-                    <FilterChip label="Localities" icon={<MapPin size={10} />} active={selectedLocalities.length > 0} onClick={() => setShowAdvancedFilterDrawer(true)} />
+                    <FilterChip label="Localities" icon={<MapPin size={10} />} active={selectedLocalities.length > 0} onClick={() => { setFilterSection('localities'); setShowAdvancedFilterDrawer(true); }} />
                   )}
-                  <FilterChip label="Class" icon={<GraduationCap size={10} />} active={userClasses.length > 0} onClick={() => setShowAdvancedFilterDrawer(true)} />
-                  <FilterChip label="Gender" icon={<LucideUser size={10} />} active={tutorFilterGender !== 'all'} onClick={() => setShowAdvancedFilterDrawer(true)} />
+                  <FilterChip label="Class" icon={<GraduationCap size={10} />} active={userClasses.length > 0} onClick={() => { setFilterSection('class'); setShowAdvancedFilterDrawer(true); }} />
+                  <FilterChip label="Gender" icon={<LucideUser size={10} />} active={tutorFilterGender !== 'all'} onClick={() => { setFilterSection('gender'); setShowAdvancedFilterDrawer(true); }} />
                 </div>
 
                 {/* Count and Sort Bar */}
@@ -793,9 +799,8 @@ export default function App() {
                       onChange={(e) => setSortBy(e.target.value as any)}
                       className="bg-transparent border-none outline-none text-[10px] font-black text-primary appearance-none cursor-pointer"
                     >
-                      <option value="newest">Newest</option>
-                      <option value="fee_low">Fee (Low to High)</option>
-                      <option value="fee_high">Fee (High to Low)</option>
+                      <option value="newest">Newest First</option>
+                      <option value="fee_high">Fee: High to Low</option>
                     </select>
                     <ChevronDown size={10} className="text-primary" />
                   </div>
@@ -805,10 +810,24 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {loading && leads.length === 0 && tutors.length === 0 ? (
                   <div className="col-span-full py-40 text-center"><Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" /></div>
-                ) : activeTab === 'jobs' ? (
+                ) : activeTab === 'jobs' && finalJobs.length > 0 ? (
                   <>{finalJobs.slice(0, visibleJobsCount).map((job) => (<JobCard key={(job as any).id || job['Order ID']} job={job} onClick={setSelectedJob} />))}{visibleJobsCount < finalJobs.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleJobsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Jobs</button></div>)}</>
-                ) : (
+                ) : activeTab === 'tutors' && finalTutors.length > 0 ? (
                   <>{finalTutors.slice(0, visibleTutorsCount).map((tutor) => (<TutorCard key={(tutor as any).id || (tutor as any)['Tutor ID']} tutor={tutor} onClick={setSelectedTutor} />))}{visibleTutorsCount < finalTutors.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleTutorsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Tutors</button></div>)}</>
+                ) : (
+                  <div className="col-span-full py-20 text-center space-y-4">
+                    <div className="text-4xl">🔍</div>
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-bold text-slate-900">No matches found</h3>
+                      <p className="text-sm text-slate-500">Try adjusting your filters to find more opportunities.</p>
+                    </div>
+                    <button 
+                      onClick={clearFilters}
+                      className="bg-slate-900 text-white px-6 py-3 rounded-2xl font-bold text-xs uppercase tracking-widest shadow-lg active:scale-95 transition-all"
+                    >
+                      Reset All Filters
+                    </button>
+                  </div>
                 )}
               </div>
 
