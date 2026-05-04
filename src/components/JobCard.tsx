@@ -7,11 +7,13 @@ import {
   Briefcase
 } from 'lucide-react';
 import { JobLead } from '../types';
-import { cn, formatCurrency, formatPostedDate } from '../utils';
+import { cn, formatCurrency, formatPostedDate, toTitleCase } from '../utils';
 
 interface JobCardProps {
   job: JobLead;
   onClick: (job: JobLead) => void;
+  isShortlisted?: boolean;
+  onShortlistToggle?: (id: string, e: React.MouseEvent) => void;
 }
 
 const getSubjectStyles = (subject: string = '', classStr: string = '') => {
@@ -34,7 +36,12 @@ const getSubjectStyles = (subject: string = '', classStr: string = '') => {
   return { bg: 'bg-slate-100', emoji: '🎓' };
 };
 
-export const JobCard: React.FC<JobCardProps> = React.memo(({ job, onClick }) => {
+export const JobCard: React.FC<JobCardProps> = React.memo(({ 
+  job, 
+  onClick, 
+  isShortlisted, 
+  onShortlistToggle 
+}) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const subjects = (job.subjects || 'General').split(/[;,]/)[0].trim();
   const classBoard = job['Class / Board'] || ((job.Class || '') + (job.Board ? ' (' + job.Board + ')' : '')) || 'General';
@@ -71,7 +78,7 @@ export const JobCard: React.FC<JobCardProps> = React.memo(({ job, onClick }) => 
           </div>
           
           <h4 className="text-[15px] font-[800] text-[#0F172A] leading-tight tracking-tight truncate">
-            {name}
+            {toTitleCase(name)}
           </h4>
           <p className="text-[#64748B] text-[11px] font-[500] truncate">{classBoard}</p>
           
@@ -97,10 +104,10 @@ export const JobCard: React.FC<JobCardProps> = React.memo(({ job, onClick }) => 
         {/* Right Action Icons */}
         <div className="flex flex-col items-end justify-between h-[60px] flex-shrink-0">
           <button 
-            onClick={(e) => { e.stopPropagation(); }}
-            className="text-slate-300 hover:text-red-500 transition-colors"
+            onClick={(e) => { e.stopPropagation(); onShortlistToggle?.(job['Order ID'], e); }}
+            className={cn("transition-colors", isShortlisted ? "text-red-500" : "text-slate-300 hover:text-red-500")}
           >
-            <Heart size={18} />
+            <Heart size={18} fill={isShortlisted ? "currentColor" : "none"} />
           </button>
           <div className="text-slate-300">
             <ChevronRight size={18} />

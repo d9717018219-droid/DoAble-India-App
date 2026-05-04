@@ -8,11 +8,13 @@ import {
   Heart
 } from 'lucide-react';
 import { TutorProfile } from '../types';
-import { cn } from '../utils';
+import { cn, toTitleCase } from '../utils';
 
 interface TutorCardProps {
   tutor: TutorProfile;
   onClick: (tutor: TutorProfile) => void;
+  isShortlisted?: boolean;
+  onShortlistToggle?: (id: string, e: React.MouseEvent) => void;
 }
 
 const getSubjectEmoji = (subjects: string = '') => {
@@ -26,7 +28,12 @@ const getSubjectEmoji = (subjects: string = '') => {
   return { bg: 'bg-slate-100', emoji: '🎓' };
 };
 
-export const TutorCard: React.FC<TutorCardProps> = React.memo(({ tutor, onClick }) => {
+export const TutorCard: React.FC<TutorCardProps> = React.memo(({ 
+  tutor, 
+  onClick, 
+  isShortlisted, 
+  onShortlistToggle 
+}) => {
   if (!tutor) return null;
 
   const getValue = (keys: string[], fallback: string = '–') => {
@@ -70,7 +77,7 @@ export const TutorCard: React.FC<TutorCardProps> = React.memo(({ tutor, onClick 
           </div>
           
           <h4 className="text-[15px] font-[800] text-[#0F172A] leading-tight tracking-tight truncate">
-            {name}
+            {toTitleCase(name)}
           </h4>
           <p className="text-[#64748B] text-[11px] font-[500] truncate">{qual}</p>
           
@@ -89,10 +96,10 @@ export const TutorCard: React.FC<TutorCardProps> = React.memo(({ tutor, onClick 
         {/* Right Arrow & Like */}
         <div className="flex flex-col items-end justify-between h-[60px] flex-shrink-0">
           <button 
-            onClick={(e) => { e.stopPropagation(); }}
-            className="text-slate-300 hover:text-red-500 transition-colors"
+            onClick={(e) => { e.stopPropagation(); onShortlistToggle?.(tutorId, e); }}
+            className={cn("transition-colors", isShortlisted ? "text-red-500" : "text-slate-300 hover:text-red-500")}
           >
-            <Heart size={18} />
+            <Heart size={18} fill={isShortlisted ? "currentColor" : "none"} />
           </button>
           <div className="text-slate-300">
             <ChevronRight size={18} />

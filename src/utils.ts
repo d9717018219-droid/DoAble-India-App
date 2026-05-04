@@ -81,3 +81,10 @@ export function getCityTheme(city: string | undefined) {
     solid: `hsl(${h1}, ${s}%, ${l}%)` 
   };
 }
+
+export function toTitleCase(str: string | undefined) {
+  if (!str) return '';
+  return str.toLowerCase().split(' ').map(word => {
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join(' ');
+}

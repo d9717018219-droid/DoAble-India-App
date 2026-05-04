@@ -92,7 +92,18 @@ export default function App() {
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [setupStep, setSetupStep] = useState(1);
   const [unseenAlertsCount, setUnseenAlertsCount] = useState(3);
-  const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts' | 'admin' | 'support' | 'payments'>('home');
+  const [shortlistedIds, setShortlistedIds] = useState<string[]>(JSON.parse(localStorage.getItem('shortlistedIds') || '[]'));
+  const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts' | 'admin' | 'support' | 'payments' | 'shortlist'>('home');
+
+  const toggleShortlist = useCallback((id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    playTapSound();
+    setShortlistedIds(prev => {
+      const next = prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id];
+      localStorage.setItem('shortlistedIds', JSON.stringify(next));
+      return next;
+    });
+  }, []);
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [selectedLocalities, setSelectedLocalities] = useState<string[]>([]);
@@ -731,6 +742,33 @@ export default function App() {
     onTutorClick={setSelectedTutor}
   />
 )}
+        {activeTab === 'shortlist' && (
+          <div className="flex flex-col space-y-3 px-5 pt-8 animate-in fade-in slide-in-from-bottom-4">
+             <div className="flex justify-between items-center mb-4">
+               <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">My Shortlist</h2>
+               <div className="bg-primary/10 px-3 py-1 rounded-full"><span className="text-[10px] font-black text-primary uppercase">{shortlistedIds.length} Items</span></div>
+             </div>
+             {shortlistedIds.length === 0 ? (
+               <div className="py-20 text-center space-y-4 bg-white rounded-[40px] border border-slate-100 shadow-sm">
+                 <div className="text-5xl">❤️</div>
+                 <div className="space-y-1">
+                   <h3 className="text-sm font-black text-slate-900 uppercase">Your Heart is Empty</h3>
+                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tap the heart on any job or tutor to save them here.</p>
+                 </div>
+                 <button onClick={() => setActiveTab('jobs')} className="bg-primary text-white px-8 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all shadow-xl shadow-primary/20">Find Matches</button>
+               </div>
+             ) : (
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 {allLeads.filter(l => shortlistedIds.includes(l['Order ID'])).map(job => (
+                   <JobCard key={job['Order ID']} job={job} onClick={setSelectedJob} isShortlisted={true} onShortlistToggle={toggleShortlist} />
+                 ))}
+                 {tutors.filter(t => shortlistedIds.includes(t['Tutor ID'])).map(tutor => (
+                   <TutorCard key={tutor['Tutor ID']} tutor={tutor} onClick={setSelectedTutor} isShortlisted={true} onShortlistToggle={toggleShortlist} />
+                 ))}
+               </div>
+             )}
+          </div>
+        )}
         {activeTab === 'alerts' && (
           <AlertsView
             city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType}
@@ -921,13 +959,14 @@ export default function App() {
         )}
       </main>
 
-      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[8000] w-[95%] max-w-[550px]">
+      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[8000] w-[98%] max-w-[600px]">
         <div className="bg-white rounded-full p-2 flex items-center justify-between shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-slate-100 relative">
-          <NavButton active={activeTab === 'home'} onClick={() => { playTapSound(); setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={20} />} label="Home" activeColor="text-[#1B7F5C]" />
-          <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" activeColor="text-purple-600" />
-          <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" activeColor="text-emerald-600" />
-          <NavButton active={activeTab === 'payments'} onClick={() => { playTapSound(); setActiveTab('payments'); window.scrollTo(0,0); }} icon={<CreditCard size={20} />} label="Pay" activeColor="text-orange-600" />
-          <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={20} />} label="Support" activeColor="text-blue-600" />
+          <NavButton active={activeTab === 'home'} onClick={() => { playTapSound(); setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={18} />} label="Home" activeColor="text-[#1B7F5C]" />
+          <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={18} />} label="Jobs" activeColor="text-purple-600" />
+          <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={18} />} label="Tutors" activeColor="text-emerald-600" />
+          <NavButton active={activeTab === 'shortlist'} onClick={() => { playTapSound(); setActiveTab('shortlist'); window.scrollTo(0,0); }} icon={<Heart size={18} />} label="Liked" activeColor="text-rose-600" />
+          <NavButton active={activeTab === 'payments'} onClick={() => { playTapSound(); setActiveTab('payments'); window.scrollTo(0,0); }} icon={<CreditCard size={18} />} label="Pay" activeColor="text-orange-600" />
+          <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={18} />} label="Support" activeColor="text-blue-600" />
           {isAdminUser && (<button onClick={() => { playTapSound(); setActiveTab('admin'); }} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>
       </nav>
@@ -1044,7 +1083,7 @@ export default function App() {
               >
                 <button onClick={() => setSelectedTutor(null)} className="absolute top-6 left-6 p-2 bg-white/20 rounded-full hover:bg-white/30 transition-all"><X size={20} /></button>
                 <div className="text-[20px] font-[800] text-[#FFD166] mb-1">
-                   ✨ {selectedTutor['Full Name'] || (selectedTutor as any).fullName || selectedTutor.Name || 'Premium Tutor'}
+                   ✨ {toTitleCase(selectedTutor['Full Name'] || (selectedTutor as any).fullName || selectedTutor.Name || 'Premium Tutor')}
                 </div>
                 <div className="text-[11px] font-[600] opacity-80 uppercase tracking-widest mb-2">🆔 Tutor ID: {selectedTutor['Tutor ID'] || (selectedTutor as any).tutorId || 'N/A'}</div>
                 
@@ -1076,7 +1115,11 @@ export default function App() {
                 <div className="m-5 p-4 bg-emerald-50/50 rounded-2xl border border-dashed border-emerald-200">
                   <span className="text-[10px] font-black uppercase text-emerald-600 mb-2 block tracking-widest">ℹ️ About Me</span>
                   <div className="text-[12px] text-slate-700 font-medium leading-relaxed prose-sm">
-                    {selectedTutor.About || (selectedTutor as any).about || (selectedTutor as any).Notes || 'Professional educator dedicated to student success.'}
+                    {(() => {
+                      const about = selectedTutor.About || (selectedTutor as any).about || (selectedTutor as any).Notes || 'Professional educator dedicated to student success.';
+                      const words = about.split(/\s+/);
+                      return words.length > 300 ? words.slice(0, 300).join(' ') + '...' : about;
+                    })()}
                   </div>
                 </div>
 
@@ -1209,135 +1252,71 @@ export default function App() {
         {showProfileSetup && (
           <div className="fixed inset-0 z-[12000] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowProfileSetup(false)} className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" />
-            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="relative bg-white w-full max-w-md rounded-[48px] shadow-2xl overflow-hidden p-8">
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="relative bg-white w-full max-w-md rounded-[48px] shadow-2xl overflow-hidden p-8 max-h-[90vh] overflow-y-auto pr-2 custom-scrollbar">
               <button onClick={() => setShowProfileSetup(false)} className="absolute top-6 right-6 p-2 bg-slate-50 rounded-full text-slate-400 hover:text-slate-600 transition-all"><X size={20} /></button>
               
-              <div className="space-y-8">
-                <div className="text-center space-y-2">
-                  <div className="w-16 h-1 bg-slate-100 rounded-full mx-auto mb-6" />
-                  <h3 className="text-2xl font-[900] text-slate-900 uppercase tracking-tighter">Setup Profile</h3>
-                  <div className="flex justify-center gap-1.5">
-                    {[1, 2, 3, 4, 5, 6].map(s => (
-                      <div key={s} className={cn("h-1.5 rounded-full transition-all duration-500", setupStep === s ? "w-8 bg-primary" : setupStep > s ? "w-4 bg-emerald-400" : "w-4 bg-slate-100")} />
-                    ))}
-                  </div>
+              <div className="space-y-6">
+                <div className="text-center space-y-2 pb-4 border-b border-slate-100">
+                  <h3 className="text-2xl font-[900] text-slate-900 uppercase tracking-tighter">Profile Information</h3>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Update your preferences</p>
                 </div>
 
-                <div className="min-h-[300px] flex flex-col justify-center">
-                  <AnimatePresence mode="wait">
-                    {setupStep === 1 && (
-                      <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6 text-center">
-                        <div className="text-5xl mb-4">🤝</div>
-                        <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Who are you?</h4>
-                        <div className="grid grid-cols-2 gap-4">
-                          <button 
-                            onClick={() => { setEditUserType('parent'); setSetupStep(2); playTapSound(); }}
-                            className={cn("p-6 rounded-[32px] border-2 transition-all flex flex-col items-center gap-3", editUserType === 'parent' ? "border-primary bg-primary/5" : "border-slate-100 hover:border-slate-200")}
-                          >
-                            <span className="text-3xl">👨‍👩-👧</span>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">I'm a Parent</span>
-                          </button>
-                          <button 
-                            onClick={() => { setEditUserType('teacher'); setSetupStep(2); playTapSound(); }}
-                            className={cn("p-6 rounded-[32px] border-2 transition-all flex flex-col items-center gap-3", editUserType === 'teacher' ? "border-primary bg-primary/5" : "border-slate-100 hover:border-slate-200")}
-                          >
-                            <span className="text-3xl">🎓</span>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">I'm a Tutor</span>
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
+                <div className="space-y-6 pt-2">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">I am a</label>
+                    <div className="grid grid-cols-2 gap-3">
+                       <button onClick={() => { setEditUserType('parent'); playTapSound(); }} className={cn("py-4 rounded-2xl font-black text-[10px] uppercase border-2 transition-all", editUserType === 'parent' ? "border-primary bg-primary/5 text-primary" : "border-slate-50 text-slate-400")}>Parent</button>
+                       <button onClick={() => { setEditUserType('teacher'); playTapSound(); }} className={cn("py-4 rounded-2xl font-black text-[10px] uppercase border-2 transition-all", editUserType === 'teacher' ? "border-primary bg-primary/5 text-primary" : "border-slate-50 text-slate-400")}>Tutor</button>
+                    </div>
+                  </div>
 
-                    {setupStep === 2 && (
-                      <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                        <div className="text-center"><div className="text-4xl mb-4">📝</div><h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">What's your name?</h4></div>
-                        <input 
-                          type="text" 
-                          value={userName || ''} 
-                          onChange={e => setUserName(e.target.value)}
-                          placeholder="Full Name"
-                          className="w-full bg-slate-50 p-5 rounded-2xl text-sm font-bold outline-none border-2 border-slate-100 focus:border-primary transition-all text-center"
-                        />
-                        <button onClick={() => { if(userName) setSetupStep(3); playTapSound(); }} className="w-full bg-slate-900 text-white p-5 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">Next</button>
-                      </motion.div>
-                    )}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Full Name</label>
+                    <input type="text" value={userName || ''} onChange={e => setUserName(e.target.value)} placeholder="Your Name" className="w-full bg-slate-50 p-4 rounded-2xl text-xs font-bold border-2 border-slate-50 focus:border-primary outline-none transition-all" />
+                  </div>
 
-                    {setupStep === 3 && (
-                      <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                        <div className="text-center"><div className="text-4xl mb-4">✨</div><h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Select Gender</h4></div>
-                        <div className="grid grid-cols-2 gap-4">
-                          {['Male', 'Female'].map(g => (
-                            <button key={g} onClick={() => { setUserGender(g); setSetupStep(4); playTapSound(); }} className={cn("p-5 rounded-2xl border-2 font-black text-[11px] uppercase tracking-widest transition-all", userGender === g ? "border-primary bg-primary/5 text-primary" : "border-slate-100 text-slate-400")}>{g === 'Male' ? '👦 Male' : '👧 Female'}</button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Gender</label>
+                    <div className="grid grid-cols-2 gap-3">
+                       {['Male', 'Female'].map(g => (
+                         <button key={g} onClick={() => { setUserGender(g); playTapSound(); }} className={cn("py-4 rounded-2xl font-black text-[10px] uppercase border-2 transition-all", userGender === g ? "border-primary bg-primary/5 text-primary" : "border-slate-50 text-slate-400")}>{g}</button>
+                       ))}
+                    </div>
+                  </div>
 
-                    {setupStep === 4 && (
-                      <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                        <div className="text-center"><div className="text-4xl mb-4">🏫</div><h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Class Group</h4></div>
-                        <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
-                           {CLASSES_LIST.map(cls => (
-                             <button 
-                               key={cls} 
-                               onClick={() => { 
-                                 const next = userClasses.includes(cls) ? userClasses.filter(c => c !== cls) : [...userClasses, cls];
-                                 setUserClasses(next);
-                                 playTapSound();
-                               }}
-                               className={cn("p-3 rounded-xl border-2 text-[9px] font-black uppercase tracking-tight transition-all", userClasses.includes(cls) ? "border-emerald-500 bg-emerald-50 text-emerald-600" : "border-slate-100 text-slate-400")}
-                             >
-                               {cls}
-                             </button>
-                           ))}
-                        </div>
-                        <button onClick={() => { if(userClasses.length > 0) setSetupStep(5); playTapSound(); }} className="w-full bg-slate-900 text-white p-5 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">Next</button>
-                      </motion.div>
-                    )}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Target Classes</label>
+                    <div className="flex flex-wrap gap-1.5">
+                       {CLASSES_LIST.map(cls => (
+                         <button key={cls} onClick={() => { const next = userClasses.includes(cls) ? userClasses.filter(c => c !== cls) : [...userClasses, cls]; setUserClasses(next); playTapSound(); }} className={cn("px-3 py-1.5 rounded-xl border-2 text-[8px] font-black uppercase transition-all", userClasses.includes(cls) ? "border-emerald-500 bg-emerald-50 text-emerald-600" : "border-slate-50 text-slate-400")}>{cls}</button>
+                       ))}
+                    </div>
+                  </div>
 
-                    {setupStep === 5 && (
-                      <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                        <div className="text-center"><div className="text-4xl mb-4">📍</div><h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Select City</h4></div>
-                        <select 
-                          value={userCity} 
-                          onChange={e => { setUserCity(e.target.value); setSetupStep(6); playTapSound(); }}
-                          className="w-full bg-slate-50 p-5 rounded-2xl text-sm font-bold outline-none border-2 border-slate-100 focus:border-primary appearance-none text-center"
-                        >
-                          <option value="">Select City</option>
-                          {CITIES_LIST.sort().map(c => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                      </motion.div>
-                    )}
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">City</label>
+                    <select value={userCity} onChange={e => { setUserCity(e.target.value); playTapSound(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-xs font-bold border-2 border-slate-50 focus:border-primary outline-none transition-all appearance-none">
+                      {CITIES_LIST.sort().map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
 
-                    {setupStep === 6 && (
-                      <motion.div key="step6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6 text-center">
-                        <div className="text-5xl mb-4">🔔</div>
-                        <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Notifications</h4>
-                        <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Get instant alerts for new {editUserType === 'parent' ? 'tutors' : 'jobs'}</p>
-                        <div className="bg-slate-50 p-6 rounded-3xl border-2 border-slate-100 flex items-center justify-between">
-                           <span className="text-[10px] font-black uppercase text-slate-700 tracking-widest">Allow Access</span>
-                           <div className="w-12 h-6 bg-emerald-500 rounded-full relative cursor-pointer" onClick={() => { if ('Notification' in window) Notification.requestPermission(); playTapSound(); }}>
-                              <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
-                           </div>
-                        </div>
-                        <button 
-                          onClick={() => {
-                            localStorage.setItem('userName', userName || '');
-                            localStorage.setItem('userType', editUserType || 'parent');
-                            localStorage.setItem('userCity', userCity);
-                            localStorage.setItem('userGender', userGender || '');
-                            localStorage.setItem('userClasses', JSON.stringify(userClasses));
-                            setUserType(editUserType);
-                            setShowProfileSetup(false);
-                            playTapSound();
-                          }} 
-                          className="w-full bg-primary text-white p-5 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all"
-                        >
-                          Submit Profile
-                        </button>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  <div className="pt-4">
+                    <button 
+                      onClick={() => {
+                        localStorage.setItem('userName', userName || '');
+                        localStorage.setItem('userType', editUserType || 'parent');
+                        localStorage.setItem('userCity', userCity);
+                        localStorage.setItem('userGender', userGender || '');
+                        localStorage.setItem('userClasses', JSON.stringify(userClasses));
+                        setUserType(editUserType);
+                        setShowProfileSetup(false);
+                        playTapSound();
+                      }} 
+                      className="w-full bg-slate-900 text-white p-5 rounded-[24px] font-black text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all"
+                    >
+                      Save Profile
+                    </button>
+                  </div>
                 </div>
               </div>
             </motion.div>
