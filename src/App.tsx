@@ -755,8 +755,8 @@ export default function App() {
                 
                 <div className="space-y-4">
                   <div className="p-6 bg-slate-50 rounded-[32px] border border-slate-100">
-                    <h3 className="text-sm font-black text-slate-900 uppercase mb-2">Registration Fee</h3>
-                    <p className="text-xs text-slate-500 font-medium leading-relaxed mb-6">Complete your registration to unlock premium features and direct connections.</p>
+                    <h3 className="text-sm font-black text-slate-900 uppercase mb-2">Pay your Fee</h3>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed mb-6">Complete your payment to unlock premium features and direct connections.</p>
                     <a 
                       href="https://zohosecurepay.in/checkout/i9db4wt2-verz1l6gn6ogo/Make-a-secure-payment-now" 
                       target="_blank" 

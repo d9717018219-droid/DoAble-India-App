@@ -259,9 +259,6 @@ const AlertsView: React.FC<AlertsViewProps> = ({
                         </select>
                       </div>
                     </div>
-                    <div className="pt-4 border-t border-slate-100">
-                      <a href="https://zohosecurepay.in/checkout/i9db4wt2-verz1l6gn6ogo/Make-a-secure-payment-now" target="_blank" rel="noreferrer" className="w-full bg-[#059669] text-white p-5 rounded-2xl flex items-center justify-between group active:scale-95 transition-all shadow-lg"><span className="text-[11px] font-black uppercase tracking-widest">Registration Fee / Payment</span><CreditCard size={18} strokeWidth={3} /></a>
-                    </div>
                     <div className="text-center">
                       <button onClick={() => { if (isAdminUser && onAdminClick) onAdminClick(); else if (handleSignIn) handleSignIn(); }} className="text-[9px] font-black text-slate-300 uppercase tracking-widest hover:text-slate-400 transition-colors">System Management</button>
                     </div>
