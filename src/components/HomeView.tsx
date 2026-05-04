@@ -14,8 +14,8 @@ import {
   Star,
   ChevronRight
 } from 'lucide-react';
-import { JobLead, UserType } from '../types';
-import { cn } from '../utils';
+import { JobLead, TutorProfile, UserType } from '../types';
+import { cn, formatCurrency } from '../utils';
 
 interface HomeViewProps {
   userName: string | null;
@@ -24,6 +24,7 @@ interface HomeViewProps {
   activeLeadsCount: number;
   activeTutorsCount: number;
   featuredJobs: JobLead[];
+  featuredTutors: TutorProfile[];
   playTapSound: () => void;
   setFormType: (type: 'parent' | 'teacher') => void;
   setShowFormModal: (show: boolean) => void;
@@ -31,6 +32,7 @@ interface HomeViewProps {
   getDynamicGreeting: () => string;
   setShowFilterDrawer: (show: boolean) => void;
   onJobClick: (job: JobLead) => void;
+  onTutorClick: (tutor: TutorProfile) => void;
 }
 
 export default function HomeView({
@@ -44,7 +46,9 @@ export default function HomeView({
   setShowFilterDrawer,
   getDynamicGreeting,
   featuredJobs,
-  onJobClick
+  featuredTutors,
+  onJobClick,
+  onTutorClick
 }: HomeViewProps) {
   return (
     <div className="flex flex-col gap-6 pb-32 bg-[#FAFBFF] font-sans">
@@ -186,49 +190,106 @@ export default function HomeView({
         </div>
       </section>
 
-      {/* 5. Featured Opportunities Section */}
-      <section className="px-5 space-y-4 pb-4">
+      {/* 5. Latest Jobs Section */}
+      <section className="px-5 space-y-4">
         <div className="flex justify-between items-center">
-          <h3 className="text-[17px] font-bold text-[#0F172A]">Featured Opportunities</h3>
+          <h3 className="text-[17px] font-bold text-[#0F172A]">Latest Jobs</h3>
           <button onClick={() => setActiveTab('jobs')} className="text-[14px] font-semibold text-[#2563EB]">
             View all
           </button>
         </div>
         
-        {/* Custom Job Card perfectly matching the image */}
-        <div className="bg-white rounded-[24px] p-4 shadow-sm border border-slate-100 flex items-center gap-4">
-          {/* Left Avatar */}
-          <div className="w-[60px] h-[60px] bg-[#E0E7FF] rounded-2xl flex-shrink-0 flex items-center justify-center overflow-hidden">
-             <img src="https://img.freepik.com/free-vector/woman-avatar-profile-round-icon_24640-14042.jpg" alt="Avatar" className="w-[90%] h-[90%] object-cover rounded-xl" />
-          </div>
-          
-          {/* Right Content */}
-          <div className="flex-1 space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-[#10B981] text-[11px] font-semibold">Teaching Job</span>
-              <span className="bg-[#D1FAE5] text-[#10B981] px-2 py-0.5 rounded text-[10px] font-bold">New</span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-[15px] font-bold text-[#0F172A] leading-tight">Mathematics Teacher</h4>
-                <p className="text-[#64748B] text-[12px] mt-0.5">8th - 10th Grade</p>
-              </div>
-              <ChevronRight size={18} className="text-slate-400" />
-            </div>
-            
-            <div className="flex items-center gap-3 pt-1.5">
-              <div className="flex items-center gap-1">
-                 <MapPin size={12} className="text-slate-400" />
-                 <span className="text-slate-500 text-[10px]">Raj Nagar Extension, Ghaziabad</span>
-              </div>
-              <div className="w-[1px] h-3 bg-slate-300" />
-              <div className="flex items-center gap-1">
-                 <span className="text-[#F97316] text-[12px] font-bold">₹</span>
-                 <span className="text-slate-500 text-[10px]">₹15,000 - ₹25,000 / Month</span>
-              </div>
-            </div>
-          </div>
+        <div className="space-y-3">
+          {featuredJobs.length > 0 ? (
+            featuredJobs.map((job, idx) => (
+              <motion.div 
+                key={job['Order ID'] || idx}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                onClick={() => onJobClick(job)}
+                className="bg-white rounded-[24px] p-4 shadow-sm border border-slate-100 flex items-center gap-4 active:scale-95 transition-all cursor-pointer group"
+              >
+                {/* Left Avatar/Emoji */}
+                <div className="w-[54px] h-[54px] bg-slate-50 rounded-2xl flex-shrink-0 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                   {job.Gender?.toLowerCase().includes('female') ? '👩‍🏫' : '👨‍🏫'}
+                </div>
+                
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="text-[#10B981] text-[10px] font-bold uppercase tracking-wider">ID: {job['Order ID']}</span>
+                    <ChevronRight size={14} className="text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                  </div>
+                  <h4 className="text-[14px] font-[800] text-[#0F172A] leading-tight truncate">
+                    {job.subjects?.split(',')[0] || 'Tutor Required'}
+                  </h4>
+                  <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-1">
+                      <MapPin size={10} className="text-slate-400" />
+                      <span className="text-slate-500 text-[10px] font-medium truncate max-w-[100px]">{job.Locations?.split(',')[0] || job.City}</span>
+                    </div>
+                    <div className="w-1 h-1 rounded-full bg-slate-300" />
+                    <span className="text-[#F97316] text-[10px] font-bold whitespace-nowrap">₹{formatCurrency(job.Fee || '0')}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          ) : (
+             <div className="py-10 text-center text-slate-400 text-sm italic bg-white rounded-3xl border border-dashed border-slate-200">
+               No latest jobs available right now.
+             </div>
+          )}
+        </div>
+      </section>
+
+      {/* 6. Premium Tutors Section */}
+      <section className="px-5 space-y-4 pb-10">
+        <div className="flex justify-between items-center">
+          <h3 className="text-[17px] font-bold text-[#0F172A]">Premium Tutors</h3>
+          <button onClick={() => setActiveTab('tutors')} className="text-[14px] font-semibold text-[#2563EB]">
+            View all
+          </button>
+        </div>
+        
+        <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-5 px-5">
+          {featuredTutors.length > 0 ? (
+            featuredTutors.map((tutor, idx) => (
+              <motion.div 
+                key={tutor['Tutor ID'] || idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                onClick={() => onTutorClick(tutor)}
+                className="bg-white rounded-[28px] p-5 shadow-sm border border-slate-100 flex flex-col items-center gap-3 active:scale-95 transition-all cursor-pointer min-w-[160px] text-center"
+              >
+                <div className="w-16 h-16 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl flex items-center justify-center text-3xl shadow-inner">
+                   {tutor.Gender?.toLowerCase() === 'female' ? '👩‍🏫' : '👨‍🏫'}
+                </div>
+                <div className="space-y-0.5">
+                  <h4 className="text-[13px] font-[800] text-[#0F172A] leading-tight truncate w-32">
+                    {tutor['Full Name']?.split(' ')[0] || 'Tutor'}
+                  </h4>
+                  <p className="text-[10px] font-semibold text-[#10B981] uppercase tracking-wider">
+                    {tutor.Qualification?.split(',')[0] || 'Expert'}
+                  </p>
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <div className="flex items-center gap-1 text-[#64748B] text-[9px] font-medium">
+                    <MapPin size={10} className="text-slate-400" />
+                    <span className="truncate w-24">{tutor['Preferred City'] || 'India'}</span>
+                  </div>
+                  <div className="px-2.5 py-1 bg-[#F1F5F9] rounded-full text-[9px] font-bold text-[#0F172A]">
+                    {tutor['Teaching Experience'] || '1-3 Years'}
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          ) : (
+             <div className="w-full py-10 text-center text-slate-400 text-sm italic bg-white rounded-3xl border border-dashed border-slate-200">
+               No premium tutors available.
+             </div>
+          )}
         </div>
       </section>
     </div>

@@ -74,6 +74,10 @@ export default function App() {
     return firestoreLeads.filter(l => l.Status === 'Active').slice(0, 3);
   }, [firestoreLeads]);
 
+  const featuredTutors = useMemo(() => {
+    return tutors.slice(0, 5);
+  }, [tutors]);
+
   const [userCity, setUserCity] = useState<string>(localStorage.getItem('userCity') || 'Ghaziabad');
   const [userName, setUserName] = useState<string | null>(localStorage.getItem('userName'));
   const [userGender, setUserGender] = useState<string | null>(localStorage.getItem('userGender'));
@@ -708,6 +712,7 @@ export default function App() {
     activeLeadsCount={firestoreLeads.filter(l => l.Status === 'Active').length}
     activeTutorsCount={tutors.length}
     featuredJobs={featuredJobs}
+    featuredTutors={featuredTutors}
     playTapSound={playTapSound}
     setFormType={setFormType}
     setShowFormModal={setShowFormModal}
@@ -715,6 +720,7 @@ export default function App() {
     setShowFilterDrawer={setShowFilterDrawer}
     getDynamicGreeting={getDynamicGreeting} // 🔥 FIX
     onJobClick={setSelectedJob}
+    onTutorClick={setSelectedTutor}
   />
 )}
         {activeTab === 'alerts' && (
