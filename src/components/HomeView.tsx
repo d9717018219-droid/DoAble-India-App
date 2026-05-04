@@ -77,7 +77,7 @@ export default function HomeView({
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           className="relative w-full rounded-[24px] overflow-hidden p-4 shadow-md"
-          style={{ background: `linear-gradient(135deg, #0F6B4C 0%, #1A936F 100%)` }}
+          style={{ background: '#575187' }}
         >
           {/* Subtle Background Pattern */}
           <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay"
