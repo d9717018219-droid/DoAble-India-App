@@ -166,20 +166,22 @@ export default function HomeView({
 
       {/* 4. Our Impact Section */}
       <section className="px-5">
-        <div className="bg-[#F8FAFC] border border-slate-100 rounded-[20px] p-4 space-y-4">
-          <div className="space-y-0.5">
-            <h3 className="text-[16px] font-bold text-[#0F172A] tracking-tight">Our Impact</h3>
-            <p className="text-[#64748B] text-[11px] font-[500] tracking-tight">Empowering abilities. Enabling inclusive India.</p>
+        <div className="bg-[#F8FAFC] border border-slate-100 rounded-[20px] p-3 space-y-3">
+          <div className="space-y-0.5 px-1">
+            <h3 className="text-[15px] font-bold text-[#0F172A] tracking-tight">Our Impact</h3>
+            <p className="text-[#64748B] text-[10px] font-[500] tracking-tight">Empowering abilities. Enabling inclusive India.</p>
           </div>
           
-          <div className="flex items-center justify-between">
-            <ImpactStat icon={<Users size={16} className="text-[#10B981]" fill="currentColor" />} value="25K+" label="Students" label2="Impacted" />
-            <div className="w-[1px] h-6 bg-slate-200" />
-            <ImpactStat icon={<User size={16} className="text-[#8B5CF6]" fill="currentColor" />} value="10K+" label="Expert" label2="Educators" />
-            <div className="w-[1px] h-6 bg-slate-200" />
-            <ImpactStat icon={<School size={16} className="text-[#F97316]" fill="currentColor" />} value="500+" label="Partner" label2="Schools" />
-            <div className="w-[1px] h-6 bg-slate-200" />
-            <ImpactStat icon={<Star size={16} className="text-[#3B82F6]" />} value="4.8" label="Average" label2="Rating" />
+          <div className="flex items-center justify-between gap-1">
+            <ImpactStat icon={<Users size={14} className="text-[#10B981]" fill="currentColor" />} value="25K+" label="Students" label2="Impacted" />
+            <div className="w-[1px] h-5 bg-slate-200" />
+            <ImpactStat icon={<User size={14} className="text-[#8B5CF6]" fill="currentColor" />} value="10K+" label="Expert" label2="Educators" />
+            <div className="w-[1px] h-5 bg-slate-200" />
+            <ImpactStat icon={<School size={14} className="text-[#F97316]" fill="currentColor" />} value="500+" label="Partner" label2="Schools" />
+            <div className="w-[1px] h-5 bg-slate-200" />
+            <ImpactStat icon={<MapPin size={14} className="text-[#EC4899]" fill="currentColor" />} value="113+" label="Cities" label2="In India" />
+            <div className="w-[1px] h-5 bg-slate-200" />
+            <ImpactStat icon={<Star size={14} className="text-[#3B82F6]" fill="currentColor" />} value="4.8" label="Average" label2="Rating" />
           </div>
         </div>
       </section>
@@ -257,14 +259,14 @@ function ExploreCard({ icon, label, sub, onClick }: {
 
 function ImpactStat({ icon, value, label, label2 }: { icon: React.ReactNode; value: string; label: string; label2: string }) {
   return (
-    <div className="flex flex-col items-center flex-1 text-center">
-      <div className="flex items-center gap-1 mb-1">
+    <div className="flex flex-col items-center flex-1 text-center min-w-0">
+      <div className="flex items-center gap-1 mb-0.5">
         {icon}
-        <span className="text-[15px] font-[800] text-[#0F172A] tracking-tighter">{value}</span>
+        <span className="text-[13px] font-[800] text-[#0F172A] tracking-tighter whitespace-nowrap">{value}</span>
       </div>
-      <div className="flex flex-col leading-tight">
-         <span className="text-[9px] font-[700] text-[#64748B] tracking-tight opacity-70">{label}</span>
-         <span className="text-[9px] font-[700] text-[#64748B] tracking-tight opacity-70">{label2}</span>
+      <div className="flex flex-col leading-[1.1]">
+         <span className="text-[7.5px] font-[700] text-[#64748B] tracking-tight opacity-70 uppercase truncate">{label}</span>
+         <span className="text-[7.5px] font-[700] text-[#64748B] tracking-tight opacity-70 uppercase truncate">{label2}</span>
       </div>
     </div>
   );
