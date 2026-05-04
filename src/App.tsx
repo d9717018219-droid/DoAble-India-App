@@ -639,14 +639,18 @@ export default function App() {
           </div>
         )}
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}        {(activeTab === 'jobs' || activeTab === 'tutors') && (
-          <div className="flex flex-col space-y-4 px-5 pb-20">
+          <div className="flex flex-col space-y-3 px-5 pb-20">
               {/* Jobs Portal Header */}
-              <div className="pt-6 pb-4 space-y-4">
+              <div className="pt-4 pb-2 space-y-3">
                 <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <h2 className="text-[28px] font-[800] text-[#0F172A] tracking-tight">Jobs Portal</h2>
-                    <p className="text-[#64748B] text-[13px] font-[500] leading-tight max-w-[250px]">
-                      Find teaching opportunities that match your skills and passion.
+                  <div className="space-y-0.5">
+                    <h2 className="text-[22px] font-[800] text-[#0F172A] tracking-tight">
+                      {activeTab === 'jobs' ? 'Jobs Portal' : 'Tutors Portal'}
+                    </h2>
+                    <p className="text-[#64748B] text-[11px] font-[500] leading-tight max-w-[250px]">
+                      {activeTab === 'jobs' 
+                        ? 'Find teaching opportunities that match your skills and passion.'
+                        : 'Discover elite educators ready to help you achieve your goals.'}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -662,36 +666,36 @@ export default function App() {
 
                 {/* Search Bar */}
                 <div className="flex gap-2">
-                  <div className="flex-1 bg-white border border-slate-100 rounded-[20px] px-4 py-3 flex items-center gap-2 shadow-sm focus-within:border-primary transition-colors">
-                    <Search size={18} className="text-slate-400" />
+                  <div className="flex-1 bg-white border border-slate-100 rounded-[20px] px-3.5 py-2.5 flex items-center gap-2 shadow-sm focus-within:border-primary transition-colors">
+                    <Search size={16} className="text-slate-400" />
                     <input 
                       type="text" 
                       placeholder="Search by job title, subject or location..." 
-                      className="bg-transparent border-none outline-none text-[13px] w-full text-slate-700 font-medium"
+                      className="bg-transparent border-none outline-none text-[12px] w-full text-slate-700 font-medium"
                     />
                   </div>
-                  <button onClick={() => setShowAdvancedFilterDrawer(true)} className="bg-white border border-slate-100 rounded-[20px] px-4 py-3 flex items-center gap-2 shadow-sm font-bold text-[13px] text-slate-700 active:scale-95 transition-all">
-                    <Filter size={18} className="text-slate-400" />
+                  <button onClick={() => setShowAdvancedFilterDrawer(true)} className="bg-white border border-slate-100 rounded-[20px] px-3.5 py-2.5 flex items-center gap-2 shadow-sm font-bold text-[12px] text-slate-700 active:scale-95 transition-all">
+                    <Filter size={16} className="text-slate-400" />
                     Filters
                   </button>
                 </div>
 
                 {/* Filter Chips */}
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-                  <FilterChip label="All Jobs" icon={<Briefcase size={14} />} active />
-                  <FilterChip label="Teaching" icon={<GraduationCap size={14} />} />
-                  <FilterChip label="Subject" icon={<BookText size={14} />} />
-                  <FilterChip label="Location" icon={<MapPin size={14} />} />
-                  <FilterChip label="Salary" icon={<Zap size={14} />} />
+                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+                  <FilterChip label="All Jobs" icon={<Briefcase size={13} />} active />
+                  <FilterChip label="Teaching" icon={<GraduationCap size={13} />} />
+                  <FilterChip label="Subject" icon={<BookText size={13} />} />
+                  <FilterChip label="Location" icon={<MapPin size={13} />} />
+                  <FilterChip label="Salary" icon={<Zap size={13} />} />
                 </div>
 
                 {/* Status Row */}
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-[#10B981] text-[14px] font-[700] tracking-tight">
-                    {filteredJobs.length} Jobs found
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-[#10B981] text-[13px] font-[700] tracking-tight">
+                    {filteredJobs.length} {activeTab === 'jobs' ? 'Jobs' : 'Tutors'} found
                   </span>
-                  <div className="flex items-center gap-1 text-slate-500 text-[13px] font-[600]">
-                    Sort by: <span className="text-[#0F172A] font-[800] flex items-center gap-0.5">Newest <ChevronDown size={14} /></span>
+                  <div className="flex items-center gap-1 text-slate-500 text-[12px] font-[600]">
+                    Sort by: <span className="text-[#0F172A] font-[800] flex items-center gap-0.5">Newest <ChevronDown size={12} /></span>
                   </div>
                 </div>
               </div>
@@ -752,7 +756,7 @@ export default function App() {
 function FilterChip({ label, icon, active = false }: { label: string; icon: React.ReactNode; active?: boolean }) {
   return (
     <button className={cn(
-      "flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-bold border transition-all whitespace-nowrap active:scale-95",
+      "flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold border transition-all whitespace-nowrap active:scale-95",
       active 
         ? "bg-[#D1FAE5] text-[#10B981] border-[#10B981]" 
         : "bg-white text-slate-600 border-slate-100 hover:border-slate-200"

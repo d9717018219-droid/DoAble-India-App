@@ -192,8 +192,8 @@ const AlertsView: React.FC<AlertsViewProps> = ({
   return (
     <div className="space-y-4 pb-24">
       <audio ref={domAudioRef} onEnded={() => setIsPlaying(null)} className="hidden" preload="auto" crossOrigin="anonymous" />
-      <header className="px-6 py-6 flex items-center justify-between">
-          <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">{activeTab === 'support' ? 'Support' : activeTab === 'setup' ? 'Settings' : 'Broadcasts'}</h2>
+      <header className="px-6 py-4 flex items-center justify-between">
+          <h2 className="text-[22px] font-black text-slate-900 tracking-tighter uppercase">{activeTab === 'support' ? 'Support' : activeTab === 'setup' ? 'Settings' : 'Broadcasts'}</h2>
           <div className="bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20"><span className="text-[9px] font-black text-emerald-600 uppercase">Live</span></div>
       </header>
 

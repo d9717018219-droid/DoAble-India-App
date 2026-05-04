@@ -73,7 +73,7 @@ export default function HomeView({
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative w-full rounded-[24px] overflow-hidden p-5 shadow-md"
+          className="relative w-full rounded-[24px] overflow-hidden p-4 shadow-md"
           style={{ background: `linear-gradient(135deg, #0F6B4C 0%, #1A936F 100%)` }}
         >
           {/* Subtle Background Pattern */}
@@ -85,31 +85,31 @@ export default function HomeView({
           </div>
 
           <div className="relative z-10 max-w-[75%]">
-            <div className="space-y-0.5 mb-3">
-              <h2 className="text-[16px] font-[500] text-white/90 tracking-tight leading-tight">
+            <div className="space-y-0.5 mb-2.5">
+              <h2 className="text-[14px] font-[500] text-white/90 tracking-tight leading-tight">
                 Discovery Made
               </h2>
-              <h2 className="text-[24px] font-[800] text-[#FFD166] tracking-[-0.04em] leading-none">
+              <h2 className="text-[20px] font-[800] text-[#FFD166] tracking-[-0.04em] leading-none">
                 Simple & Live
               </h2>
             </div>
             
-            <p className="text-white/80 text-[10px] font-[500] mb-4 leading-snug tracking-tight">
+            <p className="text-white/80 text-[9px] font-[500] mb-3 leading-snug tracking-tight">
               Connect with elite educators and premium teaching opportunities instantly.
             </p>
             
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => { playTapSound(); setFormType('teacher'); setShowFormModal(true); }}
-                className="bg-[#FFD166] text-[#0F172A] px-3 py-2 rounded-full font-[800] text-[9px] flex items-center gap-1 active:scale-95 transition-all shadow-sm uppercase tracking-wide whitespace-nowrap"
+                className="bg-[#FFD166] text-[#0F172A] px-2.5 py-1.5 rounded-full font-[800] text-[8px] flex items-center gap-1 active:scale-95 transition-all shadow-sm uppercase tracking-wide whitespace-nowrap"
               >
-                <GraduationCap size={13} strokeWidth={2.5} /> Become a Tutor
+                <GraduationCap size={12} strokeWidth={2.5} /> Become a Tutor
               </button>
               <button 
                 onClick={() => { playTapSound(); setFormType('parent'); setShowFormModal(true); }}
-                className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-3 py-2 rounded-full font-[800] text-[9px] flex items-center gap-1 active:scale-95 transition-all uppercase tracking-wide whitespace-nowrap"
+                className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-2.5 py-1.5 rounded-full font-[800] text-[8px] flex items-center gap-1 active:scale-95 transition-all uppercase tracking-wide whitespace-nowrap"
               >
-                <Star size={13} strokeWidth={2.5} /> Free Trial
+                <Star size={12} strokeWidth={2.5} /> Free Trial
               </button>
             </div>
           </div>
