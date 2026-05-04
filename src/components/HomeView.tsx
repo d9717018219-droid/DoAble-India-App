@@ -149,7 +149,7 @@ export default function HomeView({
       {/* 3. Explore Opportunities Section */}
       <section className="px-5 space-y-2.5">
         <div className="flex justify-between items-center">
-          <h3 className="text-[15px] font-[700] text-[#0F172A] tracking-tight">Explore Opportunities</h3>
+          <h3 className="text-[17px] font-bold text-[#0F172A] tracking-tight">Explore Opportunities</h3>
           <button onClick={() => setActiveTab('jobs')} className="text-[12px] font-[600] text-[#2563EB] tracking-tight">
             View all
           </button>
@@ -168,7 +168,7 @@ export default function HomeView({
       <section className="px-5">
         <div className="bg-[#F8FAFC] border border-slate-100 rounded-[20px] p-4 space-y-4">
           <div className="space-y-0.5">
-            <h3 className="text-[14px] font-[700] text-[#0F172A] tracking-tight">Our Impact</h3>
+            <h3 className="text-[16px] font-bold text-[#0F172A] tracking-tight">Our Impact</h3>
             <p className="text-[#64748B] text-[11px] font-[500] tracking-tight">Empowering abilities. Enabling inclusive India.</p>
           </div>
           
@@ -249,7 +249,7 @@ function ExploreCard({ icon, label, sub, onClick }: {
       </div>
       <div className="space-y-0.5 w-full overflow-hidden">
         <span className="block text-[10px] font-[700] text-[#0F172A] truncate w-full tracking-tight">{label}</span>
-        <span className="block text-[8px] text-[#64748B] font-[600] leading-none truncate w-full tracking-tighter opacity-80 uppercase">{sub}</span>
+        <span className="block text-[8px] text-[#64748B] font-[600] leading-none truncate w-full tracking-tighter opacity-80">{sub}</span>
       </div>
     </button>
   );
@@ -263,8 +263,8 @@ function ImpactStat({ icon, value, label, label2 }: { icon: React.ReactNode; val
         <span className="text-[15px] font-[800] text-[#0F172A] tracking-tighter">{value}</span>
       </div>
       <div className="flex flex-col leading-tight">
-         <span className="text-[9px] font-[700] text-[#64748B] tracking-tight uppercase opacity-70">{label}</span>
-         <span className="text-[9px] font-[700] text-[#64748B] tracking-tight uppercase opacity-70">{label2}</span>
+         <span className="text-[9px] font-[700] text-[#64748B] tracking-tight opacity-70">{label}</span>
+         <span className="text-[9px] font-[700] text-[#64748B] tracking-tight opacity-70">{label2}</span>
       </div>
     </div>
   );
