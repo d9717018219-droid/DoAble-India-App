@@ -20,21 +20,32 @@ interface JobCardProps {
   job: JobLead;
 }
 
-const getSubjectStyles = (subject: string = '') => {
+const getSubjectStyles = (subject: string = '', classStr: string = '') => {
   const s = subject.toLowerCase();
-  if (s.includes('math')) return { bg: 'bg-[#FFE2E2]', icon: <Calculator className="text-[#FF6B6B]" size={32} /> };
-  if (s.includes('english')) return { bg: 'bg-[#E0E7FF]', icon: <BookText className="text-[#6366F1]" size={32} /> };
-  if (s.includes('science')) return { bg: 'bg-[#FEF3C7]', icon: <Beaker className="text-[#D97706]" size={32} /> };
-  if (s.includes('social') || s.includes('sst')) return { bg: 'bg-[#D1FAE5]', icon: <Globe className="text-[#10B981]" size={32} /> };
-  return { bg: 'bg-slate-100', icon: <GraduationCap className="text-slate-500" size={32} /> };
+  const c = classStr.toLowerCase();
+  
+  if (s.includes('math')) return { bg: 'bg-[#FFE2E2]', emoji: '🔢' };
+  if (s.includes('science') || s.includes('physics') || s.includes('chem') || s.includes('bio')) return { bg: 'bg-[#FEF3C7]', emoji: '🔬' };
+  if (s.includes('english') || s.includes('hindi') || s.includes('language') || s.includes('french')) return { bg: 'bg-[#E0E7FF]', emoji: '📚' };
+  if (s.includes('social') || s.includes('sst') || s.includes('history') || s.includes('geo')) return { bg: 'bg-[#D1FAE5]', emoji: '🌍' };
+  if (s.includes('comput') || s.includes('coding') || s.includes('it') || s.includes('python')) return { bg: 'bg-[#F1F5F9]', emoji: '💻' };
+  if (s.includes('music') || s.includes('guitar') || s.includes('piano') || s.includes('vocal')) return { bg: 'bg-[#FAE8FF]', emoji: '🎸' };
+  if (s.includes('art') || s.includes('paint') || s.includes('draw')) return { bg: 'bg-[#FFF7ED]', emoji: '🎨' };
+  if (s.includes('sport') || s.includes('chess') || s.includes('yoga') || s.includes('dance')) return { bg: 'bg-[#ECFDF5]', emoji: '⚽' };
+  
+  // Class based defaults if subject is generic
+  if (c.includes('nursery') || c.includes('lkg') || c.includes('ukg') || c.includes('kg')) return { bg: 'bg-[#FFF1F2]', emoji: '🖍️' };
+  if (c.includes('1') || c.includes('2') || c.includes('3') || c.includes('4') || c.includes('5')) return { bg: 'bg-[#F0F9FF]', emoji: '🍎' };
+  
+  return { bg: 'bg-slate-100', emoji: '🎓' };
 };
 
 export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const subjects = (job.subjects || 'General').split(/[;,]/)[0].trim();
-  const { bg, icon } = getSubjectStyles(subjects);
-  
   const classBoard = job['Class / Board'] || ((job.Class || '') + (job.Board ? ' (' + job.Board + ')' : '')) || 'General';
+  const { bg, emoji } = getSubjectStyles(subjects, classBoard);
+  
   const locationRaw = job.Locations || job.City || 'India';
   const location = locationRaw.toString().split(/[;,]/).map(l => l.trim().split('-')[0].trim())[0];
   const postedDate = formatPostedDate(job['Updated Time'] || job['Record Added']);
@@ -55,9 +66,9 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
       className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100 flex flex-col gap-4 active:scale-[0.98] transition-all cursor-pointer relative group overflow-hidden"
     >
       <div className="flex items-start gap-4">
-        {/* Left Icon */}
-        <div className={cn("w-[70px] h-[70px] rounded-[20px] flex-shrink-0 flex items-center justify-center transition-transform group-hover:scale-105", bg)}>
-          {icon}
+        {/* Left Icon Box with Emoji */}
+        <div className={cn("w-[70px] h-[70px] rounded-[22px] flex-shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm text-[32px]", bg)}>
+          {emoji}
         </div>
 
         {/* Middle Content */}

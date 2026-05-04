@@ -644,10 +644,10 @@ export default function App() {
               <div className="pt-4 pb-2 space-y-3">
                 <div className="flex justify-between items-start">
                   <div className="space-y-0.5">
-                    <h2 className="text-[16px] font-[800] text-[#0F172A] tracking-tight uppercase">
+                    <h2 className="text-[28px] font-[800] text-[#0F172A] tracking-tight">
                       {activeTab === 'jobs' ? 'Jobs Portal' : 'Tutors Portal'}
                     </h2>
-                    <p className="text-[#64748B] text-[10px] font-[500] leading-tight max-w-[250px]">
+                    <p className="text-[#64748B] text-[11px] font-[500] leading-tight max-w-[250px]">
                       {activeTab === 'jobs' 
                         ? 'Find teaching opportunities that match your skills and passion.'
                         : 'Discover elite educators ready to help you achieve your goals.'}
@@ -690,6 +690,27 @@ export default function App() {
                   <>{filteredTutors.slice(0, visibleTutorsCount).map((tutor) => (<TutorCard key={(tutor as any).id || (tutor as any)['Tutor ID']} tutor={tutor} />))}{visibleTutorsCount < filteredTutors.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleTutorsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Tutors</button></div>)}</>
                 )}
               </div>
+
+              {/* Don't find the right job section */}
+              {!loading && (
+                <div className="mt-8 bg-white border border-slate-100 rounded-[32px] p-8 text-center space-y-5 shadow-sm">
+                  <div className="w-16 h-16 bg-[#F8FAFC] rounded-[22px] flex items-center justify-center mx-auto">
+                    <Search size={32} className="text-[#2563EB]" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <h3 className="text-[20px] font-[800] text-[#0F172A] tracking-tight">Don't find the right {activeTab === 'jobs' ? 'job' : 'tutor'}?</h3>
+                    <p className="text-[#64748B] text-[13px] font-[500] max-w-[280px] mx-auto leading-relaxed">
+                      Tell us what you're looking for and we'll notify you as soon as we find a perfect match.
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => { playTapSound(); setFormType(activeTab === 'jobs' ? 'teacher' : 'parent'); setShowFormModal(true); }}
+                    className="bg-[#0F172A] text-white px-8 py-4 rounded-2xl font-[800] text-[12px] uppercase tracking-wider shadow-lg active:scale-95 transition-all w-full"
+                  >
+                    Share Your Requirement
+                  </button>
+                </div>
+              )}
           </div>
         )}
       </main>
