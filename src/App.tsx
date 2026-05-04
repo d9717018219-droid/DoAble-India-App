@@ -282,12 +282,20 @@ export default function App() {
         if (!selectedLocalities.some(loc => jLocs.includes(loc.toLowerCase()))) return false;
       }
       
-      // Preference Filters
-      if (userGender && userGender !== 'any' && (l.Gender || '').toLowerCase() !== 'any' && (l.Gender || '').toLowerCase() !== userGender.toLowerCase()) return false;
+      // Precision Gender Filter for Jobs
+      const jobGender = (l.Gender || '').toLowerCase();
+      const filterGender = (activeTab === 'jobs' ? tutorFilterGender : userGender || 'any').toLowerCase();
+      if (filterGender !== 'all' && filterGender !== 'any' && jobGender !== 'any' && jobGender !== filterGender) return false;
       
       if (userClasses.length > 0) {
-        const jClass = (l.Class || l.subjects || '').toLowerCase();
-        if (!userClasses.some(uc => jClass.includes(uc.toLowerCase()))) return false;
+        const jClass = (l.Class || l.subjects || l['Class / Board'] || '').toLowerCase();
+        const matches = userClasses.some(uc => {
+          if (jClass.includes(uc.toLowerCase())) return true;
+          const mapped = CLASS_GROUP_MAPPING[uc];
+          if (mapped && mapped.some(m => jClass.includes(m.toLowerCase()))) return true;
+          return false;
+        });
+        if (!matches) return false;
       }
 
       if (searchQuery) {
@@ -299,7 +307,7 @@ export default function App() {
       }
       return true;
     });
-  }, [allLeads, cityFilter, searchQuery, selectedLocalities, userGender, userClasses]);
+  }, [allLeads, cityFilter, searchQuery, selectedLocalities, userGender, userClasses, tutorFilterGender, activeTab]);
 
   const filteredTutors = useMemo(() => {
     return tutors.filter(t => {
@@ -311,7 +319,7 @@ export default function App() {
       if (tutorFilterName && !(t['Full Name'] || (t as any).fullName || '').toString().toLowerCase().includes(tutorFilterName.toLowerCase())) return false;
       
       const tGender = (t.Gender || (t as any).gender || '').toString().toLowerCase();
-      if (tutorFilterGender !== 'all' && tGender !== tutorFilterGender.toLowerCase()) return false;
+      if (tutorFilterGender !== 'all' && tutorFilterGender !== 'any' && tGender !== tutorFilterGender.toLowerCase()) return false;
       
       const tVehicle = (t['Own Vehicle'] || (t as any).ownVehicle || '').toString().toLowerCase();
       if (tutorFilterVehicle !== 'all' && tVehicle !== tutorFilterVehicle.toLowerCase()) return false;
@@ -336,7 +344,13 @@ export default function App() {
 
       if (userClasses.length > 0) {
         const tClass = (t['Preferred Class Group'] || (t as any).classGroup || '').toString().toLowerCase();
-        if (!userClasses.some(uc => tClass.includes(uc.toLowerCase()))) return false;
+        const matches = userClasses.some(uc => {
+          if (tClass.includes(uc.toLowerCase())) return true;
+          const mapped = CLASS_GROUP_MAPPING[uc];
+          if (mapped && mapped.some(m => tClass.includes(m.toLowerCase()))) return true;
+          return false;
+        });
+        if (!matches) return false;
       }
 
       if (searchQuery) {
@@ -524,12 +538,57 @@ export default function App() {
                   </div>
                 )}
 
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender</label>
+                    <select value={tutorFilterGender} onChange={e => { setTutorFilterGender(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100">
+                      <option value="all">Any Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+                  {activeTab === 'tutors' && (
+                    <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Own Vehicle</label><select value={tutorFilterVehicle} onChange={e => { setTutorFilterVehicle(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+                  )}
+                  {activeTab === 'jobs' && (
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Experience Required</label>
+                      <select value={tutorFilterExperience} onChange={e => { setTutorFilterExperience(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100">
+                        <option value="all">Any Experience</option>
+                        <option value="0">Fresher</option>
+                        <option value="1">1-2 Yrs</option>
+                        <option value="3">3-5 Yrs</option>
+                        <option value="5">5+ Yrs</option>
+                      </select>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Target Class Group</label>
+                  <div className="flex flex-wrap gap-2">
+                    {CLASSES_LIST.map(cls => {
+                      const isSelected = userClasses.includes(cls);
+                      return (
+                        <button
+                          key={cls}
+                          onClick={() => {
+                            const nextClasses = isSelected ? userClasses.filter(x => x !== cls) : [...userClasses, cls];
+                            setUserClasses(nextClasses);
+                            localStorage.setItem('userClasses', JSON.stringify(nextClasses));
+                            resetCounts();
+                          }}
+                          className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-primary text-white border-primary" : "bg-white text-slate-500 border-slate-100")}
+                        >
+                          {cls}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 {activeTab === 'tutors' && (
                   <>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender</label><select value={tutorFilterGender} onChange={e => { setTutorFilterGender(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any</option><option value="Male">Male</option><option value="Female">Female</option></select></div>
-                      <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Own Vehicle</label><select value={tutorFilterVehicle} onChange={e => { setTutorFilterVehicle(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any</option><option value="yes">Yes</option><option value="no">No</option></select></div>
-                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Experience</label><select value={tutorFilterExperience} onChange={e => { setTutorFilterExperience(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any Exp</option><option value="0">Fresher</option><option value="1">1-2 Yrs</option><option value="3">3-5 Yrs</option><option value="5">5+ Yrs</option></select></div>
                       <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Qualification</label><select value={tutorFilterQualification} onChange={e => { setTutorFilterQualification(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any</option><option value="graduate">Graduate</option><option value="postgraduate">Post-Graduate</option></select></div>
@@ -537,29 +596,6 @@ export default function App() {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Shift</label><select value={tutorFilterTime} onChange={e => { setTutorFilterTime(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any Time</option><option value="Morning">Morning</option><option value="Afternoon">Afternoon</option><option value="Evening">Evening</option></select></div>
                       <div className="space-y-2"><label className="text-[10px] font-black uppercase text-slate-400 ml-2">Status</label><select value={tutorFilterStatus} onChange={e => { setTutorFilterStatus(e.target.value); resetCounts(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold outline-none border border-slate-100"><option value="all">Any Status</option><option value="active">✅ Active</option><option value="suspended">🚫 Suspended</option></select></div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Target Class Group</label>
-                      <div className="flex flex-wrap gap-2">
-                        {CLASSES_LIST.map(cls => {
-                          const isSelected = userClasses.includes(cls);
-                          return (
-                            <button
-                              key={cls}
-                              onClick={() => {
-                                const nextClasses = isSelected ? userClasses.filter(x => x !== cls) : [...userClasses, cls];
-                                setUserClasses(nextClasses);
-                                localStorage.setItem('userClasses', JSON.stringify(nextClasses));
-                                resetCounts();
-                              }}
-                              className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-primary text-white border-primary" : "bg-white text-slate-500 border-slate-100")}
-                            >
-                              {cls}
-                            </button>
-                          );
-                        })}
-                      </div>
                     </div>
 
                     {userClasses.length > 0 && (
@@ -699,7 +735,10 @@ export default function App() {
                 <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
                   <FilterChip label="Gender" icon={<LucideUser size={10} />} active={tutorFilterGender !== 'all'} onClick={() => setShowAdvancedFilterDrawer(true)} />
                   <FilterChip label="Class" icon={<GraduationCap size={10} />} active={userClasses.length > 0} onClick={() => setShowAdvancedFilterDrawer(true)} />
-                  <FilterChip label="Location" icon={<MapPin size={10} />} active={cityFilter !== 'all'} onClick={() => setShowFilterDrawer(true)} />
+                  <FilterChip label="City" icon={<HomeIcon size={10} />} active={cityFilter !== 'all'} onClick={() => setShowFilterDrawer(true)} />
+                  {cityFilter !== 'all' && (
+                    <FilterChip label="Localities" icon={<MapPin size={10} />} active={selectedLocalities.length > 0} onClick={() => setShowAdvancedFilterDrawer(true)} />
+                  )}
                 </div>
               </div>
 
