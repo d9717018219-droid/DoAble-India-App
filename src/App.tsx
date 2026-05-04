@@ -600,22 +600,22 @@ export default function App() {
       </header>
 
       <main className="container mx-auto p-0 sm:p-[10px] max-w-[1200px] pb-32">
-        {activeTab === 'home' && (
-          <HomeView 
-            userName={userName}
-            userType={userType}
-            userCity={userCity}
-            activeLeadsCount={firestoreLeads.filter(l => l.Status === 'Active').length}
-            activeTutorsCount={tutors.length}
-            featuredJobs={featuredJobs}
-            playTapSound={playTapSound}
-            setFormType={setFormType}
-            setShowFormModal={setShowFormModal}
-            setActiveTab={setActiveTab}
-            getDynamicGreeting={getDynamicGreeting}
-            setShowFilterDrawer={setShowFilterDrawer}
-          />
-        )}
+       {activeTab === 'home' && (
+  <HomeView 
+    userName={userName}
+    userType={userType}
+    userCity={userCity}
+    activeLeadsCount={firestoreLeads.filter(l => l.Status === 'Active').length}
+    activeTutorsCount={tutors.length}
+    featuredJobs={featuredJobs}
+    playTapSound={playTapSound}
+    setFormType={setFormType}
+    setShowFormModal={setShowFormModal}
+    setActiveTab={setActiveTab}
+    setShowFilterDrawer={setShowFilterDrawer}
+    getDynamicGreeting={getDynamicGreeting} // 🔥 FIX
+  />
+)}
         {activeTab === 'alerts' && (
           <AlertsView
             city={userCity || 'All'} userGender={userGender} userClasses={userClasses} userType={userType}
