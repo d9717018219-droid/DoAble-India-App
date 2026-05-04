@@ -47,19 +47,19 @@ export default function HomeView({
       
       {/* 1. Greeting Section */}
       <section className="px-5 pt-4">
-        <div className="flex flex-col gap-0.5">
-          <h1 className="text-[19px] font-bold text-[#0F172A] tracking-tight">
+        <div className="flex flex-col gap-1.5">
+          <h1 className="text-[21px] font-bold text-[#0F172A] tracking-tight">
             Welcome, {userName || (userType === 'teacher' ? 'Educator' : 'Parent')} 👋
           </h1>
           <div className="flex items-center justify-between">
-            <p className="text-[#64748B] text-[11px] font-medium whitespace-nowrap">
+            <p className="text-[#64748B] text-[12px] font-medium">
               Good morning! Let's create impact today.
             </p>
             <button 
               onClick={() => { playTapSound(); setShowFilterDrawer(true); }}
-              className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-full border border-slate-200 text-[#2563EB] text-[10px] font-bold shadow-sm active:scale-95 transition-all"
+              className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-slate-200 text-[#2563EB] text-[10px] font-bold shadow-sm active:scale-95 transition-all"
             >
-              <MapPin size={11} />
+              <MapPin size={12} />
               {userCity || 'City'}
               <ChevronDown size={11} className="text-slate-400" />
             </button>
@@ -72,7 +72,7 @@ export default function HomeView({
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative w-full rounded-[24px] overflow-hidden p-5 shadow-md"
+          className="relative w-full rounded-[24px] overflow-hidden p-6 shadow-md"
           style={{ background: `linear-gradient(135deg, #0F6B4C 0%, #188661 100%)` }}
         >
           {/* Backdrop Image matching India gate */}
@@ -85,41 +85,41 @@ export default function HomeView({
           </div>
 
           <div className="relative z-10 max-w-[70%]">
-            <div className="space-y-0.5 mb-3">
-              <h2 className="text-[22px] font-medium text-white tracking-tight leading-tight">
+            <div className="space-y-0.5 mb-4">
+              <h2 className="text-[24px] font-medium text-white tracking-tight leading-tight">
                 Discovery Made
               </h2>
-              <h2 className="text-[26px] font-black text-[#FFD166] tracking-tighter leading-none italic">
+              <h2 className="text-[28px] font-black text-[#FFD166] tracking-tighter leading-none">
                 Simple & Live
               </h2>
             </div>
             
-            <p className="text-white/90 text-[10px] font-medium mt-1.5 mb-4 leading-snug">
+            <p className="text-white/90 text-[11px] font-medium mb-5 leading-snug">
               Connect with elite educators and premium teaching opportunities.
             </p>
             
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => { playTapSound(); setFormType('teacher'); setShowFormModal(true); }}
-                className="bg-[#FFD166] text-[#0F172A] px-2.5 py-1.5 rounded-full font-bold text-[9px] flex items-center gap-1 active:scale-95 transition-all whitespace-nowrap shadow-sm"
+                className="bg-[#FFD166] text-[#0F172A] px-3 py-2 rounded-full font-bold text-[10px] flex items-center gap-1 active:scale-95 transition-all whitespace-nowrap shadow-sm"
               >
-                <GraduationCap size={12} strokeWidth={2.5} /> Become a Tutor
+                <GraduationCap size={13} strokeWidth={2.5} /> Become a Tutor
               </button>
               <button 
                 onClick={() => { playTapSound(); setFormType('parent'); setShowFormModal(true); }}
-                className="bg-transparent text-white border border-white/40 px-2.5 py-1.5 rounded-full font-bold text-[9px] flex items-center gap-1 active:scale-95 transition-all whitespace-nowrap"
+                className="bg-transparent text-white border border-white/50 px-3 py-2 rounded-full font-bold text-[10px] flex items-center gap-1 active:scale-95 transition-all whitespace-nowrap"
               >
-                <Star size={12} strokeWidth={2.5} /> Book Free Trial
+                <Star size={13} strokeWidth={2.5} /> Book Free Trial
               </button>
             </div>
           </div>
 
           {/* Smiling Student Image (Mixed with gradient) */}
-          <div className="absolute bottom-0 right-0 w-[40%] h-[95%] pointer-events-none flex items-end justify-end">
+          <div className="absolute bottom-0 right-0 w-[42%] h-[100%] pointer-events-none flex items-end justify-end">
              <img 
               src="/icons/student.png" 
               alt="Student" 
-              className="w-full h-full object-contain object-bottom mix-blend-screen opacity-90 brightness-110"
+              className="w-full h-full object-contain object-bottom mix-blend-lighten"
             />
           </div>
         </motion.div>
@@ -128,18 +128,18 @@ export default function HomeView({
       {/* 3. Explore Opportunities Section */}
       <section className="px-5 space-y-3">
         <div className="flex justify-between items-center">
-          <h3 className="text-[16px] font-bold text-[#0F172A]">Explore Opportunities</h3>
-          <button onClick={() => setActiveTab('jobs')} className="text-[13px] font-semibold text-[#2563EB]">
+          <h3 className="text-[17px] font-bold text-[#0F172A]">Explore Opportunities</h3>
+          <button onClick={() => setActiveTab('jobs')} className="text-[14px] font-semibold text-[#2563EB]">
             View all
           </button>
         </div>
         
-        <div className="flex justify-between gap-1.5">
-          <ExploreCard icon={<Briefcase size={18} fill="currentColor" className="text-[#8B5CF6]" />} label="Jobs" sub="Openings" onClick={() => setActiveTab('jobs')} />
-          <ExploreCard icon={<GraduationCap size={18} fill="currentColor" className="text-[#10B981]" />} label="Tutors" sub="Experts" onClick={() => setActiveTab('tutors')} />
-          <ExploreCard icon={<BookOpen size={18} fill="currentColor" className="text-[#F97316]" />} label="Subjects" sub="Topics" onClick={() => setActiveTab('jobs')} />
-          <ExploreCard icon={<Calendar size={18} fill="currentColor" className="text-[#EC4899]" />} label="Trial" sub="Book now" onClick={() => { setFormType('parent'); setShowFormModal(true); }} />
-          <ExploreCard icon={<MessageCircle size={18} fill="currentColor" className="text-[#3B82F6]" />} label="Help" sub="Support" onClick={() => setActiveTab('support')} />
+        <div className="flex justify-between gap-1">
+          <ExploreCard icon={<Briefcase size={16} fill="currentColor" className="text-[#8B5CF6]" />} label="Jobs" sub="Openings" onClick={() => setActiveTab('jobs')} />
+          <ExploreCard icon={<GraduationCap size={16} fill="currentColor" className="text-[#10B981]" />} label="Tutors" sub="Experts" onClick={() => setActiveTab('tutors')} />
+          <ExploreCard icon={<BookOpen size={16} fill="currentColor" className="text-[#F97316]" />} label="Subjects" sub="Topics" onClick={() => setActiveTab('jobs')} />
+          <ExploreCard icon={<Calendar size={16} fill="currentColor" className="text-[#EC4899]" />} label="Trial" sub="Book now" onClick={() => { setFormType('parent'); setShowFormModal(true); }} />
+          <ExploreCard icon={<MessageCircle size={16} fill="currentColor" className="text-[#3B82F6]" />} label="Help" sub="Support" onClick={() => setActiveTab('support')} />
         </div>
       </section>
 
@@ -221,14 +221,14 @@ function ExploreCard({ icon, label, sub, onClick }: {
   return (
     <button 
       onClick={onClick}
-      className="flex-shrink-0 bg-white p-3.5 rounded-[20px] flex flex-col items-center text-center gap-2 shadow-sm border border-slate-100 active:scale-95 transition-all w-full max-w-[100px]"
+      className="flex-shrink-0 bg-white p-2 rounded-[18px] flex flex-col items-center text-center gap-1.5 shadow-sm border border-slate-100 active:scale-95 transition-all flex-1 min-w-0"
     >
-      <div className="mb-1">
+      <div className="mb-0.5">
         {icon}
       </div>
-      <div className="space-y-0.5">
-        <span className="block text-[12px] font-bold text-[#0F172A]">{label}</span>
-        <span className="block text-[10px] text-[#64748B] leading-[1.1]">{sub}</span>
+      <div className="space-y-0.5 w-full overflow-hidden">
+        <span className="block text-[11px] font-bold text-[#0F172A] truncate w-full">{label}</span>
+        <span className="block text-[9px] text-[#64748B] leading-[1.1] truncate w-full">{sub}</span>
       </div>
     </button>
   );
