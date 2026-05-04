@@ -581,11 +581,15 @@ export default function App() {
 
       <header className="sticky top-0 z-[100] bg-white px-6 py-4 flex items-center justify-between border-b border-slate-100/60 shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
         <div className="flex items-center">
-          <span className="text-xl font-black tracking-tighter italic">
-            <span className="text-[#FF6B6B]">Do</span>
-            <span className="text-[#4ECDC4]">Able</span>
-            <span className="text-[#FF9933] ml-1">India</span>
-          </span>
+          <div className="flex flex-col leading-[0.9]">
+            <span className="text-[18px] font-black tracking-tighter">
+              <span className="text-[#FF6B6B]">Do</span>
+              <span className="text-[#4ECDC4]">Able</span>
+            </span>
+            <span className="text-[14px] font-extrabold text-[#FF9933] tracking-widest uppercase">
+              India
+            </span>
+          </div>
         </div>
         
         <div className="flex items-center gap-4">

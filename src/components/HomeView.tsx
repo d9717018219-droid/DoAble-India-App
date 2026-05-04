@@ -51,14 +51,13 @@ export default function HomeView({
           <h1 className="text-[19px] font-bold text-[#0F172A] tracking-tight">
             Welcome, {userName || (userType === 'teacher' ? 'Educator' : 'Parent')} 👋
           </h1>
-          <div className="flex items-center gap-2 overflow-hidden">
-            <p className="text-[#64748B] text-[11px] font-medium whitespace-nowrap shrink-0">
+          <div className="flex items-center justify-between">
+            <p className="text-[#64748B] text-[11px] font-medium whitespace-nowrap">
               Good morning! Let's create impact today.
             </p>
-            <div className="h-3 w-[1px] bg-slate-200 shrink-0"></div>
             <button 
               onClick={() => { playTapSound(); setShowFilterDrawer(true); }}
-              className="flex items-center gap-1 text-[#2563EB] text-[11px] font-bold active:scale-95 transition-all truncate"
+              className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-full border border-slate-200 text-[#2563EB] text-[10px] font-bold shadow-sm active:scale-95 transition-all"
             >
               <MapPin size={11} />
               {userCity || 'City'}
@@ -74,7 +73,7 @@ export default function HomeView({
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           className="relative w-full rounded-[24px] overflow-hidden p-5 shadow-md"
-          style={{ background: `linear-gradient(to right, #0F6B4C, #188661)` }}
+          style={{ background: `linear-gradient(135deg, #0F6B4C 0%, #188661 100%)` }}
         >
           {/* Backdrop Image matching India gate */}
           <div className="absolute inset-0 opacity-20 pointer-events-none mix-blend-overlay"
@@ -86,9 +85,14 @@ export default function HomeView({
           </div>
 
           <div className="relative z-10 max-w-[70%]">
-            <h2 className="text-[16px] font-black leading-tight text-white tracking-tight uppercase">
-              Discovery Made <span className="text-[#FFD166]">Simple & Live</span>
-            </h2>
+            <div className="space-y-0.5 mb-3">
+              <h2 className="text-[22px] font-medium text-white tracking-tight leading-tight">
+                Discovery Made
+              </h2>
+              <h2 className="text-[26px] font-black text-[#FFD166] tracking-tighter leading-none italic">
+                Simple & Live
+              </h2>
+            </div>
             
             <p className="text-white/90 text-[10px] font-medium mt-1.5 mb-4 leading-snug">
               Connect with elite educators and premium teaching opportunities.
@@ -110,32 +114,32 @@ export default function HomeView({
             </div>
           </div>
 
-          {/* Smiling Student Image (Exact matching vibe) */}
-          <div className="absolute bottom-0 right-0 w-[35%] h-[90%] pointer-events-none flex items-end justify-end">
+          {/* Smiling Student Image (Mixed with gradient) */}
+          <div className="absolute bottom-0 right-0 w-[40%] h-[95%] pointer-events-none flex items-end justify-end">
              <img 
               src="/icons/student.png" 
               alt="Student" 
-              className="w-full h-full object-contain object-bottom"
+              className="w-full h-full object-contain object-bottom mix-blend-screen opacity-90 brightness-110"
             />
           </div>
         </motion.div>
       </section>
 
       {/* 3. Explore Opportunities Section */}
-      <section className="px-5 space-y-4">
+      <section className="px-5 space-y-3">
         <div className="flex justify-between items-center">
-          <h3 className="text-[17px] font-bold text-[#0F172A]">Explore Opportunities</h3>
-          <button onClick={() => setActiveTab('jobs')} className="text-[14px] font-semibold text-[#2563EB]">
+          <h3 className="text-[16px] font-bold text-[#0F172A]">Explore Opportunities</h3>
+          <button onClick={() => setActiveTab('jobs')} className="text-[13px] font-semibold text-[#2563EB]">
             View all
           </button>
         </div>
         
-        <div className="flex justify-between gap-2 overflow-x-auto no-scrollbar pb-1">
-          <ExploreCard icon={<Briefcase size={22} fill="currentColor" className="text-[#8B5CF6]" />} label="Jobs" sub="New openings" onClick={() => setActiveTab('jobs')} />
-          <ExploreCard icon={<GraduationCap size={22} fill="currentColor" className="text-[#10B981]" />} label="Tutors" sub="Find expert tutors" onClick={() => setActiveTab('tutors')} />
-          <ExploreCard icon={<BookOpen size={22} fill="currentColor" className="text-[#F97316]" />} label="Subjects" sub="Explore topics" onClick={() => setActiveTab('jobs')} />
-          <ExploreCard icon={<Calendar size={22} fill="currentColor" className="text-[#EC4899]" />} label="Free Trial" sub="Book a session" onClick={() => { setFormType('parent'); setShowFormModal(true); }} />
-          <ExploreCard icon={<MessageCircle size={22} fill="currentColor" className="text-[#3B82F6]" />} label="Support" sub="Get help" onClick={() => setActiveTab('support')} />
+        <div className="flex justify-between gap-1.5">
+          <ExploreCard icon={<Briefcase size={18} fill="currentColor" className="text-[#8B5CF6]" />} label="Jobs" sub="Openings" onClick={() => setActiveTab('jobs')} />
+          <ExploreCard icon={<GraduationCap size={18} fill="currentColor" className="text-[#10B981]" />} label="Tutors" sub="Experts" onClick={() => setActiveTab('tutors')} />
+          <ExploreCard icon={<BookOpen size={18} fill="currentColor" className="text-[#F97316]" />} label="Subjects" sub="Topics" onClick={() => setActiveTab('jobs')} />
+          <ExploreCard icon={<Calendar size={18} fill="currentColor" className="text-[#EC4899]" />} label="Trial" sub="Book now" onClick={() => { setFormType('parent'); setShowFormModal(true); }} />
+          <ExploreCard icon={<MessageCircle size={18} fill="currentColor" className="text-[#3B82F6]" />} label="Help" sub="Support" onClick={() => setActiveTab('support')} />
         </div>
       </section>
 
