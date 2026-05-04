@@ -46,6 +46,9 @@ export const JobCard: React.FC<JobCardProps> = React.memo(({ job, onClick }) => 
   const isNew = true; // For demo matching image
   const requiredGender = job.Gender || 'Any';
 
+  const rawName = job.Name || subjects + ' Teacher';
+  const name = rawName.replace(/\s*[Jj]i\s*$/, '').replace(/\s*[Jj]i\s+/g, ' ');
+
   return (
     <div 
       ref={cardRef}
@@ -68,7 +71,7 @@ export const JobCard: React.FC<JobCardProps> = React.memo(({ job, onClick }) => 
           </div>
           
           <h4 className="text-[15px] font-[800] text-[#0F172A] leading-tight tracking-tight truncate">
-            {job.Name || subjects + ' Teacher'}
+            {name}
           </h4>
           <p className="text-[#64748B] text-[11px] font-[500] truncate">{classBoard}</p>
           
