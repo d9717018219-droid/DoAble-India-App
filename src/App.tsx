@@ -817,7 +817,7 @@ export default function App() {
                     <Search size={14} className="text-slate-400" />
                     <input 
                       type="text" 
-                      placeholder={activeTab === 'jobs' ? "Search Name or Order ID..." : "Search title, subject, location..."}
+                      placeholder={activeTab === 'jobs' ? "Search Name or Order ID..." : "Search by Name or Tutor ID..."}
                       value={searchQuery}
                       onChange={(e) => { setSearchQuery(e.target.value); resetCounts(); }}
                       className="bg-transparent border-none outline-none text-[11px] w-full text-slate-700 font-medium"

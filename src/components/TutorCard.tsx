@@ -63,10 +63,10 @@ export const TutorCard: React.FC<TutorCardProps> = React.memo(({ tutor, onClick 
         <div className="flex-1 min-w-0 space-y-0.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <span className="text-primary text-[10px] font-bold tracking-tight">Premium Tutor</span>
+              <span className="text-primary text-[10px] font-bold tracking-tight uppercase">ID: {tutorId}</span>
               {verified && <CheckCircle2 size={10} className="text-[#10B981]" fill="currentColor" />}
             </div>
-            <span className="text-[#94A3B8] text-[9px] font-bold uppercase tracking-widest">Tutor ID: {tutorId}</span>
+            <span className="text-[#94A3B8] text-[9px] font-bold uppercase tracking-widest">{city}</span>
           </div>
           
           <h4 className="text-[15px] font-[800] text-[#0F172A] leading-tight tracking-tight truncate">
@@ -74,11 +74,6 @@ export const TutorCard: React.FC<TutorCardProps> = React.memo(({ tutor, onClick 
           </h4>
           <p className="text-[#64748B] text-[11px] font-[500] truncate">{qual}</p>
           
-          <div className="flex items-center gap-1 text-[#64748B] text-[11px] font-[500] pt-0.5">
-            <MapPin size={10} className="text-slate-400" />
-            <span className="truncate">{city}</span>
-          </div>
-
           <div className="flex items-center gap-2 pt-1.5">
             <div className="bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg flex items-center gap-1">
                <span className="text-[#0F172A] text-[10px] font-bold tracking-tight">
@@ -107,11 +102,10 @@ export const TutorCard: React.FC<TutorCardProps> = React.memo(({ tutor, onClick 
 
       <div className="flex justify-between items-center pt-2 border-t border-slate-50 mt-1">
         <div className="flex items-center gap-1.5">
-          <Star size={10} className="text-[#F59E0B] fill-[#F59E0B]" />
-          <span className="text-[10px] font-bold text-slate-700">4.8</span>
-          <span className="text-[9px] text-slate-400">(120+ reviews)</span>
+          <CheckCircle2 size={10} className="text-primary" />
+          <span className="text-[9px] font-bold text-slate-700 uppercase tracking-tight">School Exp: {getValue(['School Exp.', 'schoolExp'], 'No')}</span>
         </div>
-        <span className="text-[#94A3B8] text-[9px] font-medium">Available Now</span>
+        <span className="text-[#94A3B8] text-[9px] font-bold uppercase tracking-tight">Own Vehicle: {getValue(['Have own Vehicle', 'haveOwnVehicle'], 'No')}</span>
       </div>
     </div>
   );
