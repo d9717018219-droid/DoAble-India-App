@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Poppins", sans-serif;
+  --font-sans: "SF Pro Display", "Inter", "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Poppins", "SF Pro Display", sans-serif;
   
   --color-primary: #FF6B6B;
   --color-secondary: #4ECDC4;
