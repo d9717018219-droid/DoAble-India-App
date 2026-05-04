@@ -49,23 +49,23 @@ export default function HomeView({
       <section className="px-5 pt-4">
         <div className="flex justify-between items-start">
           <div className="flex items-baseline gap-2 overflow-hidden">
-            <h1 className="text-[20px] font-bold text-[#0F172A] tracking-tight whitespace-nowrap">
+            <h1 className="text-[22px] font-[700] text-[#0F172A] tracking-[-0.03em] whitespace-nowrap">
               Welcome, {userName || (userType === 'teacher' ? 'Educator' : 'Parent')} 👋
             </h1>
-            <p className="text-[#0F172A] text-[11px] font-semibold opacity-80 whitespace-nowrap hidden sm:block">
+            <p className="text-[#0F172A] text-[11px] font-[500] opacity-60 whitespace-nowrap hidden sm:block tracking-tight">
               Good morning! Let's create impact today.
             </p>
           </div>
           <button 
             onClick={() => { playTapSound(); setShowFilterDrawer(true); }}
-            className="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-full border border-slate-100 text-[#0F172A] text-[10px] font-bold shadow-sm active:scale-95 transition-all shrink-0"
+            className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-slate-100 text-[#0F172A] text-[10px] font-bold shadow-sm active:scale-95 transition-all shrink-0"
           >
             <MapPin size={12} className="text-[#2563EB]" />
-            {userCity || 'City'}
+            <span className="tracking-tight">{userCity || 'City'}</span>
             <ChevronDown size={11} className="text-slate-300" />
           </button>
         </div>
-        <p className="text-[#0F172A] text-[11px] font-semibold opacity-80 mt-1 sm:hidden">
+        <p className="text-[#0F172A] text-[11px] font-[500] opacity-60 mt-1 sm:hidden tracking-tight">
           Good morning! Let's create impact today.
         </p>
       </section>
@@ -75,37 +75,37 @@ export default function HomeView({
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative w-full rounded-[28px] overflow-hidden p-8 shadow-xl"
+          className="relative w-full rounded-[32px] overflow-hidden p-8 shadow-xl"
           style={{ background: `linear-gradient(135deg, #0F6B4C 0%, #1A936F 100%)` }}
         >
           {/* Abstract Decorative Shapes */}
-          <div className="absolute top-[-20%] right-[-10%] w-[200px] h-[200px] bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute bottom-[-20%] left-[-5%] w-[150px] h-[150px] bg-[#FFD166]/20 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="absolute top-[-20%] right-[-10%] w-[250px] h-[250px] bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute bottom-[-20%] left-[-5%] w-[180px] h-[180px] bg-[#FFD166]/20 rounded-full blur-2xl pointer-events-none"></div>
 
           <div className="relative z-10 flex flex-col items-center text-center">
             <div className="space-y-1 mb-6">
-              <h2 className="text-[26px] font-medium text-white/90 tracking-tight leading-tight">
+              <h2 className="text-[24px] font-[500] text-white/90 tracking-tight leading-tight">
                 Discovery Made
               </h2>
-              <h2 className="text-[36px] font-black text-[#FFD166] tracking-tighter leading-none">
+              <h2 className="text-[40px] font-[800] text-[#FFD166] tracking-[-0.05em] leading-none">
                 Simple & Live
               </h2>
             </div>
             
-            <p className="text-white/80 text-[13px] font-medium mb-7 leading-relaxed max-w-[280px]">
+            <p className="text-white/80 text-[14px] font-[500] mb-7 leading-relaxed max-w-[280px] tracking-tight">
               Connect with elite educators and premium teaching opportunities instantly.
             </p>
             
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => { playTapSound(); setFormType('teacher'); setShowFormModal(true); }}
-                className="bg-[#FFD166] text-[#0F172A] px-5 py-3 rounded-full font-extrabold text-[11px] flex items-center gap-2 active:scale-95 transition-all shadow-lg hover:bg-white"
+                className="bg-[#FFD166] text-[#0F172A] px-6 py-3.5 rounded-full font-[800] text-[11px] flex items-center gap-2 active:scale-95 transition-all shadow-lg hover:bg-white tracking-wide uppercase"
               >
                 <GraduationCap size={15} strokeWidth={2.5} /> Become a Tutor
               </button>
               <button 
                 onClick={() => { playTapSound(); setFormType('parent'); setShowFormModal(true); }}
-                className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-5 py-3 rounded-full font-extrabold text-[11px] flex items-center gap-2 active:scale-95 transition-all hover:bg-white/20"
+                className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-6 py-3.5 rounded-full font-[800] text-[11px] flex items-center gap-2 active:scale-95 transition-all hover:bg-white/20 tracking-wide uppercase"
               >
                 <Star size={15} strokeWidth={2.5} /> Book Free Trial
               </button>
@@ -210,14 +210,14 @@ function ExploreCard({ icon, label, sub, onClick }: {
   return (
     <button 
       onClick={onClick}
-      className="flex-shrink-0 bg-white p-2 rounded-[18px] flex flex-col items-center text-center gap-1.5 shadow-sm border border-slate-100 active:scale-95 transition-all flex-1 min-w-0"
+      className="flex-shrink-0 bg-white p-3 rounded-[20px] flex flex-col items-center text-center gap-1.5 shadow-sm border border-slate-100 active:scale-95 transition-all flex-1 min-w-0"
     >
       <div className="mb-0.5">
         {icon}
       </div>
       <div className="space-y-0.5 w-full overflow-hidden">
-        <span className="block text-[11px] font-bold text-[#0F172A] truncate w-full">{label}</span>
-        <span className="block text-[9px] text-[#64748B] leading-[1.1] truncate w-full">{sub}</span>
+        <span className="block text-[12px] font-[700] text-[#0F172A] truncate w-full tracking-tight">{label}</span>
+        <span className="block text-[10px] text-[#64748B] font-[500] leading-[1.1] truncate w-full tracking-tight">{sub}</span>
       </div>
     </button>
   );
@@ -228,11 +228,11 @@ function ImpactStat({ icon, value, label, label2 }: { icon: React.ReactNode; val
     <div className="flex flex-col items-center flex-1 text-center">
       <div className="flex items-center gap-1.5 mb-1.5">
         {icon}
-        <span className="text-[17px] font-bold text-[#0F172A]">{value}</span>
+        <span className="text-[18px] font-[800] text-[#0F172A] tracking-tighter">{value}</span>
       </div>
       <div className="flex flex-col">
-         <span className="text-[11px] text-[#64748B]">{label}</span>
-         <span className="text-[11px] text-[#64748B]">{label2}</span>
+         <span className="text-[11px] font-[600] text-[#64748B] tracking-tight">{label}</span>
+         <span className="text-[11px] font-[600] text-[#64748B] tracking-tight">{label2}</span>
       </div>
     </div>
   );

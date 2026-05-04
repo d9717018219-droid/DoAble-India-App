@@ -1,18 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "SF Pro Display", "Inter", "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Poppins", "SF Pro Display", sans-serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", sans-serif;
   
   --color-primary: #FF6B6B;
   --color-secondary: #4ECDC4;
   --color-accent: #FFE66D;
-  --color-dark: #2C3E50;
-  --color-light: #F7F9FC;
-  --color-purple: #A29BFE;
-  --color-pink: #FF7675;
-  --color-green: #00B894;
+  --color-dark: #1E293B;
+  --color-light: #F8FAFC;
+  --color-purple: #8B5CF6;
+  --color-pink: #EC4899;
+  --color-green: #10B981;
   --color-dark-bg: #FFFFFF;
   --color-light-bg: #FFFFFF;
   --dark-mode: class;
@@ -21,13 +21,16 @@
 /* Force Light Mode - Disable Dark Mode Preferences */
 :root {
   background-color: #FFFFFF !important;
-  color: #1e293b !important;
+  color: #1E293B !important;
   color-scheme: light !important;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
 body {
   background-color: #FFFFFF !important;
-  color: #1e293b !important;
+  color: #1E293B !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Brute force override for any potential browser auto-dark triggers */
