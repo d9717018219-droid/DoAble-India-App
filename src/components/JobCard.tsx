@@ -47,6 +47,7 @@ export const JobCard: React.FC<JobCardProps> = React.memo(({
   const classBoard = job['Class / Board'] || ((job.Class || '') + (job.Board ? ' (' + job.Board + ')' : '')) || 'General';
   const { bg, emoji } = getSubjectStyles(subjects, classBoard);
   
+  const jobId = job['Order ID'] || (job as any).id || 'N/A';
   const locationRaw = job.Locations || job.City || 'India';
   const location = locationRaw.toString().split(/[;,]/).map(l => l.trim().split('-')[0].trim())[0];
   const postedDate = formatPostedDate(job['Updated Time'] || job['Record Added']);
@@ -104,7 +105,7 @@ export const JobCard: React.FC<JobCardProps> = React.memo(({
         {/* Right Action Icons */}
         <div className="flex flex-col items-end justify-between h-[60px] flex-shrink-0">
           <button 
-            onClick={(e) => { e.stopPropagation(); onShortlistToggle?.(job['Order ID'], e); }}
+            onClick={(e) => { e.stopPropagation(); onShortlistToggle?.(jobId, e); }}
             className={cn("transition-colors", isShortlisted ? "text-red-500" : "text-slate-300 hover:text-red-500")}
           >
             <Heart size={18} fill={isShortlisted ? "currentColor" : "none"} />

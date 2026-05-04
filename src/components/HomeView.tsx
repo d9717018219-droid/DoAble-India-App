@@ -8,6 +8,7 @@ import {
   BookOpen,
   Calendar,
   MessageCircle,
+  CreditCard,
   Users,
   User,
   School,
@@ -16,7 +17,7 @@ import {
   Heart
 } from 'lucide-react';
 import { JobLead, TutorProfile, UserType } from '../types';
-import { cn, formatCurrency } from '../utils';
+import { cn, formatCurrency, getJobId, getTutorId } from '../utils';
 import { JobCard } from './JobCard';
 import { TutorCard } from './TutorCard';
 
@@ -31,11 +32,13 @@ interface HomeViewProps {
   playTapSound: () => void;
   setFormType: (type: 'parent' | 'teacher') => void;
   setShowFormModal: (show: boolean) => void;
-  setActiveTab: (tab: 'home' | 'jobs' | 'tutors' | 'alerts' | 'admin' | 'support') => void;
+  setActiveTab: (tab: 'home' | 'jobs' | 'tutors' | 'alerts' | 'admin' | 'support' | 'shortlist' | 'payments') => void;
   getDynamicGreeting: () => string;
   setShowFilterDrawer: (show: boolean) => void;
   onJobClick: (job: JobLead) => void;
   onTutorClick: (tutor: TutorProfile) => void;
+  shortlistedIds: string[];
+  onShortlistToggle: (id: string, e: React.MouseEvent) => void;
 }
 
 export default function HomeView({
@@ -51,7 +54,9 @@ export default function HomeView({
   featuredJobs,
   featuredTutors,
   onJobClick,
-  onTutorClick
+  onTutorClick,
+  shortlistedIds,
+  onShortlistToggle
 }: HomeViewProps) {
   return (
     <div className="flex flex-col gap-6 pb-32 bg-[#FAFBFF] font-sans">
@@ -165,7 +170,7 @@ export default function HomeView({
         <div className="flex justify-between gap-1.5 overflow-hidden">
           <ExploreCard icon={<Briefcase size={14} fill="currentColor" className="text-[#8B5CF6]" />} label="Jobs" sub="Openings" onClick={() => setActiveTab('jobs')} />
           <ExploreCard icon={<GraduationCap size={14} fill="currentColor" className="text-[#10B981]" />} label="Tutors" sub="Experts" onClick={() => setActiveTab('tutors')} />
-          <ExploreCard icon={<BookOpen size={14} fill="currentColor" className="text-[#F97316]" />} label="Subjects" sub="Topics" onClick={() => setActiveTab('jobs')} />
+          <ExploreCard icon={<CreditCard size={14} fill="currentColor" className="text-[#F97316]" />} label="Pay" sub="Fee" onClick={() => setActiveTab('payments')} />
           <ExploreCard icon={<Calendar size={14} fill="currentColor" className="text-[#EC4899]" />} label="Trial" sub="Book now" onClick={() => { setFormType('parent'); setShowFormModal(true); }} />
           <ExploreCard icon={<MessageCircle size={14} fill="currentColor" className="text-[#3B82F6]" />} label="Help" sub="Support" onClick={() => setActiveTab('support')} />
         </div>
@@ -206,12 +211,17 @@ export default function HomeView({
           {featuredJobs.length > 0 ? (
             featuredJobs.slice(0, 3).map((job, idx) => (
               <motion.div
-                key={job['Order ID'] || idx}
+                key={getJobId(job)}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.1 }}
               >
-                <JobCard job={job} onClick={onJobClick} />
+                <JobCard 
+                  job={job} 
+                  onClick={onJobClick} 
+                  isShortlisted={shortlistedIds.includes(getJobId(job))}
+                  onShortlistToggle={onShortlistToggle}
+                />
               </motion.div>
             ))
           ) : (
@@ -235,12 +245,17 @@ export default function HomeView({
           {featuredTutors.length > 0 ? (
             featuredTutors.slice(0, 3).map((tutor, idx) => (
               <motion.div
-                key={tutor['Tutor ID'] || idx}
+                key={getTutorId(tutor)}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.1 }}
               >
-                <TutorCard tutor={tutor} onClick={onTutorClick} />
+                <TutorCard 
+                  tutor={tutor} 
+                  onClick={onTutorClick} 
+                  isShortlisted={shortlistedIds.includes(getTutorId(tutor))}
+                  onShortlistToggle={onShortlistToggle}
+                />
               </motion.div>
             ))
           ) : (

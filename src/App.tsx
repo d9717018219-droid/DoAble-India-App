@@ -16,7 +16,7 @@ import AlertsView from './components/AlertsView';
 import AdminPanel from './components/AdminPanel';
 import SupportView from './components/SupportView';
 import HomeView from './components/HomeView';
-import { cn, getCityTheme, formatCurrency, getCityPhone, toTitleCase } from './utils';
+import { cn, getCityTheme, formatCurrency, getCityPhone, toTitleCase, getJobId, getTutorId } from './utils';
 import { 
   CITIES_LIST, 
   CLASSES_LIST,
@@ -740,6 +740,8 @@ export default function App() {
     getDynamicGreeting={getDynamicGreeting} // 🔥 FIX
     onJobClick={setSelectedJob}
     onTutorClick={setSelectedTutor}
+    shortlistedIds={shortlistedIds}
+    onShortlistToggle={toggleShortlist}
   />
 )}
         {activeTab === 'shortlist' && (
@@ -759,11 +761,11 @@ export default function App() {
                </div>
              ) : (
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 {allLeads.filter(l => shortlistedIds.includes(l['Order ID'])).map(job => (
-                   <JobCard key={job['Order ID']} job={job} onClick={setSelectedJob} isShortlisted={true} onShortlistToggle={toggleShortlist} />
+                 {allLeads.filter(l => shortlistedIds.includes(getJobId(l))).map(job => (
+                   <JobCard key={getJobId(job)} job={job} onClick={setSelectedJob} isShortlisted={true} onShortlistToggle={toggleShortlist} />
                  ))}
-                 {tutors.filter(t => shortlistedIds.includes(t['Tutor ID'])).map(tutor => (
-                   <TutorCard key={tutor['Tutor ID']} tutor={tutor} onClick={setSelectedTutor} isShortlisted={true} onShortlistToggle={toggleShortlist} />
+                 {tutors.filter(t => shortlistedIds.includes(getTutorId(t))).map(tutor => (
+                   <TutorCard key={getTutorId(tutor)} tutor={tutor} onClick={setSelectedTutor} isShortlisted={true} onShortlistToggle={toggleShortlist} />
                  ))}
                </div>
              )}
@@ -911,9 +913,9 @@ export default function App() {
                 {loading && leads.length === 0 && tutors.length === 0 ? (
                   <div className="col-span-full py-40 text-center"><Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" /></div>
                 ) : activeTab === 'jobs' && finalJobs.length > 0 ? (
-                  <>{finalJobs.slice(0, visibleJobsCount).map((job) => (<JobCard key={(job as any).id || job['Order ID']} job={job} onClick={setSelectedJob} />))}{visibleJobsCount < finalJobs.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleJobsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Jobs</button></div>)}</>
+                  <>{finalJobs.slice(0, visibleJobsCount).map((job) => (<JobCard key={getJobId(job)} job={job} onClick={setSelectedJob} isShortlisted={shortlistedIds.includes(getJobId(job))} onShortlistToggle={toggleShortlist} />))}{visibleJobsCount < finalJobs.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleJobsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Jobs</button></div>)}</>
                 ) : activeTab === 'tutors' && finalTutors.length > 0 ? (
-                  <>{finalTutors.slice(0, visibleTutorsCount).map((tutor) => (<TutorCard key={(tutor as any).id || (tutor as any)['Tutor ID']} tutor={tutor} onClick={setSelectedTutor} />))}{visibleTutorsCount < finalTutors.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleTutorsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Tutors</button></div>)}</>
+                  <>{finalTutors.slice(0, visibleTutorsCount).map((tutor) => (<TutorCard key={getTutorId(tutor)} tutor={tutor} onClick={setSelectedTutor} isShortlisted={shortlistedIds.includes(getTutorId(tutor))} onShortlistToggle={toggleShortlist} />))}{visibleTutorsCount < finalTutors.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleTutorsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Tutors</button></div>)}</>
                 ) : (
                   <div className="col-span-full py-20 text-center space-y-4">
                     <div className="text-4xl">🔍</div>
@@ -965,7 +967,6 @@ export default function App() {
           <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={18} />} label="Jobs" activeColor="text-purple-600" />
           <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={18} />} label="Tutors" activeColor="text-emerald-600" />
           <NavButton active={activeTab === 'shortlist'} onClick={() => { playTapSound(); setActiveTab('shortlist'); window.scrollTo(0,0); }} icon={<Heart size={18} />} label="Liked" activeColor="text-rose-600" />
-          <NavButton active={activeTab === 'payments'} onClick={() => { playTapSound(); setActiveTab('payments'); window.scrollTo(0,0); }} icon={<CreditCard size={18} />} label="Pay" activeColor="text-orange-600" />
           <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={18} />} label="Support" activeColor="text-blue-600" />
           {isAdminUser && (<button onClick={() => { playTapSound(); setActiveTab('admin'); }} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>

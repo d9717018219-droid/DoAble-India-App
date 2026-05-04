@@ -88,3 +88,13 @@ export function toTitleCase(str: string | undefined) {
     return word.charAt(0).toUpperCase() + word.slice(1);
   }).join(' ');
 }
+
+export function getJobId(job: any): string {
+  if (!job) return 'N/A';
+  return (job['Order ID'] || job.id || 'N/A').toString();
+}
+
+export function getTutorId(tutor: any): string {
+  if (!tutor) return 'N/A';
+  return (tutor['Tutor ID'] || tutor.tutorId || tutor.id || tutor.ID || 'N/A').toString();
+}
