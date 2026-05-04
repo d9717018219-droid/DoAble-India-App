@@ -75,41 +75,72 @@ export default function HomeView({
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative w-full rounded-[32px] overflow-hidden p-8 shadow-xl"
+          className="relative w-full rounded-[24px] overflow-hidden p-6 shadow-md"
           style={{ background: `linear-gradient(135deg, #0F6B4C 0%, #1A936F 100%)` }}
         >
-          {/* Abstract Decorative Shapes */}
-          <div className="absolute top-[-20%] right-[-10%] w-[250px] h-[250px] bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute bottom-[-20%] left-[-5%] w-[180px] h-[180px] bg-[#FFD166]/20 rounded-full blur-2xl pointer-events-none"></div>
+          {/* Subtle Background Pattern */}
+          <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay"
+               style={{
+                 backgroundImage: "url('https://www.transparenttextures.com/patterns/cubes.png')",
+                 backgroundSize: "150px"
+               }}>
+          </div>
 
-          <div className="relative z-10 flex flex-col items-center text-center">
-            <div className="space-y-1 mb-6">
-              <h2 className="text-[24px] font-[500] text-white/90 tracking-tight leading-tight">
+          <div className="relative z-10 max-w-[68%]">
+            <div className="space-y-0.5 mb-4">
+              <h2 className="text-[20px] font-[500] text-white/90 tracking-tight leading-tight">
                 Discovery Made
               </h2>
-              <h2 className="text-[40px] font-[800] text-[#FFD166] tracking-[-0.05em] leading-none">
+              <h2 className="text-[28px] font-[800] text-[#FFD166] tracking-[-0.04em] leading-none">
                 Simple & Live
               </h2>
             </div>
             
-            <p className="text-white/80 text-[14px] font-[500] mb-7 leading-relaxed max-w-[280px] tracking-tight">
+            <p className="text-white/80 text-[11px] font-[500] mb-5 leading-snug tracking-tight">
               Connect with elite educators and premium teaching opportunities instantly.
             </p>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button 
                 onClick={() => { playTapSound(); setFormType('teacher'); setShowFormModal(true); }}
-                className="bg-[#FFD166] text-[#0F172A] px-6 py-3.5 rounded-full font-[800] text-[11px] flex items-center gap-2 active:scale-95 transition-all shadow-lg hover:bg-white tracking-wide uppercase"
+                className="bg-[#FFD166] text-[#0F172A] px-3.5 py-2.5 rounded-full font-[800] text-[10px] flex items-center gap-1.5 active:scale-95 transition-all shadow-sm uppercase tracking-wide"
               >
-                <GraduationCap size={15} strokeWidth={2.5} /> Become a Tutor
+                <GraduationCap size={14} strokeWidth={2.5} /> Become a Tutor
               </button>
               <button 
                 onClick={() => { playTapSound(); setFormType('parent'); setShowFormModal(true); }}
-                className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-6 py-3.5 rounded-full font-[800] text-[11px] flex items-center gap-2 active:scale-95 transition-all hover:bg-white/20 tracking-wide uppercase"
+                className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-3.5 py-2.5 rounded-full font-[800] text-[10px] flex items-center gap-1.5 active:scale-95 transition-all uppercase tracking-wide"
               >
-                <Star size={15} strokeWidth={2.5} /> Book Free Trial
+                <Star size={14} strokeWidth={2.5} /> Free Trial
               </button>
             </div>
+          </div>
+
+          {/* Decorative Icon Composition on the Right */}
+          <div className="absolute right-[-10px] bottom-[-10px] w-[35%] h-[120%] pointer-events-none flex items-center justify-center">
+             <div className="relative w-full h-full flex items-center justify-center">
+                <motion.div 
+                  animate={{ y: [0, -10, 0], rotate: [0, 5, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute p-4 bg-white/10 rounded-3xl backdrop-blur-sm border border-white/20"
+                >
+                   <GraduationCap size={42} className="text-[#FFD166] opacity-90" strokeWidth={1.5} />
+                </motion.div>
+                <motion.div 
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                  className="absolute top-1/4 right-1/4"
+                >
+                   <Star size={20} className="text-[#FFD166] fill-[#FFD166]" />
+                </motion.div>
+                <motion.div 
+                  animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
+                  transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                  className="absolute bottom-1/4 left-1/4"
+                >
+                   <Users size={24} className="text-white" />
+                </motion.div>
+             </div>
           </div>
         </motion.div>
       </section>
