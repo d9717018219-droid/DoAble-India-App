@@ -13,7 +13,8 @@ import {
   Users,
   School,
   User,
-  Heart
+  Search,
+  ArrowRight
 } from 'lucide-react';
 import { JobLead, UserType } from '../types';
 import { JobCard } from './JobCard';
@@ -49,166 +50,160 @@ export default function HomeView({
   setShowFilterDrawer
 }: HomeViewProps) {
   return (
-    <div className="flex flex-col gap-6 pb-24 bg-white">
-      {/* Welcome Section */}
-      <section className="px-5 pt-4 flex justify-between items-start">
-        <div className="space-y-0.5">
-          <h1 className="text-xl font-black text-slate-900 flex items-center gap-2">
+    <div className="flex flex-col gap-8 pb-32 bg-[#F7F9FC]">
+      {/* Greeting Section */}
+      <section className="px-6 pt-6 flex justify-between items-start">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-[900] text-slate-900 leading-tight">
             Welcome, {userName || (userType === 'teacher' ? 'Educator' : 'Parent')} 👋
           </h1>
-          <p className="text-slate-500 text-[13px] font-medium">
-            Good morning! Let's create impact today.
+          <p className="text-slate-500 text-sm font-medium">
+            Good morning! Let’s create impact today.
           </p>
         </div>
         <button 
           onClick={() => { playTapSound(); setShowFilterDrawer(true); }}
-          className="flex items-center gap-2 bg-white px-3 py-2 rounded-full shadow-sm border border-slate-100 text-slate-600 text-[12px] font-bold"
+          className="flex items-center gap-2 bg-white px-4 py-2.5 rounded-2xl shadow-sm border border-slate-100 text-slate-700 text-sm font-bold active:scale-95 transition-all"
         >
-          <MapPin size={14} className="text-blue-500" />
+          <MapPin size={16} className="text-[#006754]" />
           {userCity}
           <ChevronRight size={14} className="rotate-90 text-slate-400" />
         </button>
       </section>
 
-      {/* Hero Banner */}
-      <section className="px-5">
+      {/* Main Banner */}
+      <section className="px-6">
         <motion.div 
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="relative w-full aspect-[16/10] rounded-[32px] overflow-hidden bg-[#006754] text-white p-6 sm:p-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative w-full aspect-[16/10] sm:aspect-[21/9] rounded-[40px] overflow-hidden bg-[#006754] text-white p-8 flex flex-col justify-center shadow-2xl"
         >
-          {/* Circular Background Decor */}
-          <div className="absolute top-1/2 -right-10 -translate-y-1/2 w-[70%] h-[120%] opacity-30 pointer-events-none">
-            <div className="w-full h-full rounded-full border-[40px] border-white/20 blur-sm" />
-          </div>
+          {/* Decorative Background Elements */}
+          <div className="absolute -top-10 -right-10 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-orange-400/20 rounded-full blur-3xl pointer-events-none" />
           
-          <div className="relative z-10 h-full flex flex-col justify-center space-y-4 max-w-[65%]">
-            <h2 className="text-2xl sm:text-4xl font-black leading-[1.2] tracking-tight">
+          <div className="relative z-10 max-w-[65%] space-y-5">
+            <h2 className="text-3xl sm:text-5xl font-[900] leading-[1.1] tracking-tight">
               Discovery Made<br/>
               <span className="text-[#FFE66D]">Simple & Live</span>
             </h2>
-            <p className="text-white/90 text-[11px] sm:text-sm font-medium leading-relaxed">
-              Connect with elite educators and premium teaching opportunities.
+            <p className="text-white/85 text-[12px] sm:text-lg font-medium leading-relaxed max-w-sm">
+              Connect with expert tutors & premium teaching opportunities.
             </p>
             
-            <div className="flex flex-wrap gap-3 pt-2">
+            <div className="flex flex-wrap gap-4 pt-2">
               <button 
                 onClick={() => { playTapSound(); setFormType('teacher'); setShowFormModal(true); }}
-                className="bg-[#FFE66D] text-slate-900 px-5 py-3 rounded-full font-black text-[11px] uppercase flex items-center gap-2 shadow-lg active:scale-95 transition-all"
+                className="bg-[#FFE66D] text-slate-900 px-6 py-4 rounded-full font-black text-xs uppercase flex items-center gap-2 shadow-xl hover:shadow-[#FFE66D]/20 active:scale-95 transition-all"
               >
-                <GraduationCap size={16} strokeWidth={2.5} /> Become a Tutor
+                Become a Tutor
               </button>
               <button 
                 onClick={() => { playTapSound(); setFormType('parent'); setShowFormModal(true); }}
-                className="bg-transparent text-white border-2 border-white/30 px-5 py-3 rounded-full font-black text-[11px] uppercase flex items-center gap-2 shadow-lg active:scale-95 transition-all backdrop-blur-sm"
+                className="bg-transparent text-white border-2 border-white/40 px-6 py-4 rounded-full font-black text-xs uppercase flex items-center gap-2 active:scale-95 transition-all backdrop-blur-sm"
               >
-                <Star size={16} strokeWidth={2.5} className="text-[#FFE66D]" /> Book Free Trial
+                Book Free Trial
               </button>
             </div>
           </div>
 
-          {/* Teacher Placeholder */}
-          <div className="absolute bottom-0 right-0 w-[45%] h-[90%] pointer-events-none">
+          {/* Student Image */}
+          <div className="absolute bottom-0 right-0 w-[45%] h-[95%] pointer-events-none flex items-end">
              <img 
-              src="https://img.freepik.com/free-photo/happy-young-indian-woman-pointing-up-isolated-white-background_1262-10874.jpg" 
-              alt="Educator" 
-              className="w-full h-full object-contain object-bottom mix-blend-lighten opacity-90"
+              src="https://img.freepik.com/free-photo/young-student-woman-with-backpack-holding-books-pointing-up_1150-13611.jpg" 
+              alt="Student" 
+              className="w-full h-full object-contain object-bottom mix-blend-lighten opacity-95"
             />
           </div>
         </motion.div>
       </section>
 
-      {/* Explore Opportunities */}
-      <section className="px-5 space-y-4">
+      {/* Explore Section */}
+      <section className="px-6 space-y-5">
         <div className="flex justify-between items-center px-1">
-          <h3 className="text-[17px] font-black text-slate-900">Explore Opportunities</h3>
+          <h3 className="text-xl font-black text-slate-900">Explore Opportunities</h3>
           <button 
             onClick={() => setActiveTab('jobs')}
-            className="text-primary text-[13px] font-black"
+            className="text-[#006754] text-sm font-black flex items-center gap-1"
           >
-            View all
+            View all <ArrowRight size={14} />
           </button>
         </div>
         
-        <div className="grid grid-cols-5 gap-2">
-          <CategoryCard 
-            icon={<Briefcase size={22} />} 
+        <div className="grid grid-cols-5 gap-3">
+          <CategoryIcon 
+            icon={<Briefcase size={24} />} 
             label="Jobs" 
-            sublabel="New openings" 
-            iconColor="text-purple-600"
+            color="bg-purple-100 text-purple-600"
             onClick={() => setActiveTab('jobs')}
           />
-          <CategoryCard 
-            icon={<GraduationCap size={22} />} 
+          <CategoryIcon 
+            icon={<GraduationCap size={24} />} 
             label="Tutors" 
-            sublabel="Find expert" 
-            iconColor="text-green-600"
+            color="bg-emerald-100 text-emerald-600"
             onClick={() => setActiveTab('tutors')}
           />
-          <CategoryCard 
-            icon={<BookOpen size={22} />} 
+          <CategoryIcon 
+            icon={<BookOpen size={24} />} 
             label="Subjects" 
-            sublabel="Explore topics" 
-            iconColor="text-orange-600"
+            color="bg-orange-100 text-orange-600"
             onClick={() => setActiveTab('jobs')}
           />
-          <CategoryCard 
-            icon={<Calendar size={22} />} 
+          <CategoryIcon 
+            icon={<Calendar size={24} />} 
             label="Free Trial" 
-            sublabel="Book a session" 
-            iconColor="text-pink-600"
+            color="bg-pink-100 text-pink-600"
             onClick={() => { setFormType('parent'); setShowFormModal(true); }}
           />
-          <CategoryCard 
-            icon={<MessageSquare size={22} />} 
+          <CategoryIcon 
+            icon={<MessageSquare size={24} />} 
             label="Support" 
-            sublabel="Get help" 
-            iconColor="text-blue-600"
+            color="bg-blue-100 text-blue-600"
             onClick={() => setActiveTab('support')}
           />
         </div>
       </section>
 
-      {/* Our Impact */}
-      <section className="px-5">
-        <div className="bg-[#F8FBFA] border border-slate-100 rounded-[28px] p-6 space-y-6">
-          <div className="space-y-0.5">
-            <h3 className="text-[17px] font-black text-slate-900">Our Impact</h3>
-            <p className="text-slate-500 text-[12px] font-medium">Empowering abilities. Enabling inclusive India.</p>
+      {/* Impact Section */}
+      <section className="px-6">
+        <div className="bg-white rounded-[40px] p-8 shadow-sm border border-slate-100 space-y-8">
+          <div className="space-y-1">
+            <h3 className="text-xl font-black text-slate-900">Our Impact</h3>
+            <p className="text-slate-500 text-sm font-medium">Empowering abilities. Enabling inclusive India.</p>
           </div>
           
-          <div className="flex items-center justify-between">
-            <ImpactStat icon={<Users size={20} className="text-green-600" />} value="25K+" label="Students" />
-            <div className="w-[1px] h-10 bg-slate-200" />
-            <ImpactStat icon={<User size={20} className="text-purple-600" />} value="3K+" label="Expert" />
-            <div className="w-[1px] h-10 bg-slate-200" />
-            <ImpactStat icon={<School size={20} className="text-orange-600" />} value="500+" label="Partner" />
-            <div className="w-[1px] h-10 bg-slate-200" />
-            <ImpactStat icon={<Star size={20} className="text-blue-600" />} value="4.8" label="Rating" />
+          <div className="grid grid-cols-2 gap-6">
+            <StatCard icon={<Users className="text-emerald-500" />} value="25K+" label="Students" />
+            <StatCard icon={<GraduationCap className="text-purple-500" />} value="3K+" label="Expert Tutors" />
+            <StatCard icon={<School className="text-orange-500" />} value="500+" label="Partner Schools" />
+            <StatCard icon={<Star className="text-blue-500" />} value="4.8" label="Average Rating" />
           </div>
         </div>
       </section>
 
-      {/* Featured Opportunities */}
-      <section className="px-5 space-y-4">
+      {/* Featured Jobs Section */}
+      <section className="px-6 space-y-6">
         <div className="flex justify-between items-center px-1">
-          <h3 className="text-[17px] font-black text-slate-900">Featured Opportunities</h3>
+          <h3 className="text-xl font-black text-slate-900">Featured Jobs</h3>
           <button 
             onClick={() => setActiveTab('jobs')}
-            className="text-primary text-[13px] font-black"
+            className="text-[#006754] text-sm font-black flex items-center gap-1"
           >
-            View all
+            View all <ArrowRight size={14} />
           </button>
         </div>
         
-        <div className="space-y-4">
+        <div className="space-y-6">
           {featuredJobs.length > 0 ? (
             featuredJobs.map((job) => (
               <JobCard key={(job as any).id || job['Order ID']} job={job} />
             ))
           ) : (
-            <div className="py-10 text-center text-slate-400 text-[13px] font-medium italic">
-              Loading amazing opportunities...
+            <div className="py-20 text-center bg-white rounded-[32px] border border-dashed border-slate-200">
+               <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                 <Search className="text-slate-300" size={24} />
+               </div>
+               <p className="text-slate-400 text-sm font-medium italic">Finding premium opportunities for you...</p>
             </div>
           )}
         </div>
@@ -217,38 +212,35 @@ export default function HomeView({
   );
 }
 
-function CategoryCard({ icon, label, sublabel, iconColor, onClick }: { 
+function CategoryIcon({ icon, label, color, onClick }: { 
   icon: React.ReactNode; 
   label: string; 
-  sublabel: string; 
-  iconColor: string;
+  color: string;
   onClick: () => void;
 }) {
   return (
     <button 
       onClick={onClick}
-      className="bg-white p-2 rounded-[20px] flex flex-col items-center text-center gap-2 shadow-sm border border-slate-50 hover:shadow-md transition-all active:scale-95"
+      className="flex flex-col items-center text-center gap-3 group transition-all active:scale-95"
     >
-      <div className={cn("w-10 h-10 flex items-center justify-center", iconColor)}>
+      <div className={cn("w-14 h-14 sm:w-16 sm:h-16 rounded-[22px] flex items-center justify-center shadow-sm group-hover:shadow-md transition-all", color)}>
         {icon}
       </div>
-      <div className="space-y-0.5">
-        <span className="block text-[11px] font-black text-slate-900 leading-tight">{label}</span>
-        <p className="text-[8px] text-slate-400 font-medium leading-tight line-clamp-2">{sublabel}</p>
-      </div>
+      <span className="text-[11px] font-black text-slate-700 leading-tight">{label}</span>
     </button>
   );
 }
 
-function ImpactStat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
+function StatCard({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-4 bg-[#F8FBFA] p-4 rounded-3xl border border-slate-50">
+      <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm text-slate-900">
         {icon}
-        <span className="text-[15px] font-black text-slate-900">{value}</span>
       </div>
-      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{label}</span>
+      <div className="flex flex-col">
+        <span className="text-lg font-[900] text-slate-900 leading-none">{value}</span>
+        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">{label}</span>
+      </div>
     </div>
   );
 }
-
