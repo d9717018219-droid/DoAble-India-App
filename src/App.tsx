@@ -993,9 +993,23 @@ export default function App() {
               >
                 <button onClick={() => setSelectedTutor(null)} className="absolute top-6 left-6 p-2 bg-white/20 rounded-full hover:bg-white/30 transition-all"><X size={20} /></button>
                 <div className="text-[20px] font-[800] text-[#FFD166] mb-1">
-                   ✨ {selectedTutor['Full Name'] || (selectedTutor as any).fullName || 'Premium Tutor'}
+                   ✨ {selectedTutor['Full Name'] || (selectedTutor as any).fullName || selectedTutor.Name || 'Premium Tutor'}
                 </div>
-                <div className="text-[11px] font-[600] opacity-80 uppercase tracking-widest">🆔 Tutor ID: {selectedTutor['Tutor ID'] || (selectedTutor as any).tutorId || 'N/A'}</div>
+                <div className="text-[11px] font-[600] opacity-80 uppercase tracking-widest mb-2">🆔 Tutor ID: {selectedTutor['Tutor ID'] || (selectedTutor as any).tutorId || 'N/A'}</div>
+                
+                <div className="flex items-center justify-center gap-2 mt-2">
+                   {((selectedTutor as any).Verified || (selectedTutor as any).verified)?.toString().toLowerCase().trim() === 'yes' && (
+                     <span className="bg-[#10B981] text-white px-3 py-1 rounded-full text-[10px] font-bold flex items-center gap-1">
+                       <CheckCircle size={10} fill="currentColor" /> Verified
+                     </span>
+                   )}
+                   <span className={cn(
+                     "px-3 py-1 rounded-full text-[10px] font-bold",
+                     (selectedTutor.Status || (selectedTutor as any).status) === 'Active' ? "bg-emerald-500 text-white" : "bg-orange-400 text-white"
+                   )}>
+                     {(selectedTutor.Status || (selectedTutor as any).status) === 'Active' ? '✅ Active' : '⏸️ Not Available'}
+                   </span>
+                </div>
               </div>
 
               <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
@@ -1010,9 +1024,9 @@ export default function App() {
                 {/* About Me */}
                 <div className="m-5 p-4 bg-emerald-50/50 rounded-2xl border border-dashed border-emerald-200">
                   <span className="text-[10px] font-black uppercase text-emerald-600 mb-2 block tracking-widest">ℹ️ About Me</span>
-                  <p className="text-[12px] text-slate-700 font-medium leading-relaxed">
+                  <div className="text-[12px] text-slate-700 font-medium leading-relaxed prose-sm">
                     {selectedTutor.About || (selectedTutor as any).about || (selectedTutor as any).Notes || 'Professional educator dedicated to student success.'}
-                  </p>
+                  </div>
                 </div>
 
                 {/* Content Sections */}
@@ -1020,7 +1034,7 @@ export default function App() {
                   <div>
                     <span className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Qualification</span>
                     <div className="flex flex-wrap gap-2">
-                      {(selectedTutor.Qualification || (selectedTutor as any).qualification || 'Graduate').split(',').map((q, i) => (
+                      {(selectedTutor.Qualification || (selectedTutor as any).qualification || selectedTutor['Qualification(s)'] || 'Graduate').toString().split(',').map((q, i) => (
                         <span key={i} className="px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-xl text-[11px] font-bold text-blue-700">🎓 {q.trim()}</span>
                       ))}
                     </div>
@@ -1029,8 +1043,17 @@ export default function App() {
                   <div>
                     <span className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Expert Subjects</span>
                     <div className="flex flex-wrap gap-2">
-                      {(selectedTutor['Preferred Subject(s)'] || (selectedTutor as any).preferredSubjects || 'All Subjects').split(/[;,]/).map((s, i) => (
+                      {(selectedTutor['Preferred Subject(s)'] || (selectedTutor as any).preferredSubjects || 'All Subjects').toString().split(/[;,]/).map((s, i) => (
                         <span key={i} className="px-3 py-1.5 bg-rose-50 border border-rose-100 rounded-xl text-[11px] font-bold text-rose-700">📖 {s.trim()}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Preferred Class Group</span>
+                    <div className="flex flex-wrap gap-2">
+                      {(selectedTutor['Preferred Class Group'] || (selectedTutor as any).classGroup || 'General').toString().split(',').map((cls, i) => (
+                        <span key={i} className="px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-xl text-[11px] font-bold text-indigo-700">🏫 {cls.trim()}</span>
                       ))}
                     </div>
                   </div>
@@ -1039,15 +1062,73 @@ export default function App() {
                     <div>
                       <span className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">Experience</span>
                       <div className="px-3 py-1.5 bg-purple-50 border border-purple-100 rounded-xl text-[11px] font-bold text-purple-700 inline-block">
-                        📚 {selectedTutor['Teaching Experience'] || (selectedTutor as any).experience || '1-3 Years'}
+                        📚 {selectedTutor['Teaching Experience'] || (selectedTutor as any).experience || selectedTutor.Experience || '1-3 Years'}
                       </div>
                     </div>
                     <div>
-                      <span className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">Vehicle</span>
-                      <div className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-bold text-slate-700 inline-block">
-                        🚗 {selectedTutor['Have own Vehicle'] || (selectedTutor as any).haveOwnVehicle || 'No'}
+                      <span className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">School Exp.</span>
+                      <div className="px-3 py-1.5 bg-amber-50 border border-amber-100 rounded-xl text-[11px] font-bold text-amber-700 inline-block">
+                        🏫 {(selectedTutor as any)['School Exp.'] || 'No'}
                       </div>
                     </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Available Days</span>
+                    <div className="flex flex-wrap gap-2">
+                      {(selectedTutor['Mode of Teaching'] || 'Monday - Saturday').toString().split(',').map((day, i) => (
+                        <span key={i} className="px-3 py-1.5 bg-pink-50 border border-pink-100 rounded-xl text-[11px] font-bold text-pink-700">📅 {day.trim()}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Available Time</span>
+                    <div className="flex flex-wrap gap-2">
+                      {(selectedTutor['Preferred Time'] || 'Flexible').toString().split(/[;,]/).map((time, i) => (
+                        <span key={i} className="px-3 py-1.5 bg-orange-50 border border-orange-100 rounded-xl text-[11px] font-bold text-orange-700">🕒 {time.trim()}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Teaching Localities</span>
+                    <div className="flex flex-wrap gap-2">
+                      {(() => {
+                        const locs = (selectedTutor as any)['Preferred Location(s)'] || selectedTutor['Preferred City'] || 'India';
+                        let locArray: string[] = [];
+                        try {
+                          if (locs.startsWith('[')) {
+                            const parsed = JSON.parse(locs);
+                            if (Array.isArray(parsed)) locArray = parsed;
+                          }
+                        } catch(e) {}
+                        if (locArray.length === 0) locArray = locs.toString().split(/[;,]/);
+                        
+                        return locArray.map((l, i) => (
+                          <span key={i} className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-bold text-slate-700">📍 {l.toString().split('-')[0].trim()}</span>
+                        ));
+                      })()}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">Vehicle</span>
+                      <div className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-bold text-slate-700 inline-block">
+                        🚗 {selectedTutor['Have own Vehicle'] || (selectedTutor as any).haveOwnVehicle || (selectedTutor as any)['Own Vehicle'] || 'No'}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">Communication</span>
+                      <div className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-bold text-slate-700 inline-block truncate max-w-full">
+                        💬 {selectedTutor['Address'] || 'Hindi/English'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 text-center">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Last Updated: {selectedTutor['Record Added'] || 'Recently'}</span>
                   </div>
                 </div>
               </div>
@@ -1061,7 +1142,7 @@ export default function App() {
                   📞 Call
                 </a>
                 <a 
-                  href={`https://wa.me/919717018219?text=${encodeURIComponent(`Hi, I'm interested in Tutor: ${selectedTutor['Full Name'] || (selectedTutor as any).fullName}\nID: ${selectedTutor['Tutor ID'] || (selectedTutor as any).tutorId}`)}`}
+                  href={`https://wa.me/919717018219?text=${encodeURIComponent(`Hi, I'm interested in Tutor: ${selectedTutor['Full Name'] || (selectedTutor as any).fullName || selectedTutor.Name}\nID: ${selectedTutor['Tutor ID'] || (selectedTutor as any).tutorId}`)}`}
                   target="_blank"
                   className="flex-[1.5] py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-center bg-[#4ECDC4] text-white shadow-xl shadow-[#4ECDC4]/20 active:scale-95 transition-all"
                 >
