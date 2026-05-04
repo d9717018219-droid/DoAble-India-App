@@ -579,23 +579,21 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <header className="sticky top-0 z-[100] bg-white/90 backdrop-blur-xl border-b border-slate-100 px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="DoAble India" className="h-8 w-auto object-contain" />
-          <div className="h-6 w-[1px] bg-slate-200 mx-2" />
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">App</span>
+      <header className="sticky top-0 z-[100] bg-white px-5 py-4 flex items-center justify-between border-b border-slate-50">
+        <div className="flex items-center">
+          <img src="/icons/logo.png" alt="DoAble India" className="h-10 w-auto object-contain" />
         </div>
         
-        <div className="flex items-center gap-4">
-          <button className="relative p-2 text-slate-400 hover:text-primary transition-colors">
-            <Bell size={22} />
+        <div className="flex items-center gap-3">
+          <button className="relative p-2 text-slate-700">
+            <Bell size={26} strokeWidth={2} />
             <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white">3</span>
           </button>
-          <button onClick={() => { playTapSound(); setActiveTab('admin'); }} className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md active:scale-95 transition-all">
+          <button onClick={() => { playTapSound(); setActiveTab('admin'); }} className="w-10 h-10 rounded-full overflow-hidden border border-slate-100 shadow-sm active:scale-95 transition-all">
              {currentUser?.photoURL ? (
                <img src={currentUser.photoURL} alt="User" className="w-full h-full object-cover" />
              ) : (
-               <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400"><LucideUser size={20} /></div>
+               <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400"><LucideUser size={22} /></div>
              )}
           </button>
         </div>

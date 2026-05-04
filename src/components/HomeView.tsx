@@ -4,7 +4,7 @@ import {
   Bell, 
   MapPin, 
   GraduationCap, 
-  Sparkles, 
+  Star, 
   ChevronRight, 
   Briefcase, 
   BookOpen, 
@@ -12,8 +12,8 @@ import {
   MessageSquare,
   Users,
   School,
-  Star,
-  User
+  User,
+  Heart
 } from 'lucide-react';
 import { JobLead, UserType } from '../types';
 import { JobCard } from './JobCard';
@@ -49,157 +49,155 @@ export default function HomeView({
   setShowFilterDrawer
 }: HomeViewProps) {
   return (
-    <div className="flex flex-col gap-8 pb-10">
+    <div className="flex flex-col gap-6 pb-24 bg-white">
       {/* Welcome Section */}
-      <section className="px-4 flex justify-between items-start">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+      <section className="px-5 pt-4 flex justify-between items-start">
+        <div className="space-y-0.5">
+          <h1 className="text-xl font-black text-slate-900 flex items-center gap-2">
             Welcome, {userName || (userType === 'teacher' ? 'Educator' : 'Parent')} 👋
           </h1>
-          <p className="text-slate-500 text-sm font-medium">
-            {getDynamicGreeting()} Let's create impact today.
+          <p className="text-slate-500 text-[13px] font-medium">
+            Good morning! Let's create impact today.
           </p>
         </div>
         <button 
           onClick={() => { playTapSound(); setShowFilterDrawer(true); }}
-          className="flex items-center gap-2 bg-white px-3 py-2 rounded-full shadow-sm border border-slate-100 text-slate-600 text-sm font-semibold"
+          className="flex items-center gap-2 bg-white px-3 py-2 rounded-full shadow-sm border border-slate-100 text-slate-600 text-[12px] font-bold"
         >
-          <MapPin size={16} className="text-primary" />
+          <MapPin size={14} className="text-blue-500" />
           {userCity}
-          <ChevronRight size={14} className="rotate-90" />
+          <ChevronRight size={14} className="rotate-90 text-slate-400" />
         </button>
       </section>
 
       {/* Hero Banner */}
-      <section className="px-4">
+      <section className="px-5">
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="relative w-full aspect-[16/9] sm:aspect-[21/9] rounded-[32px] overflow-hidden bg-[#004D40] text-white p-6 sm:p-10 flex flex-col justify-center"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative w-full aspect-[16/10] rounded-[32px] overflow-hidden bg-[#006754] text-white p-6 sm:p-10"
         >
-          {/* Decorative Background Elements */}
-          <div className="absolute top-0 right-0 w-1/2 h-full opacity-20 pointer-events-none">
-            {/* SVG or Image placeholder for Indian landmarks */}
-            <img 
-              src="https://images.unsplash.com/photo-1524492707947-519a51609c18?auto=format&fit=crop&q=80&w=800" 
-              alt="Background Decor" 
-              className="w-full h-full object-cover mix-blend-overlay"
-            />
+          {/* Circular Background Decor */}
+          <div className="absolute top-1/2 -right-10 -translate-y-1/2 w-[70%] h-[120%] opacity-30 pointer-events-none">
+            <div className="w-full h-full rounded-full border-[40px] border-white/20 blur-sm" />
           </div>
           
-          <div className="relative z-10 max-w-[60%] space-y-4">
-            <h2 className="text-3xl sm:text-5xl font-black leading-tight">
+          <div className="relative z-10 h-full flex flex-col justify-center space-y-4 max-w-[65%]">
+            <h2 className="text-2xl sm:text-4xl font-black leading-[1.2] tracking-tight">
               Discovery Made<br/>
               <span className="text-[#FFE66D]">Simple & Live</span>
             </h2>
-            <p className="text-white/80 text-xs sm:text-base font-medium max-w-xs">
+            <p className="text-white/90 text-[11px] sm:text-sm font-medium leading-relaxed">
               Connect with elite educators and premium teaching opportunities.
             </p>
             
             <div className="flex flex-wrap gap-3 pt-2">
               <button 
                 onClick={() => { playTapSound(); setFormType('teacher'); setShowFormModal(true); }}
-                className="bg-[#FFE66D] text-slate-900 px-4 py-2.5 rounded-full font-bold text-xs uppercase flex items-center gap-2 shadow-lg active:scale-95 transition-all"
+                className="bg-[#FFE66D] text-slate-900 px-5 py-3 rounded-full font-black text-[11px] uppercase flex items-center gap-2 shadow-lg active:scale-95 transition-all"
               >
-                <GraduationCap size={16} /> Become a Tutor
+                <GraduationCap size={16} strokeWidth={2.5} /> Become a Tutor
               </button>
               <button 
                 onClick={() => { playTapSound(); setFormType('parent'); setShowFormModal(true); }}
-                className="bg-transparent text-white border-2 border-white/30 px-4 py-2.5 rounded-full font-bold text-xs uppercase flex items-center gap-2 shadow-lg active:scale-95 transition-all backdrop-blur-sm"
+                className="bg-transparent text-white border-2 border-white/30 px-5 py-3 rounded-full font-black text-[11px] uppercase flex items-center gap-2 shadow-lg active:scale-95 transition-all backdrop-blur-sm"
               >
-                <Sparkles size={16} className="text-[#FFE66D]" /> Book Free Trial
+                <Star size={16} strokeWidth={2.5} className="text-[#FFE66D]" /> Book Free Trial
               </button>
             </div>
           </div>
 
-          {/* Teacher Image */}
-          <div className="absolute bottom-0 right-4 w-[40%] h-[90%] pointer-events-none">
+          {/* Teacher Placeholder */}
+          <div className="absolute bottom-0 right-0 w-[45%] h-[90%] pointer-events-none">
              <img 
-              src="https://images.unsplash.com/photo-1544717297-fa95b3ee93c3?auto=format&fit=crop&q=80&w=400" 
+              src="https://img.freepik.com/free-photo/happy-young-indian-woman-pointing-up-isolated-white-background_1262-10874.jpg" 
               alt="Educator" 
-              className="w-full h-full object-contain object-bottom"
+              className="w-full h-full object-contain object-bottom mix-blend-lighten opacity-90"
             />
           </div>
         </motion.div>
       </section>
 
       {/* Explore Opportunities */}
-      <section className="px-4 space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-bold text-slate-900">Explore Opportunities</h3>
+      <section className="px-5 space-y-4">
+        <div className="flex justify-between items-center px-1">
+          <h3 className="text-[17px] font-black text-slate-900">Explore Opportunities</h3>
           <button 
             onClick={() => setActiveTab('jobs')}
-            className="text-primary text-sm font-bold flex items-center gap-1"
+            className="text-primary text-[13px] font-black"
           >
-            View all <ChevronRight size={14} />
+            View all
           </button>
         </div>
         
-        <div className="grid grid-cols-5 gap-2 sm:gap-4">
-          <CategoryIcon 
-            icon={<Briefcase size={24} />} 
+        <div className="grid grid-cols-5 gap-2">
+          <CategoryCard 
+            icon={<Briefcase size={22} />} 
             label="Jobs" 
             sublabel="New openings" 
-            color="bg-purple-100 text-purple-600"
+            iconColor="text-purple-600"
             onClick={() => setActiveTab('jobs')}
           />
-          <CategoryIcon 
-            icon={<GraduationCap size={24} />} 
+          <CategoryCard 
+            icon={<GraduationCap size={22} />} 
             label="Tutors" 
             sublabel="Find expert" 
-            color="bg-green-100 text-green-600"
+            iconColor="text-green-600"
             onClick={() => setActiveTab('tutors')}
           />
-          <CategoryIcon 
-            icon={<BookOpen size={24} />} 
+          <CategoryCard 
+            icon={<BookOpen size={22} />} 
             label="Subjects" 
             sublabel="Explore topics" 
-            color="bg-orange-100 text-orange-600"
+            iconColor="text-orange-600"
             onClick={() => setActiveTab('jobs')}
           />
-          <CategoryIcon 
-            icon={<Calendar size={24} />} 
+          <CategoryCard 
+            icon={<Calendar size={22} />} 
             label="Free Trial" 
             sublabel="Book a session" 
-            color="bg-pink-100 text-pink-600"
+            iconColor="text-pink-600"
             onClick={() => { setFormType('parent'); setShowFormModal(true); }}
           />
-          <CategoryIcon 
-            icon={<MessageSquare size={24} />} 
+          <CategoryCard 
+            icon={<MessageSquare size={22} />} 
             label="Support" 
             sublabel="Get help" 
-            color="bg-blue-100 text-blue-600"
+            iconColor="text-blue-600"
             onClick={() => setActiveTab('support')}
           />
         </div>
       </section>
 
       {/* Our Impact */}
-      <section className="px-4">
-        <div className="bg-slate-50 rounded-[32px] p-6 space-y-6">
-          <div className="space-y-1">
-            <h3 className="text-lg font-bold text-slate-900">Our Impact</h3>
-            <p className="text-slate-500 text-xs">Empowering abilities. Enabling inclusive India.</p>
+      <section className="px-5">
+        <div className="bg-[#F8FBFA] border border-slate-100 rounded-[28px] p-6 space-y-6">
+          <div className="space-y-0.5">
+            <h3 className="text-[17px] font-black text-slate-900">Our Impact</h3>
+            <p className="text-slate-500 text-[12px] font-medium">Empowering abilities. Enabling inclusive India.</p>
           </div>
           
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-            <ImpactStat icon={<Users className="text-green-500" />} value="25K+" label="Students Impacted" />
-            <ImpactStat icon={<User className="text-purple-500" />} value="3K+" label="Expert Educators" />
-            <ImpactStat icon={<School className="text-orange-500" />} value="500+" label="Partner Schools" />
-            <ImpactStat icon={<Star className="text-blue-500" />} value="4.8" label="Average Rating" />
+          <div className="flex items-center justify-between">
+            <ImpactStat icon={<Users size={20} className="text-green-600" />} value="25K+" label="Students" />
+            <div className="w-[1px] h-10 bg-slate-200" />
+            <ImpactStat icon={<User size={20} className="text-purple-600" />} value="3K+" label="Expert" />
+            <div className="w-[1px] h-10 bg-slate-200" />
+            <ImpactStat icon={<School size={20} className="text-orange-600" />} value="500+" label="Partner" />
+            <div className="w-[1px] h-10 bg-slate-200" />
+            <ImpactStat icon={<Star size={20} className="text-blue-600" />} value="4.8" label="Rating" />
           </div>
         </div>
       </section>
 
       {/* Featured Opportunities */}
-      <section className="px-4 space-y-4 pb-20">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-bold text-slate-900">Featured Opportunities</h3>
+      <section className="px-5 space-y-4">
+        <div className="flex justify-between items-center px-1">
+          <h3 className="text-[17px] font-black text-slate-900">Featured Opportunities</h3>
           <button 
             onClick={() => setActiveTab('jobs')}
-            className="text-primary text-sm font-bold flex items-center gap-1"
+            className="text-primary text-[13px] font-black"
           >
-            View all <ChevronRight size={14} />
+            View all
           </button>
         </div>
         
@@ -209,7 +207,7 @@ export default function HomeView({
               <JobCard key={(job as any).id || job['Order ID']} job={job} />
             ))
           ) : (
-            <div className="py-10 text-center text-slate-400 text-sm italic">
+            <div className="py-10 text-center text-slate-400 text-[13px] font-medium italic">
               Loading amazing opportunities...
             </div>
           )}
@@ -219,24 +217,24 @@ export default function HomeView({
   );
 }
 
-function CategoryIcon({ icon, label, sublabel, color, onClick }: { 
+function CategoryCard({ icon, label, sublabel, iconColor, onClick }: { 
   icon: React.ReactNode; 
   label: string; 
   sublabel: string; 
-  color: string;
+  iconColor: string;
   onClick: () => void;
 }) {
   return (
     <button 
       onClick={onClick}
-      className="flex flex-col items-center text-center gap-2 group transition-all active:scale-95"
+      className="bg-white p-2 rounded-[20px] flex flex-col items-center text-center gap-2 shadow-sm border border-slate-50 hover:shadow-md transition-all active:scale-95"
     >
-      <div className={cn("w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all", color)}>
+      <div className={cn("w-10 h-10 flex items-center justify-center", iconColor)}>
         {icon}
       </div>
       <div className="space-y-0.5">
-        <span className="block text-[11px] sm:text-xs font-bold text-slate-900 leading-tight">{label}</span>
-        <span className="block text-[9px] text-slate-400 leading-tight hidden sm:block">{sublabel}</span>
+        <span className="block text-[11px] font-black text-slate-900 leading-tight">{label}</span>
+        <p className="text-[8px] text-slate-400 font-medium leading-tight line-clamp-2">{sublabel}</p>
       </div>
     </button>
   );
@@ -244,14 +242,13 @@ function CategoryIcon({ icon, label, sublabel, color, onClick }: {
 
 function ImpactStat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+    <div className="flex flex-col items-center gap-1">
+      <div className="flex items-center gap-1.5">
         {icon}
+        <span className="text-[15px] font-black text-slate-900">{value}</span>
       </div>
-      <div>
-        <span className="block text-base font-black text-slate-900">{value}</span>
-        <span className="block text-[10px] font-medium text-slate-500 leading-tight">{label}</span>
-      </div>
+      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{label}</span>
     </div>
   );
 }
+
