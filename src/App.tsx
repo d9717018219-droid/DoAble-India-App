@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User as LucideUser, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check, Sun, Cloud, Moon, Briefcase, BookText, ChevronDown } from 'lucide-react';
+import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User as LucideUser, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check, Sun, Cloud, Moon, Briefcase, BookText, ChevronDown, CreditCard } from 'lucide-react';
 import { collection, onSnapshot, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, auth, auth as firebaseAuth } from './firebase';
 import { handleFirestoreError, OperationType } from './lib/firestore-errors';
@@ -89,7 +89,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('lastSelectedCity', cityFilter);
   }, [cityFilter]);
-  const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts' | 'admin' | 'support'>('home');
+  const [showProfileSetup, setShowProfileSetup] = useState(false);
+  const [setupStep, setSetupStep] = useState(1);
+  const [unseenAlertsCount, setUnseenAlertsCount] = useState(3);
+  const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts' | 'admin' | 'support' | 'payments'>('home');
   const [showFilterDrawer, setShowFilterDrawer] = useState(false);
   const [isAdminUser, setIsAdminUser] = useState(false);
   const [selectedLocalities, setSelectedLocalities] = useState<string[]>([]);
@@ -681,19 +684,24 @@ export default function App() {
       </AnimatePresence>
 
       <header className="sticky top-0 z-[100] bg-white px-6 py-4 flex items-center justify-between border-b border-slate-100/60 shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
-        <div className="flex items-center">
-          <span className="text-[20px] font-bold text-slate-900 tracking-tight">DoAble India</span>
+        <div className="flex flex-col">
+          <span className="text-[20px] font-bold text-slate-900 tracking-tight leading-tight">DoAble India</span>
+          <span className="text-[10px] font-bold text-primary tracking-tight opacity-80">No.1 in Private Tuition</span>
         </div>
         
         <div className="flex items-center gap-4">
           <button 
-            onClick={() => { playTapSound(); setAlertsInitialTab('feed'); setActiveTab('alerts'); }}
+            onClick={() => { playTapSound(); setAlertsInitialTab('feed'); setActiveTab('alerts'); setUnseenAlertsCount(0); }}
             className="relative p-2 text-slate-800 hover:bg-slate-50 rounded-full transition-all active:scale-90"
           >
             <Bell size={24} strokeWidth={2.2} />
-            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white shadow-sm">3</span>
+            {unseenAlertsCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white shadow-sm">
+                {unseenAlertsCount}
+              </span>
+            )}
           </button>
-          <button onClick={() => { playTapSound(); setAlertsInitialTab('setup'); setActiveTab('alerts'); }} className="w-9 h-9 rounded-full overflow-hidden border-2 border-slate-100 shadow-sm active:scale-90 transition-all">
+          <button onClick={() => { playTapSound(); setShowProfileSetup(true); setSetupStep(1); }} className="w-9 h-9 rounded-full overflow-hidden border-2 border-slate-100 shadow-sm active:scale-90 transition-all">
              {currentUser?.photoURL ? (
                <img src={currentUser.photoURL} alt="User" className="w-full h-full object-cover" />
              ) : (
@@ -731,6 +739,48 @@ export default function App() {
             handleSignIn={handleSignIn} showFormModal={showFormModal} setShowFormModal={setShowFormModal}
             userName={userName} setUserName={setUserName} initialTab={alertsInitialTab}
           />
+        )}
+        {activeTab === 'payments' && (
+          <div className="px-5 pt-8 animate-in fade-in slide-in-from-bottom-4">
+             <div className="bg-white rounded-[40px] p-8 border border-slate-100 shadow-sm space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
+                    <CreditCard size={28} />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">Payments</h2>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Secure Transactions</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="p-6 bg-slate-50 rounded-[32px] border border-slate-100">
+                    <h3 className="text-sm font-black text-slate-900 uppercase mb-2">Registration Fee</h3>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed mb-6">Complete your registration to unlock premium features and direct connections.</p>
+                    <a 
+                      href="https://zohosecurepay.in/checkout/i9db4wt2-verz1l6gn6ogo/Make-a-secure-payment-now" 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="w-full bg-[#059669] text-white p-5 rounded-2xl flex items-center justify-between group active:scale-95 transition-all shadow-lg"
+                    >
+                      <span className="text-[11px] font-black uppercase tracking-widest">Pay Now</span>
+                      <ArrowRight size={18} strokeWidth={3} />
+                    </a>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-white border border-slate-100 rounded-3xl text-center">
+                      <div className="text-xl mb-1">🛡️</div>
+                      <div className="text-[10px] font-black text-slate-900 uppercase tracking-tight">Secure</div>
+                    </div>
+                    <div className="p-4 bg-white border border-slate-100 rounded-3xl text-center">
+                      <div className="text-xl mb-1">⚡</div>
+                      <div className="text-[10px] font-black text-slate-900 uppercase tracking-tight">Instant</div>
+                    </div>
+                  </div>
+                </div>
+             </div>
+          </div>
         )}
         {activeTab === 'support' && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -871,12 +921,13 @@ export default function App() {
         )}
       </main>
 
-      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[8000] w-[92%] max-w-[500px]">
+      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[8000] w-[95%] max-w-[550px]">
         <div className="bg-white rounded-full p-2 flex items-center justify-between shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-slate-100 relative">
-          <NavButton active={activeTab === 'home'} onClick={() => { playTapSound(); setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={22} />} label="Home" activeColor="text-[#1B7F5C]" />
-          <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={22} />} label="Jobs" activeColor="text-purple-600" />
-          <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={22} />} label="Tutors" activeColor="text-emerald-600" />
-          <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={22} />} label="Support" activeColor="text-blue-600" />
+          <NavButton active={activeTab === 'home'} onClick={() => { playTapSound(); setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={20} />} label="Home" activeColor="text-[#1B7F5C]" />
+          <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" activeColor="text-purple-600" />
+          <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" activeColor="text-emerald-600" />
+          <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={20} />} label="Support" activeColor="text-blue-600" />
+          <NavButton active={activeTab === 'payments'} onClick={() => { playTapSound(); setActiveTab('payments'); window.scrollTo(0,0); }} icon={<CreditCard size={20} />} label="Pay" activeColor="text-orange-600" />
           {isAdminUser && (<button onClick={() => { playTapSound(); setActiveTab('admin'); }} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>
       </nav>
@@ -1148,6 +1199,146 @@ export default function App() {
                 >
                   💬 Chat
                 </a>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showProfileSetup && (
+          <div className="fixed inset-0 z-[12000] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowProfileSetup(false)} className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" />
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="relative bg-white w-full max-w-md rounded-[48px] shadow-2xl overflow-hidden p-8">
+              <button onClick={() => setShowProfileSetup(false)} className="absolute top-6 right-6 p-2 bg-slate-50 rounded-full text-slate-400 hover:text-slate-600 transition-all"><X size={20} /></button>
+              
+              <div className="space-y-8">
+                <div className="text-center space-y-2">
+                  <div className="w-16 h-1 bg-slate-100 rounded-full mx-auto mb-6" />
+                  <h3 className="text-2xl font-[900] text-slate-900 uppercase tracking-tighter">Setup Profile</h3>
+                  <div className="flex justify-center gap-1.5">
+                    {[1, 2, 3, 4, 5, 6].map(s => (
+                      <div key={s} className={cn("h-1.5 rounded-full transition-all duration-500", setupStep === s ? "w-8 bg-primary" : setupStep > s ? "w-4 bg-emerald-400" : "w-4 bg-slate-100")} />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="min-h-[300px] flex flex-col justify-center">
+                  <AnimatePresence mode="wait">
+                    {setupStep === 1 && (
+                      <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6 text-center">
+                        <div className="text-5xl mb-4">🤝</div>
+                        <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Who are you?</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          <button 
+                            onClick={() => { setEditUserType('parent'); setSetupStep(2); playTapSound(); }}
+                            className={cn("p-6 rounded-[32px] border-2 transition-all flex flex-col items-center gap-3", editUserType === 'parent' ? "border-primary bg-primary/5" : "border-slate-100 hover:border-slate-200")}
+                          >
+                            <span className="text-3xl">👨‍👩-👧</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">I'm a Parent</span>
+                          </button>
+                          <button 
+                            onClick={() => { setEditUserType('teacher'); setSetupStep(2); playTapSound(); }}
+                            className={cn("p-6 rounded-[32px] border-2 transition-all flex flex-col items-center gap-3", editUserType === 'teacher' ? "border-primary bg-primary/5" : "border-slate-100 hover:border-slate-200")}
+                          >
+                            <span className="text-3xl">🎓</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">I'm a Tutor</span>
+                          </button>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {setupStep === 2 && (
+                      <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                        <div className="text-center"><div className="text-4xl mb-4">📝</div><h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">What's your name?</h4></div>
+                        <input 
+                          type="text" 
+                          value={userName || ''} 
+                          onChange={e => setUserName(e.target.value)}
+                          placeholder="Full Name"
+                          className="w-full bg-slate-50 p-5 rounded-2xl text-sm font-bold outline-none border-2 border-slate-100 focus:border-primary transition-all text-center"
+                        />
+                        <button onClick={() => { if(userName) setSetupStep(3); playTapSound(); }} className="w-full bg-slate-900 text-white p-5 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">Next</button>
+                      </motion.div>
+                    )}
+
+                    {setupStep === 3 && (
+                      <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                        <div className="text-center"><div className="text-4xl mb-4">✨</div><h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Select Gender</h4></div>
+                        <div className="grid grid-cols-2 gap-4">
+                          {['Male', 'Female'].map(g => (
+                            <button key={g} onClick={() => { setUserGender(g); setSetupStep(4); playTapSound(); }} className={cn("p-5 rounded-2xl border-2 font-black text-[11px] uppercase tracking-widest transition-all", userGender === g ? "border-primary bg-primary/5 text-primary" : "border-slate-100 text-slate-400")}>{g === 'Male' ? '👦 Male' : '👧 Female'}</button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {setupStep === 4 && (
+                      <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                        <div className="text-center"><div className="text-4xl mb-4">🏫</div><h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Class Group</h4></div>
+                        <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto pr-2 custom-scrollbar">
+                           {CLASSES_LIST.map(cls => (
+                             <button 
+                               key={cls} 
+                               onClick={() => { 
+                                 const next = userClasses.includes(cls) ? userClasses.filter(c => c !== cls) : [...userClasses, cls];
+                                 setUserClasses(next);
+                                 playTapSound();
+                               }}
+                               className={cn("p-3 rounded-xl border-2 text-[9px] font-black uppercase tracking-tight transition-all", userClasses.includes(cls) ? "border-emerald-500 bg-emerald-50 text-emerald-600" : "border-slate-100 text-slate-400")}
+                             >
+                               {cls}
+                             </button>
+                           ))}
+                        </div>
+                        <button onClick={() => { if(userClasses.length > 0) setSetupStep(5); playTapSound(); }} className="w-full bg-slate-900 text-white p-5 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">Next</button>
+                      </motion.div>
+                    )}
+
+                    {setupStep === 5 && (
+                      <motion.div key="step5" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+                        <div className="text-center"><div className="text-4xl mb-4">📍</div><h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Select City</h4></div>
+                        <select 
+                          value={userCity} 
+                          onChange={e => { setUserCity(e.target.value); setSetupStep(6); playTapSound(); }}
+                          className="w-full bg-slate-50 p-5 rounded-2xl text-sm font-bold outline-none border-2 border-slate-100 focus:border-primary appearance-none text-center"
+                        >
+                          <option value="">Select City</option>
+                          {CITIES_LIST.sort().map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      </motion.div>
+                    )}
+
+                    {setupStep === 6 && (
+                      <motion.div key="step6" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6 text-center">
+                        <div className="text-5xl mb-4">🔔</div>
+                        <h4 className="text-xl font-black text-slate-900 uppercase tracking-tight">Notifications</h4>
+                        <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Get instant alerts for new {editUserType === 'parent' ? 'tutors' : 'jobs'}</p>
+                        <div className="bg-slate-50 p-6 rounded-3xl border-2 border-slate-100 flex items-center justify-between">
+                           <span className="text-[10px] font-black uppercase text-slate-700 tracking-widest">Allow Access</span>
+                           <div className="w-12 h-6 bg-emerald-500 rounded-full relative cursor-pointer" onClick={() => { if ('Notification' in window) Notification.requestPermission(); playTapSound(); }}>
+                              <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
+                           </div>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            localStorage.setItem('userName', userName || '');
+                            localStorage.setItem('userType', editUserType || 'parent');
+                            localStorage.setItem('userCity', userCity);
+                            localStorage.setItem('userGender', userGender || '');
+                            localStorage.setItem('userClasses', JSON.stringify(userClasses));
+                            setUserType(editUserType);
+                            setShowProfileSetup(false);
+                            playTapSound();
+                          }} 
+                          className="w-full bg-primary text-white p-5 rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all"
+                        >
+                          Submit Profile
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
             </motion.div>
           </div>
