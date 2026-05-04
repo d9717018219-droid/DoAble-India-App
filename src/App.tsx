@@ -86,6 +86,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [cityFilter, setCityFilter] = useState(localStorage.getItem('lastSelectedCity') || 'all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'newest' | 'fee_low' | 'fee_high'>('newest');
 
   // Persist City Filter
   useEffect(() => {
@@ -364,8 +365,40 @@ export default function App() {
     });
   }, [tutors, cityFilter, searchQuery, tutorFilterID, tutorFilterName, tutorFilterGender, tutorFilterVehicle, tutorFilterExperience, tutorFilterQualification, tutorFilterTime, tutorFilterStatus, userClasses]);
 
-  const activeLeadsCount = filteredJobs.length;
-  const activeTutorsCount = filteredTutors.length;
+  const finalJobs = useMemo(() => {
+    let result = [...filteredJobs];
+    if (sortBy === 'newest') {
+      result.sort((a, b) => (b as any)._timestamp - (a as any)._timestamp);
+    } else if (sortBy === 'fee_low') {
+      result.sort((a, b) => parseInt(a.Fee || '0') - parseInt(b.Fee || '0'));
+    } else if (sortBy === 'fee_high') {
+      result.sort((a, b) => parseInt(b.Fee || '0') - parseInt(a.Fee || '0'));
+    }
+    return result;
+  }, [filteredJobs, sortBy]);
+
+  const finalTutors = useMemo(() => {
+    let result = [...filteredTutors];
+    if (sortBy === 'newest') {
+      result.sort((a, b) => (b as any)._timestamp - (a as any)._timestamp);
+    } else if (sortBy === 'fee_low') {
+      result.sort((a, b) => {
+        const feeA = parseInt((a['Fee/Month'] || '0').replace(/[^0-9]/g, ''));
+        const feeB = parseInt((b['Fee/Month'] || '0').replace(/[^0-9]/g, ''));
+        return feeA - feeB;
+      });
+    } else if (sortBy === 'fee_high') {
+      result.sort((a, b) => {
+        const feeA = parseInt((a['Fee/Month'] || '0').replace(/[^0-9]/g, ''));
+        const feeB = parseInt((b['Fee/Month'] || '0').replace(/[^0-9]/g, ''));
+        return feeB - feeA;
+      });
+    }
+    return result;
+  }, [filteredTutors, sortBy]);
+
+  const activeLeadsCount = finalJobs.length;
+  const activeTutorsCount = finalTutors.length;
 
   const dynamicCities = useMemo(() => {
     const citySet = new Set<string>(CITIES_LIST);
@@ -743,15 +776,39 @@ export default function App() {
                   <FilterChip label="Class" icon={<GraduationCap size={10} />} active={userClasses.length > 0} onClick={() => setShowAdvancedFilterDrawer(true)} />
                   <FilterChip label="Gender" icon={<LucideUser size={10} />} active={tutorFilterGender !== 'all'} onClick={() => setShowAdvancedFilterDrawer(true)} />
                 </div>
+
+                {/* Count and Sort Bar */}
+                <div className="flex items-center justify-between px-1 pt-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[12px] font-bold text-slate-900">
+                      {activeTab === 'jobs' ? activeLeadsCount : activeTutorsCount} {activeTab === 'jobs' ? 'Jobs' : 'Tutors'}
+                    </span>
+                    <span className="text-[10px] font-medium text-slate-400">found</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] font-bold text-slate-400">Sort by:</span>
+                    <select 
+                      value={sortBy} 
+                      onChange={(e) => setSortBy(e.target.value as any)}
+                      className="bg-transparent border-none outline-none text-[10px] font-black text-primary appearance-none cursor-pointer"
+                    >
+                      <option value="newest">Newest</option>
+                      <option value="fee_low">Fee (Low to High)</option>
+                      <option value="fee_high">Fee (High to Low)</option>
+                    </select>
+                    <ChevronDown size={10} className="text-primary" />
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {loading && leads.length === 0 && tutors.length === 0 ? (
                   <div className="col-span-full py-40 text-center"><Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" /></div>
                 ) : activeTab === 'jobs' ? (
-                  <>{filteredJobs.slice(0, visibleJobsCount).map((job) => (<JobCard key={(job as any).id || job['Order ID']} job={job} onClick={setSelectedJob} />))}{visibleJobsCount < filteredJobs.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleJobsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Jobs</button></div>)}</>
+                  <>{finalJobs.slice(0, visibleJobsCount).map((job) => (<JobCard key={(job as any).id || job['Order ID']} job={job} onClick={setSelectedJob} />))}{visibleJobsCount < finalJobs.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleJobsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Jobs</button></div>)}</>
                 ) : (
-                  <>{filteredTutors.slice(0, visibleTutorsCount).map((tutor) => (<TutorCard key={(tutor as any).id || (tutor as any)['Tutor ID']} tutor={tutor} onClick={setSelectedTutor} />))}{visibleTutorsCount < filteredTutors.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleTutorsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Tutors</button></div>)}</>
+                  <>{finalTutors.slice(0, visibleTutorsCount).map((tutor) => (<TutorCard key={(tutor as any).id || (tutor as any)['Tutor ID']} tutor={tutor} onClick={setSelectedTutor} />))}{visibleTutorsCount < finalTutors.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleTutorsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Tutors</button></div>)}</>
                 )}
               </div>
 
