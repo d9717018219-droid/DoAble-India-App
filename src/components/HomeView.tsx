@@ -146,39 +146,39 @@ export default function HomeView({
       </section>
 
       {/* 3. Explore Opportunities Section */}
-      <section className="px-5 space-y-3">
+      <section className="px-5 space-y-2.5">
         <div className="flex justify-between items-center">
-          <h3 className="text-[17px] font-bold text-[#0F172A]">Explore Opportunities</h3>
-          <button onClick={() => setActiveTab('jobs')} className="text-[14px] font-semibold text-[#2563EB]">
+          <h3 className="text-[15px] font-[700] text-[#0F172A] tracking-tight">Explore Opportunities</h3>
+          <button onClick={() => setActiveTab('jobs')} className="text-[12px] font-[600] text-[#2563EB] tracking-tight">
             View all
           </button>
         </div>
         
-        <div className="flex justify-between gap-1">
-          <ExploreCard icon={<Briefcase size={16} fill="currentColor" className="text-[#8B5CF6]" />} label="Jobs" sub="Openings" onClick={() => setActiveTab('jobs')} />
-          <ExploreCard icon={<GraduationCap size={16} fill="currentColor" className="text-[#10B981]" />} label="Tutors" sub="Experts" onClick={() => setActiveTab('tutors')} />
-          <ExploreCard icon={<BookOpen size={16} fill="currentColor" className="text-[#F97316]" />} label="Subjects" sub="Topics" onClick={() => setActiveTab('jobs')} />
-          <ExploreCard icon={<Calendar size={16} fill="currentColor" className="text-[#EC4899]" />} label="Trial" sub="Book now" onClick={() => { setFormType('parent'); setShowFormModal(true); }} />
-          <ExploreCard icon={<MessageCircle size={16} fill="currentColor" className="text-[#3B82F6]" />} label="Help" sub="Support" onClick={() => setActiveTab('support')} />
+        <div className="flex justify-between gap-1.5 overflow-hidden">
+          <ExploreCard icon={<Briefcase size={14} fill="currentColor" className="text-[#8B5CF6]" />} label="Jobs" sub="Openings" onClick={() => setActiveTab('jobs')} />
+          <ExploreCard icon={<GraduationCap size={14} fill="currentColor" className="text-[#10B981]" />} label="Tutors" sub="Experts" onClick={() => setActiveTab('tutors')} />
+          <ExploreCard icon={<BookOpen size={14} fill="currentColor" className="text-[#F97316]" />} label="Subjects" sub="Topics" onClick={() => setActiveTab('jobs')} />
+          <ExploreCard icon={<Calendar size={14} fill="currentColor" className="text-[#EC4899]" />} label="Trial" sub="Book now" onClick={() => { setFormType('parent'); setShowFormModal(true); }} />
+          <ExploreCard icon={<MessageCircle size={14} fill="currentColor" className="text-[#3B82F6]" />} label="Help" sub="Support" onClick={() => setActiveTab('support')} />
         </div>
       </section>
 
       {/* 4. Our Impact Section */}
       <section className="px-5">
-        <div className="bg-[#F8FAFC] border border-slate-200 rounded-[24px] p-6 space-y-6">
+        <div className="bg-[#F8FAFC] border border-slate-100 rounded-[20px] p-4 space-y-4">
           <div className="space-y-0.5">
-            <h3 className="text-[16px] font-bold text-[#0F172A]">Our Impact</h3>
-            <p className="text-[#64748B] text-[12px]">Empowering abilities. Enabling inclusive India.</p>
+            <h3 className="text-[14px] font-[700] text-[#0F172A] tracking-tight">Our Impact</h3>
+            <p className="text-[#64748B] text-[11px] font-[500] tracking-tight">Empowering abilities. Enabling inclusive India.</p>
           </div>
           
           <div className="flex items-center justify-between">
-            <ImpactStat icon={<Users size={18} className="text-[#10B981]" fill="currentColor" />} value="25K+" label="Students" label2="Impacted" />
-            <div className="w-[1px] h-8 bg-slate-200" />
-            <ImpactStat icon={<User size={18} className="text-[#8B5CF6]" fill="currentColor" />} value="10K+" label="Expert" label2="Educators" />
-            <div className="w-[1px] h-8 bg-slate-200" />
-            <ImpactStat icon={<School size={18} className="text-[#F97316]" fill="currentColor" />} value="500+" label="Partner" label2="Schools" />
-            <div className="w-[1px] h-8 bg-slate-200" />
-            <ImpactStat icon={<Star size={18} className="text-[#3B82F6]" />} value="4.8" label="Average" label2="Rating" />
+            <ImpactStat icon={<Users size={16} className="text-[#10B981]" fill="currentColor" />} value="25K+" label="Students" label2="Impacted" />
+            <div className="w-[1px] h-6 bg-slate-200" />
+            <ImpactStat icon={<User size={16} className="text-[#8B5CF6]" fill="currentColor" />} value="10K+" label="Expert" label2="Educators" />
+            <div className="w-[1px] h-6 bg-slate-200" />
+            <ImpactStat icon={<School size={16} className="text-[#F97316]" fill="currentColor" />} value="500+" label="Partner" label2="Schools" />
+            <div className="w-[1px] h-6 bg-slate-200" />
+            <ImpactStat icon={<Star size={16} className="text-[#3B82F6]" />} value="4.8" label="Average" label2="Rating" />
           </div>
         </div>
       </section>
@@ -241,14 +241,14 @@ function ExploreCard({ icon, label, sub, onClick }: {
   return (
     <button 
       onClick={onClick}
-      className="flex-shrink-0 bg-white p-3 rounded-[20px] flex flex-col items-center text-center gap-1.5 shadow-sm border border-slate-100 active:scale-95 transition-all flex-1 min-w-0"
+      className="flex-shrink-0 bg-white p-2 rounded-[16px] flex flex-col items-center text-center gap-1 shadow-sm border border-slate-100 active:scale-95 transition-all flex-1 min-w-0"
     >
       <div className="mb-0.5">
         {icon}
       </div>
       <div className="space-y-0.5 w-full overflow-hidden">
-        <span className="block text-[12px] font-[700] text-[#0F172A] truncate w-full tracking-tight">{label}</span>
-        <span className="block text-[10px] text-[#64748B] font-[500] leading-[1.1] truncate w-full tracking-tight">{sub}</span>
+        <span className="block text-[10px] font-[700] text-[#0F172A] truncate w-full tracking-tight">{label}</span>
+        <span className="block text-[8px] text-[#64748B] font-[600] leading-none truncate w-full tracking-tighter opacity-80 uppercase">{sub}</span>
       </div>
     </button>
   );
@@ -257,13 +257,13 @@ function ExploreCard({ icon, label, sub, onClick }: {
 function ImpactStat({ icon, value, label, label2 }: { icon: React.ReactNode; value: string; label: string; label2: string }) {
   return (
     <div className="flex flex-col items-center flex-1 text-center">
-      <div className="flex items-center gap-1.5 mb-1.5">
+      <div className="flex items-center gap-1 mb-1">
         {icon}
-        <span className="text-[18px] font-[800] text-[#0F172A] tracking-tighter">{value}</span>
+        <span className="text-[15px] font-[800] text-[#0F172A] tracking-tighter">{value}</span>
       </div>
-      <div className="flex flex-col">
-         <span className="text-[11px] font-[600] text-[#64748B] tracking-tight">{label}</span>
-         <span className="text-[11px] font-[600] text-[#64748B] tracking-tight">{label2}</span>
+      <div className="flex flex-col leading-tight">
+         <span className="text-[9px] font-[700] text-[#64748B] tracking-tight uppercase opacity-70">{label}</span>
+         <span className="text-[9px] font-[700] text-[#64748B] tracking-tight uppercase opacity-70">{label2}</span>
       </div>
     </div>
   );
