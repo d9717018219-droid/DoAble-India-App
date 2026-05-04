@@ -18,6 +18,7 @@ import { cn, formatCurrency, formatPostedDate, getCityPhone } from '../utils';
 
 interface JobCardProps {
   job: JobLead;
+  onClick: (job: JobLead) => void;
 }
 
 const getSubjectStyles = (subject: string = '', classStr: string = '') => {
@@ -40,7 +41,7 @@ const getSubjectStyles = (subject: string = '', classStr: string = '') => {
   return { bg: 'bg-slate-100', emoji: '🎓' };
 };
 
-export const JobCard: React.FC<JobCardProps> = ({ job }) => {
+export const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const subjects = (job.subjects || 'General').split(/[;,]/)[0].trim();
   const classBoard = job['Class / Board'] || ((job.Class || '') + (job.Board ? ' (' + job.Board + ')' : '')) || 'General';
@@ -51,18 +52,10 @@ export const JobCard: React.FC<JobCardProps> = ({ job }) => {
   const postedDate = formatPostedDate(job['Updated Time'] || job['Record Added']);
   const isNew = true; // For demo matching image
 
-  const generateWhatsAppLink = () => {
-    const orderId = job['Order ID'] || 'N/A';
-    const phone = getCityPhone(job.City);
-    const resi = (job as any).residency || 'Student Home Address';
-    const message = `Hello,\n\nI am interested in Order ID: ${orderId}.\nLocation: ${resi}, ${location}\n\nThank you.`;
-    return `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
-  };
-
   return (
     <div 
       ref={cardRef}
-      onClick={() => window.open(generateWhatsAppLink(), '_blank')}
+      onClick={() => onClick(job)}
       className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100 flex flex-col gap-4 active:scale-[0.98] transition-all cursor-pointer relative group overflow-hidden"
     >
       <div className="flex items-start gap-4">

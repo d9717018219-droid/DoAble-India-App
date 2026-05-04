@@ -5,9 +5,10 @@ import { cn } from '../utils';
 
 interface TutorCardProps {
   tutor: TutorProfile;
+  onClick: (tutor: TutorProfile) => void;
 }
 
-export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
+export const TutorCard: React.FC<TutorCardProps> = ({ tutor, onClick }) => {
   if (!tutor) return null;
 
   // Robust Data Accessors - Priority Mapping
@@ -131,7 +132,10 @@ export const TutorCard: React.FC<TutorCardProps> = ({ tutor }) => {
   };
 
   return (
-    <div className="tutor-card w-full h-auto bg-white rounded-[20px] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-400 border-2 border-transparent hover:translate-y-[-15px] hover:scale-[1.02] hover:shadow-[0_30px_60px_rgba(255,107,107,0.2)] hover:border-[#FF6B6B] flex flex-col relative animate-fade-up mb-6">
+    <div 
+      onClick={() => onClick(tutor)}
+      className="tutor-card w-full h-auto bg-white rounded-[20px] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.08)] transition-all duration-400 border-2 border-transparent hover:translate-y-[-15px] hover:scale-[1.02] hover:shadow-[0_30px_60px_rgba(255,107,107,0.2)] hover:border-[#FF6B6B] flex flex-col relative animate-fade-up mb-6 cursor-pointer"
+    >
       {/* ─── TOP SECTION ─── */}
       <div 
         className="card-top p-6 sm:p-10 text-center text-white relative flex flex-col justify-center items-center overflow-hidden shrink-0"

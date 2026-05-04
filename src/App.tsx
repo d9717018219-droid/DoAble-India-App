@@ -115,6 +115,8 @@ export default function App() {
   const [citySearchQuery, setCitySearchQuery] = useState('');
 
   const [showOnboarding, setShowOnboarding] = useState(!localStorage.getItem('userType'));
+  const [selectedJob, setSelectedJob] = useState<JobLead | null>(null);
+  const [selectedTutor, setSelectedTutor] = useState<TutorProfile | null>(null);
   const [showFormModal, setShowFormModal] = useState(false);
   const [formType, setFormType] = useState<'parent' | 'teacher'>('parent');
   const [editUserType, setEditUserType] = useState<UserType | null>(localStorage.getItem('userType') as UserType);
@@ -622,6 +624,7 @@ export default function App() {
     setActiveTab={setActiveTab}
     setShowFilterDrawer={setShowFilterDrawer}
     getDynamicGreeting={getDynamicGreeting} // 🔥 FIX
+    onJobClick={setSelectedJob}
   />
 )}
         {activeTab === 'alerts' && (
@@ -685,29 +688,31 @@ export default function App() {
                 {loading ? (
                   <div className="col-span-full py-40 text-center"><Loader2 className="w-12 h-12 animate-spin mx-auto text-primary" /></div>
                 ) : activeTab === 'jobs' ? (
-                  <>{filteredJobs.slice(0, visibleJobsCount).map((job) => (<JobCard key={(job as any).id || job['Order ID']} job={job} />))}{visibleJobsCount < filteredJobs.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleJobsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Jobs</button></div>)}</>
+                  <>{filteredJobs.slice(0, visibleJobsCount).map((job) => (<JobCard key={(job as any).id || job['Order ID']} job={job} onClick={setSelectedJob} />))}{visibleJobsCount < filteredJobs.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleJobsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Jobs</button></div>)}</>
                 ) : (
-                  <>{filteredTutors.slice(0, visibleTutorsCount).map((tutor) => (<TutorCard key={(tutor as any).id || (tutor as any)['Tutor ID']} tutor={tutor} />))}{visibleTutorsCount < filteredTutors.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleTutorsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Tutors</button></div>)}</>
+                  <>{filteredTutors.slice(0, visibleTutorsCount).map((tutor) => (<TutorCard key={(tutor as any).id || (tutor as any)['Tutor ID']} tutor={tutor} onClick={setSelectedTutor} />))}{visibleTutorsCount < filteredTutors.length && (<div className="col-span-full py-10 flex justify-center"><button onClick={() => setVisibleTutorsCount(prev => prev + 10)} className="bg-primary text-white px-10 py-4 rounded-2xl font-[800] text-[12px] uppercase shadow-xl active:scale-95 transition-all">Load More Tutors</button></div>)}</>
                 )}
               </div>
 
               {/* Don't find the right job section */}
               {!loading && (
-                <div className="mt-8 bg-white border border-slate-100 rounded-[32px] p-8 text-center space-y-5 shadow-sm">
-                  <div className="w-16 h-16 bg-[#F8FAFC] rounded-[22px] flex items-center justify-center mx-auto">
-                    <Search size={32} className="text-[#2563EB]" />
+                <div className="mt-8 bg-white border border-slate-100 rounded-[24px] p-5 shadow-sm flex items-center gap-4">
+                  <div className="w-12 h-12 bg-[#F8FAFC] rounded-2xl flex items-center justify-center shrink-0 text-2xl">
+                    {activeTab === 'jobs' ? '💼' : '🎓'}
                   </div>
-                  <div className="space-y-1.5">
-                    <h3 className="text-[20px] font-[800] text-[#0F172A] tracking-tight">Don't find the right {activeTab === 'jobs' ? 'job' : 'tutor'}?</h3>
-                    <p className="text-[#64748B] text-[13px] font-[500] max-w-[280px] mx-auto leading-relaxed">
-                      Tell us what you're looking for and we'll notify you as soon as we find a perfect match.
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-[14px] font-[800] text-[#0F172A] tracking-tight leading-tight">
+                      Don't find the right {activeTab === 'jobs' ? 'job' : 'tutor'}?
+                    </h3>
+                    <p className="text-[#64748B] text-[10px] font-[600] leading-tight mt-0.5">
+                      {activeTab === 'jobs' ? 'Share your profile and let students find you.' : 'Post your requirement and let experts reach out.'}
                     </p>
                   </div>
                   <button 
                     onClick={() => { playTapSound(); setFormType(activeTab === 'jobs' ? 'teacher' : 'parent'); setShowFormModal(true); }}
-                    className="bg-[#0F172A] text-white px-8 py-4 rounded-2xl font-[800] text-[12px] uppercase tracking-wider shadow-lg active:scale-95 transition-all w-full"
+                    className="bg-[#0F172A] text-white px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-md shrink-0"
                   >
-                    Share Your Requirement
+                    {activeTab === 'jobs' ? 'Create Profile' : 'Post Requirement'}
                   </button>
                 </div>
               )}
@@ -731,6 +736,199 @@ export default function App() {
           {isAdminUser && (<button onClick={() => { playTapSound(); setActiveTab('admin'); }} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>
       </nav>
+      <AnimatePresence>
+        {selectedJob && (
+          <div className="fixed inset-0 z-[11000] flex items-end sm:items-center justify-center">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedJob(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+            <motion.div 
+              initial={{ y: "100%" }} 
+              animate={{ y: 0 }} 
+              exit={{ y: "100%" }} 
+              className="relative bg-[#F8FAFC] w-full max-w-lg rounded-t-[40px] sm:rounded-[40px] overflow-hidden shadow-2xl flex flex-col max-h-[95vh]"
+            >
+              {/* Premium Header */}
+              <div 
+                className="p-8 text-center text-white relative shrink-0"
+                style={{ background: getCityTheme(selectedJob.City).grad }}
+              >
+                <button onClick={() => setSelectedJob(null)} className="absolute top-6 left-6 p-2 bg-white/20 rounded-full hover:bg-white/30 transition-all"><X size={20} /></button>
+                <div className="text-[20px] font-[800] text-[#FFD166] mb-1">
+                   {selectedJob.Gender?.toLowerCase().includes('female') ? '👩‍🏫' : '👨‍🏫'} {selectedJob.Name || (selectedJob.subjects?.split(',')[0] || 'Tutor') + ' Required'}
+                </div>
+                <div className="text-[11px] font-[600] opacity-80 uppercase tracking-widest">🆔 Order ID: {selectedJob['Order ID']}</div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+                {/* Quick Stats Grid */}
+                <div className="grid grid-cols-2 gap-3 p-5 bg-white/50 border-b border-slate-100">
+                  <DetailStat emoji={selectedJob.Gender?.toLowerCase().includes('female') ? '👩‍🏫' : '👨‍🏫'} label="Gender" value={selectedJob.Gender || 'Any'} />
+                  <DetailStat emoji="📍" label="Location" value={selectedJob.Locations?.split(',')[0] || selectedJob.City || 'India'} />
+                  <DetailStat emoji="📖" label="Class/Board" value={selectedJob['Class / Board'] || (selectedJob.Class || 'General')} />
+                  <DetailStat emoji="💰" label="Fee" value={`₹${formatCurrency(selectedJob.Fee || '0')}/Mo`} />
+                </div>
+
+                {/* Parent Note */}
+                <div className="m-5 p-4 bg-orange-50/50 rounded-2xl border border-dashed border-orange-200">
+                  <span className="text-[10px] font-black uppercase text-orange-600 mb-2 block tracking-widest">📝 Parent Note</span>
+                  <p className="text-[12px] text-slate-700 font-medium leading-relaxed">{selectedJob.Notes || 'No specific requirements mentioned.'}</p>
+                </div>
+
+                {/* Content Sections */}
+                <div className="p-6 space-y-6 bg-white">
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Subjects to Teach</span>
+                    <div className="flex flex-wrap gap-2">
+                      {(selectedJob.subjects || 'General').split(',').map((s, i) => (
+                        <span key={i} className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-bold text-slate-700">📖 {s.trim()}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Class Location</span>
+                    <div 
+                      className="p-4 bg-slate-50 rounded-2xl border-l-4 border-primary shadow-sm cursor-pointer group"
+                      onClick={() => {
+                        const dest = encodeURIComponent(`${(selectedJob as any).residency || 'Student Home'}, ${selectedJob.Locations || selectedJob.City}`);
+                        window.open(`https://www.google.com/maps/dir/?api=1&destination=${dest}`, '_blank');
+                      }}
+                    >
+                      <div className="text-[12px] font-bold text-slate-900 flex items-center gap-2">
+                        <MapPin size={14} className="text-primary" />
+                        {(selectedJob as any).residency || 'Student Home Address'}, {selectedJob.Locations?.split(',')[0] || selectedJob.City}
+                      </div>
+                      <div className="text-[9px] text-slate-400 font-bold mt-1.5 uppercase tracking-tight group-hover:text-primary transition-colors">Tap to check route on Google Maps →</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Schedule & Availability</span>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-bold text-slate-700">⏳ {(selectedJob as any).duration || '1 Hr/Day'}</span>
+                      <span className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-bold text-slate-700">📅 {(selectedJob as any).days || 'Regular'}</span>
+                      <span className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-bold text-slate-700">🕒 {(selectedJob as any).time || 'Flexible'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-3 shrink-0">
+                <a 
+                  href={`tel:${getCityPhone(selectedJob.City)}`}
+                  className="flex-1 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-center border-2 border-primary text-primary active:scale-95 transition-all"
+                >
+                  📞 Call
+                </a>
+                <a 
+                  href={`https://wa.me/91${getCityPhone(selectedJob.City)}?text=${encodeURIComponent(`Hello Sir/Ma'am,\n\nExtremely interested in applying for *Order ID: ${selectedJob['Order ID']}*.\n\nI have carefully reviewed all the requirements. The preferred student time (${(selectedJob as any).time || 'Flexible'}), duration (${(selectedJob as any).duration || '1 hr'}), and the schedule (${(selectedJob as any).days || 'Regular'}) match my availability.\n\nWaiting for your positive response!\n\nThank you.`)}`}
+                  target="_blank"
+                  className="flex-[1.5] py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-center bg-primary text-white shadow-xl shadow-primary/20 active:scale-95 transition-all"
+                  style={{ background: getCityTheme(selectedJob.City).grad }}
+                >
+                  💬 Apply Now
+                </a>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {selectedTutor && (
+          <div className="fixed inset-0 z-[11000] flex items-end sm:items-center justify-center">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedTutor(null)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
+            <motion.div 
+              initial={{ y: "100%" }} 
+              animate={{ y: 0 }} 
+              exit={{ y: "100%" }} 
+              className="relative bg-[#F8FAFC] w-full max-w-lg rounded-t-[40px] sm:rounded-[40px] overflow-hidden shadow-2xl flex flex-col max-h-[95vh]"
+            >
+              {/* Premium Header */}
+              <div 
+                className="p-8 text-center text-white relative shrink-0"
+                style={{ background: `linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)` }}
+              >
+                <button onClick={() => setSelectedTutor(null)} className="absolute top-6 left-6 p-2 bg-white/20 rounded-full hover:bg-white/30 transition-all"><X size={20} /></button>
+                <div className="text-[20px] font-[800] text-[#FFD166] mb-1">
+                   ✨ {selectedTutor['Full Name'] || (selectedTutor as any).fullName || 'Premium Tutor'}
+                </div>
+                <div className="text-[11px] font-[600] opacity-80 uppercase tracking-widest">🆔 Tutor ID: {selectedTutor['Tutor ID'] || (selectedTutor as any).tutorId || 'N/A'}</div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+                {/* Quick Stats Grid */}
+                <div className="grid grid-cols-2 gap-3 p-5 bg-white/50 border-b border-slate-100">
+                  <DetailStat emoji="🎂" label="Age" value={(selectedTutor as any).Age || (selectedTutor as any).age || '–'} />
+                  <DetailStat emoji="👥" label="Gender" value={selectedTutor.Gender || (selectedTutor as any).gender || '–'} />
+                  <DetailStat emoji="📍" label="City" value={selectedTutor['Preferred City'] || (selectedTutor as any).preferredCity || 'India'} />
+                  <DetailStat emoji="💰" label="Fee" value={selectedTutor['Fee/Month'] || (selectedTutor as any).feeMonth || 'Flexible'} />
+                </div>
+
+                {/* About Me */}
+                <div className="m-5 p-4 bg-emerald-50/50 rounded-2xl border border-dashed border-emerald-200">
+                  <span className="text-[10px] font-black uppercase text-emerald-600 mb-2 block tracking-widest">ℹ️ About Me</span>
+                  <p className="text-[12px] text-slate-700 font-medium leading-relaxed">
+                    {selectedTutor.About || (selectedTutor as any).about || (selectedTutor as any).Notes || 'Professional educator dedicated to student success.'}
+                  </p>
+                </div>
+
+                {/* Content Sections */}
+                <div className="p-6 space-y-6 bg-white">
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Qualification</span>
+                    <div className="flex flex-wrap gap-2">
+                      {(selectedTutor.Qualification || (selectedTutor as any).qualification || 'Graduate').split(',').map((q, i) => (
+                        <span key={i} className="px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-xl text-[11px] font-bold text-blue-700">🎓 {q.trim()}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-slate-400 mb-3 block tracking-widest">Expert Subjects</span>
+                    <div className="flex flex-wrap gap-2">
+                      {(selectedTutor['Preferred Subject(s)'] || (selectedTutor as any).preferredSubjects || 'All Subjects').split(/[;,]/).map((s, i) => (
+                        <span key={i} className="px-3 py-1.5 bg-rose-50 border border-rose-100 rounded-xl text-[11px] font-bold text-rose-700">📖 {s.trim()}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">Experience</span>
+                      <div className="px-3 py-1.5 bg-purple-50 border border-purple-100 rounded-xl text-[11px] font-bold text-purple-700 inline-block">
+                        📚 {selectedTutor['Teaching Experience'] || (selectedTutor as any).experience || '1-3 Years'}
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest">Vehicle</span>
+                      <div className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-xl text-[11px] font-bold text-slate-700 inline-block">
+                        🚗 {selectedTutor['Have own Vehicle'] || (selectedTutor as any).haveOwnVehicle || 'No'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-3 shrink-0">
+                <a 
+                  href="tel:9971969197"
+                  className="flex-1 py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-center border-2 border-[#FF6B6B] text-[#FF6B6B] active:scale-95 transition-all"
+                >
+                  📞 Call
+                </a>
+                <a 
+                  href={`https://wa.me/919717018219?text=${encodeURIComponent(`Hi, I'm interested in Tutor: ${selectedTutor['Full Name'] || (selectedTutor as any).fullName}\nID: ${selectedTutor['Tutor ID'] || (selectedTutor as any).tutorId}`)}`}
+                  target="_blank"
+                  className="flex-[1.5] py-4 rounded-2xl font-black text-[11px] uppercase tracking-widest text-center bg-[#4ECDC4] text-white shadow-xl shadow-[#4ECDC4]/20 active:scale-95 transition-all"
+                >
+                  💬 Chat
+                </a>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <style>{`
         @keyframes mesh { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .mesh-gradient { background: linear-gradient(-45deg, #22c55e, #3b82f6, #10b981, #2563eb); background-size: 400% 400%; animation: mesh 15s ease infinite; }
@@ -766,6 +964,16 @@ function FilterChip({ label, icon, active = false }: { label: string; icon: Reac
       {icon}
       {label}
     </button>
+  );
+}
+
+function DetailStat({ emoji, label, value }: { emoji: string; label: string; value: string }) {
+  return (
+    <div className="bg-white p-3.5 rounded-2xl text-center border border-slate-100 shadow-sm transition-all duration-300">
+      <div className="text-xl mb-1">{emoji}</div>
+      <div className="text-[12px] font-black text-primary truncate leading-tight">{value}</div>
+      <div className="text-[9px] text-slate-400 uppercase font-black tracking-widest mt-1 opacity-70">{label}</div>
+    </div>
   );
 }
 

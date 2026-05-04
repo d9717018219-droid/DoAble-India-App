@@ -30,6 +30,7 @@ interface HomeViewProps {
   setActiveTab: (tab: 'home' | 'jobs' | 'tutors' | 'alerts' | 'admin' | 'support') => void;
   getDynamicGreeting: () => string;
   setShowFilterDrawer: (show: boolean) => void;
+  onJobClick: (job: JobLead) => void;
 }
 
 export default function HomeView({
@@ -41,7 +42,9 @@ export default function HomeView({
   setShowFormModal,
   setActiveTab,
   setShowFilterDrawer,
-  getDynamicGreeting
+  getDynamicGreeting,
+  featuredJobs,
+  onJobClick
 }: HomeViewProps) {
   return (
     <div className="flex flex-col gap-6 pb-32 bg-[#FAFBFF] font-sans">
