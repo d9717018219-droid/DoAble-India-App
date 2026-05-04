@@ -70,14 +70,6 @@ export default function App() {
   const [firestoreLeads, setFirestoreLeads] = useState<JobLead[]>([]);
   const [tutors, setTutors] = useState<TutorProfile[]>([]);
 
-  const featuredJobs = useMemo(() => {
-    return firestoreLeads.filter(l => l.Status === 'Active').slice(0, 3);
-  }, [firestoreLeads]);
-
-  const featuredTutors = useMemo(() => {
-    return tutors.slice(0, 5);
-  }, [tutors]);
-
   const [userCity, setUserCity] = useState<string>(localStorage.getItem('userCity') || 'Ghaziabad');
   const [userName, setUserName] = useState<string | null>(localStorage.getItem('userName'));
   const [userGender, setUserGender] = useState<string | null>(localStorage.getItem('userGender'));
@@ -278,6 +270,14 @@ export default function App() {
       (b._timestamp || 0) - (a._timestamp || 0)
     );
   }, [leads, firestoreLeads]);
+
+  const featuredJobs = useMemo(() => {
+    return allLeads.filter(l => (l['Internal Remark'] || '').trim().toLowerCase() === 'searching').slice(0, 3);
+  }, [allLeads]);
+
+  const featuredTutors = useMemo(() => {
+    return tutors.slice(0, 5);
+  }, [tutors]);
 
   const filteredJobs = useMemo(() => {
     return allLeads.filter(l => {
