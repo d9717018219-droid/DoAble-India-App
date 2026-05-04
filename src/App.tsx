@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User as LucideUser, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check, Sun, Cloud, Moon, Briefcase, BookText, ChevronDown, CreditCard, Heart } from 'lucide-react';
+import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User as LucideUser, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check, Sun, Cloud, Moon, Briefcase, BookText, ChevronDown, CreditCard, Heart, Volume2, Play } from 'lucide-react';
 import { collection, onSnapshot, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, auth, auth as firebaseAuth } from './firebase';
 import { handleFirestoreError, OperationType } from './lib/firestore-errors';
@@ -91,8 +91,36 @@ export default function App() {
   }, [cityFilter]);
   const [showProfileSetup, setShowProfileSetup] = useState(false);
   const [setupStep, setSetupStep] = useState(1);
+  const [profileTab, setProfileTab] = useState<'edit' | 'matching' | 'settings'>('edit');
   const [unseenAlertsCount, setUnseenAlertsCount] = useState(3);
   const [shortlistedIds, setShortlistedIds] = useState<string[]>(JSON.parse(localStorage.getItem('shortlistedIds') || '[]'));
+  
+  const ALERT_JINGLE = 'https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3';
+  const [isPlaying, setIsPlaying] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>(() => {
+    try { return ('Notification' in window) ? Notification.permission : 'denied'; } catch { return 'denied'; }
+  });
+
+  const requestNotificationPermission = async () => {
+    if (!('Notification' in window)) return;
+    try {
+      const result = await Notification.requestPermission();
+      setNotificationPermission(result);
+    } catch {}
+  };
+
+  const playPreview = (url: string) => {
+    if (isPlaying === url) {
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; }
+      setIsPlaying(null);
+      return;
+    }
+    if (!audioRef.current) return;
+    audioRef.current.src = url;
+    audioRef.current.play().then(() => setIsPlaying(url)).catch(() => setIsPlaying(null));
+  };
   const [activeTab, setActiveTab] = useState<'home' | 'jobs' | 'tutors' | 'alerts' | 'admin' | 'support' | 'payments' | 'shortlist'>('home');
 
   const toggleShortlist = useCallback((id: string, e: React.MouseEvent) => {
@@ -966,7 +994,7 @@ export default function App() {
           <NavButton active={activeTab === 'home'} onClick={() => { playTapSound(); setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={18} />} label="Home" activeColor="text-[#1B7F5C]" />
           <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={18} />} label="Jobs" activeColor="text-purple-600" />
           <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={18} />} label="Tutors" activeColor="text-emerald-600" />
-          <NavButton active={activeTab === 'shortlist'} onClick={() => { playTapSound(); setActiveTab('shortlist'); window.scrollTo(0,0); }} icon={<Heart size={18} />} label="Liked" activeColor="text-rose-600" />
+          <NavButton active={activeTab === 'payments'} onClick={() => { playTapSound(); setActiveTab('payments'); window.scrollTo(0,0); }} icon={<CreditCard size={18} />} label="Pay" activeColor="text-orange-600" />
           <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={18} />} label="Support" activeColor="text-blue-600" />
           {isAdminUser && (<button onClick={() => { playTapSound(); setActiveTab('admin'); }} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>
@@ -1253,77 +1281,129 @@ export default function App() {
         {showProfileSetup && (
           <div className="fixed inset-0 z-[12000] flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowProfileSetup(false)} className="absolute inset-0 bg-slate-900/80 backdrop-blur-md" />
-            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="relative bg-white w-full max-w-md rounded-[48px] shadow-2xl overflow-hidden p-8 max-h-[90vh] overflow-y-auto pr-2 custom-scrollbar">
-              <button onClick={() => setShowProfileSetup(false)} className="absolute top-6 right-6 p-2 bg-slate-50 rounded-full text-slate-400 hover:text-slate-600 transition-all"><X size={20} /></button>
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="relative bg-white w-full max-w-md rounded-[48px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+              <div className="p-6 border-b border-slate-50 flex items-center justify-between shrink-0">
+                <div className="flex gap-1 bg-slate-100 p-1 rounded-2xl w-full mr-12">
+                   {[
+                     { id: 'edit', label: 'Profile', icon: LucideUser },
+                     { id: 'matching', label: 'Matching', icon: Heart },
+                     { id: 'settings', label: 'Settings', icon: Settings }
+                   ].map(tab => (
+                     <button key={tab.id} onClick={() => { setProfileTab(tab.id as any); playTapSound(); }} className={cn("flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[9px] font-black uppercase transition-all", profileTab === tab.id ? "bg-white text-primary shadow-sm" : "text-slate-400")}>
+                       <tab.icon size={12} />
+                       <span>{tab.label}</span>
+                     </button>
+                   ))}
+                </div>
+                <button onClick={() => setShowProfileSetup(false)} className="absolute top-6 right-6 p-2 bg-slate-50 rounded-full text-slate-400 hover:text-slate-600 transition-all"><X size={20} /></button>
+              </div>
               
-              <div className="space-y-6">
-                <div className="text-center space-y-2 pb-4 border-b border-slate-100">
-                  <h3 className="text-2xl font-[900] text-slate-900 uppercase tracking-tighter">Profile Information</h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Update your preferences</p>
-                </div>
+              <div className="flex-1 overflow-y-auto p-8 pt-6 custom-scrollbar">
+                <AnimatePresence mode="wait">
+                  {profileTab === 'edit' && (
+                    <motion.div key="edit" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-6">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">I am a</label>
+                        <div className="grid grid-cols-2 gap-3">
+                           <button onClick={() => { setEditUserType('parent'); playTapSound(); }} className={cn("py-4 rounded-2xl font-black text-[10px] uppercase border-2 transition-all", editUserType === 'parent' ? "border-primary bg-primary/5 text-primary" : "border-slate-50 text-slate-400")}>Parent</button>
+                           <button onClick={() => { setEditUserType('teacher'); playTapSound(); }} className={cn("py-4 rounded-2xl font-black text-[10px] uppercase border-2 transition-all", editUserType === 'teacher' ? "border-primary bg-primary/5 text-primary" : "border-slate-50 text-slate-400")}>Tutor</button>
+                        </div>
+                      </div>
 
-                <div className="space-y-6 pt-2">
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">I am a</label>
-                    <div className="grid grid-cols-2 gap-3">
-                       <button onClick={() => { setEditUserType('parent'); playTapSound(); }} className={cn("py-4 rounded-2xl font-black text-[10px] uppercase border-2 transition-all", editUserType === 'parent' ? "border-primary bg-primary/5 text-primary" : "border-slate-50 text-slate-400")}>Parent</button>
-                       <button onClick={() => { setEditUserType('teacher'); playTapSound(); }} className={cn("py-4 rounded-2xl font-black text-[10px] uppercase border-2 transition-all", editUserType === 'teacher' ? "border-primary bg-primary/5 text-primary" : "border-slate-50 text-slate-400")}>Tutor</button>
-                    </div>
-                  </div>
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Full Name</label>
+                        <input type="text" value={userName || ''} onChange={e => setUserName(e.target.value)} placeholder="Your Name" className="w-full bg-slate-50 p-4 rounded-2xl text-xs font-bold border-2 border-slate-50 focus:border-primary outline-none transition-all" />
+                      </div>
 
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Full Name</label>
-                    <input type="text" value={userName || ''} onChange={e => setUserName(e.target.value)} placeholder="Your Name" className="w-full bg-slate-50 p-4 rounded-2xl text-xs font-bold border-2 border-slate-50 focus:border-primary outline-none transition-all" />
-                  </div>
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">City</label>
+                        <select value={userCity} onChange={e => { setUserCity(e.target.value); playTapSound(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-xs font-bold border-2 border-slate-50 focus:border-primary outline-none transition-all appearance-none">
+                          {CITIES_LIST.sort().map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      </div>
 
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Gender</label>
-                    <div className="grid grid-cols-2 gap-3">
-                       {['Male', 'Female'].map(g => (
-                         <button key={g} onClick={() => { setUserGender(g); playTapSound(); }} className={cn("py-4 rounded-2xl font-black text-[10px] uppercase border-2 transition-all", userGender === g ? "border-primary bg-primary/5 text-primary" : "border-slate-50 text-slate-400")}>{g}</button>
-                       ))}
-                    </div>
-                  </div>
+                      <div className="pt-4 flex flex-col gap-3">
+                        <button 
+                          onClick={() => {
+                            localStorage.setItem('userName', userName || '');
+                            localStorage.setItem('userType', editUserType || 'parent');
+                            localStorage.setItem('userCity', userCity);
+                            setUserType(editUserType);
+                            setShowProfileSetup(false);
+                            playTapSound();
+                          }} 
+                          className="w-full bg-slate-900 text-white p-5 rounded-[24px] font-black text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all"
+                        >
+                          Save Changes
+                        </button>
 
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Target Classes</label>
-                    <div className="flex flex-wrap gap-1.5">
-                       {CLASSES_LIST.map(cls => (
-                         <button key={cls} onClick={() => { const next = userClasses.includes(cls) ? userClasses.filter(c => c !== cls) : [...userClasses, cls]; setUserClasses(next); playTapSound(); }} className={cn("px-3 py-1.5 rounded-xl border-2 text-[8px] font-black uppercase transition-all", userClasses.includes(cls) ? "border-emerald-500 bg-emerald-50 text-emerald-600" : "border-slate-50 text-slate-400")}>{cls}</button>
-                       ))}
-                    </div>
-                  </div>
+                        <button 
+                          onClick={() => { setProfileTab('matching'); playTapSound(); }} 
+                          className="w-full bg-rose-50 text-rose-600 p-5 rounded-[24px] font-black text-[11px] uppercase tracking-widest active:scale-95 transition-all flex items-center justify-center gap-2 border border-rose-100"
+                        >
+                          <Heart size={16} fill="currentColor" />
+                          My Matching (Liked)
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
 
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">City</label>
-                    <select value={userCity} onChange={e => { setUserCity(e.target.value); playTapSound(); }} className="w-full bg-slate-50 p-4 rounded-2xl text-xs font-bold border-2 border-slate-50 focus:border-primary outline-none transition-all appearance-none">
-                      {CITIES_LIST.sort().map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
+                  {profileTab === 'matching' && (
+                    <motion.div key="matching" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-4">
+                       <div className="flex justify-between items-center mb-2">
+                         <h4 className="text-sm font-black text-slate-900 uppercase">My Shortlist</h4>
+                         <div className="bg-primary/10 px-3 py-1 rounded-full"><span className="text-[9px] font-black text-primary uppercase">{shortlistedIds.length} Items</span></div>
+                       </div>
+                       {shortlistedIds.length === 0 ? (
+                         <div className="py-12 text-center space-y-3 bg-slate-50 rounded-[32px] border border-slate-100">
+                           <div className="text-4xl">❤️</div>
+                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No liked items yet</p>
+                         </div>
+                       ) : (
+                         <div className="space-y-3">
+                           {allLeads.filter(l => shortlistedIds.includes(getJobId(l))).map(job => (
+                             <JobCard key={getJobId(job)} job={job} onClick={setSelectedJob} isShortlisted={true} onShortlistToggle={toggleShortlist} />
+                           ))}
+                           {tutors.filter(t => shortlistedIds.includes(getTutorId(t))).map(tutor => (
+                             <TutorCard key={getTutorId(tutor)} tutor={tutor} onClick={setSelectedTutor} isShortlisted={true} onShortlistToggle={toggleShortlist} />
+                           ))}
+                         </div>
+                       )}
+                    </motion.div>
+                  )}
 
-                  <div className="pt-4">
-                    <button 
-                      onClick={() => {
-                        localStorage.setItem('userName', userName || '');
-                        localStorage.setItem('userType', editUserType || 'parent');
-                        localStorage.setItem('userCity', userCity);
-                        localStorage.setItem('userGender', userGender || '');
-                        localStorage.setItem('userClasses', JSON.stringify(userClasses));
-                        setUserType(editUserType);
-                        setShowProfileSetup(false);
-                        playTapSound();
-                      }} 
-                      className="w-full bg-slate-900 text-white p-5 rounded-[24px] font-black text-[11px] uppercase tracking-widest shadow-xl active:scale-95 transition-all"
-                    >
-                      Save Profile
-                    </button>
-                  </div>
-                </div>
+                  {profileTab === 'settings' && (
+                    <motion.div key="settings" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-6">
+                       <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Notifications</label>
+                          <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center justify-between">
+                             <span className="text-[10px] font-black uppercase text-slate-700">{notificationPermission === 'granted' ? 'Enabled' : 'Disabled'}</span>
+                             {notificationPermission !== 'granted' && <button onClick={requestNotificationPermission} className="bg-primary text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase">Enable</button>}
+                          </div>
+                       </div>
+                       
+                       <div className="bg-primary/5 p-5 rounded-[24px] border border-primary/10">
+                          <div className="flex items-center gap-3 mb-4">
+                             <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-primary shadow-sm"><Volume2 size={20} /></div>
+                             <div><h4 className="text-[11px] font-black text-slate-900 uppercase">Alert Sound</h4><p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Crystal Chime</p></div>
+                          </div>
+                          <button onClick={() => playPreview(ALERT_JINGLE)} className="w-full bg-white p-3.5 rounded-xl border border-slate-100 flex items-center justify-between active:scale-[0.98] transition-all"><span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{isPlaying === ALERT_JINGLE ? 'Stop' : 'Test Sound'}</span>{isPlaying === ALERT_JINGLE ? <div className="flex gap-0.5 items-end h-3"><div className="w-1 bg-primary animate-bounce" /><div className="w-1 bg-primary animate-bounce delay-75" /><div className="w-1 bg-primary animate-bounce delay-150" /></div> : <Play size={12} className="text-primary" fill="currentColor" />}</button>
+                       </div>
+
+                       <div className="pt-4 text-center">
+                          <button onClick={() => { if (isAdminUser) setActiveTab('admin'); else handleSignIn(); setShowProfileSetup(false); }} className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] hover:text-slate-500 transition-colors underline underline-offset-4">System Management</button>
+                       </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
+      <audio ref={audioRef} onEnded={() => setIsPlaying(null)} className="hidden" preload="auto" crossOrigin="anonymous" />
+
 
       <style>{`
         @keyframes mesh { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }

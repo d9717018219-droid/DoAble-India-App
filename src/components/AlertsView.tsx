@@ -193,85 +193,17 @@ const AlertsView: React.FC<AlertsViewProps> = ({
     <div className="space-y-4 pb-24">
       <audio ref={domAudioRef} onEnded={() => setIsPlaying(null)} className="hidden" preload="auto" crossOrigin="anonymous" />
       <header className="px-6 py-4 flex items-center justify-between">
-          <h2 className="text-[22px] font-black text-slate-900 tracking-tighter uppercase">{activeTab === 'support' ? 'Support' : activeTab === 'setup' ? 'Settings' : 'Broadcasts'}</h2>
+          <h2 className="text-[22px] font-black text-slate-900 tracking-tighter uppercase">{activeTab === 'support' ? 'Support' : 'Feed'}</h2>
           <div className="bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20"><span className="text-[9px] font-black text-emerald-600 uppercase">Live</span></div>
       </header>
 
-      {/* Internal Tabs are only shown if we are in Alerts or Settings mode, not when specifically in Support mode from main nav */}
-      {initialTab !== 'support' && (
-        <div className="px-6">
-          <div className="bg-slate-100 p-1.5 rounded-[22px] flex gap-1 border border-slate-200">
-            {[
-              { id: 'feed', label: 'Feed', icon: Bell },
-              { id: 'setup', label: 'Settings', icon: Settings }
-              ].map((tab) => (
-              <button key={tab.id} onClick={() => { unlockAudio(); playTapSound(); setActiveTab(tab.id as any); }}
-                className={cn("flex-1 flex items-center justify-center gap-2 py-3 rounded-[16px] text-[10px] font-black uppercase transition-all", activeTab === tab.id ? "bg-primary text-white" : "text-slate-400")}>
-                <tab.icon size={14} strokeWidth={3} />
-                <span>{tab.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div className="px-6 space-y-4">
         <AnimatePresence mode="wait">
-          {activeTab === 'setup' ? (
-            <motion.div 
-              key="setup"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-6"
-            >
-              <div className="bg-white p-8 rounded-[40px] border-2 border-slate-50 shadow-sm space-y-8">
-                 <div className="pb-4 border-b border-slate-100">
-                    <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">App Settings</h4>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Preferences & Notifications</p>
-                 </div>
-                 <div className="space-y-6">
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Receive Notifications</label>
-                      <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center justify-between">
-                         <span className="text-xs font-black uppercase text-slate-700">{permission === 'granted' ? 'Enabled' : 'Disabled'}</span>
-                         {permission !== 'granted' && <button onClick={requestPermission} className="bg-primary text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase">Enable</button>}
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Full Name</label>
-                      <input type="text" value={userName || ''} onChange={e => updatePreference('userName', e.target.value)} placeholder="Enter your name..." className="w-full bg-slate-50 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100 text-slate-900" />
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                      <div className="space-y-3"><label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Nature</label><select value={userType || ''} onChange={e => updatePreference('userType', e.target.value)} className="w-full bg-slate-50 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100"><option value="parent">👨 Parent</option><option value="teacher">🎓 Tutor</option></select></div>
-                      <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">City</label>
-                        <select 
-                          value={city || 'All'} 
-                          onChange={e => updatePreference('userCity', e.target.value)} 
-                          className="w-full bg-slate-50 p-4 rounded-xl text-xs font-bold outline-none border border-slate-100"
-                        >
-                          <option value="All">All Cities</option>
-                          {[...CITIES_LIST].sort().map(c => (
-                            <option key={c} value={c}>{c}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <button onClick={() => { if (isAdminUser && onAdminClick) onAdminClick(); else if (handleSignIn) handleSignIn(); }} className="text-[9px] font-black text-slate-300 uppercase tracking-widest hover:text-slate-400 transition-colors">System Management</button>
-                    </div>
-                 </div>
-              </div>
-              <div className="bg-primary/5 p-6 rounded-[32px] border border-primary/10">
-                 <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-primary shadow-sm"><Volume2 size={24} /></div>
-                    <div><h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Notification Sound</h4><p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Premium Crystal Chime</p></div>
-                 </div>
-                 <button onClick={() => playPreview(ALERT_JINGLE)} className="mt-4 w-full bg-white p-4 rounded-xl border border-slate-100 flex items-center justify-between active:scale-[0.98] transition-all"><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{isPlaying === ALERT_JINGLE ? 'Stop' : 'Test Sound'}</span>{isPlaying === ALERT_JINGLE ? <div className="flex gap-0.5 items-end h-3"><div className="w-1 bg-primary animate-bounce" /><div className="w-1 bg-primary animate-bounce delay-75" /><div className="w-1 bg-primary animate-bounce delay-150" /></div> : <Play size={14} className="text-primary" fill="currentColor" />}</button>
-              </div>
-            </motion.div>
+          {activeTab === 'support' ? (
+             <div key="support">
+               {/* Support view content is handled elsewhere or by AlertsView if initialTab is support */}
+               {/* I will keep the feed as default if not support */}
+             </div>
           ) : (
             <motion.div 
               key="feed"
