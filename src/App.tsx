@@ -839,23 +839,23 @@ export default function App() {
 
               {/* Don't find the right job section */}
               {!loading && (
-                <div className="mt-6 bg-white border border-slate-100 rounded-[24px] p-3.5 shadow-sm flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-9 h-9 bg-[#F8FAFC] rounded-xl flex items-center justify-center shrink-0 text-lg">
+                <div className="mt-6 bg-white border border-slate-100 rounded-[22px] p-2.5 shadow-sm flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-8 h-8 bg-[#F8FAFC] rounded-xl flex items-center justify-center shrink-0 text-base">
                       {activeTab === 'jobs' ? '💼' : '🎓'}
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-[13px] font-[800] text-[#0F172A] tracking-tight leading-none whitespace-nowrap">
+                      <h3 className="text-[12px] font-[800] text-[#0F172A] tracking-tight leading-none">
                         Don't find the right {activeTab === 'jobs' ? 'job' : 'tutor'}?
                       </h3>
-                      <p className="text-[#64748B] text-[9px] font-[600] leading-tight mt-1 whitespace-nowrap truncate">
+                      <p className="text-[#64748B] text-[8px] font-[600] leading-tight mt-1">
                         {activeTab === 'jobs' ? 'Share your profile and let students find you.' : 'Post your requirement and let experts reach out.'}
                       </p>
                     </div>
                   </div>
                   <button 
                     onClick={() => { playTapSound(); setFormType(activeTab === 'jobs' ? 'teacher' : 'parent'); setShowFormModal(true); }}
-                    className="bg-[#0F172A] text-white px-3.5 py-2.5 rounded-xl font-black text-[8px] uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-md shrink-0"
+                    className="bg-[#0F172A] text-white px-3 py-2 rounded-xl font-black text-[8px] uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-md shrink-0"
                   >
                     {activeTab === 'jobs' ? 'Create Profile' : 'Post Requirement'}
                   </button>
