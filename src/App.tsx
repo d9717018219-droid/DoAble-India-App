@@ -122,6 +122,7 @@ export default function App() {
   const [editUserType, setEditUserType] = useState<UserType | null>(localStorage.getItem('userType') as UserType);
   const [editCity, setEditCity] = useState<string>(localStorage.getItem('userCity') || 'Ghaziabad');
   const [isPreferenceMode, setIsPreferenceMode] = useState(false);
+  const [alertsInitialTab, setAlertsInitialTab] = useState<'feed' | 'support' | 'setup'>('feed');
 
   const resetCounts = useCallback(() => {
     setVisibleJobsCount(10);
@@ -587,11 +588,14 @@ export default function App() {
         </div>
         
         <div className="flex items-center gap-4">
-          <button className="relative p-2 text-slate-800 hover:bg-slate-50 rounded-full transition-all active:scale-90">
+          <button 
+            onClick={() => { playTapSound(); setAlertsInitialTab('feed'); setActiveTab('alerts'); }}
+            className="relative p-2 text-slate-800 hover:bg-slate-50 rounded-full transition-all active:scale-90"
+          >
             <Bell size={24} strokeWidth={2.2} />
             <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white shadow-sm">3</span>
           </button>
-          <button onClick={() => { playTapSound(); setActiveTab('admin'); }} className="w-9 h-9 rounded-full overflow-hidden border-2 border-slate-100 shadow-sm active:scale-90 transition-all">
+          <button onClick={() => { playTapSound(); setAlertsInitialTab('setup'); setActiveTab('alerts'); }} className="w-9 h-9 rounded-full overflow-hidden border-2 border-slate-100 shadow-sm active:scale-90 transition-all">
              {currentUser?.photoURL ? (
                <img src={currentUser.photoURL} alt="User" className="w-full h-full object-cover" />
              ) : (
@@ -625,7 +629,7 @@ export default function App() {
             setUserCity={setUserCity} setUserGender={setUserGender} setUserClasses={setUserClasses} setUserType={setUserType}
             isAdminUser={isAdminUser} onAdminClick={() => setActiveTab('admin')} currentUser={currentUser}
             handleSignIn={handleSignIn} showFormModal={showFormModal} setShowFormModal={setShowFormModal}
-            userName={userName} setUserName={setUserName}
+            userName={userName} setUserName={setUserName} initialTab={alertsInitialTab}
           />
         )}
         {activeTab === 'support' && (
@@ -717,13 +721,6 @@ export default function App() {
           <NavButton active={activeTab === 'home'} onClick={() => { playTapSound(); setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={22} />} label="Home" activeColor="text-[#1B7F5C]" />
           <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={22} />} label="Jobs" activeColor="text-purple-600" />
           <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={22} />} label="Tutors" activeColor="text-emerald-600" />
-          <NavButton 
-            active={activeTab === 'alerts'} 
-            onClick={() => { playTapSound(); setActiveTab('alerts'); window.scrollTo(0,0); }} 
-            icon={<div className="relative"><Bell size={22} /><span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-orange-500 rounded-full border border-white" /></div>} 
-            label="Alerts" 
-            activeColor="text-orange-600" 
-          />
           <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={22} />} label="Support" activeColor="text-blue-600" />
           {isAdminUser && (<button onClick={() => { playTapSound(); setActiveTab('admin'); }} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>
