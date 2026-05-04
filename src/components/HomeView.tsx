@@ -76,10 +76,10 @@ export default function HomeView({
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           className="relative w-full rounded-[24px] overflow-hidden p-6 shadow-md"
-          style={{ background: `linear-gradient(135deg, #0F6B4C 0%, #188661 100%)` }}
+          style={{ backgroundColor: `#0F6B4C` }}
         >
           {/* Backdrop Image matching India gate */}
-          <div className="absolute inset-0 opacity-20 pointer-events-none mix-blend-overlay"
+          <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay"
                style={{
                  backgroundImage: "url('https://img.freepik.com/free-vector/india-skyline-silhouette-with-flag-colors_23-2147814402.jpg')",
                  backgroundSize: "cover",
@@ -117,12 +117,12 @@ export default function HomeView({
             </div>
           </div>
 
-          {/* Smiling Student Image (Mixed with gradient) */}
+          {/* Smiling Student Image (No blending) */}
           <div className="absolute bottom-0 right-0 w-[42%] h-[100%] pointer-events-none flex items-end justify-end">
              <img 
               src="/icons/student.png" 
               alt="Student" 
-              className="w-full h-full object-contain object-bottom mix-blend-lighten"
+              className="w-full h-full object-contain object-bottom"
             />
           </div>
         </motion.div>
