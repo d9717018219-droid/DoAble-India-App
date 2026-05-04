@@ -47,23 +47,24 @@ export default function HomeView({
       
       {/* 1. Greeting Section */}
       <section className="px-5 pt-4">
-        <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <h1 className="text-[22px] font-bold text-[#0F172A] tracking-tight">
-              Welcome, {userName || (userType === 'teacher' ? 'Educator' : 'Parent')} 👋
-            </h1>
-            <p className="text-[#64748B] text-[13px] font-medium">
+        <div className="flex flex-col gap-0.5">
+          <h1 className="text-[19px] font-bold text-[#0F172A] tracking-tight">
+            Welcome, {userName || (userType === 'teacher' ? 'Educator' : 'Parent')} 👋
+          </h1>
+          <div className="flex items-center gap-2 overflow-hidden">
+            <p className="text-[#64748B] text-[11px] font-medium whitespace-nowrap shrink-0">
               Good morning! Let's create impact today.
             </p>
+            <div className="h-3 w-[1px] bg-slate-200 shrink-0"></div>
+            <button 
+              onClick={() => { playTapSound(); setShowFilterDrawer(true); }}
+              className="flex items-center gap-1 text-[#2563EB] text-[11px] font-bold active:scale-95 transition-all truncate"
+            >
+              <MapPin size={11} />
+              {userCity || 'City'}
+              <ChevronDown size={11} className="text-slate-400" />
+            </button>
           </div>
-          <button 
-            onClick={() => { playTapSound(); setShowFilterDrawer(true); }}
-            className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-slate-200 text-slate-800 text-[12px] font-semibold shadow-sm active:scale-95 transition-all mt-1"
-          >
-            <MapPin size={14} className="text-[#2563EB]" />
-            Ghaziabad
-            <ChevronDown size={14} className="text-slate-400" />
-          </button>
         </div>
       </section>
 
@@ -72,7 +73,7 @@ export default function HomeView({
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative w-full rounded-[24px] overflow-hidden p-6 shadow-md"
+          className="relative w-full rounded-[24px] overflow-hidden p-5 shadow-md"
           style={{ background: `linear-gradient(to right, #0F6B4C, #188661)` }}
         >
           {/* Backdrop Image matching India gate */}
@@ -84,38 +85,37 @@ export default function HomeView({
                }}>
           </div>
 
-          <div className="relative z-10 max-w-[65%]">
-            <h2 className="text-[28px] font-bold leading-[1.1] text-white tracking-tight">
-              Discovery Made<br />
-              <span className="text-[#FFD166]">Simple & Live</span>
+          <div className="relative z-10 max-w-[70%]">
+            <h2 className="text-[16px] font-black leading-tight text-white tracking-tight uppercase">
+              Discovery Made <span className="text-[#FFD166]">Simple & Live</span>
             </h2>
             
-            <p className="text-white/90 text-[12px] font-medium mt-3 mb-5 leading-snug">
+            <p className="text-white/90 text-[10px] font-medium mt-1.5 mb-4 leading-snug">
               Connect with elite educators and premium teaching opportunities.
             </p>
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button 
                 onClick={() => { playTapSound(); setFormType('teacher'); setShowFormModal(true); }}
-                className="bg-[#FFD166] text-[#0F172A] px-4 py-2.5 rounded-full font-bold text-[11px] flex items-center gap-2 active:scale-95 transition-all"
+                className="bg-[#FFD166] text-[#0F172A] px-2.5 py-1.5 rounded-full font-bold text-[9px] flex items-center gap-1 active:scale-95 transition-all whitespace-nowrap shadow-sm"
               >
-                <GraduationCap size={14} strokeWidth={2.5} /> Become a Tutor
+                <GraduationCap size={12} strokeWidth={2.5} /> Become a Tutor
               </button>
               <button 
                 onClick={() => { playTapSound(); setFormType('parent'); setShowFormModal(true); }}
-                className="bg-transparent text-white border border-white/60 px-4 py-2.5 rounded-full font-bold text-[11px] flex items-center gap-2 active:scale-95 transition-all"
+                className="bg-transparent text-white border border-white/40 px-2.5 py-1.5 rounded-full font-bold text-[9px] flex items-center gap-1 active:scale-95 transition-all whitespace-nowrap"
               >
-                <Star size={14} strokeWidth={2.5} /> Book Free Trial
+                <Star size={12} strokeWidth={2.5} /> Book Free Trial
               </button>
             </div>
           </div>
 
           {/* Smiling Student Image (Exact matching vibe) */}
-          <div className="absolute bottom-0 right-0 w-[42%] h-[100%] pointer-events-none flex items-end justify-end">
+          <div className="absolute bottom-0 right-0 w-[35%] h-[90%] pointer-events-none flex items-end justify-end">
              <img 
-              src="https://img.freepik.com/free-photo/young-indian-student-woman-holding-books-smiling-against-white-background_1150-13611.jpg" 
+              src="/icons/student.png" 
               alt="Student" 
-              className="w-full h-full object-contain object-bottom mix-blend-lighten"
+              className="w-full h-full object-contain object-bottom"
             />
           </div>
         </motion.div>

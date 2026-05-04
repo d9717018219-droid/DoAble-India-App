@@ -581,7 +581,11 @@ export default function App() {
 
       <header className="sticky top-0 z-[100] bg-white px-6 py-4 flex items-center justify-between border-b border-slate-100/60 shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
         <div className="flex items-center">
-          <img src="/icons/logo.png" alt="DoAble India" className="h-9 w-auto object-contain" />
+          <span className="text-xl font-black tracking-tighter italic">
+            <span className="text-[#FF6B6B]">Do</span>
+            <span className="text-[#4ECDC4]">Able</span>
+            <span className="text-[#FF9933] ml-1">India</span>
+          </span>
         </div>
         
         <div className="flex items-center gap-4">
