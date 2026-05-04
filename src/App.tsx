@@ -515,6 +515,7 @@ export default function App() {
                   )}
                 </div>
 
+                {/* 2. Localities */}
                 {cityFilter !== 'all' && cityLocations.length > 0 && (
                   <div className="space-y-4">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Specific Areas in {cityFilter}</label>
@@ -538,6 +539,31 @@ export default function App() {
                   </div>
                 )}
 
+                {/* 3. Class Group */}
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Target Class Group</label>
+                  <div className="flex flex-wrap gap-2">
+                    {CLASSES_LIST.map(cls => {
+                      const isSelected = userClasses.includes(cls);
+                      return (
+                        <button
+                          key={cls}
+                          onClick={() => {
+                            const nextClasses = isSelected ? userClasses.filter(x => x !== cls) : [...userClasses, cls];
+                            setUserClasses(nextClasses);
+                            localStorage.setItem('userClasses', JSON.stringify(nextClasses));
+                            resetCounts();
+                          }}
+                          className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-primary text-white border-primary" : "bg-white text-slate-500 border-slate-100")}
+                        >
+                          {cls}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 4. Gender & Others */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Gender</label>
@@ -562,29 +588,6 @@ export default function App() {
                       </select>
                     </div>
                   )}
-                </div>
-
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Target Class Group</label>
-                  <div className="flex flex-wrap gap-2">
-                    {CLASSES_LIST.map(cls => {
-                      const isSelected = userClasses.includes(cls);
-                      return (
-                        <button
-                          key={cls}
-                          onClick={() => {
-                            const nextClasses = isSelected ? userClasses.filter(x => x !== cls) : [...userClasses, cls];
-                            setUserClasses(nextClasses);
-                            localStorage.setItem('userClasses', JSON.stringify(nextClasses));
-                            resetCounts();
-                          }}
-                          className={cn("px-4 py-2 rounded-xl text-[10px] font-bold transition-all border", isSelected ? "bg-primary text-white border-primary" : "bg-white text-slate-500 border-slate-100")}
-                        >
-                          {cls}
-                        </button>
-                      );
-                    })}
-                  </div>
                 </div>
 
                 {activeTab === 'tutors' && (
@@ -733,12 +736,12 @@ export default function App() {
 
                 {/* Filter Chips */}
                 <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
-                  <FilterChip label="Gender" icon={<LucideUser size={10} />} active={tutorFilterGender !== 'all'} onClick={() => setShowAdvancedFilterDrawer(true)} />
-                  <FilterChip label="Class" icon={<GraduationCap size={10} />} active={userClasses.length > 0} onClick={() => setShowAdvancedFilterDrawer(true)} />
                   <FilterChip label="City" icon={<HomeIcon size={10} />} active={cityFilter !== 'all'} onClick={() => setShowFilterDrawer(true)} />
                   {cityFilter !== 'all' && (
                     <FilterChip label="Localities" icon={<MapPin size={10} />} active={selectedLocalities.length > 0} onClick={() => setShowAdvancedFilterDrawer(true)} />
                   )}
+                  <FilterChip label="Class" icon={<GraduationCap size={10} />} active={userClasses.length > 0} onClick={() => setShowAdvancedFilterDrawer(true)} />
+                  <FilterChip label="Gender" icon={<LucideUser size={10} />} active={tutorFilterGender !== 'all'} onClick={() => setShowAdvancedFilterDrawer(true)} />
                 </div>
               </div>
 
