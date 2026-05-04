@@ -579,21 +579,21 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <header className="sticky top-0 z-[100] bg-white px-6 py-5 flex items-center justify-between border-b border-slate-100/50 shadow-sm">
-        <div className="flex items-center gap-2">
-          <img src="/icons/logo.png" alt="DoAble India" className="h-10 w-auto object-contain" />
+      <header className="sticky top-0 z-[100] bg-white px-6 py-4 flex items-center justify-between border-b border-slate-100/60 shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
+        <div className="flex items-center">
+          <img src="/icons/logo.png" alt="DoAble India" className="h-9 w-auto object-contain" />
         </div>
         
         <div className="flex items-center gap-4">
-          <button className="relative p-2 text-slate-900 hover:bg-slate-50 rounded-full transition-colors">
-            <Bell size={24} strokeWidth={2} />
-            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white">3</span>
+          <button className="relative p-2 text-slate-800 hover:bg-slate-50 rounded-full transition-all active:scale-90">
+            <Bell size={24} strokeWidth={2.2} />
+            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white shadow-sm">3</span>
           </button>
-          <button onClick={() => { playTapSound(); setActiveTab('admin'); }} className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md active:scale-95 transition-all">
+          <button onClick={() => { playTapSound(); setActiveTab('admin'); }} className="w-9 h-9 rounded-full overflow-hidden border-2 border-slate-100 shadow-sm active:scale-90 transition-all">
              {currentUser?.photoURL ? (
                <img src={currentUser.photoURL} alt="User" className="w-full h-full object-cover" />
              ) : (
-               <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400"><LucideUser size={22} /></div>
+               <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-xs"><LucideUser size={18} /></div>
              )}
           </button>
         </div>
@@ -654,13 +654,13 @@ export default function App() {
         )}
       </main>
 
-      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[8000] w-[92%] max-w-[500px]">
-        <div className="bg-slate-900/95 backdrop-blur-2xl rounded-[35px] p-2 flex items-center justify-between shadow-2xl border border-white/10 relative">
-          <NavButton active={activeTab === 'home'} onClick={() => { playTapSound(); setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={22} />} label="Home" activeColor="text-[#006754]" />
-          <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={22} />} label="Jobs" activeColor="text-purple-500" />
-          <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={22} />} label="Tutors" activeColor="text-emerald-500" />
-          <NavButton active={activeTab === 'alerts'} onClick={() => { playTapSound(); setActiveTab('alerts'); window.scrollTo(0,0); }} icon={<Bell size={22} />} label="Alerts" activeColor="text-orange-500" />
-          <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={22} />} label="Support" activeColor="text-blue-500" />
+      <nav className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[8000] w-[90%] max-w-[480px]">
+        <div className="bg-slate-900/95 backdrop-blur-2xl rounded-[32px] p-2 flex items-center justify-between shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10">
+          <NavButton active={activeTab === 'home'} onClick={() => { playTapSound(); setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={20} strokeWidth={2.5} />} label="Home" activeColor="text-[#1B7F5C]" />
+          <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} strokeWidth={2.5} />} label="Jobs" activeColor="text-purple-500" />
+          <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} strokeWidth={2.5} />} label="Tutors" activeColor="text-emerald-500" />
+          <NavButton active={activeTab === 'alerts'} onClick={() => { playTapSound(); setActiveTab('alerts'); window.scrollTo(0,0); }} icon={<Bell size={20} strokeWidth={2.5} />} label="Alerts" activeColor="text-orange-500" />
+          <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={20} strokeWidth={2.5} />} label="Support" activeColor="text-blue-500" />
           {isAdminUser && (<button onClick={() => { playTapSound(); setActiveTab('admin'); }} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>
       </nav>
