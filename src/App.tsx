@@ -639,15 +639,15 @@ export default function App() {
           </div>
         )}
         {activeTab === 'admin' && isAdminUser && <AdminPanel currentCity={userCity || 'All'} />}        {(activeTab === 'jobs' || activeTab === 'tutors') && (
-          <div className="flex flex-col space-y-4 px-5 pb-20">
+          <div className="flex flex-col space-y-3 px-5 pb-20">
               {/* Jobs Portal Header */}
-              <div className="pt-6 pb-4 space-y-4">
+              <div className="pt-4 pb-2 space-y-3">
                 <div className="flex justify-between items-start">
-                  <div className="space-y-1">
-                    <h2 className="text-[28px] font-[800] text-[#0F172A] tracking-tight">
-                      {activeTab === 'jobs' ? 'Jobs Portal' : 'Tutors Portal'}
+                  <div className="space-y-0.5">
+                    <h2 className="text-[16px] font-[800] text-[#0F172A] tracking-tight uppercase">
+                      DoAble India
                     </h2>
-                    <p className="text-[#64748B] text-[13px] font-[500] leading-tight max-w-[250px]">
+                    <p className="text-[#64748B] text-[10px] font-[500] leading-tight max-w-[250px]">
                       {activeTab === 'jobs' 
                         ? 'Find teaching opportunities that match your skills and passion.'
                         : 'Discover elite educators ready to help you achieve your goals.'}
@@ -657,37 +657,27 @@ export default function App() {
 
                 {/* Search Bar */}
                 <div className="flex gap-2">
-                  <div className="flex-1 bg-white border border-slate-100 rounded-[20px] px-4 py-3 flex items-center gap-2 shadow-sm focus-within:border-primary transition-colors">
-                    <Search size={18} className="text-slate-400" />
+                  <div className="flex-1 bg-white border border-slate-100 rounded-[16px] px-3.5 py-2 flex items-center gap-2 shadow-sm focus-within:border-primary transition-colors">
+                    <Search size={14} className="text-slate-400" />
                     <input 
                       type="text" 
-                      placeholder="Search by job title, subject or location..." 
-                      className="bg-transparent border-none outline-none text-[13px] w-full text-slate-700 font-medium"
+                      placeholder="Search title, subject, location..." 
+                      className="bg-transparent border-none outline-none text-[11px] w-full text-slate-700 font-medium"
                     />
                   </div>
-                  <button onClick={() => setShowAdvancedFilterDrawer(true)} className="bg-white border border-slate-100 rounded-[20px] px-4 py-3 flex items-center gap-2 shadow-sm font-bold text-[13px] text-slate-700 active:scale-95 transition-all">
-                    <Filter size={18} className="text-slate-400" />
-                    Filters
+                  <button onClick={() => setShowAdvancedFilterDrawer(true)} className="bg-white border border-slate-100 rounded-[16px] px-3 py-2 flex items-center gap-1.5 shadow-sm font-bold text-[11px] text-slate-700 active:scale-95 transition-all">
+                    <Navigation size={14} className="text-primary" />
+                    <span className="hidden sm:inline">Distance</span>
+                    <Filter size={14} className="text-slate-400" />
                   </button>
                 </div>
 
                 {/* Filter Chips */}
-                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-                  <FilterChip label="All Jobs" icon={<Briefcase size={14} />} active />
-                  <FilterChip label="Teaching" icon={<GraduationCap size={14} />} />
-                  <FilterChip label="Subject" icon={<BookText size={14} />} />
-                  <FilterChip label="Location" icon={<MapPin size={14} />} />
-                  <FilterChip label="Salary" icon={<Zap size={14} />} />
-                </div>
-
-                {/* Status Row */}
-                <div className="flex items-center justify-between pt-2">
-                  <span className="text-[#10B981] text-[14px] font-[700] tracking-tight">
-                    {filteredJobs.length} {activeTab === 'jobs' ? 'Jobs' : 'Tutors'} found
-                  </span>
-                  <div className="flex items-center gap-1 text-slate-500 text-[13px] font-[600]">
-                    Sort by: <span className="text-[#0F172A] font-[800] flex items-center gap-0.5">Newest <ChevronDown size={14} /></span>
-                  </div>
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                  <FilterChip label="All" icon={<Briefcase size={12} />} active />
+                  <FilterChip label="Teaching" icon={<GraduationCap size={12} />} />
+                  <FilterChip label="Distance" icon={<MapPin size={12} />} />
+                  <FilterChip label="Salary" icon={<Zap size={12} />} />
                 </div>
               </div>
 
@@ -747,7 +737,7 @@ export default function App() {
 function FilterChip({ label, icon, active = false }: { label: string; icon: React.ReactNode; active?: boolean }) {
   return (
     <button className={cn(
-      "flex items-center gap-2 px-4 py-2.5 rounded-full text-[13px] font-bold border transition-all whitespace-nowrap active:scale-95",
+      "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold border transition-all whitespace-nowrap active:scale-95",
       active 
         ? "bg-[#D1FAE5] text-[#10B981] border-[#10B981]" 
         : "bg-white text-slate-600 border-slate-100 hover:border-slate-200"
