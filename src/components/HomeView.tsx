@@ -179,7 +179,7 @@ export default function HomeView({
             <div className="w-[1px] h-5 bg-slate-200" />
             <ImpactStat icon={<School size={14} className="text-[#F97316]" fill="currentColor" />} value="500+" label="Partner" label2="Schools" />
             <div className="w-[1px] h-5 bg-slate-200" />
-            <ImpactStat icon={<MapPin size={14} className="text-[#EC4899]" fill="currentColor" />} value="113+" label="Cities" label2="In India" />
+            <ImpactStat icon={<MapPin size={14} className="text-[#EC4899]" fill="currentColor" />} value="100+" label="Cities" label2="In India" />
             <div className="w-[1px] h-5 bg-slate-200" />
             <ImpactStat icon={<Star size={14} className="text-[#3B82F6]" fill="currentColor" />} value="4.8" label="Average" label2="Rating" />
           </div>
@@ -265,8 +265,8 @@ function ImpactStat({ icon, value, label, label2 }: { icon: React.ReactNode; val
         <span className="text-[13px] font-[800] text-[#0F172A] tracking-tighter whitespace-nowrap">{value}</span>
       </div>
       <div className="flex flex-col leading-[1.1]">
-         <span className="text-[7.5px] font-[700] text-[#64748B] tracking-tight opacity-70 uppercase truncate">{label}</span>
-         <span className="text-[7.5px] font-[700] text-[#64748B] tracking-tight opacity-70 uppercase truncate">{label2}</span>
+         <span className="text-[8px] font-[700] text-[#64748B] tracking-tight opacity-70 truncate">{label}</span>
+         <span className="text-[8px] font-[700] text-[#64748B] tracking-tight opacity-70 truncate">{label2}</span>
       </div>
     </div>
   );

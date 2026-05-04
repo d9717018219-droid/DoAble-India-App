@@ -692,21 +692,23 @@ export default function App() {
 
               {/* Don't find the right job section */}
               {!loading && (
-                <div className="mt-8 bg-white border border-slate-100 rounded-[24px] p-5 shadow-sm flex items-center gap-4">
-                  <div className="w-12 h-12 bg-[#F8FAFC] rounded-2xl flex items-center justify-center shrink-0 text-2xl">
-                    {activeTab === 'jobs' ? '💼' : '🎓'}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-[14px] font-[800] text-[#0F172A] tracking-tight leading-tight">
-                      Don't find the right {activeTab === 'jobs' ? 'job' : 'tutor'}?
-                    </h3>
-                    <p className="text-[#64748B] text-[10px] font-[600] leading-tight mt-0.5">
-                      {activeTab === 'jobs' ? 'Share your profile and let students find you.' : 'Post your requirement and let experts reach out.'}
-                    </p>
+                <div className="mt-6 bg-white border border-slate-100 rounded-[24px] p-4 shadow-sm flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 bg-[#F8FAFC] rounded-2xl flex items-center justify-center shrink-0 text-xl">
+                      {activeTab === 'jobs' ? '💼' : '🎓'}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-[14px] font-[800] text-[#0F172A] tracking-tight leading-none whitespace-nowrap">
+                        Don't find the right {activeTab === 'jobs' ? 'job' : 'tutor'}?
+                      </h3>
+                      <p className="text-[#64748B] text-[10px] font-[600] leading-tight mt-1 whitespace-nowrap truncate">
+                        {activeTab === 'jobs' ? 'Share your profile and let students find you.' : 'Post your requirement and let experts reach out.'}
+                      </p>
+                    </div>
                   </div>
                   <button 
                     onClick={() => { playTapSound(); setFormType(activeTab === 'jobs' ? 'teacher' : 'parent'); setShowFormModal(true); }}
-                    className="bg-[#0F172A] text-white px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-md shrink-0"
+                    className="bg-[#0F172A] text-white px-4 py-3 rounded-xl font-black text-[9px] uppercase tracking-widest whitespace-nowrap active:scale-95 transition-all shadow-md shrink-0"
                   >
                     {activeTab === 'jobs' ? 'Create Profile' : 'Post Requirement'}
                   </button>
