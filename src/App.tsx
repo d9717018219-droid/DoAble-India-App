@@ -16,7 +16,7 @@ import AlertsView from './components/AlertsView';
 import AdminPanel from './components/AdminPanel';
 import SupportView from './components/SupportView';
 import HomeView from './components/HomeView';
-import { cn, getCityTheme } from './utils';
+import { cn, getCityTheme, formatCurrency, getCityPhone } from './utils';
 import { 
   CITIES_LIST, 
   CLASSES_LIST,
