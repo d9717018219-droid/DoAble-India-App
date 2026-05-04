@@ -48,26 +48,23 @@ export default function HomeView({
       {/* 1. Greeting Section */}
       <section className="px-5 pt-4">
         <div className="flex justify-between items-start">
-          <div className="flex items-baseline gap-2 overflow-hidden">
-            <h1 className="text-[22px] font-[700] text-[#0F172A] tracking-[-0.03em] whitespace-nowrap">
+          <div className="flex flex-col gap-0.5 overflow-hidden">
+            <h1 className="text-[18px] font-[800] text-[#0F172A] tracking-tight whitespace-nowrap">
               Welcome, {userName || (userType === 'teacher' ? 'Educator' : 'Parent')} 👋
             </h1>
-            <p className="text-[#0F172A] text-[11px] font-[500] opacity-60 whitespace-nowrap hidden sm:block tracking-tight">
-              Good morning! Let's create impact today.
+            <p className="text-[#0F172A] text-[10px] font-[500] opacity-70 tracking-tight">
+              {getDynamicGreeting()} Let's create impact today.
             </p>
           </div>
           <button 
             onClick={() => { playTapSound(); setShowFilterDrawer(true); }}
-            className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-slate-100 text-[#0F172A] text-[10px] font-bold shadow-sm active:scale-95 transition-all shrink-0"
+            className="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-full border border-slate-100 text-[#0F172A] text-[9px] font-bold shadow-sm active:scale-95 transition-all shrink-0"
           >
-            <MapPin size={12} className="text-[#2563EB]" />
+            <MapPin size={11} className="text-[#2563EB]" />
             <span className="tracking-tight">{userCity || 'City'}</span>
-            <ChevronDown size={11} className="text-slate-300" />
+            <ChevronDown size={10} className="text-slate-300" />
           </button>
         </div>
-        <p className="text-[#0F172A] text-[11px] font-[500] opacity-60 mt-1 sm:hidden tracking-tight">
-          Good morning! Let's create impact today.
-        </p>
       </section>
 
       {/* 2. Main Banner */}
@@ -75,7 +72,7 @@ export default function HomeView({
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative w-full rounded-[24px] overflow-hidden p-6 shadow-md"
+          className="relative w-full rounded-[24px] overflow-hidden p-5 shadow-md"
           style={{ background: `linear-gradient(135deg, #0F6B4C 0%, #1A936F 100%)` }}
         >
           {/* Subtle Background Pattern */}
@@ -86,32 +83,32 @@ export default function HomeView({
                }}>
           </div>
 
-          <div className="relative z-10 max-w-[68%]">
-            <div className="space-y-0.5 mb-4">
-              <h2 className="text-[20px] font-[500] text-white/90 tracking-tight leading-tight">
+          <div className="relative z-10 max-w-[75%]">
+            <div className="space-y-0.5 mb-3">
+              <h2 className="text-[16px] font-[500] text-white/90 tracking-tight leading-tight">
                 Discovery Made
               </h2>
-              <h2 className="text-[28px] font-[800] text-[#FFD166] tracking-[-0.04em] leading-none">
+              <h2 className="text-[24px] font-[800] text-[#FFD166] tracking-[-0.04em] leading-none">
                 Simple & Live
               </h2>
             </div>
             
-            <p className="text-white/80 text-[11px] font-[500] mb-5 leading-snug tracking-tight">
+            <p className="text-white/80 text-[10px] font-[500] mb-4 leading-snug tracking-tight">
               Connect with elite educators and premium teaching opportunities instantly.
             </p>
             
             <div className="flex items-center gap-2">
               <button 
                 onClick={() => { playTapSound(); setFormType('teacher'); setShowFormModal(true); }}
-                className="bg-[#FFD166] text-[#0F172A] px-3.5 py-2.5 rounded-full font-[800] text-[10px] flex items-center gap-1.5 active:scale-95 transition-all shadow-sm uppercase tracking-wide"
+                className="bg-[#FFD166] text-[#0F172A] px-3 py-2 rounded-full font-[800] text-[9px] flex items-center gap-1 active:scale-95 transition-all shadow-sm uppercase tracking-wide whitespace-nowrap"
               >
-                <GraduationCap size={14} strokeWidth={2.5} /> Become a Tutor
+                <GraduationCap size={13} strokeWidth={2.5} /> Become a Tutor
               </button>
               <button 
                 onClick={() => { playTapSound(); setFormType('parent'); setShowFormModal(true); }}
-                className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-3.5 py-2.5 rounded-full font-[800] text-[10px] flex items-center gap-1.5 active:scale-95 transition-all uppercase tracking-wide"
+                className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-3 py-2 rounded-full font-[800] text-[9px] flex items-center gap-1 active:scale-95 transition-all uppercase tracking-wide whitespace-nowrap"
               >
-                <Star size={14} strokeWidth={2.5} /> Free Trial
+                <Star size={13} strokeWidth={2.5} /> Free Trial
               </button>
             </div>
           </div>
