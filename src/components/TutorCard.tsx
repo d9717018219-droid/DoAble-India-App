@@ -4,7 +4,8 @@ import {
   ChevronRight, 
   Briefcase, 
   Star,
-  CheckCircle2
+  CheckCircle2,
+  Heart
 } from 'lucide-react';
 import { TutorProfile } from '../types';
 import { cn } from '../utils';
@@ -65,7 +66,7 @@ export const TutorCard: React.FC<TutorCardProps> = React.memo(({ tutor, onClick 
               <span className="text-primary text-[10px] font-bold tracking-tight">Premium Tutor</span>
               {verified && <CheckCircle2 size={10} className="text-[#10B981]" fill="currentColor" />}
             </div>
-            <span className="text-[#94A3B8] text-[9px] font-bold uppercase tracking-widest">ID: {tutorId}</span>
+            <span className="text-[#94A3B8] text-[9px] font-bold uppercase tracking-widest">Tutor ID: {tutorId}</span>
           </div>
           
           <h4 className="text-[15px] font-[800] text-[#0F172A] leading-tight tracking-tight truncate">
@@ -90,9 +91,17 @@ export const TutorCard: React.FC<TutorCardProps> = React.memo(({ tutor, onClick 
           </div>
         </div>
 
-        {/* Right Arrow */}
-        <div className="flex items-center justify-center h-[60px] text-slate-300 flex-shrink-0">
-           <ChevronRight size={18} />
+        {/* Right Arrow & Like */}
+        <div className="flex flex-col items-end justify-between h-[60px] flex-shrink-0">
+          <button 
+            onClick={(e) => { e.stopPropagation(); }}
+            className="text-slate-300 hover:text-red-500 transition-colors"
+          >
+            <Heart size={18} />
+          </button>
+          <div className="text-slate-300">
+            <ChevronRight size={18} />
+          </div>
         </div>
       </div>
 

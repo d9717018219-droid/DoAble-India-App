@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { 
   MapPin, 
   ChevronRight, 
-  Bookmark, 
+  Heart, 
   Clock,
   Briefcase
 } from 'lucide-react';
@@ -96,8 +96,11 @@ export const JobCard: React.FC<JobCardProps> = React.memo(({ job, onClick }) => 
 
         {/* Right Action Icons */}
         <div className="flex flex-col items-end justify-between h-[60px] flex-shrink-0">
-          <button className="text-slate-300 hover:text-primary transition-colors">
-            <Bookmark size={18} />
+          <button 
+            onClick={(e) => { e.stopPropagation(); }}
+            className="text-slate-300 hover:text-red-500 transition-colors"
+          >
+            <Heart size={18} />
           </button>
           <div className="text-slate-300">
             <ChevronRight size={18} />

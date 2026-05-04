@@ -12,10 +12,13 @@ import {
   User,
   School,
   Star,
-  ChevronRight
+  ChevronRight,
+  Heart
 } from 'lucide-react';
 import { JobLead, TutorProfile, UserType } from '../types';
 import { cn, formatCurrency } from '../utils';
+import { JobCard } from './JobCard';
+import { TutorCard } from './TutorCard';
 
 interface HomeViewProps {
   userName: string | null;
@@ -201,38 +204,14 @@ export default function HomeView({
         
         <div className="space-y-3">
           {featuredJobs.length > 0 ? (
-            featuredJobs.slice(0, 1).map((job, idx) => (
-              <motion.div 
+            featuredJobs.slice(0, 3).map((job, idx) => (
+              <motion.div
                 key={job['Order ID'] || idx}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: idx * 0.1 }}
-                onClick={() => onJobClick(job)}
-                className="bg-white rounded-[24px] p-4 shadow-sm border border-slate-100 flex items-center gap-4 active:scale-95 transition-all cursor-pointer group"
               >
-                {/* Left Avatar/Emoji */}
-                <div className="w-[54px] h-[54px] bg-slate-50 rounded-2xl flex-shrink-0 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                   {job.Gender?.toLowerCase().includes('female') ? '👩‍🏫' : '👨‍🏫'}
-                </div>
-                
-                {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-0.5">
-                    <span className="text-[#10B981] text-[10px] font-bold uppercase tracking-wider">ID: {job['Order ID']}</span>
-                    <ChevronRight size={14} className="text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                  </div>
-                  <h4 className="text-[14px] font-[800] text-[#0F172A] leading-tight truncate">
-                    {job.subjects?.split(',')[0] || 'Tutor Required'}
-                  </h4>
-                  <div className="flex items-center gap-2 mt-1">
-                    <div className="flex items-center gap-1">
-                      <MapPin size={10} className="text-slate-400" />
-                      <span className="text-slate-500 text-[10px] font-medium truncate max-w-[100px]">{job.Locations?.split(',')[0] || job.City}</span>
-                    </div>
-                    <div className="w-1 h-1 rounded-full bg-slate-300" />
-                    <span className="text-[#F97316] text-[10px] font-bold whitespace-nowrap">₹{formatCurrency(job.Fee || '0')}</span>
-                  </div>
-                </div>
+                <JobCard job={job} onClick={onJobClick} />
               </motion.div>
             ))
           ) : (
@@ -254,52 +233,16 @@ export default function HomeView({
         
         <div className="space-y-3">
           {featuredTutors.length > 0 ? (
-            featuredTutors.slice(0, 1).map((tutor, idx) => {
-              const tutorId = tutor['Tutor ID'] || (tutor as any).tutorId || 'N/A';
-              const name = tutor['Full Name'] || (tutor as any).fullName || tutor.Name || 'Premium Tutor';
-              const qual = tutor.Qualification || (tutor as any).qualification || tutor['Qualification(s)'] || 'Expert';
-              const city = tutor['Preferred City'] || (tutor as any).preferredCity || 'India';
-              const exp = tutor['Teaching Experience'] || (tutor as any).experience || tutor.Experience || '1-3 Years';
-              const verified = ((tutor as any).Verified || (tutor as any).verified)?.toString().toLowerCase().trim() === 'yes';
-
-              return (
-                <motion.div 
-                  key={tutorId || idx}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  onClick={() => onTutorClick(tutor)}
-                  className="bg-white rounded-[24px] p-4 shadow-sm border border-slate-100 flex items-center gap-4 active:scale-95 transition-all cursor-pointer group"
-                >
-                  {/* Left Avatar/Emoji */}
-                  <div className="w-[54px] h-[54px] bg-indigo-50 rounded-2xl flex-shrink-0 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                     {tutor.Gender?.toLowerCase() === 'female' ? '👩‍🏫' : '👨‍🏫'}
-                  </div>
-                  
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-0.5">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-primary text-[10px] font-bold uppercase tracking-wider">Premium Tutor</span>
-                        {verified && <div className="w-2 h-2 rounded-full bg-[#10B981]" />}
-                      </div>
-                      <ChevronRight size={14} className="text-slate-300 group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                    </div>
-                    <h4 className="text-[14px] font-[800] text-[#0F172A] leading-tight truncate">
-                      {name}
-                    </h4>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="flex items-center gap-1">
-                        <MapPin size={10} className="text-slate-400" />
-                        <span className="text-slate-500 text-[10px] font-medium truncate max-w-[100px]">{city}</span>
-                      </div>
-                      <div className="w-1 h-1 rounded-full bg-slate-300" />
-                      <span className="text-[#10B981] text-[10px] font-bold whitespace-nowrap">{exp} Exp</span>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })
+            featuredTutors.slice(0, 3).map((tutor, idx) => (
+              <motion.div
+                key={tutor['Tutor ID'] || idx}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.1 }}
+              >
+                <TutorCard tutor={tutor} onClick={onTutorClick} />
+              </motion.div>
+            ))
           ) : (
              <div className="py-10 text-center text-slate-400 text-sm italic bg-white rounded-3xl border border-dashed border-slate-200">
                No premium tutors available right now.
