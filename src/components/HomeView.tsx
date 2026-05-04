@@ -75,55 +75,41 @@ export default function HomeView({
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative w-full rounded-[24px] overflow-hidden p-6 shadow-md"
-          style={{ backgroundColor: `#0F6B4C` }}
+          className="relative w-full rounded-[28px] overflow-hidden p-8 shadow-xl"
+          style={{ background: `linear-gradient(135deg, #0F6B4C 0%, #1A936F 100%)` }}
         >
-          {/* Backdrop Image matching India gate */}
-          <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay"
-               style={{
-                 backgroundImage: "url('https://img.freepik.com/free-vector/india-skyline-silhouette-with-flag-colors_23-2147814402.jpg')",
-                 backgroundSize: "cover",
-                 backgroundPosition: "center right"
-               }}>
-          </div>
+          {/* Abstract Decorative Shapes */}
+          <div className="absolute top-[-20%] right-[-10%] w-[200px] h-[200px] bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute bottom-[-20%] left-[-5%] w-[150px] h-[150px] bg-[#FFD166]/20 rounded-full blur-2xl pointer-events-none"></div>
 
-          <div className="relative z-10 max-w-[70%]">
-            <div className="space-y-0.5 mb-4">
-              <h2 className="text-[24px] font-medium text-white tracking-tight leading-tight">
+          <div className="relative z-10 flex flex-col items-center text-center">
+            <div className="space-y-1 mb-6">
+              <h2 className="text-[26px] font-medium text-white/90 tracking-tight leading-tight">
                 Discovery Made
               </h2>
-              <h2 className="text-[28px] font-black text-[#FFD166] tracking-tighter leading-none">
+              <h2 className="text-[36px] font-black text-[#FFD166] tracking-tighter leading-none">
                 Simple & Live
               </h2>
             </div>
             
-            <p className="text-white/90 text-[11px] font-medium mb-5 leading-snug">
-              Connect with elite educators and premium teaching opportunities.
+            <p className="text-white/80 text-[13px] font-medium mb-7 leading-relaxed max-w-[280px]">
+              Connect with elite educators and premium teaching opportunities instantly.
             </p>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button 
                 onClick={() => { playTapSound(); setFormType('teacher'); setShowFormModal(true); }}
-                className="bg-[#FFD166] text-[#0F172A] px-3 py-2 rounded-full font-bold text-[10px] flex items-center gap-1 active:scale-95 transition-all whitespace-nowrap shadow-sm"
+                className="bg-[#FFD166] text-[#0F172A] px-5 py-3 rounded-full font-extrabold text-[11px] flex items-center gap-2 active:scale-95 transition-all shadow-lg hover:bg-white"
               >
-                <GraduationCap size={13} strokeWidth={2.5} /> Become a Tutor
+                <GraduationCap size={15} strokeWidth={2.5} /> Become a Tutor
               </button>
               <button 
                 onClick={() => { playTapSound(); setFormType('parent'); setShowFormModal(true); }}
-                className="bg-transparent text-white border border-white/50 px-3 py-2 rounded-full font-bold text-[10px] flex items-center gap-1 active:scale-95 transition-all whitespace-nowrap"
+                className="bg-white/10 backdrop-blur-md text-white border border-white/30 px-5 py-3 rounded-full font-extrabold text-[11px] flex items-center gap-2 active:scale-95 transition-all hover:bg-white/20"
               >
-                <Star size={13} strokeWidth={2.5} /> Book Free Trial
+                <Star size={15} strokeWidth={2.5} /> Book Free Trial
               </button>
             </div>
-          </div>
-
-          {/* Smiling Student Image (No blending) */}
-          <div className="absolute bottom-0 right-0 w-[42%] h-[100%] pointer-events-none flex items-end justify-end">
-             <img 
-              src="/icons/student.png" 
-              alt="Student" 
-              className="w-full h-full object-contain object-bottom"
-            />
           </div>
         </motion.div>
       </section>
