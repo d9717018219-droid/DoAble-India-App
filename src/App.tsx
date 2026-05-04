@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User as LucideUser, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check, Sun, Cloud, Moon, Briefcase, BookText, ChevronDown, CreditCard } from 'lucide-react';
+import { Search, MapPin, Loader2, Home as HomeIcon, FileText, User as LucideUser, Sparkles, BookOpen, GraduationCap, CheckCircle, LogOut, Settings, Edit3, Save, Bell, ChevronRight, Share2, Filter, X, MessageSquare, ExternalLink, Zap, ArrowRight, Navigation, Check, Sun, Cloud, Moon, Briefcase, BookText, ChevronDown, CreditCard, Heart } from 'lucide-react';
 import { collection, onSnapshot, query, where, orderBy, limit, addDoc, serverTimestamp, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, auth, auth as firebaseAuth } from './firebase';
 import { handleFirestoreError, OperationType } from './lib/firestore-errors';
@@ -16,7 +16,7 @@ import AlertsView from './components/AlertsView';
 import AdminPanel from './components/AdminPanel';
 import SupportView from './components/SupportView';
 import HomeView from './components/HomeView';
-import { cn, getCityTheme, formatCurrency, getCityPhone } from './utils';
+import { cn, getCityTheme, formatCurrency, getCityPhone, toTitleCase } from './utils';
 import { 
   CITIES_LIST, 
   CLASSES_LIST,
