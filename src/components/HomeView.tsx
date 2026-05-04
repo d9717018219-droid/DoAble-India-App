@@ -47,24 +47,27 @@ export default function HomeView({
       
       {/* 1. Greeting Section */}
       <section className="px-5 pt-4">
-        <div className="flex flex-col gap-1.5">
-          <h1 className="text-[21px] font-bold text-[#0F172A] tracking-tight">
-            Welcome, {userName || (userType === 'teacher' ? 'Educator' : 'Parent')} 👋
-          </h1>
-          <div className="flex items-center justify-between">
-            <p className="text-[#64748B] text-[12px] font-medium">
+        <div className="flex justify-between items-start">
+          <div className="flex items-baseline gap-2 overflow-hidden">
+            <h1 className="text-[20px] font-bold text-[#0F172A] tracking-tight whitespace-nowrap">
+              Welcome, {userName || (userType === 'teacher' ? 'Educator' : 'Parent')} 👋
+            </h1>
+            <p className="text-[#0F172A] text-[11px] font-semibold opacity-80 whitespace-nowrap hidden sm:block">
               Good morning! Let's create impact today.
             </p>
-            <button 
-              onClick={() => { playTapSound(); setShowFilterDrawer(true); }}
-              className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full border border-slate-200 text-[#2563EB] text-[10px] font-bold shadow-sm active:scale-95 transition-all"
-            >
-              <MapPin size={12} />
-              {userCity || 'City'}
-              <ChevronDown size={11} className="text-slate-400" />
-            </button>
           </div>
+          <button 
+            onClick={() => { playTapSound(); setShowFilterDrawer(true); }}
+            className="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-full border border-slate-100 text-[#0F172A] text-[10px] font-bold shadow-sm active:scale-95 transition-all shrink-0"
+          >
+            <MapPin size={12} className="text-[#2563EB]" />
+            {userCity || 'City'}
+            <ChevronDown size={11} className="text-slate-300" />
+          </button>
         </div>
+        <p className="text-[#0F172A] text-[11px] font-semibold opacity-80 mt-1 sm:hidden">
+          Good morning! Let's create impact today.
+        </p>
       </section>
 
       {/* 2. Main Banner */}
@@ -145,20 +148,20 @@ export default function HomeView({
 
       {/* 4. Our Impact Section */}
       <section className="px-5">
-        <div className="bg-[#F8FAFC] border border-slate-200 rounded-[24px] p-5 space-y-5">
+        <div className="bg-[#F8FAFC] border border-slate-200 rounded-[24px] p-6 space-y-6">
           <div className="space-y-0.5">
-            <h3 className="text-[17px] font-bold text-[#0F172A]">Our Impact</h3>
-            <p className="text-[#64748B] text-[13px]">Empowering abilities. Enabling inclusive India.</p>
+            <h3 className="text-[16px] font-bold text-[#0F172A]">Our Impact</h3>
+            <p className="text-[#64748B] text-[12px]">Empowering abilities. Enabling inclusive India.</p>
           </div>
           
           <div className="flex items-center justify-between">
-            <ImpactStat icon={<Users size={20} className="text-[#10B981]" fill="currentColor" />} value="25K+" label="Students" label2="Impacted" />
-            <div className="w-[1px] h-10 bg-slate-200" />
-            <ImpactStat icon={<User size={20} className="text-[#8B5CF6]" fill="currentColor" />} value="3K+" label="Expert" label2="Educators" />
-            <div className="w-[1px] h-10 bg-slate-200" />
-            <ImpactStat icon={<School size={20} className="text-[#F97316]" fill="currentColor" />} value="500+" label="Partner" label2="Schools" />
-            <div className="w-[1px] h-10 bg-slate-200" />
-            <ImpactStat icon={<Star size={20} className="text-[#3B82F6]" />} value="4.8" label="Average" label2="Rating" />
+            <ImpactStat icon={<Users size={18} className="text-[#10B981]" fill="currentColor" />} value="25K+" label="Students" label2="Impacted" />
+            <div className="w-[1px] h-8 bg-slate-200" />
+            <ImpactStat icon={<User size={18} className="text-[#8B5CF6]" fill="currentColor" />} value="10K+" label="Expert" label2="Educators" />
+            <div className="w-[1px] h-8 bg-slate-200" />
+            <ImpactStat icon={<School size={18} className="text-[#F97316]" fill="currentColor" />} value="500+" label="Partner" label2="Schools" />
+            <div className="w-[1px] h-8 bg-slate-200" />
+            <ImpactStat icon={<Star size={18} className="text-[#3B82F6]" />} value="4.8" label="Average" label2="Rating" />
           </div>
         </div>
       </section>
