@@ -40,7 +40,8 @@ export default function HomeView({
   setFormType,
   setShowFormModal,
   setActiveTab,
-  setShowFilterDrawer
+  setShowFilterDrawer,
+  getDynamicGreeting
 }: HomeViewProps) {
   return (
     <div className="flex flex-col gap-6 pb-32 bg-[#FAFBFF] font-sans">
