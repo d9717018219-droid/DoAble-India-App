@@ -64,7 +64,7 @@ export const JobCard: React.FC<JobCardProps> = React.memo(({ job, onClick }) => 
         {/* Middle Content */}
         <div className="flex-1 space-y-0.5 min-w-0">
           <div className="flex items-center justify-between">
-            <span className="text-[#10B981] text-[10px] font-bold tracking-tight">Teaching Job</span>
+            <span className="text-[#10B981] text-[10px] font-bold tracking-tight">Order ID: {job['Order ID']}</span>
             {isNew && (
               <span className="bg-[#DCFCE7] text-[#166534] px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider">NEW</span>
             )}
