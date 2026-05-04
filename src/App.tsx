@@ -15,6 +15,7 @@ import { TutorCard } from './components/TutorCard';
 import AlertsView from './components/AlertsView';
 import AdminPanel from './components/AdminPanel';
 import SupportView from './components/SupportView';
+import HomeView from './components/HomeView';
 import { cn, getCityTheme } from './utils';
 import { 
   CITIES_LIST, 
@@ -68,6 +69,10 @@ export default function App() {
   const [leads, setLeads] = useState<JobLead[]>([]);
   const [firestoreLeads, setFirestoreLeads] = useState<JobLead[]>([]);
   const [tutors, setTutors] = useState<TutorProfile[]>([]);
+
+  const featuredJobs = useMemo(() => {
+    return firestoreLeads.filter(l => l.Status === 'Active').slice(0, 3);
+  }, [firestoreLeads]);
 
   const [userCity, setUserCity] = useState<string>(localStorage.getItem('userCity') || 'Ghaziabad');
   const [userName, setUserName] = useState<string | null>(localStorage.getItem('userName'));
@@ -574,81 +579,44 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <header className={cn("p-[20px_16px] sm:p-[30px_20px] text-center border-b relative transition-all duration-500 overflow-hidden", userCity ? "text-white border-transparent" : "bg-white border-slate-50")} style={userCity ? { background: getCityTheme(userCity).grad } : {}}>
-        {/* Animated Background Elements */}
-        <motion.div 
-          animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.2, 0.1] }}
-          transition={{ duration: 8, repeat: Infinity }}
-          className="absolute -top-10 -left-10 w-40 h-40 bg-white rounded-full blur-3xl pointer-events-none"
-        />
-        <motion.div 
-          animate={{ scale: [1, 1.3, 1], opacity: [0.05, 0.15, 0.05] }}
-          transition={{ duration: 10, repeat: Infinity, delay: 1 }}
-          className="absolute -bottom-10 -right-10 w-50 h-50 bg-accent rounded-full blur-3xl pointer-events-none"
-        />
-
-        <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-10">{currentUser && <button onClick={() => firebaseAuth.signOut()} className="text-white/70 hover:text-white transition-colors"><LogOut size={18} /></button>}</div>
-        <motion.h1 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          key={activeTab}
-          className="text-[24px] sm:text-[32px] font-[900] tracking-tighter relative z-10"
-        >
-          {activeTab === 'home' && (<div className="flex flex-col items-center"><span className="truncate max-w-[280px] sm:max-w-none">{userName ? `Welcome, ${userName}` : (userType === 'teacher' ? 'Welcome, Educator' : (userType === 'parent' ? 'Welcome, Parent' : 'DoAble India'))}</span><span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] opacity-80 mt-1">{getDynamicGreeting()}</span></div>)}
-          {activeTab === 'jobs' && 'Jobs Portal'}{activeTab === 'tutors' && 'Expert Tutors'}{activeTab === 'alerts' && 'Broadcasts'}{activeTab === 'support' && 'Support Desk'}
-        </motion.h1>
-        <motion.div 
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="flex items-center justify-center gap-2 sm:gap-3 mt-3 relative z-10"
-        >
-          <div className="bg-white/15 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10"><span className="text-[9px] font-black uppercase text-white">{activeLeadsCount} Jobs</span></div>
-          <div className="bg-white/15 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10"><span className="text-[9px] font-black uppercase text-white">{activeTutorsCount} Tutors</span></div>
-        </motion.div>
+      <header className="sticky top-0 z-[100] bg-white/90 backdrop-blur-xl border-b border-slate-100 px-4 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <img src="/logo.png" alt="DoAble India" className="h-8 w-auto object-contain" />
+          <div className="h-6 w-[1px] bg-slate-200 mx-2" />
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">App</span>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <button className="relative p-2 text-slate-400 hover:text-primary transition-colors">
+            <Bell size={22} />
+            <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white">3</span>
+          </button>
+          <button onClick={() => { playTapSound(); setActiveTab('admin'); }} className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-md active:scale-95 transition-all">
+             {currentUser?.photoURL ? (
+               <img src={currentUser.photoURL} alt="User" className="w-full h-full object-cover" />
+             ) : (
+               <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400"><LucideUser size={20} /></div>
+             )}
+          </button>
+        </div>
       </header>
 
       <main className="container mx-auto p-0 sm:p-[10px] max-w-[1200px] pb-32">
         {activeTab === 'home' && (
-          <div className="space-y-12 py-6 flex flex-col items-center px-4 sm:px-0">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} 
-              animate={{ opacity: 1, scale: 1 }} 
-              className="w-full min-h-[45vh] sm:min-h-[450px] p-8 sm:p-20 rounded-[48px] sm:rounded-[64px] relative overflow-hidden shadow-2xl border border-white/10 mesh-gradient flex items-center"
-            >
-              <div className="absolute inset-0 bg-black/15 backdrop-blur-[1px] z-0" />
-              <div className="relative z-10 space-y-10 w-full">
-                 <div className="space-y-6 text-center sm:text-left">
-                    <motion.h3 
-                      initial={{ x: -30, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: 0.2 }}
-                      className="text-4xl sm:text-7xl font-[900] text-white tracking-tighter leading-[1.05]"
-                    >
-                      Discovery Made<br/>
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FFE66D] to-white">Simple & Live</span>
-                    </motion.h3>
-                    <motion.p 
-                      initial={{ x: -20, opacity: 0 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="text-white/85 text-sm sm:text-xl font-medium leading-[1.6] max-w-2xl"
-                    >
-                      Connect with elite educators and premium teaching opportunities.
-                    </motion.p>
-                 </div>
-                 <motion.div 
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.4 }}
-                    className="flex flex-col sm:flex-row gap-5"
-                 >
-                    <button onClick={() => { playTapSound(); setFormType('teacher'); setShowFormModal(true); }} className="bg-[#FFE66D] text-slate-900 px-10 py-6 rounded-[28px] font-[900] text-sm uppercase flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all group"><GraduationCap size={22} /> Become a Tutor</button>
-                    <button onClick={() => { playTapSound(); setFormType('parent'); setShowFormModal(true); }} className="bg-white/10 backdrop-blur-xl text-white border-2 border-white/30 px-10 py-6 rounded-[28px] font-[900] text-sm uppercase flex items-center justify-center gap-3 shadow-2xl active:scale-95 transition-all group"><Sparkles size={20} className="text-[#FFE66D]" /> Book Free Trial</button>
-                 </motion.div>
-              </div>
-            </motion.div>
-          </div>
+          <HomeView 
+            userName={userName}
+            userType={userType}
+            userCity={userCity}
+            activeLeadsCount={firestoreLeads.filter(l => l.Status === 'Active').length}
+            activeTutorsCount={tutors.length}
+            featuredJobs={featuredJobs}
+            playTapSound={playTapSound}
+            setFormType={setFormType}
+            setShowFormModal={setShowFormModal}
+            setActiveTab={setActiveTab}
+            getDynamicGreeting={getDynamicGreeting}
+            setShowFilterDrawer={setShowFilterDrawer}
+          />
         )}
         {activeTab === 'alerts' && (
           <AlertsView
@@ -690,11 +658,11 @@ export default function App() {
 
       <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[8000] w-[92%] max-w-[500px]">
         <div className="bg-slate-900/95 backdrop-blur-2xl rounded-[32px] p-2 flex items-center justify-between shadow-2xl border border-white/10 relative">
-          <NavButton active={activeTab === 'home'} onClick={() => { playTapSound(); setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={20} />} label="Home" />
-          <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" />
-          <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" />
-          <NavButton active={activeTab === 'alerts'} onClick={() => { playTapSound(); setActiveTab('alerts'); window.scrollTo(0,0); }} icon={<Bell size={20} />} label="Alerts" />
-          <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={20} />} label="Support" />
+          <NavButton active={activeTab === 'home'} onClick={() => { playTapSound(); setActiveTab('home'); window.scrollTo(0,0); }} icon={<HomeIcon size={20} />} label="Home" activeColor="text-green-600" />
+          <NavButton active={activeTab === 'jobs'} onClick={() => { playTapSound(); setActiveTab('jobs'); window.scrollTo(0,0); }} icon={<FileText size={20} />} label="Jobs" activeColor="text-purple-600" />
+          <NavButton active={activeTab === 'tutors'} onClick={() => { playTapSound(); setActiveTab('tutors'); window.scrollTo(0,0); }} icon={<GraduationCap size={20} />} label="Tutors" activeColor="text-blue-600" />
+          <NavButton active={activeTab === 'alerts'} onClick={() => { playTapSound(); setActiveTab('alerts'); window.scrollTo(0,0); }} icon={<Bell size={20} />} label="Alerts" activeColor="text-orange-600" />
+          <NavButton active={activeTab === 'support'} onClick={() => { playTapSound(); setActiveTab('support'); window.scrollTo(0,0); }} icon={<MessageSquare size={20} />} label="Support" activeColor="text-pink-600" />
           {isAdminUser && (<button onClick={() => { playTapSound(); setActiveTab('admin'); }} className={cn("absolute -top-16 right-0 w-12 h-12 bg-white rounded-2xl shadow-2xl flex items-center justify-center text-slate-900 transition-all active:scale-95", activeTab === 'admin' ? "bg-primary text-white" : "hover:bg-slate-50")}><Settings size={20} /></button>)}
         </div>
       </nav>
@@ -722,9 +690,9 @@ export default function App() {
   );
 }
 
-function NavButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
+function NavButton({ active, onClick, icon, label, activeColor = "text-primary" }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string; activeColor?: string }) {
   return (
-    <button onClick={onClick} className={cn("flex-1 flex flex-col items-center gap-1 py-2.5 px-1 rounded-2xl transition-all duration-300 active:scale-110", active ? "bg-white text-slate-900 shadow-lg" : "text-white/40 hover:text-white")}>
+    <button onClick={onClick} className={cn("flex-1 flex flex-col items-center gap-1 py-2.5 px-1 rounded-2xl transition-all duration-300 active:scale-110", active ? "bg-white " + activeColor + " shadow-lg" : "text-white/40 hover:text-white")}>
       {icon}<span className="text-[8px] font-black uppercase tracking-tighter">{label}</span>
     </button>
   );
