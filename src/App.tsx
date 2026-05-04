@@ -302,10 +302,9 @@ export default function App() {
 
       if (searchQuery) {
         const sl = searchQuery.toLowerCase();
-        const jSubj = (l.subjects || '').toLowerCase();
         const jName = (l.Name || '').toLowerCase();
         const jID = (l['Order ID'] || '').toLowerCase();
-        if (!(jName.includes(sl) || jSubj.includes(sl) || jID.includes(sl))) return false;
+        if (!(jName.includes(sl) || jID.includes(sl))) return false;
       }
       return true;
     });
@@ -762,9 +761,16 @@ export default function App() {
                     <Search size={14} className="text-slate-400" />
                     <input 
                       type="text" 
-                      placeholder="Search title, subject, location..." 
+                      placeholder={activeTab === 'jobs' ? "Search Name or Order ID..." : "Search title, subject, location..."}
+                      value={searchQuery}
+                      onChange={(e) => { setSearchQuery(e.target.value); resetCounts(); }}
                       className="bg-transparent border-none outline-none text-[11px] w-full text-slate-700 font-medium"
                     />
+                    {searchQuery && (
+                      <button onClick={() => setSearchQuery('')} className="text-slate-300 hover:text-slate-500">
+                        <X size={12} />
+                      </button>
+                    )}
                   </div>
                   <button onClick={() => setShowAdvancedFilterDrawer(true)} className="bg-white border border-slate-100 rounded-[16px] px-3 py-2 flex items-center gap-1.5 shadow-sm font-bold text-[11px] text-slate-700 active:scale-95 transition-all">
                     <Navigation size={14} className="text-primary" />
