@@ -430,13 +430,13 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pb-10">
-                  <button onClick={() => { setCityFilter('all'); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); setCitySearchQuery(''); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase transition-all", cityFilter === 'all' ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400")}>0. All Cities</button>
+                  <button onClick={() => { setCityFilter('all'); setUserCity('All'); localStorage.setItem('userCity', 'All'); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); setCitySearchQuery(''); }} className={cn("p-4 rounded-2xl text-[10px] font-black uppercase transition-all", cityFilter === 'all' ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-400")}>0. All Cities</button>
                   {dynamicCities
                     .filter(c => c.toLowerCase().includes(citySearchQuery.toLowerCase()))
                     .map((c, idx) => (
                       <button 
                         key={c} 
-                        onClick={() => { setCityFilter(c); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); setCitySearchQuery(''); }} 
+                        onClick={() => { setCityFilter(c); setUserCity(c); localStorage.setItem('userCity', c); setSelectedLocalities([]); resetCounts(); setShowFilterDrawer(false); setCitySearchQuery(''); }} 
                         className={cn("p-4 rounded-2xl text-[10px] font-black uppercase truncate transition-all text-left flex items-center gap-2", cityFilter === c ? "bg-primary text-white" : "bg-slate-100 text-slate-400")}
                       >
                         <span className="opacity-50 shrink-0">{idx + 1}.</span>
