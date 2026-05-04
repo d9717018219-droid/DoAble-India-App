@@ -645,7 +645,7 @@ export default function App() {
                 <div className="flex justify-between items-start">
                   <div className="space-y-0.5">
                     <h2 className="text-[16px] font-[800] text-[#0F172A] tracking-tight uppercase">
-                      DoAble India
+                      {activeTab === 'jobs' ? 'Jobs Portal' : 'Tutors Portal'}
                     </h2>
                     <p className="text-[#64748B] text-[10px] font-[500] leading-tight max-w-[250px]">
                       {activeTab === 'jobs' 
