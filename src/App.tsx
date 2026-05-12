@@ -169,7 +169,7 @@ export default function App() {
              id: Date.now(),
              schedule: { at: new Date(Date.now() + 1000) },
              sound: 'blackberry.mp3',
-             channelId: 'doable_channel_v10'
+             channelId: 'doable_channel_v6'
            }]
          });
       }
@@ -195,7 +195,7 @@ export default function App() {
       if (perm.receive === 'granted') {
         setRegistrationStatus('Creating Channel...');
         await PushNotifications.createChannel({
-          id: 'doable_channel_v10',
+          id: 'doable_channel_v6',
           name: 'Tuition Alerts',
           description: 'Custom sound alerts for tuition jobs',
           sound: 'blackberry',
