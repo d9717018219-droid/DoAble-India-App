@@ -222,11 +222,11 @@ export default function App() {
             token: cleanToken,
             lastUpdated: serverTimestamp(),
             platform: 'android',
-            city: userCity,
-            gender: userGender,
-            classes: userClasses,
-            userType: userType,
-            appVersion: '1.0.121'
+            city: userCity || 'All',
+            gender: userGender || 'Any',
+            targetClass: Array.isArray(userClasses) && userClasses.length > 0 ? userClasses.join(', ') : 'All',
+            targetUserType: userType || 'all',
+            appVersion: '1.0.121_v95_compat'
           };
 
           // Save to named database
