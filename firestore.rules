@@ -84,5 +84,11 @@ service cloud.firestore {
     match /test/connection {
       allow read: if isSignedIn();
     }
+
+    // FCM TOKENS COLLECTION
+    match /fcm_tokens/{tokenId} {
+      allow read: if false;
+      allow write: if true;
+    }
   }
 }

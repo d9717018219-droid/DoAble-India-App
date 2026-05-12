@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">DoAble India</string>
+    <string name="title_activity_main">DoAble India</string>
+    <string name="package_name">com.doableindia</string>
+    <string name="custom_url_scheme">com.doableindia</string>
+    <string name="server_client_id">503686229174-j1mpj71ccd454ulv9ee3q40vdm7a22f0.apps.googleusercontent.com</string>
+</resources>

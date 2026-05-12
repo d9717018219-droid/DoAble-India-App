@@ -4,12 +4,12 @@ const config: CapacitorConfig = {
   appId: 'com.doableindia',
   appName: 'DoAble India',
   webDir: 'dist',
-  server: {
-    androidScheme: 'https'
-  },
   plugins: {
-    SplashScreen: {
-      launchShowDuration: 0,
+    CapacitorHttp: {
+      enabled: true,
+    },
+    CapacitorCookies: {
+      enabled: true,
     },
   },
 };

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "503686229174",
+    "project_id": "gen-lang-client-0533512936",
+    "storage_bucket": "gen-lang-client-0533512936.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:503686229174:android:d89037f322d6599e820a17",
+        "android_client_info": {
+          "package_name": "com.doableindia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "503686229174-j1mpj71ccd454ulv9ee3q40vdm7a22f0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXYr10YWmsf0EGKP0bWmE5khFL_-ynanw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "503686229174-j1mpj71ccd454ulv9ee3q40vdm7a22f0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

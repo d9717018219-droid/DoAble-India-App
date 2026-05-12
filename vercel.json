@@ -1,0 +1,13 @@
+{
+  "buildCommand": "npm run build",
+  "framework": "other",
+  "env": {
+    "PORT": "8080"
+  },
+  "functions": {
+    "server.ts": {
+      "runtime": "node18.x",
+      "memory": 512
+    }
+  }
+}

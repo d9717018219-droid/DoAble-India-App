@@ -5,7 +5,21 @@ import {
   Briefcase, 
   Star,
   CheckCircle2,
-  Heart
+  Heart,
+  BookOpen,
+  FlaskConical,
+  Globe,
+  Monitor,
+  Palette,
+  GraduationCap,
+  Calculator,
+  Zap,
+  Dna,
+  Languages,
+  TrendingUp,
+  Code,
+  Trophy,
+  Sparkles
 } from 'lucide-react';
 import { TutorProfile } from '../types';
 import { cn, toTitleCase } from '../utils';
@@ -17,15 +31,24 @@ interface TutorCardProps {
   onShortlistToggle?: (id: string, e: React.MouseEvent) => void;
 }
 
-const getSubjectEmoji = (subjects: string = '') => {
+const getSubjectStyles = (subjects: string = '') => {
   const s = subjects.toLowerCase();
-  if (s.includes('math')) return { bg: 'bg-[#FFE2E2]', emoji: '🔢' };
-  if (s.includes('science') || s.includes('physics') || s.includes('chem') || s.includes('bio')) return { bg: 'bg-[#FEF3C7]', emoji: '🔬' };
-  if (s.includes('english') || s.includes('hindi') || s.includes('language')) return { bg: 'bg-[#E0E7FF]', emoji: '📚' };
-  if (s.includes('social') || s.includes('sst') || s.includes('history')) return { bg: 'bg-[#D1FAE5]', emoji: '🌍' };
-  if (s.includes('comput') || s.includes('coding') || s.includes('it')) return { bg: 'bg-[#F1F5F9]', emoji: '💻' };
-  if (s.includes('music') || s.includes('art')) return { bg: 'bg-[#FAE8FF]', emoji: '🎨' };
-  return { bg: 'bg-slate-100', emoji: '🎓' };
+  
+  if (s.includes('math')) return { bg: 'bg-blue-600', icon: <Calculator size={24} /> };
+  if (s.includes('physics')) return { bg: 'bg-red-500', icon: <Zap size={24} /> };
+  if (s.includes('chem')) return { bg: 'bg-teal-500', icon: <FlaskConical size={24} /> };
+  if (s.includes('bio') || s.includes('science')) return { bg: 'bg-lime-600', icon: <Dna size={24} /> };
+  if (s.includes('english')) return { bg: 'bg-indigo-600', icon: <Languages size={24} /> };
+  if (s.includes('hindi')) return { bg: 'bg-orange-600', icon: <Languages size={24} /> };
+  if (s.includes('history') || s.includes('geo') || s.includes('sst') || s.includes('social')) return { bg: 'bg-emerald-600', icon: <Globe size={24} /> };
+  if (s.includes('eco') || s.includes('stat')) return { bg: 'bg-violet-600', icon: <TrendingUp size={24} /> };
+  if (s.includes('account') || s.includes('business')) return { bg: 'bg-cyan-600', icon: <Briefcase size={24} /> };
+  if (s.includes('comput') || s.includes('coding') || s.includes('it')) return { bg: 'bg-slate-800', icon: <Code size={24} /> };
+  if (s.includes('music') || s.includes('art')) return { bg: 'bg-purple-500', icon: <Palette size={24} /> };
+  if (s.includes('yoga') || s.includes('dance') || s.includes('sport')) return { bg: 'bg-pink-500', icon: <Trophy size={24} /> };
+  if (s.includes('all')) return { bg: 'bg-primary', icon: <Sparkles size={24} /> };
+  
+  return { bg: 'bg-primary', icon: <GraduationCap size={24} /> };
 };
 
 export const TutorCard: React.FC<TutorCardProps> = React.memo(({ 
@@ -47,72 +70,74 @@ export const TutorCard: React.FC<TutorCardProps> = React.memo(({
   const name = getValue(['Name', 'name', 'fullName', 'Full Name'], 'Premium Tutor').toString();
   const tutorId = getValue(['Tutor ID', 'tutorId', 'id', 'ID'], 'N/A').toString();
   const city = getValue(['Preferred City', 'preferredCity', 'City', 'city'], 'India').toString();
+  const area = getValue(['Preferred Locality', 'preferredArea', 'Locality', 'Area'], '').toString().split(/[;,]/)[0].trim();
+  const location = area ? `${area} - ${city}` : city;
   const fee = getValue(['Fee/Month', 'feeMonth', 'Fee', 'fee'], 'Flexible').toString();
   const exp = getValue(['Experience', 'experience', 'Teaching Experience'], '1-3 Years').toString();
   const qual = getValue(['Qualification(s)', 'qualifications', 'Qualification'], 'Graduate').toString();
   const subjects = getValue(['Preferred Subject(s)', 'preferredSubjects', 'subjects'], 'General').toString();
   const verified = getValue(['Verified', 'verified'], 'No').toString().toLowerCase().trim() === 'yes';
 
-  const { bg, emoji } = getSubjectEmoji(subjects);
+  const { bg, icon } = getSubjectStyles(subjects);
 
   return (
     <div 
       onClick={() => onClick(tutor)}
-      className="bg-white rounded-[22px] p-4 shadow-sm border border-slate-100 flex flex-col gap-3 active:scale-[0.98] transition-all cursor-pointer relative group overflow-hidden mb-2"
+      className="bg-white rounded-[20px] p-3 shadow-sm border border-slate-100 flex flex-col gap-2.5 active:scale-[0.98] transition-all cursor-pointer relative group overflow-hidden mb-2"
     >
-      <div className="flex items-start gap-3">
-        {/* Left Emoji Box - Smaller */}
-        <div className={cn("w-[60px] h-[60px] rounded-[18px] flex-shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm text-[28px]", bg)}>
-          {emoji}
+      <div className="flex items-start gap-2.5">
+        {/* Left Icon Box - Smaller */}
+        <div className={cn("w-[54px] h-[54px] rounded-[16px] flex-shrink-0 flex items-center justify-center transition-transform group-hover:scale-105 shadow-sm text-white", bg)}>
+          {icon}
         </div>
 
         {/* Middle Content */}
         <div className="flex-1 min-w-0 space-y-0.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
-              <span className="text-primary text-[10px] font-bold tracking-tight uppercase">ID: {tutorId}</span>
+              <span className="text-primary text-[9.5px] font-bold tracking-tight uppercase">ID: {tutorId}</span>
               {verified && <CheckCircle2 size={10} className="text-[#10B981]" fill="currentColor" />}
             </div>
-            <span className="text-[#94A3B8] text-[9px] font-bold uppercase tracking-widest">{city}</span>
+            <span className="text-[#94A3B8] text-[8.5px] font-bold uppercase tracking-widest">{location}</span>
           </div>
           
-          <h4 className="text-[15px] font-[800] text-[#0F172A] leading-tight tracking-tight truncate">
+          <h4 className="text-[14px] font-[800] text-[#0F172A] leading-tight tracking-tight truncate">
             {toTitleCase(name)}
           </h4>
-          <p className="text-[#64748B] text-[11px] font-[500] truncate">{qual}</p>
+          <p className="text-[#64748B] text-[10.5px] font-[500] truncate">{qual}</p>
           
-          <div className="flex items-center gap-2 pt-1.5">
-            <div className="bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg flex items-center gap-1">
-               <span className="text-[#0F172A] text-[10px] font-bold tracking-tight">
-                 {fee.startsWith('₹') ? fee : `₹${fee}`}
+          <div className="flex items-center gap-2 pt-1">
+            <div className="bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-lg flex items-center gap-1 shrink-0">
+               <span className="text-[#0F172A] text-[9.5px] font-black tracking-tighter whitespace-nowrap">
+                 {(() => {
+                    const cleanFee = fee.replace(/\/.*|per.*|month|mo/gi, '').trim();
+                    return cleanFee.startsWith('₹') ? cleanFee : `₹${cleanFee}`;
+                 })()}/hr
                </span>
-            </div>
-            <div className="bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg flex items-center gap-1">
-               <span className="text-[#64748B] text-[10px] font-bold">{exp} Exp</span>
             </div>
           </div>
         </div>
 
         {/* Right Arrow & Like */}
-        <div className="flex flex-col items-end justify-between h-[60px] flex-shrink-0">
+        <div className="flex flex-col items-end justify-between h-[54px] flex-shrink-0">
           <button 
             onClick={(e) => { e.stopPropagation(); onShortlistToggle?.(tutorId, e); }}
             className={cn("transition-colors", isShortlisted ? "text-red-500" : "text-slate-300 hover:text-red-500")}
           >
-            <Heart size={18} fill={isShortlisted ? "currentColor" : "none"} />
+            <Heart size={16} fill={isShortlisted ? "currentColor" : "none"} />
           </button>
           <div className="text-slate-300">
-            <ChevronRight size={18} />
+            <ChevronRight size={16} />
           </div>
         </div>
       </div>
 
-      <div className="flex justify-between items-center pt-2 border-t border-slate-50 mt-1">
+      <div className="flex justify-between items-center pt-1.5 border-t border-slate-50 mt-0.5">
         <div className="flex items-center gap-1.5">
           <CheckCircle2 size={10} className="text-primary" />
-          <span className="text-[9px] font-bold text-slate-700 uppercase tracking-tight">School Exp: {getValue(['School Exp.', 'schoolExp'], 'No')}</span>
+          <span className="text-[8.5px] font-bold text-slate-700 uppercase tracking-tight">School Exp: {getValue(['School Exp.', 'schoolExp'], 'No')}</span>
         </div>
-        <span className="text-[#94A3B8] text-[9px] font-bold uppercase tracking-tight">Own Vehicle: {getValue(['Have own Vehicle', 'haveOwnVehicle'], 'No')}</span>
+        <span className="text-[#94A3B8] text-[8.5px] font-bold uppercase tracking-tight">Own Vehicle: {getValue(['Have own Vehicle', 'haveOwnVehicle'], 'No')}</span>
       </div>
     </div>
   );
